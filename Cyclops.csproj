@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4C274553-EDFD-4983-8610-004200798179}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Cyclops</RootNamespace>
+    <AssemblyName>Cyclops</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Cyclops.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\DownloadedProjects\log4net-1.2.10\bin\net\2.0\release\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="R.NET">
+      <HintPath>..\..\..\..\RdotNET\x64\R.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="clsBaseDataModule.cs" />
+    <Compile Include="clsBaseExportModule.cs" />
+    <Compile Include="clsBaseModule.cs" />
+    <Compile Include="clsBaseVisualizationModule.cs" />
+    <Compile Include="clsBetaBinomialModelModule.cs" />
+    <Compile Include="clsCyclopsModel.cs" />
+    <Compile Include="clsCyclopsXMLReader.cs" />
+    <Compile Include="clsExportTableModule.cs" />
+    <Compile Include="clsGenericRCalls.cs" />
+    <Compile Include="clsLogTools.cs" />
+    <Compile Include="clsMyTestingModule.cs" />
+    <Compile Include="IBaseDataModule.cs" />
+    <Compile Include="clsImportDataModule.cs" />
+    <Compile Include="clsLoadRWorkspaceModule.cs" />
+    <Compile Include="clsPlotModule.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="clsRSourceFileModule.cs" />
+    <Compile Include="clsSaveEnvironment.cs" />
+    <Compile Include="clsTransformModule.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Logging.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\RheatmapFunctions.R" />
+    <None Include="R_Scripts\Rscripts.R" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
