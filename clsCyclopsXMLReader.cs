@@ -36,10 +36,22 @@ namespace Cyclops
     {        
         private XmlNodeReader reader;
         private enum ModuleType {Data, Visual, Export};
+        private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
 
         #region Constructors
+        /// <summary>
+        /// Basic constructor
+        /// </summary>
         public clsCyclopsXMLReader()
         {
+        }
+        /// <summary>
+        /// Constructor that requires the parameters to run Cyclops Pipeline
+        /// </summary>
+        /// <param name="ParametersForCyclops">Parameters to run a Cyclops Pipeline</param>
+        public clsCyclopsXMLReader(Dictionary<string, string> ParametersForCyclops)
+        {
+            d_CyclopsParameters = ParametersForCyclops;
         }
         #endregion
 
@@ -129,7 +141,20 @@ namespace Cyclops
                                                         currentNode.AddDataChild(load);
                                                         currentNode = load;
                                                     }
-                                                    break;                                                
+                                                    break;
+                                                case "Aggregate":
+                                                    clsAggregate aggregate = new clsAggregate(InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = aggregate;
+                                                        currentNode = aggregate;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(aggregate);
+                                                        currentNode = aggregate;
+                                                    }
+                                                    break;
                                                 case "Test":
                                                     clsMyTestingModule test = new clsMyTestingModule(InstanceOfR);
                                                     if (root == null)
@@ -143,6 +168,7 @@ namespace Cyclops
                                                         currentNode = test;
                                                     }
                                                     break;
+                                                
                                             }
                                     break;
                                 
@@ -195,6 +221,13 @@ namespace Cyclops
                                                     reader.GetAttribute("value");
                                             }
                                         }
+                                    }
+
+                                    /// Now, add the passed in Cyclops Parameters to the current dictionary
+                                    /// of parameters (derived from the XML workflow)
+                                    foreach(KeyValuePair<string, string> kvp in d_CyclopsParameters)
+                                    {
+                                        d_Parameters.Add(kvp.Key, kvp.Value);
                                     }
 
                                     if (currentModuleType == ModuleType.Data)

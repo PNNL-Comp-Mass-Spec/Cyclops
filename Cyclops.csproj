@@ -48,32 +48,123 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="clsBaseDataModule.cs" />
-    <Compile Include="clsBaseExportModule.cs" />
+    <Compile Include="DataModules\clsAggregate.cs" />
+    <Compile Include="DataModules\clsBaseDataModule.cs" />
+    <Compile Include="ExportModules\clsBaseExportModule.cs" />
     <Compile Include="clsBaseModule.cs" />
-    <Compile Include="clsBaseVisualizationModule.cs" />
-    <Compile Include="clsBetaBinomialModelModule.cs" />
+    <Compile Include="VisualizationModules\clsBaseVisualizationModule.cs" />
+    <Compile Include="DataModules\clsBetaBinomialModelModule.cs" />
     <Compile Include="clsCyclopsModel.cs" />
+    <Compile Include="clsCyclopsParametersKey.cs" />
     <Compile Include="clsCyclopsXMLReader.cs" />
-    <Compile Include="clsExportTableModule.cs" />
+    <Compile Include="ExportModules\clsExportTableModule.cs" />
     <Compile Include="clsGenericRCalls.cs" />
     <Compile Include="clsLogTools.cs" />
     <Compile Include="clsMyTestingModule.cs" />
-    <Compile Include="IBaseDataModule.cs" />
-    <Compile Include="clsImportDataModule.cs" />
-    <Compile Include="clsLoadRWorkspaceModule.cs" />
-    <Compile Include="clsPlotModule.cs" />
+    <Compile Include="IBaseModule.cs" />
+    <Compile Include="DataModules\clsImportDataModule.cs" />
+    <Compile Include="DataModules\clsLoadRWorkspaceModule.cs" />
+    <Compile Include="VisualizationModules\clsPlotModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="clsRSourceFileModule.cs" />
-    <Compile Include="clsSaveEnvironment.cs" />
-    <Compile Include="clsTransformModule.cs" />
+    <Compile Include="DataModules\clsRSourceFileModule.cs" />
+    <Compile Include="ExportModules\clsSaveEnvironment.cs" />
+    <Compile Include="DataModules\clsTransformModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Logging.config" />
+    <None Include="R_Scripts\Statistics\KruskalWalis.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="R_Scripts\Statistics\NonParametricMethods.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="R_Scripts\Statistics\ShapiroWilks.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="R_Scripts\Statistics\TamuQ.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="R_Scripts\Statistics\Ttest.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="R_Scripts\Statistics\Wilcoxon.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="R_Scripts\Tools\FilterMissing.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="R_Scripts\RheatmapFunctions.R" />
-    <None Include="R_Scripts\Rscripts.R" />
+    <None Include="R_Scripts\Plotting\RheatmapFunctions.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="R_Scripts\Misc\Rscripts.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Misc\DataCleaning.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Plotting\Histogram.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Plotting\Boxplots.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="R_Scripts\Plotting\QQplot.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Preprocess\CentralTendancy.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Preprocess\LinearRegression.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Preprocess\LoessNormalization.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Preprocess\MBI_Filter.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Preprocess\MBI_Impute.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Rollup\RRollup.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Rollup\RollupScore.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Statistics\AnovaMethods.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="R_Scripts\Statistics\FoldChanges.R">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

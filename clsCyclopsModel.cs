@@ -29,18 +29,43 @@ using RDotNet;
 
 namespace Cyclops
 {
+    /// <summary>
+    /// Model class serves as the entry point for the Cyclops DLL
+    /// </summary>
     public class clsCyclopsModel
     {
         private clsBaseDataModule root = null, currentNode = null;
         private REngine engine;
         private string s_RInstance;
+        private string s_Version = "0.1.0.1";
+        private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
 
         #region Constructors
+        /// <summary>
+        /// Basic constructor for the Model class
+        /// </summary>
         public clsCyclopsModel()
         {
             s_RInstance = "rCore";
         }
 
+        /// <summary>
+        /// Constructor that requires the parameters for running cyclops
+        /// </summary>
+        /// <param name="ParametersForCyclops">Parameters for running cyclops</param>
+        public clsCyclopsModel(Dictionary<string, string> ParametersForCyclops)
+        {
+            string value = "";
+            d_CyclopsParameters = ParametersForCyclops;
+            CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("PipelineID"),
+                out value);
+            s_RInstance = value.Length > 0 ? value : "rCore";
+        }
+
+        /// <summary>
+        /// Constructor that requires the path to R DLL
+        /// </summary>
+        /// <param name="RDLL">Path to R DLL</param>
         public clsCyclopsModel(string RDLL)
         {
             REngine.SetDllDirectory(RDLL);
@@ -49,29 +74,61 @@ namespace Cyclops
         #endregion
 
         #region Members
+        /// <summary>
+        /// Root module of Cyclops Pipeline
+        /// </summary>
         public clsBaseDataModule Root
         {
             get { return root; }
             set { root = value; }
         }
+        /// <summary>
+        /// Pointer to current module in Cyclops Pipeline
+        /// </summary>
         public clsBaseDataModule CurrentNode
         {
             get { return currentNode; }
             set { currentNode = value; }
         }
+        /// <summary>
+        /// Dictionary of Parameters for running Cyclops
+        /// </summary>
+        public Dictionary<string, string> CyclopsParameters
+        {
+            get { return d_CyclopsParameters; }
+            set { d_CyclopsParameters = value; }
+        }
+        /// <summary>
+        /// Retrieves the current Cyclops Version
+        /// </summary>
+        public string Version
+        {
+            get { return s_Version; }
+        }
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Sets the path the R DLL
+        /// </summary>
+        /// <param name="RDLL">Path to the R DLL</param>
         public void SetREngineDLL(string RDLL)
         {
             REngine.SetDllDirectory(RDLL);
         }
 
+        /// <summary>
+        /// Creates a new instance of the R workspace
+        /// </summary>
         public void CreateInstanceOfR()
         {
             engine = REngine.CreateInstance(s_RInstance, new[] { "-q" }); // quiet mode
         }
 
+        /// <summary>
+        /// Loads a R workspace
+        /// </summary>
+        /// <param name="Workspace"></param>
         public void CreateInstanceOfR_AndLoadWorkspace(string Workspace)
         {
             engine = REngine.CreateInstance(s_RInstance, new[] { "-q" }); // quiet mode
@@ -101,11 +158,14 @@ namespace Cyclops
             SetREngineDLL(RDLL);
             CreateInstanceOfR();
 
-            clsCyclopsXMLReader xmlReader = new clsCyclopsXMLReader();
+            clsCyclopsXMLReader xmlReader = new clsCyclopsXMLReader(CyclopsParameters);
 
             root = xmlReader.ReadXML_Workflow(WorkFlowFile, s_RInstance);
         }
 
+        /// <summary>
+        /// Runs the Cyclops Pipeline
+        /// </summary>
         public void Run()
         {
             if (root != null)

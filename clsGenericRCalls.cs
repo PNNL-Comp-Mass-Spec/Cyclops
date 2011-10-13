@@ -35,6 +35,7 @@ namespace Cyclops
         /// <summary>
         /// Returns all the objects in the R workspace
         /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
         /// <returns>List of all the datasets in the R workspace</returns>
         public static List<string> ls(string InstanceOfR)
         {
@@ -46,6 +47,41 @@ namespace Cyclops
                 l_Return.Add(s);
             }
             return l_Return;
+        }
+
+        /// <summary>
+        /// Returns the names of the columns for the given table
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="TableName">Name of your object</param>
+        /// <returns>List of the columns for the table</returns>
+        public static List<string> GetColumnNames(string InstanceOfR, string TableName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            List<string> l_Return = new List<string>();
+            string s_Command = string.Format("colnames({0})",
+                TableName);
+            CharacterVector cv = engine.EagerEvaluate(s_Command).AsCharacter();
+            foreach (string s in cv)
+            {
+                l_Return.Add(s);
+            }
+            return l_Return;
+        }
+
+        /// <summary>
+        /// Performs a check to determine if a table contains a given column name
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="TableName">Name of your object</param>
+        /// <param name="ColumnName">Name of column wish to test</param>
+        /// <returns>True: table contains a column with given name; False: table does not contain a column with given name</returns>
+        public static bool TableContainsColumn(string InstanceOfR, string TableName, string ColumnName)
+        {
+            bool b_Return = false;
+            List<string> l_Columns = GetColumnNames(InstanceOfR, TableName);
+            b_Return = l_Columns.Contains(ColumnName) ? true : false;
+            return b_Return;
         }
 
         /// <summary>

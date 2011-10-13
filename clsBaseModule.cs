@@ -23,7 +23,7 @@ using System.Collections.Generic;
 
 namespace Cyclops
 {
-    public abstract class clsBaseModule : IBaseDataModule
+    public abstract class clsBaseModule : IBaseModule
     {
         private string s_ModuleName = "";
         private Dictionary<string, object> d_Parameters;
