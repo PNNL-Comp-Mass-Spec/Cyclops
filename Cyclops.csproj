@@ -117,7 +117,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="SpectralCount\R_Scripts\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="R_Scripts\Plotting\QQplot.R">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

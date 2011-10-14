@@ -44,23 +44,42 @@ namespace Cyclops
         #region Functions
         public override void PerformOperation()
         {
+            SaveToDefaultDirectory(s_RInstance);
+            //REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+            //string s_OutputFileName = "";
+
+            //if (Parameters.ContainsKey(clsCyclopsParametersKey.GetParameterName(
+            //        "OutputDirectory")))
+            //{
+            //    s_OutputFileName = Parameters[clsCyclopsParametersKey.GetParameterName(
+            //            "OutputDirectory")].ToString().Replace('\\', '/') +
+            //            Path.DirectorySeparatorChar +
+            //            Parameters["outputFileName"].ToString();
+            //}
+            //else
+            //{
+            //    s_OutputFileName = Parameters["outputFileName"].ToString();
+            //}
+
+
+            //string s_Command = string.Format("save.image(\"{0}\")",
+            //                    s_OutputFileName);
+            //try
+            //{
+            //    engine.EagerEvaluate(s_Command);
+            //}
+            //catch (Exception exc)
+            //{
+            //    Console.WriteLine("ERROR while attempting to save R workspace: " + exc.ToString());
+            //}
+        }
+
+        public void SaveToDefaultDirectory(string InstanceOfR)
+        {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
-            string s_OutputFileName = "";
-
-            if (Parameters.ContainsKey(clsCyclopsParametersKey.GetParameterName(
-                    "OutputDirectory")))
-            {
-                s_OutputFileName = Parameters[clsCyclopsParametersKey.GetParameterName(
-                        "OutputDirectory")].ToString().Replace('\\', '/') +
-                        Path.DirectorySeparatorChar +
-                        Parameters["outputFileName"].ToString();
-            }
-            else
-            {
-                s_OutputFileName = Parameters["outputFileName"].ToString();
-            }
-
+            string s_OutputFileName = "Results.RData";
 
             string s_Command = string.Format("save.image(\"{0}\")",
                                 s_OutputFileName);

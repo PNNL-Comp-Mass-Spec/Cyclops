@@ -220,9 +220,10 @@ namespace Cyclops
         protected void ConnectToSQLiteDatabase(string RInstance)
         {
             REngine engine = REngine.GetInstanceFromID(RInstance);
-                                   
-            string s_InputFileName = Parameters[clsCyclopsParametersKey.GetParameterName(
-                    "InputFileName")].ToString().Replace('\\', '/');
+
+            string s_InputFileName = "Results.db3";      
+            //string s_InputFileName = Parameters[clsCyclopsParametersKey.GetParameterName(
+            //        "InputFileName")].ToString().Replace('\\', '/');
             
 
             string s_RStatement = string.Format(
