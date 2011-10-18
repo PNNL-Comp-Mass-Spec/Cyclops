@@ -39,7 +39,7 @@ namespace Cyclops
         public enum ImportDataType { SQLite, CSV, TSV, MSAccess, SQLServer };
         private int dataType;
         private string s_RInstance;
-        private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
+        //private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
 
         #region Constructors
         /// <summary>
@@ -63,12 +63,12 @@ namespace Cyclops
         /// </summary>
         /// <param name="InstanceOfR">Path to R DLL</param>
         /// <param name="ParametersForCyclops">Parameters to run Cyclops Pipeline</param>
-        public clsImportDataModule(string InstanceOfR, Dictionary<string, string> ParametersForCyclops)
-        {
-            ModuleName = "Import Module";
-            s_RInstance = InstanceOfR;
-            d_CyclopsParameters = ParametersForCyclops;
-        }
+        //public clsImportDataModule(string InstanceOfR, Dictionary<string, string> ParametersForCyclops)
+        //{
+        //    ModuleName = "Import Module";
+        //    s_RInstance = InstanceOfR;
+        //    d_CyclopsParameters = ParametersForCyclops;
+        //}
         #endregion
 
         #region Members
@@ -172,11 +172,11 @@ namespace Cyclops
                             {
                                 GetRowMetadataFromSQLiteDB(s_RInstance);
                             }
-                            s_RStatement = "rm(con)\n" +
-                                "rm(m)\n" +
-                                "rm(rt)\n";
                         }
-                        engine.EagerEvaluate(s_RStatement);                        
+                        engine.EagerEvaluate(s_RStatement);
+
+                        DisconnectFromDatabase(s_RInstance);
+                        
                     }
                     catch (ParseException pe)
                     {
@@ -190,13 +190,12 @@ namespace Cyclops
                     catch (Exception exc)
                     {
                         Console.WriteLine("General Exception caught:\n" + exc.ToString());
-                    }
-                    Console.WriteLine("Process with R completed!");
+                    }                    
                     break;
                 case (int)ImportDataType.CSV:
                     string s_Read = string.Format("{0} <- read.csv(\"{1}\")",
-                        Parameters["dataTableName"],
-                        Parameters["path"].ToString().Replace('\\', '/'));
+                        Parameters["newDataTableName"],
+                        Parameters["workDir"].ToString().Replace('\\', '/') + "/" + Parameters["dataTableName"]);
                         engine.EagerEvaluate(s_Read);
                     break;
                 case (int)ImportDataType.TSV:
@@ -221,18 +220,78 @@ namespace Cyclops
         {
             REngine engine = REngine.GetInstanceFromID(RInstance);
 
-            string s_InputFileName = "Results.db3";      
-            //string s_InputFileName = Parameters[clsCyclopsParametersKey.GetParameterName(
-            //        "InputFileName")].ToString().Replace('\\', '/');
-            
+            string s_InputFileName = "";
+            if (!Parameters.ContainsKey(clsCyclopsParametersKey.GetParameterName(
+                    "InputFileName")))
+            {
+                if (Parameters.ContainsKey("workDir"))
+                {
+                    //s_InputFileName = Path.Combine(Parameters["workDir"].ToString(), "Results.db3");
+                    s_InputFileName = Parameters["workDir"].ToString() + "/Results.db3";
+                }
+                else
+                {
+                    s_InputFileName = "Results.db3";
+                }
+            }
+            else
+            {
+                s_InputFileName = Parameters[clsCyclopsParametersKey.GetParameterName(
+                        "InputFileName")].ToString().Replace('\\', '/');
+            }
 
-            string s_RStatement = string.Format(
-                            "require(RSQLite)\n" +
-                            "m <- dbDriver(\"SQLite\", max.con=25)\n" +
-                            "con <- dbConnect(m, dbname = \"{0}\")",
-                                s_InputFileName);
-            engine.EagerEvaluate(s_RStatement);
+            if (File.Exists(s_InputFileName))
+            {
+                string s_RStatement = string.Format(
+                                "require(RSQLite)\n" +
+                                "m <- dbDriver(\"SQLite\", max.con=25)\n" +
+                                "con <- dbConnect(m, dbname = \"{0}\")",
+                                    s_InputFileName);
+                s_RStatement = s_RStatement.Replace('\\', '/');
+
+                try
+                {
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (IOException exc)
+                {
+                    // TODO, handle exception
+                }
+                catch (AccessViolationException ave)
+                {
+                    // TODO, handle exception
+                }
+                catch (Exception ex)
+                {
+                    // TODO, handle exception
+                }
+            }
         }
+
+        /// <summary>
+        /// Terminates the connection to the SQLite database, releasing control of the database.
+        /// </summary>
+        /// <param name="RInstance">Instance of the R Workspace</param>
+        public void DisconnectFromDatabase(string RInstance)
+        {            
+            REngine engine = REngine.GetInstanceFromID(RInstance);
+            
+            string s_RStatement = "terminated <- dbDisconnect(con)";
+            engine.EagerEvaluate(s_RStatement);
+
+            bool b_Disconnected = clsGenericRCalls.AssessBoolean(RInstance, "terminated");
+
+            if (b_Disconnected)
+            {
+                s_RStatement = "rm(con)\nrm(m)\nrm(terminated)";
+                engine.EagerEvaluate(s_RStatement);
+            }
+            else
+            {
+                // TODO: throw an exception
+            }
+        }
+
 
         /// <summary>
         /// Retrieves a table from the SQLite database and converts it to

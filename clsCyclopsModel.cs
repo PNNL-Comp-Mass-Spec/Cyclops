@@ -37,7 +37,7 @@ namespace Cyclops
         private clsBaseDataModule root = null, currentNode = null;
         private REngine engine;
         private string s_RInstance;
-        private string s_Version = "0.1.0.1";
+        private string s_Version = "0.1.0.2";
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
 
         #region Constructors
@@ -59,7 +59,25 @@ namespace Cyclops
             d_CyclopsParameters = ParametersForCyclops;
             CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("PipelineID"),
                 out value);
-            s_RInstance = value.Length > 0 ? value : "rCore";
+            if (value != null && value.Length > 0)
+            {
+                s_RInstance = value;
+            }
+            else
+            {
+                s_RInstance = "rCore";
+            }
+
+            CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("RDLL"),
+                out value);
+            if (value != null && value.Length > 0)
+            {
+                REngine.SetDllDirectory(value);
+            }
+            else
+            {
+                REngine.SetDllDirectory(@"C:\Program Files\R\R-2.13.1\bin\i386");
+            }
         }
 
         /// <summary>
@@ -136,14 +154,50 @@ namespace Cyclops
         }
 
         /// <summary>
+        /// Reads an XML workflow provided in CyclopsParameters and assembles 
+        /// the modules for the pipeline
+        /// </summary>
+        public void AssembleModulesFromXML()
+        {
+            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO, "Assembling Modules from XML");
+
+            //SetREngineDLL(d_CyclopsParameters["RDLL"]);
+            CreateInstanceOfR();
+
+            clsCyclopsXMLReader reader = new clsCyclopsXMLReader(CyclopsParameters);
+
+            string value = "";
+            CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("Workflow"),
+                out value);
+            if (value != null && value.Length > 0)
+            {
+                string s_Path = "";
+                CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("workDir"),
+                    out s_Path);
+                value = Path.Combine(s_Path, value);
+                if (File.Exists(value))
+                {
+                    root = reader.ReadXML_Workflow(value,
+                        s_RInstance);
+                }
+            }
+            else
+            {
+                /// Throw an error
+                Console.WriteLine("ERROR IN RETRIEVING THE WORKFLOW.XML FILE!");
+            }
+        }
+
+        /// <summary>
         /// Read the XML workflow file and assemble the pipeline
         /// </summary>
         /// <param name="WorkFlowFile">Full path to the XML file</param>
         public void AssembleModulesFromXML(string WorkFlowFile)
         {
+            //SetREngineDLL(d_CyclopsParameters["RDLL"]);
             CreateInstanceOfR();
 
-            clsCyclopsXMLReader reader = new clsCyclopsXMLReader();
+            clsCyclopsXMLReader reader = new clsCyclopsXMLReader(CyclopsParameters);
 
             root = reader.ReadXML_Workflow(WorkFlowFile, s_RInstance);
         }
@@ -166,10 +220,21 @@ namespace Cyclops
         /// <summary>
         /// Runs the Cyclops Pipeline
         /// </summary>
-        public void Run()
+        public bool Run()
         {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
             if (root != null)
+            {
                 root.PerformOperation();
+                engine.Close();
+                return true;
+            }
+            else
+            {
+                engine.Close();
+                return false;
+            }
         }
         #endregion
     }

@@ -50,7 +50,16 @@ namespace Cyclops
             // Load ALL the files in the directory
             if (!Parameters.ContainsKey("rSourceCodeDirectory"))
             {
-                GetDirectoriesAndLoadRSourceFiles("R_Scripts", s_RInstance);
+                if (Parameters.ContainsKey("workDir"))
+                {
+                    GetDirectoriesAndLoadRSourceFiles(
+                        Path.Combine(Parameters["workDir"].ToString(), "R_Scripts"),
+                        s_RInstance);                        
+                }
+                else
+                {
+                    GetDirectoriesAndLoadRSourceFiles("R_Scripts", s_RInstance);
+                }
             }
             else // Load the specified files
             {
@@ -116,15 +125,16 @@ namespace Cyclops
                         StreamReader sr = new StreamReader(MyFile);
                         string s_Content = sr.ReadToEnd();
                         sr.Close();
-                        s_Content = s_Content.Remove(0, 2);
+                        //s_Content = s_Content.Remove(0, 2);
+                        s_Content.Replace("ï»¿", "");
                         StreamWriter sw = new StreamWriter(MyFile);
                         sw.Write(s_Content);
                         sw.Close();
                     }
                 }
 
-                string s_Command = string.Format("source(\"{0}/{1}\")",
-                    Directory.GetCurrentDirectory().Replace('\\', '/'), MyFile.Replace('\\', '/'));
+                string s_Command = string.Format("source(\"{0}\")",
+                    MyFile.Replace("\\", "/"));
                 engine.EagerEvaluate(s_Command);
             }
             catch (ParseException pe)

@@ -47,7 +47,9 @@ namespace Cyclops
 
             // Keys needed in the Dictionary of parameters passed to clsCyclopsModel:
             d_CyclopsParametersKey.Add("PipelineID", "Jobs"); // name of the pipe line job, also name of top directory and will be used to set the instance of the R session.
+            d_CyclopsParametersKey.Add("RDLL", "RDLL"); // path to the directory containing the R.dll
             d_CyclopsParametersKey.Add("Workflow", "CyclopsWorkflowName");           // path to Cyclops XML workflow
+            d_CyclopsParametersKey.Add("workDir", "workDir");                   // working directory
             d_CyclopsParametersKey.Add("InputFileName", "inputFileName");       // path to the input file
             d_CyclopsParametersKey.Add("OutputDirectory", "outputFilePath");    // directory to where Cyclops output will be directed
             d_CyclopsParametersKey.Add("ConsolidationFactor", "Consolidation_Factor");   // Factor to sum results across (e.g. SCX fractions in spectral count data)

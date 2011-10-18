@@ -37,7 +37,7 @@ namespace Cyclops
         public clsSaveEnvironment(string InstanceOfR)
         {
             ModuleName = "Save Module";
-            s_RInstance = InstanceOfR;
+            s_RInstance = InstanceOfR;            
         }
         #endregion
 
@@ -80,11 +80,24 @@ namespace Cyclops
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
             string s_OutputFileName = "Results.RData";
-
-            string s_Command = string.Format("save.image(\"{0}\")",
-                                s_OutputFileName);
+            string s_Path = "", s_Command = "";
+            if (Parameters.ContainsKey("workDir"))
+                s_Path = Parameters["workDir"].ToString();
+            if (s_Path != null && s_Path.Length > 0)
+            {
+                //s_Command = string.Format("save.image(\"{0}\")",
+                //    Path.Combine(s_Path, s_OutputFileName));
+                s_Command = string.Format("save.image(\"{0}\")",
+                    s_Path + "/" + s_OutputFileName);
+            }
+            else
+            {
+                s_Command = string.Format("save.image(\"{0}\")",
+                                    s_OutputFileName);
+            }
             try
             {
+                s_Command = s_Command.Replace('\\', '/');
                 engine.EagerEvaluate(s_Command);
             }
             catch (Exception exc)

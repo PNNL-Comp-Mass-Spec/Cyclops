@@ -132,6 +132,22 @@ namespace Cyclops
             else
                 return false;
         }
+
+        /// <summary>
+        /// Evaluates a logical statement in R, and returns the result as a boolean
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="RStatement">Statement to evaluate to return TRUE or FALSE</param>
+        /// <returns>TRUE or FALSE</returns>
+        public static bool AssessBoolean(string InstanceOfR, string RStatement)
+        {
+            bool b_Return = false;
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            CharacterVector cv = engine.EagerEvaluate(RStatement).AsCharacter();
+            if (cv[0].Equals("TRUE"))
+                b_Return = true;
+            return b_Return;
+        }
         #endregion
 
     }
