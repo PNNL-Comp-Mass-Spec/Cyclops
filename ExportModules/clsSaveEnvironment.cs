@@ -42,8 +42,14 @@ namespace Cyclops
         #endregion
 
         #region Functions
+        /// <summary>
+        ///  Runs module
+        /// </summary>
         public override void PerformOperation()
         {
+            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                "Cyclops is saving R Workspace.");
+
             SaveToDefaultDirectory(s_RInstance);
             //REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
@@ -102,7 +108,9 @@ namespace Cyclops
             }
             catch (Exception exc)
             {
-                Console.WriteLine("ERROR while attempting to save R workspace: " + exc.ToString());
+                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                "Cyclops encountered an error while saving the R workspace: " +
+                exc.ToString() + ".");
             }
         }
         #endregion

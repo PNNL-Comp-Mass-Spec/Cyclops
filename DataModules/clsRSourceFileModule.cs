@@ -43,6 +43,9 @@ namespace Cyclops
         #endregion
 
         #region Functions
+        /// <summary>
+        ///  Runs module and then child modules
+        /// </summary>
         public override void PerformOperation()
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);

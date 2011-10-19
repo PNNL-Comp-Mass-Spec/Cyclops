@@ -37,10 +37,17 @@ namespace Cyclops
         private string s_RInstance;
 
         #region Constructors
+        /// <summary>
+        /// Basic constructor
+        /// </summary>
         public clsBetaBinomialModelModule()
         {
             ModuleName = "Beta-Binomial Model Module";
         }
+        /// <summary>
+        /// Constructor that requires the instance of the R workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of the R workspace</param>
         public clsBetaBinomialModelModule(string InstanceOfR)
         {
             ModuleName = "Beta-Binomial Model Module";
@@ -57,6 +64,9 @@ namespace Cyclops
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Runs module and then child modules
+        /// </summary>
         public override void PerformOperation()
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);

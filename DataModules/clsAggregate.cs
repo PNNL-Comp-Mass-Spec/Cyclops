@@ -35,10 +35,17 @@ namespace Cyclops
         private string s_RInstance;
 
         #region Constructors
+        /// <summary>
+        /// Basic constructor
+        /// </summary>
         public clsAggregate()
         {
+            ModuleName = "Aggregate Module";
         }
-
+        /// <summary>
+        /// Constructor that requires the instance of the R workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of the R workspace</param>
         public clsAggregate(string InstanceOfR)
         {
             ModuleName = "Aggregate Module";
@@ -51,8 +58,14 @@ namespace Cyclops
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Runs module and then child modules
+        /// </summary>
         public override void PerformOperation()
         {
+            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                "Cyclops is performing an aggregation of the data.");
+
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
 

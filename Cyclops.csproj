@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataModules\clsRMD.cs" />
     <Compile Include="DataModules\clsAggregate.cs" />
     <Compile Include="DataModules\clsBaseDataModule.cs" />
     <Compile Include="ExportModules\clsBaseExportModule.cs" />

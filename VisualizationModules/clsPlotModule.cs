@@ -79,8 +79,43 @@ namespace Cyclops
             }
         }
 
+        /// <summary>
+        ///  Runs module
+        /// </summary>
         public override void PerformOperation()
         {
+            CreatePlotsFolder();
+
+
+        }
+
+        /// <summary>
+        /// Creates a directory to store image files
+        /// </summary>
+        public void CreatePlotsFolder()
+        {
+            if (Parameters.ContainsKey("createPlotsFolder"))
+            {
+                string s_Create = Parameters["createPlotsFolder"].ToString();
+                if (s_Create.Equals("true"))
+                {
+                    if (Parameters.ContainsKey("workDir"))
+                    {
+                        string s_WorkDir = Parameters["workDir"].ToString();
+                        s_WorkDir += "/Plots";
+                        s_WorkDir = s_WorkDir.Replace('\\', '/');
+                        if (!Directory.Exists(s_WorkDir))
+                        {
+                            Directory.CreateDirectory(s_WorkDir);
+                        }
+                    }
+                    else
+                    {
+                        if (!Directory.Exists("Plots"))
+                            Directory.CreateDirectory("Plots");
+                    }
+                }
+            }
         }
         #endregion
     }

@@ -30,7 +30,7 @@ using RDotNet;
 namespace Cyclops
 {
     /// <summary>
-    /// Class to read a Cyclops XML Workflow and assemble the modules
+    /// Reads a Cyclops XML Workflow and assemble the modules
     /// </summary>
     public class clsCyclopsXMLReader : clsBaseDataModule
     {        
@@ -153,6 +153,19 @@ namespace Cyclops
                                                     {
                                                         currentNode.AddDataChild(aggregate);
                                                         currentNode = aggregate;
+                                                    }
+                                                    break;
+                                                case "RMD":
+                                                    clsRMD rmd = new clsRMD(InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = rmd;
+                                                        currentNode = rmd;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(rmd);
+                                                        currentNode = rmd;
                                                     }
                                                     break;
                                                 case "Test":

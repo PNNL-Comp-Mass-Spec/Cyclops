@@ -159,7 +159,8 @@ namespace Cyclops
         /// </summary>
         public void AssembleModulesFromXML()
         {
-            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO, "Assembling Modules from XML");
+            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                "Assembling Modules from XML.");
 
             //SetREngineDLL(d_CyclopsParameters["RDLL"]);
             CreateInstanceOfR();
@@ -184,7 +185,8 @@ namespace Cyclops
             else
             {
                 /// Throw an error
-                Console.WriteLine("ERROR IN RETRIEVING THE WORKFLOW.XML FILE!");
+                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                    "Name of Cyclops XML workflow was not passed in properly to the Parameters.");
             }
         }
 
@@ -194,6 +196,8 @@ namespace Cyclops
         /// <param name="WorkFlowFile">Full path to the XML file</param>
         public void AssembleModulesFromXML(string WorkFlowFile)
         {
+            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                "Assembling Modules from XML: " + WorkFlowFile + ".");
             //SetREngineDLL(d_CyclopsParameters["RDLL"]);
             CreateInstanceOfR();
 
@@ -222,6 +226,9 @@ namespace Cyclops
         /// </summary>
         public bool Run()
         {
+            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                "Running Cyclops Workflow.");
+
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
             if (root != null)
@@ -232,6 +239,8 @@ namespace Cyclops
             }
             else
             {
+                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.WARN,
+                "Cyclops was unable to find the root module.");
                 engine.Close();
                 return false;
             }

@@ -122,6 +122,9 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                "Cyclops Importing Data From " + Parameters["source"].ToString() + ".");
+
             // Determine what source the data is coming from
             SetDataTypeFromParameters();
 
@@ -180,16 +183,21 @@ namespace Cyclops
                     }
                     catch (ParseException pe)
                     {
-                        Console.WriteLine("Error Processing step:\n" + pe.ToString());
+                        clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                            "Cyclops encountered a ParseException while reading from SQLite DB: " +
+                            pe.ToString() + ".");
                     }
                     catch (AccessViolationException ave)
                     {
-                        Console.WriteLine("Access Violation Exception caught:\n" +
-                            ave.ToString());
+                        clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                            "Cyclops encountered an AccessViolationException while reading from SQLite DB: " +
+                            ave.ToString() + ".");
                     }
                     catch (Exception exc)
                     {
-                        Console.WriteLine("General Exception caught:\n" + exc.ToString());
+                        clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                            "Cyclops encountered an Exception while reading from SQLite DB: " +
+                            exc.ToString() + ".");
                     }                    
                     break;
                 case (int)ImportDataType.CSV:
@@ -218,6 +226,9 @@ namespace Cyclops
         /// <param name="RInstance">Instance of your R workspace</param>
         protected void ConnectToSQLiteDatabase(string RInstance)
         {
+            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                "Cyclops connecting to SQLite database.");
+
             REngine engine = REngine.GetInstanceFromID(RInstance);
 
             string s_InputFileName = "";
@@ -249,21 +260,29 @@ namespace Cyclops
                                     s_InputFileName);
                 s_RStatement = s_RStatement.Replace('\\', '/');
 
+                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                    "Cyclops connecting to SQLite: " + s_InputFileName + ".");
                 try
                 {
                     engine.EagerEvaluate(s_RStatement);
                 }
                 catch (IOException exc)
                 {
-                    // TODO, handle exception
+                    clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                        "Cyclops encountered an IOException while connecting to SQLite database:" +
+                        exc.ToString() + ".");
                 }
                 catch (AccessViolationException ave)
                 {
-                    // TODO, handle exception
+                    clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                        "Cyclops encountered an AccessViolationException while connecting to SQLite database:" +
+                        ave.ToString() + ".");
                 }
                 catch (Exception ex)
                 {
-                    // TODO, handle exception
+                    clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                        "Cyclops encountered an Exception while connecting to SQLite database:" +
+                        ex.ToString() + ".");
                 }
             }
         }
@@ -283,12 +302,15 @@ namespace Cyclops
 
             if (b_Disconnected)
             {
+                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                    "Cyclops disconnected from database.");
                 s_RStatement = "rm(con)\nrm(m)\nrm(terminated)";
                 engine.EagerEvaluate(s_RStatement);
             }
             else
             {
-                // TODO: throw an exception
+                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                    "Cyclops was unsuccessful at disconnecting from database.");
             }
         }
 
@@ -383,12 +405,12 @@ namespace Cyclops
         {
             REngine engine = REngine.GetInstanceFromID(RInstance);
             string s_RStatement = string.Format(
-                                    "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
-                                    "{1} <- fetch(rt, n = -1)\n" +
-                                    "dbClearResult(rt)\n" +
-                                    "DataCleaning({1})",
-                                    Parameters["dataTableName"],
-                                    Parameters["newDataTableName"]);
+                 "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
+                 "{1} <- fetch(rt, n = -1)\n" +
+                 "dbClearResult(rt)\n" +
+                 "DataCleaning({1})",
+                 Parameters["dataTableName"],
+                 Parameters["newDataTableName"]);
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -401,12 +423,12 @@ namespace Cyclops
         {
             REngine engine = REngine.GetInstanceFromID(RInstance);
             string s_RStatement = string.Format(
-                                    "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
-                                    "{1} <- fetch(rt, n = -1)\n" +
-                                    "dbClearResult(rt)\n" +
-                                    "DataCleaning({1})",
-                                    Parameters["columnMetaDataTableName"],
-                                    Parameters["newColumnMetaDataTableName"]);
+                  "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
+                  "{1} <- fetch(rt, n = -1)\n" +
+                  "dbClearResult(rt)\n" +
+                  "DataCleaning({1})",
+                  Parameters["columnMetaDataTableName"],
+                  Parameters["newColumnMetaDataTableName"]);
             engine.EagerEvaluate(s_RStatement);
         }
 
