@@ -24,8 +24,11 @@ using System.IO;
 
 namespace Cyclops
 {
+    /// <summary>
+    /// Base Export Module
+    /// </summary>
     public abstract class clsBaseExportModule : clsBaseModule
     {
         
-    }
+    }    
 }

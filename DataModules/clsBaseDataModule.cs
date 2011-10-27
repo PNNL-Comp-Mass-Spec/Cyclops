@@ -23,6 +23,9 @@ using System.Collections.Generic;
 
 namespace Cyclops
 {
+    /// <summary>
+    /// Base class for Data Modules
+    /// </summary>
     public abstract class clsBaseDataModule : clsBaseModule
     {
         private List<clsBaseVisualizationModule> l_ChildVisualizationModules = new List<clsBaseVisualizationModule>();
@@ -35,25 +38,43 @@ namespace Cyclops
 
         #region Methods
         
+        /// <summary>
+        /// Adds a child data module
+        /// </summary>
+        /// <param name="Child">Data Child Module to Add</param>
         public void AddDataChild(clsBaseDataModule Child)
         {
             l_ChildDataModules.Add(Child);
         }
 
+        /// <summary>
+        /// Adds a child visualization module
+        /// </summary>
+        /// <param name="Child">Visualization Child Module to Add</param>
         public void AddVisualChild(clsBaseVisualizationModule Child)
         {
             l_ChildVisualizationModules.Add(Child);
         }
 
+        /// <summary>
+        /// Adds a child export module
+        /// </summary>
+        /// <param name="Child">Export Child Module to Add</param>
         public void AddExportChild(clsBaseExportModule Child)
         {
             l_ChildExportModules.Add(Child);
         }
 
+        /// <summary>
+        /// Runs the module's operation
+        /// </summary>
         public virtual void PerformOperation()
         {
         }
 
+        /// <summary>
+        /// Runs the child modules in order: 1. visualization, 2. export, 3. data
+        /// </summary>
         public void RunChildModules()
         {
             foreach (clsBaseVisualizationModule bvm in l_ChildVisualizationModules)
@@ -69,6 +90,31 @@ namespace Cyclops
                 bdm.PerformOperation();
             }
 
+        }
+
+        public void PrintModule()
+        {
+            Console.WriteLine(ModuleName);
+            PrintChildModules();
+        }
+
+        /// <summary>
+        /// Prints the modules name to the console
+        /// </summary>
+        public void PrintChildModules()
+        {
+            foreach (clsBaseVisualizationModule bvm in l_ChildVisualizationModules)
+            {
+                bvm.PrintModule();
+            }
+            foreach (clsBaseExportModule bem in l_ChildExportModules)
+            {
+                bem.PrintModule();
+            }
+            foreach (clsBaseDataModule bdm in l_ChildDataModules)
+            {
+                bdm.PrintModule();
+            }
         }
         #endregion
     }

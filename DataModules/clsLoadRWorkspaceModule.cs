@@ -46,7 +46,7 @@ namespace Cyclops
         }
         #endregion
 
-        #region Functions
+        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -59,12 +59,13 @@ namespace Cyclops
                 if (!Parameters["path"].ToString().Equals(String.Empty))
                 {
                     string s_Command = string.Format(
-                        "load(\"{0}\")", Parameters["path"].ToString().Replace('\\', '/'));
+                        "load(\"{0}\")", Parameters["path"].Replace('\\', '/'));
                     engine.EagerEvaluate(s_Command);
                 }
             }
             RunChildModules();
         }
+
         #endregion
     }
 }

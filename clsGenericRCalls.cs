@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Data;
 
 using RDotNet;
 
@@ -147,6 +148,70 @@ namespace Cyclops
             if (cv[0].Equals("TRUE"))
                 b_Return = true;
             return b_Return;
+        }
+
+        /// <summary>
+        /// Installs a specified package into the R workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="Package">Name of the package</param>
+        public static void InstallPackage(string InstanceOfR, string Package)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            engine.EagerEvaluate("install.packages(\"" + Package + "\")");            
+        }
+
+        /// <summary>
+        /// Determines if R has a specified package already installed or not
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="Package">Name of your package</param>
+        /// <returns>>TRUE or FALSE</returns>
+        public static bool IsPackageInstalled(string InstanceOfR, string Package)
+        {
+            bool b_Return = false;
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string s_RStatement = string.Format("jnbIsPackageInstalled(\"{0}\")",
+                Package);
+            CharacterVector cv = engine.EagerEvaluate(s_RStatement).AsCharacter();
+            if (cv[0].Equals("TRUE"))
+                b_Return = true;
+            return b_Return;
+        }
+
+        /// <summary>
+        /// Converts an data.frame from R into a DataTable in C#
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="TheDataFrame">Name of data.frame</param>
+        /// <returns>DataTable version of your data.frame</returns>
+        public static DataTable GetDataTable(string InstanceOfR, string TheDataFrame)
+        {
+            DataTable dt_Return = new DataTable();
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            if (ContainsObject(InstanceOfR, TheDataFrame))
+            {
+                DataFrame dataset = engine.EagerEvaluate(TheDataFrame).AsDataFrame();
+
+                for (int i = 0; i < dataset.ColumnCount; i++)
+                {
+                    DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                    dt_Return.Columns.Add(dc);
+                }
+
+                
+                for (int i = 0; i < dataset.RowCount; i++)
+                {
+                    DataRow[] dr = new DataRow[dataset.RowCount];
+                    //for (int k = 0; k < dataset.ColumnCount; k++)
+                    //{
+                    //    dr[k] = dataset[k, i].ToString();
+                    //}
+                }
+            }
+
+            return dt_Return;
         }
         #endregion
 

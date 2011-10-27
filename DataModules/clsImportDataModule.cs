@@ -39,7 +39,6 @@ namespace Cyclops
         public enum ImportDataType { SQLite, CSV, TSV, MSAccess, SQLServer };
         private int dataType;
         private string s_RInstance;
-        //private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
 
         #region Constructors
         /// <summary>
@@ -58,17 +57,6 @@ namespace Cyclops
             ModuleName = "Import Module";
             s_RInstance = InstanceOfR;
         }
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="InstanceOfR">Path to R DLL</param>
-        /// <param name="ParametersForCyclops">Parameters to run Cyclops Pipeline</param>
-        //public clsImportDataModule(string InstanceOfR, Dictionary<string, string> ParametersForCyclops)
-        //{
-        //    ModuleName = "Import Module";
-        //    s_RInstance = InstanceOfR;
-        //    d_CyclopsParameters = ParametersForCyclops;
-        //}
         #endregion
 
         #region Members
@@ -203,7 +191,7 @@ namespace Cyclops
                 case (int)ImportDataType.CSV:
                     string s_Read = string.Format("{0} <- read.csv(\"{1}\")",
                         Parameters["newDataTableName"],
-                        Parameters["workDir"].ToString().Replace('\\', '/') + "/" + Parameters["dataTableName"]);
+                        Parameters["workDir"].Replace('\\', '/') + "/" + Parameters["dataTableName"]);
                         engine.EagerEvaluate(s_Read);
                     break;
                 case (int)ImportDataType.TSV:
@@ -238,7 +226,7 @@ namespace Cyclops
                 if (Parameters.ContainsKey("workDir"))
                 {
                     //s_InputFileName = Path.Combine(Parameters["workDir"].ToString(), "Results.db3");
-                    s_InputFileName = Parameters["workDir"].ToString() + "/Results.db3";
+                    s_InputFileName = Parameters["workDir"] + "/Results.db3";
                 }
                 else
                 {
@@ -248,7 +236,7 @@ namespace Cyclops
             else
             {
                 s_InputFileName = Parameters[clsCyclopsParametersKey.GetParameterName(
-                        "InputFileName")].ToString().Replace('\\', '/');
+                        "InputFileName")].Replace('\\', '/');
             }
 
             if (File.Exists(s_InputFileName))
@@ -260,8 +248,8 @@ namespace Cyclops
                                     s_InputFileName);
                 s_RStatement = s_RStatement.Replace('\\', '/');
 
-                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                    "Cyclops connecting to SQLite: " + s_InputFileName + ".");
+                //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                //    "Cyclops connecting to SQLite: " + s_InputFileName + ".");
                 try
                 {
                     engine.EagerEvaluate(s_RStatement);
@@ -304,7 +292,7 @@ namespace Cyclops
             {
                 clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
                     "Cyclops disconnected from database.");
-                s_RStatement = "rm(con)\nrm(m)\nrm(terminated)";
+                s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
                 engine.EagerEvaluate(s_RStatement);
             }
             else
@@ -449,6 +437,8 @@ namespace Cyclops
                                     Parameters["newRowMetaDataTableName"]);
             engine.EagerEvaluate(s_RStatement);
         }
+
+        
         #endregion
     }
 }

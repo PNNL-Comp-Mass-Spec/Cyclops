@@ -18,6 +18,11 @@ install.packages("ellipse")
 install.packages("pls")
 install.packages("Hmisc")
 install.packages("rJava")
+install.packages("car")
+install.packages("plyr")
+install.packages("sendplot")
+install.packages("hexbin")
+install.packages("lattice")
 
 ### Install BetaBinomial from file
 ### Install MSStats from file

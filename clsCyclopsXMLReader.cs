@@ -167,7 +167,7 @@ namespace Cyclops
                                                         currentNode.AddDataChild(rmd);
                                                         currentNode = rmd;
                                                     }
-                                                    break;
+                                                    break;                                                
                                                 case "Test":
                                                     clsMyTestingModule test = new clsMyTestingModule(InstanceOfR);
                                                     if (root == null)
@@ -188,7 +188,21 @@ namespace Cyclops
                                 case "visual":
                                     currentModuleType = ModuleType.Visual;
                                     modid = reader.GetAttribute("id");
-
+                                    switch (modid)
+                                    {
+                                        case "Hexbin":
+                                            clsHexbin hexbin = new clsHexbin(InstanceOfR);
+                                            currentVizNode = hexbin;
+                                            if (root == null)
+                                            {
+                                                Console.WriteLine("Error: trying to add a Hexbin Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddVisualChild(hexbin);
+                                            }
+                                            break;
+                                    }
                                     break;
 
                                 case "export":

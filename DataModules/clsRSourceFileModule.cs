@@ -26,6 +26,9 @@ using RDotNet;
 
 namespace Cyclops
 {
+    /// <summary>
+    /// Loads all the R source files in the directory and subdirectories
+    /// </summary>
     public class clsRSourceFileModule : clsBaseDataModule
     {
         protected string s_RInstance;
@@ -42,7 +45,7 @@ namespace Cyclops
         }
         #endregion
 
-        #region Functions
+        #region Methods
         /// <summary>
         ///  Runs module and then child modules
         /// </summary>
@@ -56,7 +59,7 @@ namespace Cyclops
                 if (Parameters.ContainsKey("workDir"))
                 {
                     GetDirectoriesAndLoadRSourceFiles(
-                        Path.Combine(Parameters["workDir"].ToString(), "R_Scripts"),
+                        Path.Combine(Parameters["workDir"], "R_Scripts"),
                         s_RInstance);                        
                 }
                 else
@@ -66,7 +69,7 @@ namespace Cyclops
             }
             else // Load the specified files
             {
-                string[] s_Files = Parameters["rSourceCodeDirectory"].ToString().Split(';');
+                string[] s_Files = Parameters["rSourceCodeDirectory"].Split(';');
                 foreach (string s in s_Files)
                 {
                     try

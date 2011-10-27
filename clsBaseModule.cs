@@ -23,10 +23,13 @@ using System.Collections.Generic;
 
 namespace Cyclops
 {
+    /// <summary>
+    /// Main Base class for the pipeline modules
+    /// </summary>
     public abstract class clsBaseModule : IBaseModule
     {
         private string s_ModuleName = "";
-        private Dictionary<string, object> d_Parameters;
+        private Dictionary<string, dynamic> d_Parameters;
         private clsBaseDataModule bdm_ParentModule;
 
         #region Properties
@@ -36,7 +39,7 @@ namespace Cyclops
             set { s_ModuleName = value; }
         }
 
-        public Dictionary<string, object> Parameters
+        public Dictionary<string, dynamic> Parameters
         {
             get { return d_Parameters; }
             set { d_Parameters = value; }
@@ -64,6 +67,11 @@ namespace Cyclops
 
         public virtual void PerformOperation()
         {
+        }
+
+        public virtual void PrintModule()
+        {
+            Console.WriteLine(ModuleName);
         }
         #endregion
     }

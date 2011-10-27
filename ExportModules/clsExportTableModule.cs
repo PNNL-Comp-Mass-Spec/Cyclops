@@ -29,6 +29,9 @@ using RDotNet;
 
 namespace Cyclops
 {
+    /// <summary>
+    /// Exports tables from R environment to SQLite database, CSV, TSV, MSAccess, or SQLServer
+    /// </summary>
     public class clsExportTableModule : clsBaseExportModule
     {
         public enum ImportDataType { SQLite, CSV, TSV, MSAccess, SQLServer };

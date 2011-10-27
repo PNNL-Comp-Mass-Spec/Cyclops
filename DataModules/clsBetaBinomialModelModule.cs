@@ -63,7 +63,7 @@ namespace Cyclops
 
         #endregion
 
-        #region Functions
+        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>

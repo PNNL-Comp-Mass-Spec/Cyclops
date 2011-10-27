@@ -88,7 +88,7 @@ namespace Cyclops
             string s_OutputFileName = "Results.RData";
             string s_Path = "", s_Command = "";
             if (Parameters.ContainsKey("workDir"))
-                s_Path = Parameters["workDir"].ToString();
+                s_Path = Parameters["workDir"];
             if (s_Path != null && s_Path.Length > 0)
             {
                 //s_Command = string.Format("save.image(\"{0}\")",

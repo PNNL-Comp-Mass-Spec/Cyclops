@@ -245,6 +245,18 @@ namespace Cyclops
                 return false;
             }
         }
+
+        public void PrintPipeLineModules()
+        {
+            if (root != null)
+            {
+                root.PrintModule();
+            }
+            else
+            {
+                Console.WriteLine("There were no modules in the pipeline!");
+            }
+        }
         #endregion
     }
 }
