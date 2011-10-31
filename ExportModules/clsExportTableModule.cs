@@ -34,12 +34,8 @@ namespace Cyclops
     /// </summary>
     public class clsExportTableModule : clsBaseExportModule
     {
-        public enum ImportDataType { SQLite, CSV, TSV, MSAccess, SQLServer };
-        private Dictionary<string, string> d_Tables2Export = new Dictionary<string, string>();
-        private string s_Path2SaveTables;
-        
+        public enum ExportDataType { SQLite, CSV, TSV, MSAccess, SQLServer };
         private int dataType;
-
         private string s_RInstance;
 
         #region Constructors
@@ -54,21 +50,8 @@ namespace Cyclops
         }
         #endregion
 
-        #region Members
-
-        #endregion
-
         #region Properties
-        public Dictionary<string, string> Tables2Export
-        {
-            get { return d_Tables2Export; }
-        }
-
-        public string Path2SaveTables
-        {
-            get { return s_Path2SaveTables; }
-            set { s_Path2SaveTables = value; }
-        }
+        
         #endregion
 
         #region Functions
@@ -76,38 +59,79 @@ namespace Cyclops
         /// Sets the DataType that the object is going to pull the data from
         /// </summary>
         /// <param name="DataType">ImportDataType</param>
-        public void SetDataType(ImportDataType DataType)
+        public void SetDataType(ExportDataType DataType)
         {
             dataType = (int)DataType;
         }
 
         /// <summary>
-        /// Adds the name of a table to the list to save
+        /// Given the list of parameters from the Dictionary Parameters,
+        /// determine the source the data should be export out to and set the DataType
         /// </summary>
-        /// <param name="TableName">Name of table to save.</param>
-        public void AddTable2Save(string TableName, string NewTableName)
+        public void SetDataTypeFromParameters()
         {
-            d_Tables2Export.Add(TableName, NewTableName);
+            string s_DataType = Parameters["source"].ToString();
+            switch (s_DataType)
+            {
+                case "sqlite":
+                    SetDataType(ExportDataType.SQLite);
+                    break;
+                case "msAccess":
+                    SetDataType(ExportDataType.MSAccess);
+                    break;
+                case "csv":
+                    SetDataType(ExportDataType.CSV);
+                    break;
+                case "tsv":
+                    SetDataType(ExportDataType.TSV);
+                    break;
+                case "sqlServer":
+                    SetDataType(ExportDataType.SQLServer);
+                    break;
+            }
         }
 
+        /// <summary>
+        /// Runs module
+        /// </summary>
         public override void PerformOperation()
         {
+            // Determine what source the data needs to export out to
+            SetDataTypeFromParameters();
+
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+            string s_Command = "";
 
             switch (dataType)
             {
-                case (int)ImportDataType.CSV:
-                    foreach (KeyValuePair<string, string> kvp in d_Tables2Export)
-                    {
-                        string s_Command = string.Format("write.csv({0}, file=\"{1}\")",
-                            kvp.Key, Path2SaveTables + Path.PathSeparator + kvp.Value);
-                        //engine.EagerEvaluate(s_Command);
-                    }
-                    break; // CSV
-                case (int)ImportDataType.TSV:
+                case (int)ExportDataType.SQLite:
 
-                    break; // TSV
+                    break;
+                case (int)ExportDataType.CSV:
+                    string s_FileName = Parameters["fileName"];
+                    if (Path.GetDirectoryName(s_FileName).Equals("") &
+                        Parameters.ContainsKey("workDir"))
+                    {
+                        s_FileName = Parameters["workDir"] + "/" + s_FileName;
+                    }
+                    s_FileName = s_FileName.Replace('\\', '/');
+                    s_Command = string.Format("write.csv({0}, file=\"{1}\")",
+                        Parameters["tableName"],
+                        s_FileName);
+                    break;
+                case (int)ExportDataType.TSV:
+
+                    break;
+                case (int)ExportDataType.MSAccess:
+
+                    break;
+                case (int)ExportDataType.SQLServer:
+
+                    break;
             }
+
+            engine.EagerEvaluate(s_Command);
         }
         #endregion
     }

@@ -35,3 +35,49 @@ jnbIsPackageInstalled <- function(Package) {
 	packages <- a[,1]
 	is.element(Package, packages)
 }
+
+# Calculate a Log2 Ratio
+jnb_Log2Ratio <- function(x1, x2) {
+	if ( (x1==0 & x2==0) | (is.na(x1) & is.na(x2)) | (is.na(x1) & x2==0) | (x1==0 & is.na(x2)) ) {
+		return(0)
+	} else if (x2==0 | is.na(x2) ) {
+		return(log(x1,2))
+	} else if (x1==0 | is.na(x1) ) {
+		return (-log(x2,2))
+	} else {
+		return(log(x1/x2,2))
+	}
+}
+
+# Processes log2 fold-change on a dataframe or matrix, and takes into account columns specified for p-values
+jnb_FoldChangeSpectralCountAndPackage <- function(
+		x, 				# Data frame or data matrix
+		pValueColumn) # Column(s) representing p-values
+{
+	Pval_tmp = c()
+	if (length(pValueColumn) > 0 & pValueColumn != 0)
+	{
+		#expects P-values in the first column
+		Pval_tmp <- x[,pValueColumn]
+		x <- x[,-pValueColumn]
+	}
+	
+	header <- c()
+	FC_tmp <- c()
+	for (i in 2:ncol(x)-1)
+	{
+		for (j in (i+1):ncol(x))
+		{
+			tmp1 <- paste(colnames(x)[i], "_v_", colnames(x)[j],sep="")
+			header <- c(header, paste(colnames(x)[i], "_v_", colnames(x)[j],sep=""))
+			FC_tmp <- cbind(FC_tmp, mapply(FUN=jnb_Log2Ratio, x1=x[,i], x2=x[,j]))
+		}
+	}
+	colnames(FC_tmp) <- header
+	
+	if (length(pValueColumn) > 0 & pValueColumn != 0) {
+		FC_tmp <- cbind("Pvalue"=Pval_tmp, FC_tmp, x)
+	} else {
+		FC_tmp <- cbind(FC_tmp, x)
+	}
+}

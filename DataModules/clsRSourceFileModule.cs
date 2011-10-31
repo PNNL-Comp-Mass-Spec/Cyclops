@@ -84,9 +84,8 @@ namespace Cyclops
                     }
                 }
             }
-            //string s_Command = string.Format("source(\"{0}\")",
-            //                    Parameters["PATH"].ToString().Replace('\\', '/'));
-            //engine.EagerEvaluate(s_Command);
+            string s_RStatement = string.Format("objects2delete <- ls()"); // index of all objects loaded into R from source files
+            engine.EagerEvaluate(s_RStatement);
 
             RunChildModules();
         }

@@ -155,6 +155,19 @@ namespace Cyclops
                                                         currentNode = aggregate;
                                                     }
                                                     break;
+                                                case "BetaBinomial":
+                                                    clsBetaBinomialModelModule bbm = new clsBetaBinomialModelModule(InstanceOfR);                                                    
+                                                    if (root == null)
+                                                    {
+                                                        root = bbm;
+                                                        currentNode = bbm;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(bbm);
+                                                        currentNode = bbm;
+                                                    }
+                                                    break;
                                                 case "RMD":
                                                     clsRMD rmd = new clsRMD(InstanceOfR);
                                                     if (root == null)
@@ -167,7 +180,72 @@ namespace Cyclops
                                                         currentNode.AddDataChild(rmd);
                                                         currentNode = rmd;
                                                     }
-                                                    break;                                                
+                                                    break;
+                                                case "FoldChange":
+                                                    clsFoldChange fc = new clsFoldChange(InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = fc;
+                                                        currentNode = fc;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(fc);
+                                                        currentNode = fc;
+                                                    }
+                                                    break;
+                                                case "FilterByTable":
+                                                    clsFilterByAnotherTable filterByTable = new clsFilterByAnotherTable(InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = filterByTable;
+                                                        currentNode = filterByTable;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(filterByTable);
+                                                        currentNode = filterByTable;
+                                                    }
+                                                    break;
+                                                case "CombineSpectralCountResults":
+                                                    clsCombineSpectralCountResultFiles combine = new clsCombineSpectralCountResultFiles(InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = combine;
+                                                        currentNode = combine;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(combine);
+                                                        currentNode = combine;
+                                                    }
+                                                    break;
+                                                case "NormalizeSpectralCounts":
+                                                    clsNormalizingSpectralCounts norm = new clsNormalizingSpectralCounts(InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = norm;
+                                                        currentNode = norm;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(norm);
+                                                        currentNode = norm;
+                                                    }
+                                                    break;
+                                                case "Clean":
+                                                    clsCleanUpRSourceFileObjects clean = new clsCleanUpRSourceFileObjects(InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = clean;
+                                                        currentNode = clean;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(clean);
+                                                        currentNode = clean;
+                                                    }
+                                                    break; 
                                                 case "Test":
                                                     clsMyTestingModule test = new clsMyTestingModule(InstanceOfR);
                                                     if (root == null)
@@ -221,6 +299,18 @@ namespace Cyclops
                                             else
                                             {
                                                 currentNode.AddExportChild(se_Node);
+                                            }
+                                            break;
+                                        case "ExportTable":
+                                            clsExportTableModule tab = new clsExportTableModule(InstanceOfR);
+                                            currentExportNode = tab;
+                                            if (root == null)
+                                            {
+                                                Console.WriteLine("Error: trying to add a ExportTable Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddExportChild(tab);
                                             }
                                             break;
                                     }

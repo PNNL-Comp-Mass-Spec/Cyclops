@@ -34,28 +34,22 @@ namespace Cyclops
         /// </summary>
         public void CreatePlotsFolder()
         {
-            if (Parameters.ContainsKey("createPlotsFolder"))
+            if (Parameters.ContainsKey("workDir"))
             {
-                string s_Create = Parameters["createPlotsFolder"].ToString();
-                if (s_Create.Equals("true"))
+                string s_WorkDir = Parameters["workDir"];
+                s_WorkDir += "/Plots";
+                s_WorkDir = s_WorkDir.Replace('\\', '/');
+                if (!Directory.Exists(s_WorkDir))
                 {
-                    if (Parameters.ContainsKey("workDir"))
-                    {
-                        string s_WorkDir = Parameters["workDir"];
-                        s_WorkDir += "/Plots";
-                        s_WorkDir = s_WorkDir.Replace('\\', '/');
-                        if (!Directory.Exists(s_WorkDir))
-                        {
-                            Directory.CreateDirectory(s_WorkDir);
-                        }
-                    }
-                    else
-                    {
-                        if (!Directory.Exists("Plots"))
-                            Directory.CreateDirectory("Plots");
-                    }
+                    Directory.CreateDirectory(s_WorkDir);
                 }
             }
+            else
+            {
+                if (!Directory.Exists("Plots"))
+                    Directory.CreateDirectory("Plots");
+            }
+
         }
     }
 }

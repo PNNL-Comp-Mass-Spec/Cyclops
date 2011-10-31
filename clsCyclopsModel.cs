@@ -37,7 +37,7 @@ namespace Cyclops
         private clsBaseDataModule root = null, currentNode = null;
         private REngine engine;
         private string s_RInstance;
-        private string s_Version = "0.1.0.2";
+        private string s_Version = "0.1.0.3";
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
 
         #region Constructors

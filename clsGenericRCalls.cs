@@ -200,14 +200,15 @@ namespace Cyclops
                     dt_Return.Columns.Add(dc);
                 }
 
-                
+
+                string[] s_Row = new string[dataset.ColumnCount];
                 for (int i = 0; i < dataset.RowCount; i++)
                 {
-                    DataRow[] dr = new DataRow[dataset.RowCount];
-                    //for (int k = 0; k < dataset.ColumnCount; k++)
-                    //{
-                    //    dr[k] = dataset[k, i].ToString();
-                    //}
+                    for (int k = 0; k < dataset.ColumnCount; k++)
+                    {
+                        s_Row[k] = dataset[k, i].ToString();
+                    }
+                    dt_Return.Rows.Add(s_Row);
                 }
             }
 

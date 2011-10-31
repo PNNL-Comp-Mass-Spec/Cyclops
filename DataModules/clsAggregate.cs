@@ -67,7 +67,20 @@ namespace Cyclops
                 "Cyclops is performing an aggregation of the data.");
 
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_Factor = Parameters["factor"];
+            string[] s_FactorsComplete = s_Factor.Split('$');
+            GetOrganizedFactorsVector(s_RInstance, Parameters["dataTable"],
+                s_FactorsComplete[0], s_FactorsComplete[1]);
 
+            string s_RStatement = string.Format(
+                "{0} <- jnb_Aggregate(x=data.matrix({1}), " +
+                "myFactor={2}, MARGIN={3}, FUN={4})",
+                Parameters["newTableName"],
+                Parameters["dataTable"],
+                Parameters["factor"],
+                Parameters["margin"],
+                Parameters["function"]);
+            engine.EagerEvaluate(s_RStatement);
 
             RunChildModules();
         }

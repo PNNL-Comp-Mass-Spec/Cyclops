@@ -21,6 +21,8 @@
 using System;
 using System.Collections.Generic;
 
+using RDotNet;
+
 namespace Cyclops
 {
     /// <summary>
@@ -115,6 +117,31 @@ namespace Cyclops
             {
                 bdm.PrintModule();
             }
+        }
+
+        /// <summary>
+        /// Organizes the ColumnMetadataTable so that the factors column will directly
+        /// match the columns of the data table.
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        /// <param name="NameOfDataTable">The Data Table</param>
+        /// <param name="NameOfColumnMetadataTable">The Column Metadata Table</param>
+        /// <param name="FactorColumn">Name of the column that contains the factor of interest</param>
+        public void GetOrganizedFactorsVector(string InstanceOfR, string NameOfDataTable,
+            string NameOfColumnMetadataTable, string FactorColumn)
+        {
+            string yMergeColumn = "AbbrName";
+
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string s_RStatement = string.Format(
+                "tmp <- cbind(\"{2}\"=colnames({0}))\n" +
+                "{1} <- merge(x=tmp, y={1}, by.x=\"AbbrName\", by.y=\"{2}\", , all.x=T, all.y=F, sort=F)\n" +
+                "rm(tmp)",
+                NameOfDataTable,
+                NameOfColumnMetadataTable,
+                yMergeColumn);
+
+            engine.EagerEvaluate(s_RStatement);
         }
         #endregion
     }

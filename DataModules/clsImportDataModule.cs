@@ -59,10 +59,6 @@ namespace Cyclops
         }
         #endregion
 
-        #region Members
-        
-        #endregion
-
         #region Properties
         
         #endregion
@@ -154,14 +150,19 @@ namespace Cyclops
                             if (Parameters.ContainsKey("dataTableName"))
                             {
                                 GetDataTableFromSQLiteDB(s_RInstance);
+                                SetTableRowNames(s_RInstance, Parameters["newDataTableName"]);
+                                
                             }
                             if (Parameters.ContainsKey("columnMetaDataTableName"))
                             {
                                 GetColumnMetadataFromSQLiteDB(s_RInstance);
+                                SetTableRowNames(s_RInstance, Parameters["newColumnMetaDataTableName"]);
+                                
                             }
                             if (Parameters.ContainsKey("rowMetaDataTableName"))
                             {
                                 GetRowMetadataFromSQLiteDB(s_RInstance);
+                                SetTableRowNames(s_RInstance, Parameters["newRowMetaDataTableName"]);                                
                             }
                         }
                         engine.EagerEvaluate(s_RStatement);
@@ -438,7 +439,24 @@ namespace Cyclops
             engine.EagerEvaluate(s_RStatement);
         }
 
-        
+        /// <summary>
+        /// Sets the rownames for a table in R and removes that column from the table
+        /// </summary>
+        /// <param name="RInstance">>Instance of the R Workspace</param>
+        /// <param name="TableName">Name of the table</param>
+        public void SetTableRowNames(string RInstance, string TableName)
+        {
+            if (Parameters.ContainsKey("rowNames"))
+            {
+                REngine engine = REngine.GetInstanceFromID(RInstance);
+                string s_RStatement = string.Format(
+                    "rownames({0}) <- {0}[,{1}]\n" +
+                    "{0} <- {0}[,-{1}]",
+                    TableName,
+                    Parameters["rowNames"]);
+                engine.EagerEvaluate(s_RStatement);
+            }
+        }
         #endregion
     }
 }

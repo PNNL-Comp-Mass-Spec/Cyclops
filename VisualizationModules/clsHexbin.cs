@@ -76,26 +76,26 @@ namespace Cyclops
 
             if (Parameters["absLogX"].Equals("true"))
             {
-                s_RStatement += string.Format("abs(log({0}${1}, 10)), ",
+                s_RStatement += string.Format("abs(log(as.numeric({0}${1}), 10)), ",
                     Parameters["tableName"],
                     Parameters["xColumn"]);
             }
             else
             {
-                s_RStatement += string.Format("{0}${1}, ",
+                s_RStatement += string.Format("as.numeric({0}${1}), ",
                     Parameters["tableName"],
                     Parameters["xColumn"]);
             }
 
             if (Parameters["absLogY"].Equals("true"))
             {
-                s_RStatement += string.Format("abs(log({0}${1}, 10)), ",
+                s_RStatement += string.Format("abs(log(as.numeric({0}${1}), 10)), ",
                     Parameters["tableName"],
                     Parameters["yColumn"]);
             }
             else
             {
-                s_RStatement += string.Format("{0}${1}, ",
+                s_RStatement += string.Format("as.numeric({0}${1}), ",
                     Parameters["tableName"],
                     Parameters["yColumn"]);
             }
@@ -117,8 +117,11 @@ namespace Cyclops
                 }
                 else if (Parameters["image"].Equals("png"))
                 {
-                    s_RStatement += string.Format("png(\"{0}\", width={1}," +
-                        "height={2}, pointsize={3})\n",
+                    s_RStatement += string.Format("png(\"" +
+                        
+                        "{0}/Plots/{1}\", width={2}," +
+                        "height={3}, pointsize={4})\n",
+                        Parameters["workDir"],
                         Parameters["plotFileName"],
                         Parameters["width"],
                         Parameters["height"],
@@ -134,12 +137,13 @@ namespace Cyclops
                         Parameters["pointsize"]);
                 }
 
-                s_RStatement += string.Format("plot(bin, xlab=\"{0}\", ylab=\"{1}\", main=\"{2}\")\n",
+                s_RStatement += string.Format("plot(bin, xlab=\"{0}\", ylab=\"{1}\", main=\"{2}\", style=\"{3}\")\n",
                     Parameters["xLab"],
                     Parameters["yLab"],
-                    Parameters["main"]);
+                    Parameters["main"],
+                    "colorscale"); // can always come back and change up the style of the plot
 
-                s_RStatement += "dev.off()\rm(bin)";
+                s_RStatement += "dev.off()\nrm(bin)";
                 engine.EagerEvaluate(s_RStatement);
             }
         }

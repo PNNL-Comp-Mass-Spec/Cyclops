@@ -72,15 +72,36 @@ namespace Cyclops
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "";
 
+            // Check if the package is already installed, if not install it
+            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "BetaBinomial"))
+            {
+                // TODO: INSTALL THE BETABINOMIAL PACKAGE FROM ZIP
+            }
+
             try
             {
-                s_RStatement = string.Format("{0} <- largescale.bb.test({1}, {2}, " +
-                    "theta.equal={3})",
+                string s_Factor = Parameters["factor"];
+                string[] s_FactorsComplete = s_Factor.Split('$');
+                GetOrganizedFactorsVector(s_RInstance, Parameters["spectralCountTable"],
+                    s_FactorsComplete[0], s_FactorsComplete[1]);
+
+                s_RStatement = string.Format(
+                    "require(BetaBinomial)\n" +
+                    "{1} <- data.matrix({1})\n" +
+                    "{1}[is.na({1})] <- 0\n" +
+                    "sink(\"\")\n" +
+                    "tmp <- largescale.bb.test({1}, {2}, " +
+                    "theta.equal={3})\n" +
+                    "sink()\n" +
+                    "{0} <- cbind(\"pValue\"=tmp, {1})\n" +
+                    "colnames({0})[1] <- \"pValue\"\n" +
+                    "rm(tmp)",
                     Parameters["resultTableName"],
                     Parameters["spectralCountTable"],
                     Parameters["factor"],
-                    Parameters["theta"]);
-                engine.EagerEvaluate(s_RInstance);
+                    Parameters["theta"]                    
+                    );
+                engine.EagerEvaluate(s_RStatement);
             }
             catch (Exception exc)
             {
