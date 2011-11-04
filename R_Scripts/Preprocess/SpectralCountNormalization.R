@@ -23,6 +23,19 @@
 ## FUNCTIONS
 ################################################################################
 
+jnb_Zscore <- function(df, theColumns = NULL)
+{
+	if(!is.null(theColumns)) df <- df[,theColumns]
+	
+	#m <- apply(df, 1, FUN=mean, na.rm = T)
+	m <- rowMeans(df, na.rm = T)
+	sd <- apply(df, 1, FUN=sd, na.rm = T)
+	
+	tmp <- (df - m)/sd
+	df <- tmp
+	return(df)
+}
+
 # Provides a number of different spectral count algorithms, including
 # Total Signal (type = 1)
 # Z-normalization (type = 2)
@@ -38,13 +51,16 @@ jnb_NormalizeSpectralCounts <- function(x, type) {
 		for (i in 1:nrow(x)) {
 			w <- rbind(w, x[i,]/s)
 		}
+		rownames(w) <- rownames(x)
 		return(w)
 	} else if (type == 2) {			# Z-normalization
-		z <- t(scale(t(x)))
+		z <- jnb_Zscore(x)
+		rownames(z) <- rownames(x)
 		return(z)
 	} else if (type == 3) {			# Log Preprocessing
 		l <- log(x)
 		l[l == -Inf] <- 0
+		rownames(l) <- rownames(x)
 		return(l)
 	} else if (type == 4) {			# Hybrid Normalization (TS, Z)
 		s <- colSums(x)
@@ -53,6 +69,8 @@ jnb_NormalizeSpectralCounts <- function(x, type) {
 			w <- rbind(w, x[i,]/s)
 		}
 		h <- t(scale(t(w)))
+		rownames(h) <- rownames(x)
 		return(h)
 	}
 }
+

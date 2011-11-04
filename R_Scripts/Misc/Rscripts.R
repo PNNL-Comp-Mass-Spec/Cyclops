@@ -38,15 +38,31 @@ jnbIsPackageInstalled <- function(Package) {
 
 # Calculate a Log2 Ratio
 jnb_Log2Ratio <- function(x1, x2) {
-	if ( (x1==0 & x2==0) | (is.na(x1) & is.na(x2)) | (is.na(x1) & x2==0) | (x1==0 & is.na(x2)) ) {
-		return(0)
-	} else if (x2==0 | is.na(x2) ) {
-		return(log(x1,2))
-	} else if (x1==0 | is.na(x1) ) {
-		return (-log(x2,2))
-	} else {
-		return(log(x1/x2,2))
-	}
+  if ( (x1==0 & x2==0) | (is.na(x1) & is.na(x2)) | (is.na(x1) & x2==0) | (x1==0 & is.na(x2)) ) {
+  	return(0)
+  } else if (x2==0 | is.na(x2) ) {
+    if (x1 < 0) {
+      return(-log(abs(x1),2))
+    } else {    
+		  return(log(x1,2))
+    }
+  } else if (x1==0 | is.na(x1) ) {
+    if (x2 < 0) {
+      return(log(abs(x2),2))
+    } else {
+		  return (-log(x2,2))
+    }
+  } else {
+    if (x1 < 0 & x2 < 0) {
+      return(log(abs(x1)/abs(x2), 2))
+    } else if (x1 < 0) {
+      return(-log(abs(x1)/x2,2))
+    } else if (x2 < 0) {
+      return(log(x1/abs(x2),2))
+    } else {
+		  return(log(x1/x2,2))
+    }
+  }
 }
 
 # Processes log2 fold-change on a dataframe or matrix, and takes into account columns specified for p-values

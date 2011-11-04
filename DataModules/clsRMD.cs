@@ -74,8 +74,8 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                "Cyclops is performing RMD analysis.");
+            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+            //    "Cyclops is performing RMD analysis.");
 
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
 

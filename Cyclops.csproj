@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsCyclopsModel.cs" />
-    <Compile Include="clsLogTools.cs" />
     <Compile Include="DataModules\clsCombineSpectralCountResultFiles.cs" />
     <Compile Include="DataModules\clsFilterByAnotherTable.cs" />
     <Compile Include="DataModules\clsCast.cs" />
@@ -75,6 +74,7 @@
     <Compile Include="IBaseModule.cs" />
     <Compile Include="DataModules\clsImportDataModule.cs" />
     <Compile Include="DataModules\clsLoadRWorkspaceModule.cs" />
+    <Compile Include="VisualizationModules\clsHeatmap.cs" />
     <Compile Include="VisualizationModules\clsHexbin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataModules\clsRSourceFileModule.cs" />
@@ -84,9 +84,9 @@
   <ItemGroup>
     <None Include="DataModules\DataModulesDiagram.cd" />
     <None Include="ExportModules\ExportModulesDiagram.cd" />
-    <Content Include="Logging.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Include="Logging.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="R_Scripts\Preprocess\SpectralCountNormalization.R" />
     <None Include="R_Scripts\Rollup\Aggregate.R" />
     <None Include="R_Scripts\Statistics\KruskalWalis.R">

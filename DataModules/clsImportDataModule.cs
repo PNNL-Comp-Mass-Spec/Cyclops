@@ -45,7 +45,7 @@ namespace Cyclops
         /// Basic constructor
         /// </summary>
         public clsImportDataModule()
-        {
+        {            
             ModuleName = "Import Module";
         }
         /// <summary>
@@ -106,8 +106,9 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                "Cyclops Importing Data From " + Parameters["source"].ToString() + ".");
+            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+            //    "Cyclops Importing Data From " + Parameters["source"].ToString() + ".");
+            
 
             // Determine what source the data is coming from
             SetDataTypeFromParameters();
@@ -172,21 +173,21 @@ namespace Cyclops
                     }
                     catch (ParseException pe)
                     {
-                        clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                            "Cyclops encountered a ParseException while reading from SQLite DB: " +
-                            pe.ToString() + ".");
+                        //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                        //    "Cyclops encountered a ParseException while reading from SQLite DB: " +
+                        //    pe.ToString() + ".");
                     }
                     catch (AccessViolationException ave)
                     {
-                        clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                            "Cyclops encountered an AccessViolationException while reading from SQLite DB: " +
-                            ave.ToString() + ".");
+                        //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                        //    "Cyclops encountered an AccessViolationException while reading from SQLite DB: " +
+                        //    ave.ToString() + ".");
                     }
                     catch (Exception exc)
                     {
-                        clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                            "Cyclops encountered an Exception while reading from SQLite DB: " +
-                            exc.ToString() + ".");
+                        //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                        //    "Cyclops encountered an Exception while reading from SQLite DB: " +
+                        //    exc.ToString() + ".");
                     }                    
                     break;
                 case (int)ImportDataType.CSV:
@@ -215,8 +216,8 @@ namespace Cyclops
         /// <param name="RInstance">Instance of your R workspace</param>
         protected void ConnectToSQLiteDatabase(string RInstance)
         {
-            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                "Cyclops connecting to SQLite database.");
+            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+            //    "Cyclops connecting to SQLite database.");
 
             REngine engine = REngine.GetInstanceFromID(RInstance);
 
@@ -257,21 +258,21 @@ namespace Cyclops
                 }
                 catch (IOException exc)
                 {
-                    clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                        "Cyclops encountered an IOException while connecting to SQLite database:" +
-                        exc.ToString() + ".");
+                    //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                    //    "Cyclops encountered an IOException while connecting to SQLite database:" +
+                    //    exc.ToString() + ".");
                 }
                 catch (AccessViolationException ave)
                 {
-                    clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                        "Cyclops encountered an AccessViolationException while connecting to SQLite database:" +
-                        ave.ToString() + ".");
+                    //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                    //    "Cyclops encountered an AccessViolationException while connecting to SQLite database:" +
+                    //    ave.ToString() + ".");
                 }
                 catch (Exception ex)
                 {
-                    clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                        "Cyclops encountered an Exception while connecting to SQLite database:" +
-                        ex.ToString() + ".");
+                    //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                    //    "Cyclops encountered an Exception while connecting to SQLite database:" +
+                    //    ex.ToString() + ".");
                 }
             }
         }
@@ -291,15 +292,15 @@ namespace Cyclops
 
             if (b_Disconnected)
             {
-                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                    "Cyclops disconnected from database.");
-                s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                engine.EagerEvaluate(s_RStatement);
+                //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+                //    "Cyclops disconnected from database.");
+                //s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
+                //engine.EagerEvaluate(s_RStatement);
             }
             else
             {
-                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                    "Cyclops was unsuccessful at disconnecting from database.");
+                //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                //    "Cyclops was unsuccessful at disconnecting from database.");
             }
         }
 
@@ -456,6 +457,27 @@ namespace Cyclops
                     Parameters["rowNames"]);
                 engine.EagerEvaluate(s_RStatement);
             }
+        }
+
+        private string GetModuleNameExtension()
+        {
+            string s_Return = "";
+            if (Parameters.ContainsKey("dataTableName"))
+            {
+                s_Return = " DataTable: " + Parameters["dataTableName"] + 
+                    " -> " + Parameters["newDataTableName"];
+            }
+            else if (Parameters.ContainsKey("rowMetaDataTableName"))
+            {
+                s_Return = " DataTable: " + Parameters["rowMetaDataTableName"] +
+                    " -> " + Parameters["newRowMetaDataTableName"];
+            }
+            else if (Parameters.ContainsKey("columnMetaDataTableName"))
+            {
+                s_Return = " DataTable: " + Parameters["columnMetaDataTableName"] +
+                    " -> " + Parameters["newColumnMetaDataTableName"];
+            }
+            return s_Return;
         }
         #endregion
     }

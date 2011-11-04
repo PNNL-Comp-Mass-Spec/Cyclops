@@ -25,6 +25,7 @@ using System.Text;
 using System.IO;
 using System.Xml;
 
+using log4net;
 using RDotNet;
 
 namespace Cyclops
@@ -37,6 +38,7 @@ namespace Cyclops
         private XmlNodeReader reader;
         private enum ModuleType {Data, Visual, Export};
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -90,7 +92,7 @@ namespace Cyclops
 
                                             switch (modid)
                                             {
-                                                case "Import":
+                                                case "Import":                                                    
                                                     clsImportDataModule import = new clsImportDataModule(InstanceOfR);
                                                     if (root == null)
                                                     {
@@ -348,11 +350,20 @@ namespace Cyclops
                                     }
 
                                     if (currentModuleType == ModuleType.Data)
+                                    {                                        
                                         currentNode.Parameters = d_Parameters;
+                                        traceLog.Info(currentNode.ModuleName);
+                                    }
                                     else if (currentModuleType == ModuleType.Visual)
+                                    {                                        
                                         currentVizNode.Parameters = d_Parameters;
+                                        traceLog.Info(currentNode.ModuleName);
+                                    }
                                     else if (currentModuleType == ModuleType.Export)
+                                    {                                        
                                         currentExportNode.Parameters = d_Parameters;
+                                        traceLog.Info(currentNode.ModuleName);
+                                    }
                                     break;
                             }                    
                             break;

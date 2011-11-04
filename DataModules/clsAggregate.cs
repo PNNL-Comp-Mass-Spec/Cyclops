@@ -63,8 +63,8 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                "Cyclops is performing an aggregation of the data.");
+            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
+            //    "Cyclops is performing an aggregation of the data.");
 
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_Factor = Parameters["factor"];

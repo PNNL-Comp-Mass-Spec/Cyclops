@@ -25,7 +25,11 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 
+using log4net;
 using RDotNet;
+
+// Configure log4net using the .log4net file
+[assembly: log4net.Config.XmlConfigurator(ConfigFile = "Logging.config", Watch = true)]
 
 namespace Cyclops
 {
@@ -37,8 +41,10 @@ namespace Cyclops
         private clsBaseDataModule root = null, currentNode = null;
         private REngine engine;
         private string s_RInstance;
-        private string s_Version = "0.1.0.3";
+        private string s_Version = "1.0.0.0";
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
+
 
         #region Constructors
         /// <summary>
@@ -46,7 +52,7 @@ namespace Cyclops
         /// </summary>
         public clsCyclopsModel()
         {
-            s_RInstance = "rCore";
+            s_RInstance = "rCore";            
         }
 
         /// <summary>
@@ -55,6 +61,15 @@ namespace Cyclops
         /// <param name="ParametersForCyclops">Parameters for running cyclops</param>
         public clsCyclopsModel(Dictionary<string, string> ParametersForCyclops)
         {
+            //string s_Directory = Directory.GetCurrentDirectory();
+            //string s_LogFileName = DateTime.Now.Hour.ToString() +
+            //    DateTime.Now.Month.ToString() + DateTime.Now.Day.ToString() +
+            //    "_log.txt";
+            //// Set log4net path and kick the logger into action
+            //string LogFileName = Path.Combine("test.txt");
+            //log4net.GlobalContext.Properties["LogName"] = LogFileName;
+            //traceLog = LogManager.GetLogger("TraceLog");
+
             string value = "";
             d_CyclopsParameters = ParametersForCyclops;
             CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("PipelineID"),
@@ -159,10 +174,8 @@ namespace Cyclops
         /// </summary>
         public void AssembleModulesFromXML()
         {
-            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                "Assembling Modules from XML.");
+            traceLog.Info("Assembling Modules from XML.");
 
-            //SetREngineDLL(d_CyclopsParameters["RDLL"]);
             CreateInstanceOfR();
 
             clsCyclopsXMLReader reader = new clsCyclopsXMLReader(CyclopsParameters);
@@ -184,9 +197,7 @@ namespace Cyclops
             }
             else
             {
-                /// Throw an error
-                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                    "Name of Cyclops XML workflow was not passed in properly to the Parameters.");
+                traceLog.Error("Name of Cyclops XML workflow was not passed in properly to the Parameters.");
             }
         }
 
@@ -196,9 +207,8 @@ namespace Cyclops
         /// <param name="WorkFlowFile">Full path to the XML file</param>
         public void AssembleModulesFromXML(string WorkFlowFile)
         {
-            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                "Assembling Modules from XML: " + WorkFlowFile + ".");
-            //SetREngineDLL(d_CyclopsParameters["RDLL"]);
+            traceLog.Info("Assembing Modules from XML: " + WorkFlowFile + ".");
+
             CreateInstanceOfR();
 
             clsCyclopsXMLReader reader = new clsCyclopsXMLReader(CyclopsParameters);
@@ -213,6 +223,8 @@ namespace Cyclops
         /// <param name="RDLL">Path to R</param>
         public void AssembleModulesFromXML(string WorkFlowFile, string RDLL)
         {
+            traceLog.Info("Assembing Modules from XML: " + WorkFlowFile + ".");
+
             SetREngineDLL(RDLL);
             CreateInstanceOfR();
 
@@ -226,8 +238,7 @@ namespace Cyclops
         /// </summary>
         public bool Run()
         {
-            clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                "Running Cyclops Workflow.");
+            traceLog.Info("Running Cyclops Workflow.");
 
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
@@ -239,8 +250,7 @@ namespace Cyclops
             }
             else
             {
-                clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.WARN,
-                "Cyclops was unable to find the root module.");
+                traceLog.Error("Cyclops was unable to find the root module.");
                 engine.Close();
                 return false;
             }
