@@ -65,6 +65,11 @@ namespace Cyclops
 
         #region Functions
 
+        public string GetDescription()
+        {
+            return ModuleName + GetModuleNameExtension();             
+        }
+
         /// <summary>
         /// Sets the DataType that the object is going to pull the data from
         /// </summary>
@@ -286,6 +291,7 @@ namespace Cyclops
             REngine engine = REngine.GetInstanceFromID(RInstance);
             
             string s_RStatement = "terminated <- dbDisconnect(con)";
+            
             engine.EagerEvaluate(s_RStatement);
 
             bool b_Disconnected = clsGenericRCalls.AssessBoolean(RInstance, "terminated");
@@ -294,8 +300,8 @@ namespace Cyclops
             {
                 //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
                 //    "Cyclops disconnected from database.");
-                //s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                //engine.EagerEvaluate(s_RStatement);
+                s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
+                engine.EagerEvaluate(s_RStatement);
             }
             else
             {

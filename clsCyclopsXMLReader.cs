@@ -352,17 +352,17 @@ namespace Cyclops
                                     if (currentModuleType == ModuleType.Data)
                                     {                                        
                                         currentNode.Parameters = d_Parameters;
-                                        traceLog.Info(currentNode.ModuleName);
+                                        traceLog.Info(currentNode.GetDescription());
                                     }
                                     else if (currentModuleType == ModuleType.Visual)
                                     {                                        
                                         currentVizNode.Parameters = d_Parameters;
-                                        traceLog.Info(currentNode.ModuleName);
+                                        traceLog.Info(currentNode.GetDescription());
                                     }
                                     else if (currentModuleType == ModuleType.Export)
                                     {                                        
                                         currentExportNode.Parameters = d_Parameters;
-                                        traceLog.Info(currentNode.ModuleName);
+                                        traceLog.Info(currentNode.GetDescription());
                                     }
                                     break;
                             }                    

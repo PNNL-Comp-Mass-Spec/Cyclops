@@ -39,7 +39,7 @@
     </Reference>
     <Reference Include="R.NET, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\DownloadedProjects\RdotNET\rdotnet_20110712\R.NET\bin\Debug\R.NET.dll</HintPath>
+      <HintPath>..\..\..\DownloadedProjects\RdotNET\rdotnet_20110915\R.NET\bin\Debug\R.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

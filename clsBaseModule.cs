@@ -73,6 +73,11 @@ namespace Cyclops
         {
             Console.WriteLine(ModuleName);
         }
+
+        public string GetDescription()
+        {
+            return ModuleName;
+        }
         #endregion
     }
 }

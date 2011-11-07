@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using RDotNet;
 
 namespace Cyclops
@@ -69,8 +70,9 @@ namespace Cyclops
             if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "hexbin"))
                 clsGenericRCalls.InstallPackage(s_RInstance, "hexbin");
 
-            s_RStatement = "require(hexbin)\n";
-            //engine.EagerEvaluate(s_RStatement);
+            s_RStatement = "require(hexbin)";
+            engine.EagerEvaluate(s_RStatement);
+            s_RStatement = "";
 
             s_RStatement += "bin <- hexbin(";
 
@@ -103,11 +105,14 @@ namespace Cyclops
             s_RStatement += string.Format("xbins={0})\n",
                 Parameters["bins"]);
 
+            engine.EagerEvaluate(s_RStatement);
+            s_RStatement = "";
+
             if (Parameters.ContainsKey("image"))
             {
                 if (Parameters["image"].Equals("eps"))
                 {
-                    s_RStatement += string.Format("postscript(\"{0}\", width={1}," +
+                    s_RStatement += string.Format("postscript(filename=\"{0}\", width={1}," +
                         "height={2}, horizontal={3}, pointsize={4})\n",
                         Parameters["plotFileName"],
                         Parameters["width"],
@@ -117,11 +122,11 @@ namespace Cyclops
                 }
                 else if (Parameters["image"].Equals("png"))
                 {
-                    s_RStatement += string.Format("png(\"" +
+                    s_RStatement += string.Format("png(filename=\"" +
                         
                         "{0}/Plots/{1}\", width={2}," +
                         "height={3}, pointsize={4})\n",
-                        Parameters["workDir"],
+                        Parameters["workDir"].Replace('\\', '/'),
                         Parameters["plotFileName"],
                         Parameters["width"],
                         Parameters["height"],
@@ -136,6 +141,8 @@ namespace Cyclops
                         Parameters["height"],
                         Parameters["pointsize"]);
                 }
+                engine.EagerEvaluate(s_RStatement);
+                s_RStatement = "";
 
                 s_RStatement += string.Format("plot(bin, xlab=\"{0}\", ylab=\"{1}\", main=\"{2}\", style=\"{3}\")\n",
                     Parameters["xLab"],
