@@ -22,12 +22,15 @@ using System;
 using System.Collections.Generic;
 
 using RDotNet;
+using log4net;
 
 namespace Cyclops
 {
     public class clsFilterByAnotherTable : clsBaseDataModule
     {
-        private string s_RInstance;
+        private string s_RInstance, s_xLink="", s_yLink="", 
+            s_NewTableName="", s_xTable="", s_yTable="";
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -62,27 +65,89 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            traceLog.Info("Filtering by another table...");
 
-            string s_RStatement = "",
-                xLink = Parameters["xLink"],
-                yLink = Parameters["yLink"];
+            bool b_Params = CheckPassedParameters();
+
+            if (b_Params)
+            {
+                FilterByAnotherTable();
+            }
             
+            RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            // NECESSARY PARAMETERS
+            if (Parameters.ContainsKey("xLink"))
+                s_xLink = Parameters["xLink"];
+            else
+            {
+                traceLog.Error("FilterByAnotherTable class: 'xLink' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("yLink"))
+                s_yLink = Parameters["yLink"];
+            else
+            {
+                traceLog.Error("FilterByAnotherTable class: 'yLink' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("newTableName"))
+                s_NewTableName = Parameters["newTableName"];
+            else
+            {
+                traceLog.Error("FilterByAnotherTable class: 'newTableName' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("xTable"))
+                s_xTable = Parameters["xTable"];
+            else
+            {
+                traceLog.Error("FilterByAnotherTable class: 'xTable' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("yTable"))
+                s_yTable = Parameters["yTable"];
+            else
+            {
+                traceLog.Error("FilterByAnotherTable class: 'yTable' was not found in the passed parameters");
+                return false;
+            }
+
+            return true;
+        }
+
+        private void FilterByAnotherTable()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
             // Determine how to setup the link in the subset, either should be
             // "rownames" or the index of the column
-            if (xLink.Equals("rownames") & yLink.Equals("rownames"))
+            if (s_xLink.Equals("rownames") & s_yLink.Equals("rownames"))
             {
-                s_RStatement = string.Format(
+                string s_RStatement = string.Format(
                     "{0} <- {1}[which(rownames({1}) %in% rownames({2})),]",
-                    Parameters["newTableName"],
-                    Parameters["xTable"],
-                    Parameters["yTable"]
+                    s_NewTableName,
+                    s_xTable,
+                    s_yTable
                     );
-            }
 
-            engine.EagerEvaluate(s_RStatement);
-            RunChildModules();
+                try
+                {
+                    traceLog.Info("Filtering Table: " + s_RStatement);
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (Exception exc)
+                {
+                    traceLog.Error("ERROR Filtering Table: " + exc.ToString());
+                }
+            }
         }
         #endregion
     }

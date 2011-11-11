@@ -41,7 +41,6 @@ namespace Cyclops
         private clsBaseDataModule root = null, currentNode = null;
         private REngine engine;
         private string s_RInstance;
-        private string s_Version = "1.0.0.0";
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
@@ -130,13 +129,6 @@ namespace Cyclops
         {
             get { return d_CyclopsParameters; }
             set { d_CyclopsParameters = value; }
-        }
-        /// <summary>
-        /// Retrieves the current Cyclops Version
-        /// </summary>
-        public string Version
-        {
-            get { return s_Version; }
         }
         #endregion
 

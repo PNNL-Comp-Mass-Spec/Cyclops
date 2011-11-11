@@ -74,7 +74,7 @@ namespace Cyclops
             Console.WriteLine(ModuleName);
         }
 
-        public string GetDescription()
+        public virtual string GetDescription()
         {
             return ModuleName;
         }

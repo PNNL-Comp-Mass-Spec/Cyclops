@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,6 +53,7 @@
   <ItemGroup>
     <Compile Include="clsCyclopsModel.cs" />
     <Compile Include="DataModules\clsCombineSpectralCountResultFiles.cs" />
+    <Compile Include="DataModules\clsDataTableManipulation.cs" />
     <Compile Include="DataModules\clsFilterByAnotherTable.cs" />
     <Compile Include="DataModules\clsCast.cs" />
     <Compile Include="DataModules\clsCleanUpRSourceFileObjects.cs" />
@@ -80,6 +82,7 @@
     <Compile Include="DataModules\clsRSourceFileModule.cs" />
     <Compile Include="ExportModules\clsSaveEnvironment.cs" />
     <Compile Include="DataModules\clsTransformModule.cs" />
+    <Compile Include="VisualizationModules\clsHistogram.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DataModules\DataModulesDiagram.cd" />

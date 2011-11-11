@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using log4net;
 using RDotNet;
 
 namespace Cyclops
@@ -32,7 +33,9 @@ namespace Cyclops
     /// </summary>
     public class clsAggregate : clsBaseDataModule
     {
-        private string s_RInstance;
+        private string s_RInstance, s_NewTableName="", s_DataTable="",
+            s_Factor="", s_Margin="", s_Function="";
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -57,32 +60,99 @@ namespace Cyclops
 
         #endregion
 
-        #region Functions
+        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
         public override void PerformOperation()
         {
-            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-            //    "Cyclops is performing an aggregation of the data.");
+            traceLog.Info("Aggregating Datasets...");
 
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            string s_Factor = Parameters["factor"];
-            string[] s_FactorsComplete = s_Factor.Split('$');
-            GetOrganizedFactorsVector(s_RInstance, Parameters["dataTable"],
-                s_FactorsComplete[0], s_FactorsComplete[1]);
+            bool b_Params = CheckPassedParameters();
 
-            string s_RStatement = string.Format(
-                "{0} <- jnb_Aggregate(x=data.matrix({1}), " +
-                "myFactor={2}, MARGIN={3}, FUN={4})",
-                Parameters["newTableName"],
-                Parameters["dataTable"],
-                Parameters["factor"],
-                Parameters["margin"],
-                Parameters["function"]);
-            engine.EagerEvaluate(s_RStatement);
+            if (b_Params)
+            {               
+                string[] s_FactorsComplete = s_Factor.Split('$');
+                GetOrganizedFactorsVector(s_RInstance, s_DataTable,
+                    s_FactorsComplete[0], s_FactorsComplete[1]);
+
+                AggregateData();
+            }
 
             RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            // NECESSARY PARAMETERS
+            if (Parameters.ContainsKey("newTableName"))
+                s_NewTableName = Parameters["newTableName"];
+            else
+            {
+                traceLog.Error("Aggregation class: 'newTableName' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("dataTable"))
+                s_DataTable = Parameters["dataTable"];
+            else
+            {
+                traceLog.Error("Aggregation class: 'dataTable' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("factor"))
+                s_Factor = Parameters["factor"];
+            else
+            {
+                traceLog.Error("Aggregation class: 'factor' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("margin"))
+                s_Margin = Parameters["margin"];
+            else
+            {
+                traceLog.Error("Aggregation class: 'margin' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("function"))
+                s_Function = Parameters["function"];
+            else
+            {
+                traceLog.Error("Aggregation class: 'function' was not found in the passed parameters");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Performs the Aggregation
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        private void AggregateData()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+            string s_RStatement = string.Format(
+                    "{0} <- jnb_Aggregate(x=data.matrix({1}), " +
+                    "myFactor={2}, MARGIN={3}, FUN={4})",
+                    s_NewTableName,
+                    s_DataTable,
+                    s_Factor,
+                    s_Margin,
+                    s_Function);
+            try
+            {
+                traceLog.Info("Aggregating datasets: " + s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Aggregating data: " + exc.ToString());
+            }
         }
         #endregion
     }

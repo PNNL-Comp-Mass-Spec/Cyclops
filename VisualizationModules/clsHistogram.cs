@@ -22,39 +22,50 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using log4net;
+using RDotNet;
 
 namespace Cyclops
 {
     /// <summary>
-    /// Base class for visualization modules
+    /// Constructs histogram plots and saves the image file
     /// </summary>
-    public abstract class clsBaseVisualizationModule : clsBaseModule
+    public class clsHistogram : clsBaseVisualizationModule
     {
-        private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        protected string s_RInstance;
+        //protected Dictionary<string, string> d_PlotParameters = new Dictionary<string,string>();
 
+        #region Constructors
         /// <summary>
-        /// Creates a directory to store image files
+        /// Basic constructor
         /// </summary>
-        public void CreatePlotsFolder()
+        public clsHistogram()
         {
-            if (Parameters.ContainsKey("workDir"))
-            {
-                string s_WorkDir = Parameters["workDir"];
-                s_WorkDir += "/Plots";
-                s_WorkDir = s_WorkDir.Replace('\\', '/');
-                if (!Directory.Exists(s_WorkDir))
-                {
-                    traceLog.Info("Creating Plots Directory");
-                    Directory.CreateDirectory(s_WorkDir);
-                }
-            }
-            else
-            {
-                if (!Directory.Exists("Plots"))
-                    Directory.CreateDirectory("Plots");
-            }
+            ModuleName = "Histogram Module";
+        }
+        /// <summary>
+        /// Basic constructor that passes in the R workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of R Workspace</param>
+        public clsHistogram(string InstanceOfR)
+        {
+            ModuleName = "Histogram Module";
+            s_RInstance = InstanceOfR;            
+        }
+        #endregion
+
+        #region Properties
+        
+        #endregion
+
+        #region Methods
+        /// <summary>
+        ///  Runs module
+        /// </summary>
+        public override void PerformOperation()
+        {
+            CreatePlotsFolder();
 
         }
+        #endregion
     }
 }

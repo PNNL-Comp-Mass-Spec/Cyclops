@@ -22,12 +22,15 @@ using System;
 using System.Collections.Generic;
 
 using RDotNet;
+using log4net;
 
 namespace Cyclops
 {
     public class clsFoldChange : clsBaseDataModule
     {
-        private string s_RInstance;
+        private string s_RInstance, s_NewTableName="", 
+            s_TableName="";
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -62,18 +65,60 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            bool b_Params = CheckPassedParameters();
+
+            if (b_Params)
+            {
+                CalculateFoldChange();
+            }
+            
+            RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            // NECESSARY PARAMETERS
+            if (Parameters.ContainsKey("newTableName"))
+                s_NewTableName = Parameters["newTableName"];
+            else
+            {
+                traceLog.Error("FoldChange class: 'newTableName' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("tableName"))
+                s_TableName = Parameters["tableName"];
+            else
+            {
+                traceLog.Error("FoldChange class: 'tableName' was not found in the passed parameters");
+                return false;
+            }
+
+            return true;
+        }
+
+        private void CalculateFoldChange()
+        {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
-            string s_RStatement = "";
-
-            s_RStatement = string.Format(
+            
+            string s_RStatement = string.Format(
                 "{0} <- jnb_FoldChangeSpectralCountAndPackage({1}, {2})",
-                Parameters["newTableName"],
-                Parameters["tableName"],
+                s_NewTableName,
+                s_TableName,
                 "0");   // column(s) indicating the p-values
 
-            engine.EagerEvaluate(s_RStatement);
-            RunChildModules();
+            try
+            {
+                traceLog.Info("Calculating Fold Change: " + s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR calculating fold-change: " + exc.ToString());
+            }
         }
         #endregion
     }

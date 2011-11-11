@@ -26,6 +26,7 @@ using System.IO;
 using System.Threading;
 
 using RDotNet;
+using log4net;
 
 namespace Cyclops
 {
@@ -39,6 +40,7 @@ namespace Cyclops
         public enum ImportDataType { SQLite, CSV, TSV, MSAccess, SQLServer };
         private int dataType;
         private string s_RInstance;
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -63,9 +65,9 @@ namespace Cyclops
         
         #endregion
 
-        #region Functions
+        #region Methods
 
-        public string GetDescription()
+        public override string GetDescription()
         {
             return ModuleName + GetModuleNameExtension();             
         }
@@ -111,9 +113,7 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-            //    "Cyclops Importing Data From " + Parameters["source"].ToString() + ".");
-            
+            traceLog.Info("Cyclops Importing Data From " + Parameters["source"].ToString() + ".");
 
             // Determine what source the data is coming from
             SetDataTypeFromParameters();
@@ -171,6 +171,8 @@ namespace Cyclops
                                 SetTableRowNames(s_RInstance, Parameters["newRowMetaDataTableName"]);                                
                             }
                         }
+
+                        traceLog.Info("Importing Table: " + s_RStatement);
                         engine.EagerEvaluate(s_RStatement);
 
                         DisconnectFromDatabase(s_RInstance);
@@ -199,7 +201,9 @@ namespace Cyclops
                     string s_Read = string.Format("{0} <- read.csv(\"{1}\")",
                         Parameters["newDataTableName"],
                         Parameters["workDir"].Replace('\\', '/') + "/" + Parameters["dataTableName"]);
-                        engine.EagerEvaluate(s_Read);
+
+                    traceLog.Info("Importing CSV: " + s_Read);
+                    engine.EagerEvaluate(s_Read);
                     break;
                 case (int)ImportDataType.TSV:
 
@@ -255,29 +259,25 @@ namespace Cyclops
                                     s_InputFileName);
                 s_RStatement = s_RStatement.Replace('\\', '/');
 
-                //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                //    "Cyclops connecting to SQLite: " + s_InputFileName + ".");
                 try
                 {
+                    traceLog.Info("Connecting to SQLite Database: " + s_RStatement);
                     engine.EagerEvaluate(s_RStatement);
                 }
                 catch (IOException exc)
                 {
-                    //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                    //    "Cyclops encountered an IOException while connecting to SQLite database:" +
-                    //    exc.ToString() + ".");
+                    traceLog.Error("Cyclops encountered an IOException while connecting to SQLite database: " +
+                        exc.ToString() + ".");
                 }
                 catch (AccessViolationException ave)
                 {
-                    //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                    //    "Cyclops encountered an AccessViolationException while connecting to SQLite database:" +
-                    //    ave.ToString() + ".");
+                    traceLog.Error("Cyclops encountered an AccessViolationException while connecting to SQLite database: " +
+                        ave.ToString() + ".");
                 }
                 catch (Exception ex)
                 {
-                    //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                    //    "Cyclops encountered an Exception while connecting to SQLite database:" +
-                    //    ex.ToString() + ".");
+                    traceLog.Error("Cyclops encountered an Exception while connecting to SQLite database:" +
+                        ex.ToString() + ".");
                 }
             }
         }
@@ -291,22 +291,21 @@ namespace Cyclops
             REngine engine = REngine.GetInstanceFromID(RInstance);
             
             string s_RStatement = "terminated <- dbDisconnect(con)";
-            
+
+            traceLog.Info("Disconnecting from Database: " + s_RStatement);
             engine.EagerEvaluate(s_RStatement);
 
             bool b_Disconnected = clsGenericRCalls.AssessBoolean(RInstance, "terminated");
 
             if (b_Disconnected)
             {
-                //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-                //    "Cyclops disconnected from database.");
                 s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
+                traceLog.Info("Cleaning Database Connection: " + s_RStatement);
                 engine.EagerEvaluate(s_RStatement);
             }
             else
             {
-                //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                //    "Cyclops was unsuccessful at disconnecting from database.");
+                traceLog.Error("Cyclops was unsuccessful at disconnecting from SQLITE database");
             }
         }
 
@@ -329,6 +328,8 @@ namespace Cyclops
                 "tmpData <- tmpData[,-1]\n" +
                 "DataCleaning(tmpData)",
                 Parameters["assayData"]);
+
+            traceLog.Info("Retrieving Assay Data from SQLite: " + s_RStatement);
             engine.EagerEvaluate(s_RStatement);             
         }
 
@@ -360,6 +361,8 @@ namespace Cyclops
                 "rm(tmpPheno)\n",
                 Parameters["phenoData"],
                 Parameters["phenoDataLink"]);
+
+            traceLog.Info("Retrieving Phenotype Data from SQLite: " + s_RStatement);
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -389,6 +392,8 @@ namespace Cyclops
                 "rm(tmpFeatures)",
                 Parameters["rowMetaData"],
                 Parameters["rowMetaDataLink"]);
+
+            traceLog.Info("Retrieving Feature Data from SQLite: " + s_RStatement);
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -407,6 +412,8 @@ namespace Cyclops
                  "DataCleaning({1})",
                  Parameters["dataTableName"],
                  Parameters["newDataTableName"]);
+
+            traceLog.Info("Retrieving Table from SQLite: " + s_RStatement);
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -425,6 +432,8 @@ namespace Cyclops
                   "DataCleaning({1})",
                   Parameters["columnMetaDataTableName"],
                   Parameters["newColumnMetaDataTableName"]);
+
+            traceLog.Info("Retrieving Column Metadata from SQLite: " + s_RStatement);
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -443,6 +452,8 @@ namespace Cyclops
                                     "DataCleaning({1})",
                                     Parameters["rowMetaDataTableName"],
                                     Parameters["newRowMetaDataTableName"]);
+
+            traceLog.Info("Retrieving Row Metadata from SQLite: " + s_RStatement);
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -461,6 +472,8 @@ namespace Cyclops
                     "{0} <- {0}[,-{1}]",
                     TableName,
                     Parameters["rowNames"]);
+
+                traceLog.Info("Setting Rownames on Table: " + s_RStatement);
                 engine.EagerEvaluate(s_RStatement);
             }
         }
@@ -470,20 +483,32 @@ namespace Cyclops
             string s_Return = "";
             if (Parameters.ContainsKey("dataTableName"))
             {
-                s_Return = " DataTable: " + Parameters["dataTableName"] + 
+                s_Return = ". Importing DataTable: " + Parameters["dataTableName"] + 
                     " -> " + Parameters["newDataTableName"];
             }
             else if (Parameters.ContainsKey("rowMetaDataTableName"))
             {
-                s_Return = " DataTable: " + Parameters["rowMetaDataTableName"] +
+                s_Return = ". Importing Row Metadata Table: " + Parameters["rowMetaDataTableName"] +
                     " -> " + Parameters["newRowMetaDataTableName"];
             }
             else if (Parameters.ContainsKey("columnMetaDataTableName"))
             {
-                s_Return = " DataTable: " + Parameters["columnMetaDataTableName"] +
+                s_Return = ". Importing Column Metadata Table: " + Parameters["columnMetaDataTableName"] +
                     " -> " + Parameters["newColumnMetaDataTableName"];
             }
             return s_Return;
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            // NECESSARY PARAMETERS
+
+
+            return true;
         }
         #endregion
     }

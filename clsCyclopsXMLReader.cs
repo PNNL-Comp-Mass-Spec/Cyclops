@@ -66,6 +66,12 @@ namespace Cyclops
         /// <returns>the root node module</returns>
         public clsBaseDataModule ReadXML_Workflow(string XML_FileName, string InstanceOfR)
         {
+            if (!File.Exists(XML_FileName))
+            {
+                traceLog.Error("Cyclops did not find XML workflow: " + XML_FileName);
+                return null;
+            }
+
             ModuleType currentModuleType = ModuleType.Data;
 
             clsBaseDataModule root = null;                     // keeps track of the root of the tree
@@ -235,6 +241,19 @@ namespace Cyclops
                                                         currentNode = norm;
                                                     }
                                                     break;
+                                                case "DataTableManipulation":
+                                                    clsDataTableManipulation dtm = new clsDataTableManipulation(InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = dtm;
+                                                        currentNode = dtm;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(dtm);
+                                                        currentNode = dtm;
+                                                    }
+                                                    break;
                                                 case "Clean":
                                                     clsCleanUpRSourceFileObjects clean = new clsCleanUpRSourceFileObjects(InstanceOfR);
                                                     if (root == null)
@@ -357,12 +376,12 @@ namespace Cyclops
                                     else if (currentModuleType == ModuleType.Visual)
                                     {                                        
                                         currentVizNode.Parameters = d_Parameters;
-                                        traceLog.Info(currentNode.GetDescription());
+                                        traceLog.Info(currentVizNode.GetDescription());
                                     }
                                     else if (currentModuleType == ModuleType.Export)
                                     {                                        
                                         currentExportNode.Parameters = d_Parameters;
-                                        traceLog.Info(currentNode.GetDescription());
+                                        traceLog.Info(currentExportNode.GetDescription());
                                     }
                                     break;
                             }                    
