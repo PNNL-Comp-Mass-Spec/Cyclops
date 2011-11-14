@@ -67,11 +67,12 @@ namespace Cyclops
         {
             traceLog.Info("Filtering by another table...");
 
-            bool b_Params = CheckPassedParameters();
-
-            if (b_Params)
+            if (CheckPassedParameters())
             {
-                FilterByAnotherTable();
+                if (CheckTablesExist())
+                {
+                    FilterByAnotherTable();
+                }
             }
             
             RunChildModules();
@@ -121,6 +122,24 @@ namespace Cyclops
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Performs a check to make sure that the tables exist in the R workspace.
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckTablesExist()
+        {
+            if (clsGenericRCalls.ContainsObject(s_RInstance, s_xTable) &
+                clsGenericRCalls.ContainsObject(s_RInstance, s_yTable))
+            {
+                return true;
+            }
+            else
+            {
+                traceLog.Error("ERROR FilterByAnotherTable class: one of the tables does not exist!");
+                return false;
+            }
         }
 
         private void FilterByAnotherTable()

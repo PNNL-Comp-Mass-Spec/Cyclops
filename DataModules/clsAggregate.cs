@@ -67,16 +67,33 @@ namespace Cyclops
         public override void PerformOperation()
         {
             traceLog.Info("Aggregating Datasets...");
-
-            bool b_Params = CheckPassedParameters();
-
-            if (b_Params)
+            
+            if (CheckPassedParameters())
             {               
                 string[] s_FactorsComplete = s_Factor.Split('$');
                 GetOrganizedFactorsVector(s_RInstance, s_DataTable,
                     s_FactorsComplete[0], s_FactorsComplete[1]);
 
-                AggregateData();
+                // check that the table exists
+                if (clsGenericRCalls.ContainsObject(s_RInstance, s_FactorsComplete[0]))
+                {
+                    // check that the table has the expected column
+                    if (clsGenericRCalls.TableContainsColumn(s_RInstance, s_FactorsComplete[0],
+                        s_FactorsComplete[1]))
+                    {
+                        AggregateData();
+                    }
+                    else
+                    {
+                        traceLog.Error("ERROR: Aggregation class. The factors table does not contain " +
+                            "the necessary column: " + s_FactorsComplete[1]);
+                    }
+                }
+                else
+                {
+                    traceLog.Error("ERROR: Aggregation class. The factors table does not exist: " +
+                        s_FactorsComplete[0]);
+                }
             }
 
             RunChildModules();
@@ -93,35 +110,35 @@ namespace Cyclops
                 s_NewTableName = Parameters["newTableName"];
             else
             {
-                traceLog.Error("Aggregation class: 'newTableName' was not found in the passed parameters");
+                traceLog.Error("ERROR: Aggregation class: 'newTableName' was not found in the passed parameters");
                 return false;
             }
             if (Parameters.ContainsKey("dataTable"))
                 s_DataTable = Parameters["dataTable"];
             else
             {
-                traceLog.Error("Aggregation class: 'dataTable' was not found in the passed parameters");
+                traceLog.Error("ERROR: Aggregation class: 'dataTable' was not found in the passed parameters");
                 return false;
             }
             if (Parameters.ContainsKey("factor"))
                 s_Factor = Parameters["factor"];
             else
             {
-                traceLog.Error("Aggregation class: 'factor' was not found in the passed parameters");
+                traceLog.Error("ERROR: Aggregation class: 'factor' was not found in the passed parameters");
                 return false;
             }
             if (Parameters.ContainsKey("margin"))
                 s_Margin = Parameters["margin"];
             else
             {
-                traceLog.Error("Aggregation class: 'margin' was not found in the passed parameters");
+                traceLog.Error("ERROR: Aggregation class: 'margin' was not found in the passed parameters");
                 return false;
             }
             if (Parameters.ContainsKey("function"))
                 s_Function = Parameters["function"];
             else
             {
-                traceLog.Error("Aggregation class: 'function' was not found in the passed parameters");
+                traceLog.Error("ERROR: Aggregation class: 'function' was not found in the passed parameters");
                 return false;
             }
 
@@ -151,7 +168,7 @@ namespace Cyclops
             }
             catch (Exception exc)
             {
-                traceLog.Error("ERROR Aggregating data: " + exc.ToString());
+                traceLog.Error("ERROR: Aggregating data: " + exc.ToString());
             }
         }
         #endregion

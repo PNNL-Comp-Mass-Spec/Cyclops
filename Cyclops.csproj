@@ -83,6 +83,7 @@
     <Compile Include="ExportModules\clsSaveEnvironment.cs" />
     <Compile Include="DataModules\clsTransformModule.cs" />
     <Compile Include="VisualizationModules\clsHistogram.cs" />
+    <Compile Include="VisualizationModules\clsVisualizationGlobalParameters.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DataModules\DataModulesDiagram.cd" />

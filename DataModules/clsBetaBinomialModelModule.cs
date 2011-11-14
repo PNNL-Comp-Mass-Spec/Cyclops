@@ -26,6 +26,7 @@ using System.IO;
 using System.Threading;
 
 using RDotNet;
+using log4net;
 
 namespace Cyclops
 {
@@ -34,7 +35,10 @@ namespace Cyclops
     /// </summary>
     public class clsBetaBinomialModelModule : clsBaseDataModule
     {
-        private string s_RInstance;
+        private string s_RInstance, s_ResultTableName="",
+            s_SpectralCountTable="", s_Factor="",
+            s_Theta="TRUE";
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -69,45 +73,102 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            
             string s_RStatement = "";
 
             // Check if the package is already installed, if not install it
             if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "BetaBinomial"))
             {
+                traceLog.Error("BetaBinomial Package not loaded into R!");
                 // TODO: INSTALL THE BETABINOMIAL PACKAGE FROM ZIP
             }
 
+
+            if (CheckPassedParameters())
+            {
+                PerformBetaBinomialAnalysis();
+            }
+
+            
+            RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            // NECESSARY PARAMETERS
+            if (Parameters.ContainsKey("resultTableName"))
+                s_ResultTableName = Parameters["resultTableName"];
+            else
+            {
+                traceLog.Error("BetaBinomial class: 'resultTableName' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("spectralCountTable"))
+                s_SpectralCountTable = Parameters["spectralCountTable"];
+            else
+            {
+                traceLog.Error("BetaBinomial class: 'spectralCountTable' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("factor"))
+                s_Factor = Parameters["factor"];
+            else
+            {
+                traceLog.Error("BetaBinomial class: 'factor' was not found in the passed parameters");
+                return false;
+            }
+            if (Parameters.ContainsKey("theta"))
+                s_Theta = Parameters["theta"];
+            else
+            {
+                traceLog.Error("BetaBinomial class: 'theta' was not found in the passed parameters");
+                return false;
+            }
+
+            return true;
+        }
+
+        private void PerformBetaBinomialAnalysis()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
             try
             {
-                string s_Factor = Parameters["factor"];
                 string[] s_FactorsComplete = s_Factor.Split('$');
                 GetOrganizedFactorsVector(s_RInstance, Parameters["spectralCountTable"],
                     s_FactorsComplete[0], s_FactorsComplete[1]);
 
-                s_RStatement = string.Format(
-                    "require(BetaBinomial)\n" +
-                    "{1} <- data.matrix({1})\n" +
-                    "{1}[is.na({1})] <- 0\n" +
-                    "sink(\"\")\n" +
-                    "tmp <- largescale.bb.test({1}, {2}, " +
-                    "theta.equal={3})\n" +
-                    "sink()\n" +
-                    "{0} <- cbind(\"pValue\"=tmp, {1})\n" +
-                    "colnames({0})[1] <- \"pValue\"\n" +
-                    "rm(tmp)",
-                    Parameters["resultTableName"],
-                    Parameters["spectralCountTable"],
-                    Parameters["factor"],
-                    Parameters["theta"]                    
-                    );
-                engine.EagerEvaluate(s_RStatement);
+                // Make sure that the factors table contains the field to perform the comparison
+                if (clsGenericRCalls.GetColumnNames(s_RInstance, s_FactorsComplete[0]).Contains(s_FactorsComplete[1]))
+                {
+                    string s_RStatement = string.Format(
+                        "require(BetaBinomial)\n" +
+                        "{1} <- data.matrix({1})\n" +
+                        "{1}[is.na({1})] <- 0\n" +
+                        "sink(\"\")\n" +
+                        "tmp <- largescale.bb.test({1}, {2}, " +
+                        "theta.equal={3})\n" +
+                        "sink()\n" +
+                        "{0} <- cbind(\"pValue\"=tmp, {1})\n" +
+                        "colnames({0})[1] <- \"pValue\"\n" +
+                        "rm(tmp)",
+                        s_ResultTableName,
+                        s_SpectralCountTable,
+                        s_Factor,
+                        s_Theta
+                        );
+                    engine.EagerEvaluate(s_RStatement);
+                }
             }
             catch (Exception exc)
             {
+                traceLog.Error("ERROR Performing BetaBinomial Analysis: " + exc.ToString());
             }
 
-            RunChildModules();
         }
         #endregion
     }

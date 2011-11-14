@@ -33,6 +33,9 @@ namespace Cyclops
     public class clsHexbin : clsBaseVisualizationModule
     {
         protected string s_RInstance;
+        private VisualizationModules.clsVisualizationGlobalParameters vgp =
+            new VisualizationModules.clsVisualizationGlobalParameters();
+
         private string s_TableName="", s_xColumn="", s_yColumn="", 
             s_Bins="100", s_Image="png",s_PlotFileName="", 
             s_Width="480", s_Height="480", s_Horizontal="TRUE", 
@@ -70,35 +73,42 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            vgp.Parameters = Parameters;
+
             traceLog.Info("Producing Hexbin Plot...");
 
-            bool b_Param = CheckPassedParameters();
-
-            if (b_Param)
+            if (CheckPassedParameters())
             {
                 CreatePlotsFolder();
 
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
-                // Construct the R statement
-                string s_RStatement = "";
-                if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "hexbin"))
-                    clsGenericRCalls.InstallPackage(s_RInstance, "hexbin");
-
-                s_RStatement = "require(hexbin)";
-                try
+                if (clsGenericRCalls.ContainsObject(s_RInstance, s_TableName))
                 {
-                    traceLog.Info("Loading Hexbin libraries: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
+
+                    REngine engine = REngine.GetInstanceFromID(s_RInstance);
+                    // Construct the R statement
+                    string s_RStatement = "";
+                    if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "hexbin"))
+                        clsGenericRCalls.InstallPackage(s_RInstance, "hexbin");
+
+                    s_RStatement = "require(hexbin)";
+                    try
+                    {
+                        traceLog.Info("Loading Hexbin libraries: " + s_RStatement);
+                        engine.EagerEvaluate(s_RStatement);
+                    }
+                    catch (Exception exc)
+                    {
+                        traceLog.Error("ERROR loading Hexbin libraries: " + exc.ToString());
+                    }
+
+                    BinData();
+
+                    CreatePlotFile();
                 }
-                catch (Exception exc)
+                else
                 {
-                    traceLog.Error("ERROR loading Hexbin libraries: " + exc.ToString());
+                    traceLog.Error("ERROR Hexbin class: " + s_TableName + " does not exist in the R workspace.");
                 }
-
-                BinData();
-
-
-                CreatePlotFile();
             }     
         }
 
@@ -129,51 +139,51 @@ namespace Cyclops
                 s_Bins = Parameters["bins"];
             else
             {
-                traceLog.Error("Hexbin class: 'bins' was not found in the passed parameters, continuing the process...");
+                traceLog.Warn("Hexbin class: 'bins' was not found in the passed parameters, continuing the process...");
             }
 
             if (Parameters.ContainsKey("width"))
                 s_Width = Parameters["width"];
             else
             {
-                traceLog.Error("Hexbin class: 'width' was not found in the passed parameters, continuing the process...");
+                traceLog.Warn("Hexbin class: 'width' was not found in the passed parameters, continuing the process...");
             }
             if (Parameters.ContainsKey("height"))
                 s_Height = Parameters["height"];
             else
             {
-                traceLog.Error("Hexbin class: 'height' was not found in the passed parameters, continuing the process...");
+                traceLog.Warn("Hexbin class: 'height' was not found in the passed parameters, continuing the process...");
             }
             if (Parameters.ContainsKey("horizontal"))
                 s_Horizontal = Parameters["horizontal"];
             else
             {
-                traceLog.Error("Hexbin class: 'horizontal' was not found in the passed parameters, continuing the process...");
+                traceLog.Warn("Hexbin class: 'horizontal' was not found in the passed parameters, continuing the process...");
             }
             if (Parameters.ContainsKey("pointsize"))
                 s_PointSize = Parameters["pointsize"];
             else
             {
-                traceLog.Error("Hexbin class: 'pointsize' was not found in the passed parameters, continuing the process...");
+                traceLog.Warn("Hexbin class: 'pointsize' was not found in the passed parameters, continuing the process...");
             }
 
             if (Parameters.ContainsKey("xLab"))
                 s_Xlab = Parameters["xLab"];
             else
             {
-                traceLog.Error("Hexbin class: 'xLab' was not found in the passed parameters, continuing the process...");
+                traceLog.Warn("Hexbin class: 'xLab' was not found in the passed parameters, continuing the process...");
             }
             if (Parameters.ContainsKey("yLab"))
                 s_Ylab = Parameters["yLab"];
             else
             {
-                traceLog.Error("Hexbin class: 'yLab' was not found in the passed parameters, continuing the process...");
+                traceLog.Warn("Hexbin class: 'yLab' was not found in the passed parameters, continuing the process...");
             }
             if (Parameters.ContainsKey("main"))
                 s_Main = Parameters["main"];
             else
             {
-                traceLog.Error("Hexbin class: 'main' was not found in the passed parameters, continuing the process...");
+                traceLog.Warn("Hexbin class: 'main' was not found in the passed parameters, continuing the process...");
             }
 
 
