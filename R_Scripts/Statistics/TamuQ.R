@@ -1,4 +1,4 @@
-﻿
+
 # Written by Tom Taverner
 # for the Department of Energy (PNNL, Richland, WA)
 # Copyright 2009, Battelle Memorial Institute

@@ -1,4 +1,4 @@
-﻿
+
 # Written by Ashoka D. Polpitiya
 # for the Department of Energy (PNNL, Richland, WA)
 # Copyright 2007, Battelle Memorial Institute
@@ -16,27 +16,31 @@
 #############################################################
 
 RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
+				protInfo_ProtCol=1,
+				protInfo_PepCol=3,
                         minOverlap=3, oneHitWonders=TRUE, outfolder="C:/",
                         plotflag=FALSE, gpvalue=0.05, gminPCount=5, center=TRUE)
 #
 # Ashoka Polpitiya - July 2007
 #
 {
+    Data <- data.matrix(Data)
     ProtInfo <- unique(ProtInfo)
+		
     minCountPerP <- 2
     minPresence <- minPresence/100
-    protIPI <- ProtInfo[,2]
-    MassTags <- ProtInfo[,1]
+    protIPI <- ProtInfo[,protInfo_ProtCol]
+    MassTags <- ProtInfo[,protInfo_PepCol]
     uProtCounts <- table(protIPI)
     sigIPI <- names(uProtCounts[uProtCounts >= minCountPerP])
     restIPI <- names(uProtCounts[(uProtCounts < minCountPerP) & (uProtCounts > 0)])
-
-    threshold <- round(dim(Data)[2] * minPresence)
+	
+	threshold <- round(dim(Data)[2] * minPresence)
 
     scaledData <- rep(numeric(0),dim(Data)[2])
     orData <- rep(numeric(0),dim(Data)[2])
-    protData <- rep(numeric(0),dim(Data)[2]+2)
-    singlePepProtData <- rep(numeric(0),dim(Data)[2]+2)
+    protData <- rep(numeric(0),dim(Data)[2]+1)
+    singlePepProtData <- rep(numeric(0),dim(Data)[2]+1)
 
     proteinNames <- "empty"
     oneHitProtNames <- "empty"
@@ -48,17 +52,19 @@ RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
         data_idx <- is.element(row.names(Data),MassTags[pidx])
         currProtData <- Data[data_idx,]
 
-        if (is.matrix(currProtData))
+        if (is.matrix(currProtData) || is.data.frame(currProtData))
             if (dim(currProtData)[1] > 1)
             {
                 xPresenceCount <- rowSums(!is.na(currProtData), na.rm=TRUE)
                 if (max(xPresenceCount, na.rm=TRUE) >= threshold)
                 {
-                    pData <- protein.Rrollup(currProtData,minOverlap=minOverlap,
+                    pData <- protein.rollup1(currProtData,minOverlap=minOverlap,
                              Mode=Mode, minPs=gminPCount, pvalue=gpvalue, center=center)
                     scaledData <- rbind(scaledData,pData$sData)
                     orData <- rbind(orData,pData$orData)
                     protData <- rbind(protData,pData$pData)
+			
+
                     proteinNames[k] <- sigIPI[prot]
 
                     if (plotflag)
@@ -70,10 +76,12 @@ RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
                 }
             }
     }
+	
     rownames(protData) <- proteinNames
     scaledData <- remove.duplicates(scaledData)
     orData <- remove.duplicates(orData)
     
+
     if (oneHitWonders)
     {
         k = 1
@@ -85,7 +93,7 @@ RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
             xPresenceCount <- sum(!is.na(currProtData))
             if (xPresenceCount >= threshold)
             {
-                singlePepProt <- c(PepCount=1, Score=1, currProtData)
+                singlePepProt <- c(PepCount=1,currProtData)
                 singlePepProtData <- rbind(singlePepProtData,singlePepProt)
                 oneHitProtNames[k] <- restIPI[prot]
                 k = k + 1
@@ -94,9 +102,9 @@ RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
         rownames(singlePepProtData) <- oneHitProtNames
         if (center)
         {
-            singlePepProtData1 <- singlePepProtData[,-c(1,2)]
+            singlePepProtData1 <- singlePepProtData[,-1]
             scaledSinglePepProtData <- t(scale(t(singlePepProtData1),center=T,scale=F))
-            singlePepProtData <- cbind(singlePepProtData[,c(1,2)],scaledSinglePepProtData)
+            singlePepProtData <- cbind(singlePepProtData[,1],scaledSinglePepProtData)
         }
         outProtData <- rbind(protData,singlePepProtData)
     }
@@ -108,7 +116,7 @@ RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
 }
 
 #------------------------------------------------------------------
-protein.Rrollup <- function(currSel, minOverlap=3, Mode="median",
+protein.rollup1 <- function(currSel, minOverlap=3, Mode="median",
                         minPs=5, pvalue=0.05, center=TRUE)
 {
     pepCounts <- rowSums(!is.na(currSel)) # presence of a peptide sample-wise
@@ -149,9 +157,7 @@ protein.Rrollup <- function(currSel, minOverlap=3, Mode="median",
     else
         proteinVal <- apply(scaled.or, 2, mean, na.rm=T)
 
-    rollupScore <- rollup.score(currSel, proteinVal, "pearson")
-
-    proteinVal <- c(PepCount=dim(scaled.or)[1], QPRo=rollupScore, proteinVal) # append the column with peptide counts
+    proteinVal <- c(PepCount=dim(scaled.or)[1],proteinVal) # append the column with peptide counts
     out <- list(sData=scaled, orData=scaled.or, pData=proteinVal)
     return(out)
 }
@@ -202,15 +208,12 @@ plotCurrProt.RefRup <- function(currData,pdata,file="deleteme.png",
     protData <- pdata$pData
     orData <- pdata$orData
 
-    mainT <- paste(IPI, "(QPRo=", protData[2], ")", sep=" ")
-    
     par(mfrow=c(3,1))
-    
-    matplot(t(currData),type="b",main=mainT,ylab="Raw Data")
+    matplot(t(currData),type="b",main=IPI,ylab="Raw Data")
     matplot(t(scaledData),type="b",ylab="Scaled Data")
     matplot(t(orData),type="b",ylab="Scaled and Outlier removed",
             xlab=paste(dim(currData)[1],"Peptides",sep=" "))
-    lines(protData[-c(1,2)],type="l",lwd=2)
+    lines(protData[-1],type="l",lwd=2)
     },
     interrupt = function(ex)
     {
@@ -231,3 +234,60 @@ plotCurrProt.RefRup <- function(currData,pdata,file="deleteme.png",
 }
 #------------------------------------------------------------------
 
+###############################################################################
+# modified R outier functions from "outlier" package to handle missing
+rm.outlier.1 <- function (x, fill = FALSE, median = FALSE,
+                         opposite = FALSE,
+                         na.rm = TRUE)
+{
+    if (is.matrix(x))
+        apply(x, 2, rm.outlier.1, fill = fill, median = median,
+            opposite = opposite, na.rm = na.rm)
+    else if (is.data.frame(x))
+        as.data.frame(sapply(x, rm.outlier.1, fill = fill, median = median,
+            opposite = opposite, na.rm = na.rm))
+    else {
+        res <- x
+        if (!fill)
+            res[-which(x == outlier.1(x, opposite))]
+        else {
+            if (median)
+                res[which(x == outlier.1(x, opposite))] <- median(x[-which(x ==
+                  outlier.1(x, opposite))], na.rm = na.rm)
+            else res[which(x == outlier.1(x, opposite))] <- mean(x[-which(x ==
+                outlier.1(x, opposite))], na.rm = na.rm)
+            res
+        }
+    }
+}
+
+# modified R outier functions to handle missing
+outlier.1 <- function (x, opposite = FALSE, logical = FALSE, na.rm = TRUE)
+{
+    if (is.matrix(x))
+        apply(x, 2, outlier.1, opposite = opposite, logical = logical)
+    else if (is.data.frame(x))
+        sapply(x, outlier.1, opposite = opposite, logical = logical)
+    else {
+        if (xor(((max(x, na.rm = na.rm) - mean(x, na.rm = na.rm)) <
+            (mean(x, na.rm = na.rm) - min(x, na.rm = na.rm))), opposite)) {
+            if (!logical)
+                min(x, na.rm = na.rm)
+            else x == min(x, na.rm = na.rm)
+        }
+        else {
+            if (!logical)
+                max(x, na.rm = na.rm)
+            else x == max(x, na.rm = na.rm)
+        }
+    }
+}
+
+#------------------------------------------------------------------
+remove.duplicates <- function(Data)
+{
+     rowIDs <- rownames(Data)
+     rowIDs <- rowIDs[rowIDs != ""]
+     Data <- Data[!duplicated(rowIDs),]
+     return(Data)
+}

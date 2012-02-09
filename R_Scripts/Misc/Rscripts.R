@@ -1,4 +1,4 @@
-﻿
+
 # Written by Joseph N. Brown
 # for the Department of Energy (PNNL, Richland, WA)
 # Battelle Memorial Institute
@@ -96,4 +96,87 @@ jnb_FoldChangeSpectralCountAndPackage <- function(
 	} else {
 		FC_tmp <- cbind(FC_tmp, x)
 	}
+}
+
+# Autoscaling for log transformed data. Ensures that all data points are positive.
+jnb_AutoScale <- function(x) {
+	scaling_factor = 1.1 # factor used to scale the data
+	t <- abs(min(x, na.rm=T))
+	t <- t * scaling_factor
+	r <- x + rep(t, length(x))
+	return(r)
+}
+
+# Produces a summary table for a data.frame or matrix in the workspace.
+jnb_Summarize <- function(df
+                      , down_or_across
+                      , removeNulls
+                      )
+{
+    if(down_or_across == "Columns")
+    {
+        returnTable <- data.frame(
+          rbind(
+            "Minimum"=apply(df, MARGIN=2, FUN=min, na.rm=removeNulls)
+            ,"Mean"=apply(df, MARGIN=2, FUN=mean, na.rm=removeNulls)
+            ,"STDEV"=apply(df, MARGIN=2, FUN=sd, na.rm=removeNulls)
+            ,"Median"=apply(df, MARGIN=2, FUN=median, na.rm=removeNulls)
+            ,"Maximum"=apply(df, MARGIN=2, FUN=max, na.rm=removeNulls)
+            ,"NULLs"=apply(df, MARGIN=2, FUN=function(x){sum(is.na(x))})
+            ,"Present"=apply(df, MARGIN=2, FUN=function(x){sum(!is.na(x))})
+            )
+        )
+         return(returnTable)
+    }
+    else if (down_or_across == "Rows")# summarize rows in dataset
+    {
+        returnTable <- data.frame(
+          cbind(
+            "Minimum"=apply(df, MARGIN=1, FUN=min, na.rm=removeNulls)
+            ,"Mean"=apply(df, MARGIN=1, FUN=mean, na.rm=removeNulls)
+            ,"STDEV"=apply(df, MARGIN=1, FUN=sd, na.rm=removeNulls)
+            ,"Median"=apply(df, MARGIN=1, FUN=median, na.rm=removeNulls)
+            ,"Maximum"=apply(df, MARGIN=1, FUN=max, na.rm=removeNulls)
+            ,"NULLs"=apply(df, MARGIN=1, FUN=function(x){sum(is.na(x))})
+            ,"Present"=apply(df, MARGIN=1, FUN=function(x){sum(!is.na(x))})
+            )
+        )
+         return(returnTable)
+    }
+    else if (down_or_across == "Total")
+    {
+       returnTable <- data.frame(
+          rbind(
+            "Minimum" = min(df, na.rm=removeNulls)
+            , "Maximum" = max(df, na.rm=removeNulls)
+            , "NULLs"=sum(is.na(df))
+            , "Present"=sum(!is.na(df))
+            , "Percent Absent" = (sum(is.na(df))*100)/(dim(df)[1]*dim(df)[2])
+			, "Percent Present" = (sum(!is.na(df))*100)/(dim(df)[1]*dim(df)[2])
+          )
+       )
+       colnames(returnTable)<-c("Totals")
+       return(returnTable)
+    }
+}
+
+# Exporting csv files with header
+jnb_Write <- function(
+		df,					# table to write out
+		fileName,			# path to output file
+		firstColumnHeader,	# header for first column
+		sepChar=",",		# character to separate values
+		row.names=TRUE)		# indicates whether or not to include the rownames in the first column
+{
+	out <- file(fileName, "w")
+	if (row.names) {
+		header <- paste(c(firstColumnHeader, colnames(df)), collapse=sepChar)
+		cat(header, "\n", file=out)
+		write.table(df, out, sep=sepChar, col.names=FALSE, quote=FALSE)
+	} else {
+		header <- paste(c(colnames(df)), collapse=sepChar)
+		cat(header, "\n", file=out)
+		write.table(df, out, sep=sepChar, row.names=row.names, col.names=FALSE, quote=FALSE)
+	}
+	close(out)
 }

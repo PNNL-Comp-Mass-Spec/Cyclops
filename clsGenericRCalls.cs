@@ -51,6 +51,54 @@ namespace Cyclops
         }
 
         /// <summary>
+        /// Returns the minimum value of an object in the R workspace,
+        /// with the exception of NA values.
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="ObjectName">Object to return minimum of</param>
+        /// <returns></returns>
+        public static double? GetMinimumValue(string InstanceOfR, string ObjectName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            string s_Command = string.Format("min({0}, na.rm=TRUE)");
+            NumericVector nv = engine.EagerEvaluate(s_Command).AsNumeric();
+            return nv[0];
+        }
+
+        /// <summary>
+        /// Returns the maximum value of an object in the R workspace,
+        /// with the exception of NA values.
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="ObjectName">Object to return maximum of</param>
+        /// <returns></returns>
+        public static double? GetMaximumValue(string InstanceOfR, string ObjectName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            string s_Command = string.Format("max({0}, na.rm=TRUE)");
+            NumericVector nv = engine.EagerEvaluate(s_Command).AsNumeric();
+            return nv[0];
+        }
+
+        /// <summary>
+        /// Returns the length of a vector
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="Vector">Vector to return length of</param>
+        /// <returns></returns>
+        public static Int32 GetLengthOfVector(string InstanceOfR, string Vector)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            string s_Command = string.Format("length({0})",
+                Vector);
+            IntegerVector iv = engine.EagerEvaluate(s_Command).AsInteger();
+            return iv[0];
+        }
+
+        /// <summary>
         /// Returns the names of the columns for the given table
         /// </summary>
         /// <param name="InstanceOfR">Instance of your R workspace</param>
@@ -110,6 +158,19 @@ namespace Cyclops
         {
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
             string s_RStatement = string.Format("class({0})", ObjectName);
+            CharacterVector cv = engine.EagerEvaluate(s_RStatement).AsCharacter();
+            return cv[0].ToString();
+        }
+
+        /// <summary>
+        /// Return the current working directory
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <returns>Current working directory</returns>
+        public static string GetWorkingDirectory(string InstanceOfR)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string s_RStatement = string.Format("getwd()");
             CharacterVector cv = engine.EagerEvaluate(s_RStatement).AsCharacter();
             return cv[0].ToString();
         }
@@ -192,22 +253,162 @@ namespace Cyclops
 
             if (ContainsObject(InstanceOfR, TheDataFrame))
             {
-                DataFrame dataset = engine.EagerEvaluate(TheDataFrame).AsDataFrame();
-
-                for (int i = 0; i < dataset.ColumnCount; i++)
+                if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("data.frame"))
                 {
-                    DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
-                    dt_Return.Columns.Add(dc);
+                    DataFrame dataset = engine.EagerEvaluate(TheDataFrame).AsDataFrame();
+
+                    for (int i = 0; i < dataset.ColumnCount; i++)
+                    {
+                        DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                        dt_Return.Columns.Add(dc);
+                    }
+
+                    for (int r = 0; r < dataset.RowCount; r++)
+                    {
+                        dynamic d_Row = dataset.GetRow(r);
+                        dt_Return.Rows.Add(d_Row);
+                    }
                 }
-
-                for (int r = 0; r < dataset.RowCount; r++)
+                else if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("matrix"))
                 {
-                    dynamic d_Row = dataset.GetRow(r);
-                    dt_Return.Rows.Add(d_Row);
+                    DataFrame dataset = engine.EagerEvaluate("data.frame(" +TheDataFrame + ")").AsDataFrame();
+
+                    for (int i = 0; i < dataset.ColumnCount; i++)
+                    {
+                        DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                        dt_Return.Columns.Add(dc);
+                    }
+
+                    for (int r = 0; r < dataset.RowCount; r++)
+                    {
+                        dynamic d_Row = dataset.GetRow(r);
+                        dt_Return.Rows.Add(d_Row);
+                    }
                 }
             }
 
             return dt_Return;
+        }
+
+        /// <summary>
+        /// Converts a DataTable to a DataFrame in a given R workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="Table">The DataTable you want to convert to a data.frame</param>
+        /// <param name="DataFrameName">Name of the new data.frame</param>
+        public static void SetDataFrame(string InstanceOfR, DataTable Table, string DataFrameName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string s_RStatement = string.Format("{0} <- data.frame(",
+                DataFrameName);
+
+            for (int c = 0; c < Table.Columns.Count; c++)
+            {
+                s_RStatement += "\"" + Table.Columns[c].ColumnName + "\"=c(\"";
+
+                for (int r = 0; r < Table.Rows.Count; r++)
+                {
+                    if (r < Table.Rows.Count - 1)
+                    {
+                        s_RStatement += Table.Rows[r][c].ToString() + "\",\"";
+                    }
+                    else
+                    {
+                        s_RStatement += Table.Rows[r][c].ToString() + "\")";
+                    }
+                }
+
+                if (c < Table.Columns.Count - 1)
+                {
+                    s_RStatement += ",";
+                }
+                else
+                {
+                    s_RStatement += ")";
+                }
+            }
+
+            try
+            {
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                // TODO: Handle problems creating the data.frame
+            }
+        }
+
+        /// <summary>
+        /// Quick way to save your work environment
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="WorkspaceFileName">Name of the file you'd like to save the environment as</param>
+        public static void SaveEnvironment(string InstanceOfR, string WorkspaceFileName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string s_RStatement = string.Format("save.image(file=\"{0}\")",
+                WorkspaceFileName);
+
+            try
+            {
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                // TODO : Handle problems saving image
+            }
+        }
+
+        /// <summary>
+        /// Sets the specified column to the row.names, and then deletes that column
+        /// from the data.frame
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="DataFrameName">Name of the Data Frame</param>
+        /// <param name="ColumnIndex">Index of the column (first column starts at 1)</param>
+        public static void SetDataFrameRowNames(string InstanceOfR,
+            string DataFrameName, int ColumnIndex)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string s_RStatement = string.Format("rownames({0}) <- {0}[,{1}]\n" +
+                "{0} <- {0}[,-{1}]",
+                DataFrameName, ColumnIndex.ToString());
+
+            try
+            {
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                // TODO : Handle problems saving image
+            }
+        }
+
+        /// <summary>
+        /// Converts a DataTable to a Matrix in a given R workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="Table">The DataTable you want to convert to a data.frame</param>
+        /// <param name="MatrixName">Name of the new matrix</param>
+        public static void SetMatrix(string InstanceOfR, DataTable Table, string MatrixName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string s_RStatement = string.Format("{0} <- matrix(",
+                MatrixName);
+
+            string[] s_Headers = new string[Table.Columns.Count];
+            for (int i = 0; i < Table.Columns.Count; i++)
+            {
+                s_Headers[i] = Table.Columns[i].ColumnName;
+            }
+
+            try
+            {
+            }
+            catch (Exception exc)
+            {
+                // TODO: Handle problems creating the data.frame
+            }
         }
         #endregion
 

@@ -22,36 +22,47 @@ using System;
 using System.Collections.Generic;
 
 using RDotNet;
+using log4net;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     public class clsNormalizingSpectralCounts : clsBaseDataModule
     {
         private string s_RInstance;
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
-        /// Basic constructor
+        /// Module for normalizing spectral count results
         /// </summary>
         public clsNormalizingSpectralCounts()
         {
             ModuleName = "Normalizing Spectral Count Module";
         }
         /// <summary>
-        /// Constructor that requires the instance of the R workspace
+        /// Module for normalizing spectral count results
         /// </summary>
-        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsNormalizingSpectralCounts(string InstanceOfR)
         {
             ModuleName = "Normalizing Spectral Count Module";
             s_RInstance = InstanceOfR;
         }
+        /// <summary>
+        /// Module for normalizing spectral count results
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsNormalizingSpectralCounts(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "Normalizing Spectral Count Module";
+            Model = TheCyclopsModel;
+            s_RInstance = InstanceOfR;
+        }
         #endregion
-
-        #region Members
-
-        #endregion
-
+        
         #region Properties
 
         #endregion
@@ -62,22 +73,73 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
-            // Types of Spectral Count Normalizations:
-            // Total Signal (type = 1)
-            // Z-normalization (type = 2)
-            // Natural Log Preprocessing (type = 3)
-            // Hybrid (TS followed by Z) (type = 4)
-            string s_RStatement = string.Format(
-                "{0} <- jnb_NormalizeSpectralCounts({1}, type={2})",
-                Parameters["newTableName"],
-                Parameters["tableName"],
-                Parameters["type"]);
-
-            engine.EagerEvaluate(s_RStatement);
+            traceLog.Info(ModuleName);          
+            
 
             RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            bool b_2Pass = true;
+
+            // NECESSARY PARAMETERS
+            if (!dsp.HasNewTableName)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Normalize Spectral Count class: 'newTableName': \"" +
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasInputTableName)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Normalize Spectral Count class: 'inputTableName': \"" +
+                    dsp.InputTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+
+            return b_2Pass;
+        }
+
+        /// <summary>
+        /// Normalizes the datasets
+        /// </summary>
+        public void NormalizeTheData()
+        {
+            dsp.GetParameters(ModuleName, Parameters);
+
+            if (CheckPassedParameters())
+            {
+                // Types of Spectral Count Normalizations:
+                // Total Signal (type = 1)
+                // Z-normalization (type = 2)
+                // Natural Log Preprocessing (type = 3)
+                // Hybrid (TS followed by Z) (type = 4)
+                REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+                string s_RStatement = string.Format(
+                    "{0} <- jnb_NormalizeSpectralCounts({1}, type={2})",
+                    dsp.NewTableName,
+                    dsp.InputTableName,
+                    dsp.TableType);
+
+                try
+                {
+                    traceLog.Info("Normalizing Spectral Count Datasets: " + s_RStatement);
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (Exception exc)
+                {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("ERROR: Normalizing Spectral Count datasets: " + exc.ToString());
+                }
+            }
         }
         #endregion
     }

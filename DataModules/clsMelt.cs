@@ -24,8 +24,9 @@ using System.Linq;
 using System.Text;
 
 using RDotNet;
+using log4net;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// Performs a melt call. Basically turns a crosstab tab into long form
@@ -33,6 +34,9 @@ namespace Cyclops
     public class clsMelt : clsBaseDataModule
     {
         private string s_RInstance;
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -63,6 +67,48 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            traceLog.Info("Entered Melt Class, Performing Melt...");
+            if (CheckPassedParameters())
+            {
+                MeltData();
+            }
+
+            RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            bool b_2Pass = true;
+
+            // NECESSARY PARAMETERS
+            if (!dsp.HasNewTableName)
+            {
+                traceLog.Error("BetaBinomial class: 'newTableName': \"" +
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasInputTableName)
+            {
+                traceLog.Error("BetaBinomial class: 'inputTableName': \"" +
+                    dsp.InputTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasCommaSeparatedListWithQuotes)
+            {
+                traceLog.Error("BetaBinomial class: 'commaSepWithQuotesIdentifiers': \"" +
+                    dsp.CommaSeparatedWithQuotesIdentifiers + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+
+            return b_2Pass;
+        }
+
+        private void MeltData()
+        {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Construct the R statement
             string s_RStatement = "";
@@ -72,20 +118,19 @@ namespace Cyclops
             s_RStatement = "require(reshape)\n";
 
             s_RStatement += string.Format("{0} <- melt({1}, id=c({2})",
-                Parameters["newTableName"],
-                Parameters["tableName"],
-                SeparateListOfStrings(Parameters["ids"], ',', true));
+                dsp.NewTableName,
+                dsp.InputTableName,
+                dsp.CommaSeparatedWithQuotesIdentifiers);
 
-            try
+            try     
             {
+                traceLog.Info("Melt class: " + s_RStatement);
                 engine.EagerEvaluate(s_RStatement);
             }
-            catch (Exception)
+            catch (Exception exc)
             {
-                // TODO, evaluate the exception
+                traceLog.Error("ERROR Melt Class: " + exc.ToString());
             }
-
-            RunChildModules();
         }
 
         /// <summary>

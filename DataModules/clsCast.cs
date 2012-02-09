@@ -24,8 +24,9 @@ using System.Linq;
 using System.Text;
 
 using RDotNet;
+using log4net;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// Performs a cast call in R, similar to a table pivot
@@ -33,6 +34,9 @@ namespace Cyclops
     public class clsCast : clsBaseDataModule
     {
         private string s_RInstance;
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -63,7 +67,53 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            dsp.GetParameters(ModuleName, Parameters);
+
+            traceLog.Info("Aggregating Datasets...");
+
+            if (CheckPassedParameters())
+            {
+                CastDataset();
+            }
+
+            RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            bool b_2Pass = true;
+
+            // NECESSARY PARAMETERS
+            if (!dsp.HasNewTableName)
+            {
+                traceLog.Error("ERROR: Cast class: 'newTableName': \"" +
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasInputTableName)
+            {
+                traceLog.Error("ERROR: Cast class: 'inputTableName': \"" +
+                    dsp.InputTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasFunction)
+            {
+                traceLog.Error("ERROR: Cast class: 'function': \"" +
+                    dsp.Function + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+
+            return b_2Pass;
+        }
+
+        private void CastDataset()
+        {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
             // Construct the R statement
             string s_RStatement = "";
             if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "reshape"))
@@ -72,22 +122,21 @@ namespace Cyclops
             s_RStatement = "require(reshape)\n";
 
             s_RStatement += string.Format("{0} <- cast({1}, {2}~{3}, {4})",
-                Parameters["newTableName"],
-                Parameters["tableName"],
-                Parameters["id"],
-                Parameters["variable"],
-                Parameters["function"]);
+                dsp.NewTableName,
+                dsp.InputTableName,
+                dsp.ID,
+                dsp.Variable,
+                dsp.Function);
 
             try
             {
+                traceLog.Info("Casting dataset: " + s_RStatement);
                 engine.EagerEvaluate(s_RStatement);
             }
-            catch (Exception)
+            catch (Exception exc)
             {
-                // TODO, evaluate the exception
+                traceLog.Error("ERROR Casting dataset: " + exc.ToString());
             }
-
-            RunChildModules();
         }
         #endregion
     }

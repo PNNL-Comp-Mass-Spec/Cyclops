@@ -21,12 +21,17 @@
 using System;
 using System.Collections.Generic;
 using RDotNet;
+using log4net;
 
-namespace Cyclops
+namespace Cyclops.VisualizationModules
 {
     public class clsHeatmap : clsBaseVisualizationModule
     {
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
+
         protected string s_RInstance;
+        private VisualizationModules.clsVisualizationParameterHandler vgp =
+            new VisualizationModules.clsVisualizationParameterHandler();
 
         #region Constructors
         /// <summary>
@@ -57,61 +62,28 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            CreatePlotsFolder();
+            vgp.Parameters = Parameters;
 
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
-            // load the necessary packages
-            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "grDevices"))
-                clsGenericRCalls.InstallPackage(s_RInstance, "grDevices");
-            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "gplots"))
-                clsGenericRCalls.InstallPackage(s_RInstance, "gplots");
-
-            string s_RStatement = "require(gplots)\nrequire(grDevices)\n";
-
-            // Set the color of the heatmap
-            s_RStatement += string.Format("crp <- colorRampPalette(c({0}))\n",
-                "\"blue\",\"white\",\"red\"");
-
-            if (Parameters.ContainsKey("image"))
+            if (CheckPassedParameters())
             {
-                if (Parameters["image"].Equals("eps"))
-                {
-                    s_RStatement += string.Format("postscript(\"{0}\", width={1}," +
-                        "height={2}, horizontal={3}, pointsize={4})\n",
-                        Parameters["plotFileName"],
-                        Parameters["width"],
-                        Parameters["height"],
-                        Parameters["horizontal"],
-                        Parameters["pointsize"]);
-                }
-                else if (Parameters["image"].Equals("png"))
-                {
-                    s_RStatement += string.Format("png(\"" +
+                CreatePlotsFolder();
 
-                        "{0}/Plots/{1}\", width={2}," +
-                        "height={3}, pointsize={4})\n",
-                        Parameters["workDir"],
-                        Parameters["plotFileName"],
-                        Parameters["width"],
-                        Parameters["height"],
-                        Parameters["pointsize"]);
-                }
-                else if (Parameters["image"].Equals("jpg"))
+                if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
                 {
-                    s_RStatement += string.Format("jpg(\"{0}\", width={1}," +
-                        "height={2}, pointsize={3})\n",
-                        Parameters["plotFileName"],
-                        Parameters["width"],
-                        Parameters["height"],
-                        Parameters["pointsize"]);
+                    if (vgp.HasImageType)
+                    {
+                        PrepareImageFile();
+                    }
+                    BuildHeatmapPlot();
+                    if (vgp.HasImageType)
+                    {
+                        CleanUpImageFile();
+                    }
                 }
+            }
 
                 
-
-                s_RStatement += "dev.off()";
-                engine.EagerEvaluate(s_RStatement);
-            }
+            
         }
 
         /// <summary>
@@ -120,11 +92,147 @@ namespace Cyclops
         /// <returns>True if all necessary parameters are present</returns>
         protected bool CheckPassedParameters()
         {
+            bool b_2Param = true; 
             // NON-NECESSARY PARAMETERS
+            if (!vgp.HasTableName)
+            {
+                traceLog.Error("Heatmap class: 'tableName' was not found in the passed parameters");
+                b_2Param = false;
+            }
 
+            return b_2Param;
+        }
 
+        private void LoadLibraries()
+        {
+            traceLog.Info("Heatmap Module: Loading Required Libraries...");
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
-            return true;
+            // load the necessary packages
+            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "grDevices"))
+                clsGenericRCalls.InstallPackage(s_RInstance, "grDevices");
+            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "gplots"))
+                clsGenericRCalls.InstallPackage(s_RInstance, "gplots");
+
+            try
+            {
+                string s_RStatement = "require(gplots)\nrequire(grDevices)\n";
+                                
+                traceLog.Info(s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Heatmap Module while loading libraries: " + exc.ToString());
+            }
+        }
+
+        private void PrepareImageFile()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_RStatement = "";
+            if (vgp.HasImageType)
+            {
+                if (vgp.ImageType.Equals("eps"))
+                {
+                    s_RStatement += string.Format("postscript(\"{0}\", width={1}," +
+                        "height={2}, horizontal={3}, pointsize={4})\n",
+                        vgp.PlotFileName,
+                        vgp.Width,
+                        vgp.Height,
+                        vgp.Horizontal,
+                        vgp.PointSize);
+                }
+                else if (vgp.ImageType.Equals("png"))
+                {
+                    s_RStatement += string.Format("png(\"" +
+
+                        "{0}\", width={1}," +
+                        "height={2}, pointsize={3})\n",
+                        vgp.PlotFileName,
+                        vgp.Width,
+                        vgp.Height,
+                        vgp.PointSize);
+                }
+                else if (vgp.ImageType.Equals("jpg"))
+                {
+                    s_RStatement += string.Format("jpg(\"{0}\", width={1}," +
+                        "height={2}, pointsize={3})\n",
+                        vgp.PlotFileName,
+                        vgp.Width,
+                        vgp.Height,
+                        vgp.PointSize);
+                }
+
+                try
+                {
+                    traceLog.Info("Heatmap Module: Preparing image file: " + s_RStatement);
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (Exception exc)
+                {
+                    traceLog.Error("ERROR Heatmap Module while preparing image file: " + exc.ToString());
+                }
+            }
+        }
+
+        private void BuildHeatmapPlot()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_RStatement = string.Format(
+                "myColorRamp <- colorRampPalette({0})\n",
+                vgp.HeatmapColors);
+            s_RStatement += string.Format(
+                "cmap <- myColorRamp({0})\n",
+                vgp.HeatmapColorScaleDegree);
+            s_RStatement += string.Format(
+                "cmap <- seq({0}, {1}, length={2}+1)\n",
+                vgp.HeatmapScaleMin,
+                vgp.HeatmapScaleMax,
+                vgp.HeatmapColorScaleDegree);
+            s_RStatement += string.Format("hm_{0} <- heatmap.2(x=data.matrix({0})," +
+            "Rowv={1}, Colv={2}, distfun={3}, hclustfun={4}, dendrogram={5}," +
+            "symm={6}, scale={7}, na.rm={8}, col=cmap, trace={9}, " +
+            "breaks=colscale, main={10})\n",
+                vgp.TableName,              // 0
+                vgp.HeatmapRowDendrogram,   // 1
+                vgp.HeatmapColDendrogram,   // 2
+                vgp.HeatmapDist,            // 3
+                vgp.HeatmapClusterFunction, // 4
+                vgp.HeatmapDrawDendrogram,  // 5
+                vgp.HeatmapSymm,            // 6
+                vgp.HeatmapScale,           // 7
+                vgp.HeatmapRemoveNA,        // 8 
+                vgp.HeatmapTrace,           // 9
+                vgp.Main);                  // 10
+
+            s_RStatement += "rm(myColorRamp)\nrm(cmap)";
+
+            try
+            {
+                traceLog.Info("Heatmap Module building heatmap plot: " + s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Heatmap Module building heatmap plot: " + exc.ToString());
+            }
+        }
+
+        private void CleanUpImageFile()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_RStatement = "dev.off()";
+
+            try
+            {
+                traceLog.Info("Heatmap Module: Cleaning up Image File: " + s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Heatmap Module during cleaning up image file: " + exc.ToString());
+            }
         }
         #endregion
     }

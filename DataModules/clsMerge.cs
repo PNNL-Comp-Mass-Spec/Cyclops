@@ -24,8 +24,9 @@ using System.Linq;
 using System.Text;
 
 using RDotNet;
+using log4net;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// Merges two tables together in R, works like a SQL inner join
@@ -41,6 +42,9 @@ namespace Cyclops
     public class clsMerge : clsBaseDataModule
     {
         private string s_RInstance;
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
@@ -71,6 +75,75 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            traceLog.Info("Merging Datasets...");
+            dsp.GetParameters(ModuleName, Parameters);
+
+
+            if (CheckPassedParameters())
+            {
+                
+            }
+
+            RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            bool b_2Pass = true;
+
+            // NECESSARY PARAMETERS
+            if (!dsp.HasNewTableName)
+            {
+                traceLog.Error("ERROR: Aggregation class: 'newTableName': \"" +
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasXTable)
+            {
+                traceLog.Error("ERROR: Aggregation class: 'xTable': \"" +
+                    dsp.X_Table + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasYTable)
+            {
+                traceLog.Error("ERROR: Aggregation class: 'yTable': \"" +
+                    dsp.Y_Table + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasXLink)
+            {
+                traceLog.Error("ERROR: Aggregation class: 'xLink': \"" +
+                    dsp.X_Link + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasYLink)
+            {
+                traceLog.Error("ERROR: Aggregation class: 'yLink': \"" +
+                    dsp.Y_Link + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasAllX)
+            {
+                traceLog.Error("ERROR: Aggregation class: 'allX': \"" +
+                    dsp.AllX + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasAllY)
+            {
+                traceLog.Error("ERROR: Aggregation class: 'allY': \"" +
+                    dsp.AllY + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+
+            return b_2Pass;
+        }
+
+        private void MergeTables()
+        {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Construct the R statement
             string s_RStatement = string.Format("{0} <- merge(x={1}," +
@@ -80,7 +153,7 @@ namespace Cyclops
                 Parameters["secondTable"],
                 Parameters["firstTableLinkColumn"],
                 Parameters["secondTableLinkColumn"],
-                Parameters["allX"], 
+                Parameters["allX"],
                 Parameters["allY"]);
 
             try
@@ -91,8 +164,6 @@ namespace Cyclops
             {
                 // TODO, evaluate the exception
             }
-
-            RunChildModules();
         }
         #endregion
     }

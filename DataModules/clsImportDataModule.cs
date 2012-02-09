@@ -28,7 +28,7 @@ using System.Threading;
 using RDotNet;
 using log4net;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// Class pulls tables from SQLite, CSV, TSV, MSAccess, or SQLServer and 
@@ -37,26 +37,38 @@ namespace Cyclops
     /// </summary>
     public class clsImportDataModule : clsBaseDataModule
     {
-        public enum ImportDataType { SQLite, CSV, TSV, MSAccess, SQLServer };
-        private int dataType;
-        private string s_RInstance;
+        private string s_RInstance, s_Current_R_Statement = "";
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        private DataModules.clsDataModuleParameterHandler dsp = 
+            new DataModules.clsDataModuleParameterHandler();
 
         #region Constructors
         /// <summary>
-        /// Basic constructor
+        /// Module capable of reading in data from multiple sources
         /// </summary>
         public clsImportDataModule()
         {            
             ModuleName = "Import Module";
         }
         /// <summary>
-        /// Constructor that requires the Name of the R instance
+        /// Module capable of reading in data from multiple sources
         /// </summary>
-        /// <param name="InstanceOfR">Path to R DLL</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsImportDataModule(string InstanceOfR)
         {
             ModuleName = "Import Module";
+            s_RInstance = InstanceOfR;
+        }
+        /// <summary>
+        /// Module capable of reading in data from multiple sources
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsImportDataModule(clsCyclopsModel TheCyclopsModel,
+            string InstanceOfR)
+        {
+            ModuleName = "Import Module";
+            Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -71,184 +83,203 @@ namespace Cyclops
         {
             return ModuleName + GetModuleNameExtension();             
         }
-
-        /// <summary>
-        /// Sets the DataType that the object is going to pull the data from
-        /// </summary>
-        /// <param name="DataType">ImportDataType</param>
-        public void SetDataType(ImportDataType DataType)
-        {
-            dataType = (int)DataType;
-        }
-
-        /// <summary>
-        /// Given the list of parameters from the Dictionary Parameters,
-        /// determine where the source of the incoming data is and set the DataType
-        /// </summary>
-        public void SetDataTypeFromParameters()
-        {
-            string s_DataType = Parameters["source"].ToString();
-            switch (s_DataType)
-            {
-                case "sqlite":
-                    SetDataType(ImportDataType.SQLite);
-                    break;
-                case "msAccess":
-                    SetDataType(ImportDataType.MSAccess);
-                    break;
-                case "csv":
-                    SetDataType(ImportDataType.CSV);
-                    break;
-                case "tsv":
-                    SetDataType(ImportDataType.TSV);
-                    break;
-                case "sqlServer":
-                    SetDataType(ImportDataType.SQLServer);
-                    break;
-            }
-        }
-
+                      
         /// <summary>
         ///  Runs module and then child modules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Cyclops Importing Data From " + Parameters["source"].ToString() + ".");
+            dsp.GetParameters(ModuleName, Parameters);
 
-            // Determine what source the data is coming from
-            SetDataTypeFromParameters();
-
+            traceLog.Info("Cyclops Importing Data From " + dsp.Source + ".");
+            
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            switch (dataType)
+            if (CheckPassedParameters())
             {
-                case (int)ImportDataType.SQLite:
-                    
-                    try
-                    {
-                        string s_RStatement = "";
-                        ConnectToSQLiteDatabase(s_RInstance);
-                        
-                        /// To create an ExpressionSet, the following data must be supplied:
-                        /// ASSAY_DATA: F X S Matrix of expression values. F rows (e.g. peptides), S columns (e.g. MS runs)
-                        /// PHENO_DATA: S X V Dataframe describing what the MS runs correspond to
-                        /// PHENO_DATA_LINK: Name of the column in PHENO_DATA that links to the AssayData
-                        /// ROW_DATA: F X Z Dataframe describing the rows (e.g. peptide to proteins linkage)                        
-                        if (Parameters.ContainsKey("expressionSet"))
+                switch (dsp.Source)
+                {
+                    case "sqlite":
+                        try
                         {
-                            /// Pull in the AssayData
-                            GetAssayDataFromSQLiteDB(s_RInstance);
+                            string s_RStatement = "";
+                            ConnectToSQLiteDatabase();
 
-                            /// Pull in the Phenotype Data
-                            GetPhenotypeDataFromSQLiteDB(s_RInstance);
+                            /// To create an ExpressionSet, the following data must be supplied:
+                            /// ASSAY_DATA: F X S Matrix of expression values. F rows (e.g. peptides), S columns (e.g. MS runs)
+                            /// PHENO_DATA: S X V Dataframe describing what the MS runs correspond to
+                            /// PHENO_DATA_LINK: Name of the column in PHENO_DATA that links to the AssayData
+                            /// ROW_DATA: F X Z Dataframe describing the rows (e.g. peptide to proteins linkage)                        
+                            if (dsp.ImportDatasetType.Equals("expressionSet"))
+                            {
+                                /// Pull in the AssayData
+                                GetAssayDataFromSQLiteDB();
 
-                            /// Pull in the Features Data
-                            GetFeatureDataFromSQLiteDB(s_RInstance);
+                                /// Pull in the Phenotype Data
+                                GetPhenotypeDataFromSQLiteDB();
 
-                            /// Build the ExpressionSet
-                            s_RStatement = string.Format("eData <- new(\"ExpressionSet\", exprs=tmpData, " +
-                                    "phenoData=pData, featureData=fData)\n" +
-                                    "rm(tmpData)\n" +
-                                    "rm(pData)\n" +
-                                    "rm(fData)");                            
+                                /// Pull in the Features Data
+                                GetFeatureDataFromSQLiteDB();
+
+                                /// Build the ExpressionSet
+                                s_RStatement = string.Format("eData <- new(\"ExpressionSet\", exprs=tmpData, " +
+                                        "phenoData=pData, featureData=fData)\n" +
+                                        "rm(tmpData)\n" +
+                                        "rm(pData)\n" +
+                                        "rm(fData)");
+                            }
+                            else if (dsp.TableType.Equals("dataTable"))
+                            {
+                                GetDataTableFromSQLiteDB();
+                                if (dsp.RowNames.Length > 0)
+                                    SetTableRowNames(dsp.NewTableName);
+                            }
+                            else if (dsp.TableType.Equals("columnMetaDataTable"))
+                            {
+                                GetColumnMetadataFromSQLiteDB();
+                                if (dsp.RowNames.Length > 0)
+                                    SetTableRowNames(dsp.NewTableName);
+                            }
+                            else if (dsp.TableType.Equals("rowMetaDataTable"))
+                            {
+                                GetRowMetadataFromSQLiteDB();
+                                if (dsp.RowNames.Length > 0)
+                                    SetTableRowNames(dsp.NewTableName);
+                            }
+                                //if (Parameters.ContainsKey("columnMetaDataTableName"))
+                                //{
+                                //    GetColumnMetadataFromSQLiteDB(s_RInstance);
+                                //    SetTableRowNames(s_RInstance, Parameters["newColumnMetaDataTableName"]);
+
+                                //}
+                                //if (Parameters.ContainsKey("rowMetaDataTableName"))
+                                //{
+                                //    GetRowMetadataFromSQLiteDB(s_RInstance);
+                                //    SetTableRowNames(s_RInstance, Parameters["newRowMetaDataTableName"]);
+                                //}
+                            //}
+
+                            if (dsp.Set_0_to_NA)
+                            {
+                                s_RStatement += "\n" + dsp.NewTableName + "[" +
+                                    dsp.NewTableName + "==0] <- NA";
+                            }
+
+                            traceLog.Info("Importing Table: " + s_RStatement);
+                            s_Current_R_Statement += s_RStatement + "\n";
+
+                            
+
+                            engine.EagerEvaluate(s_RStatement);
+                            traceLog.Info("IMPORT DATA MODULE: " + dsp.InputTableName +
+                                " was imported into the R environment as " +
+                                dsp.NewTableName);
+                            DisconnectFromDatabase();
+                            traceLog.Info("IMPORT DATA MODULE: Disconnected from " +
+                                "SQLite database.");
                         }
-                        else
+                        catch (ParseException pe)
                         {
-                            if (Parameters.ContainsKey("dataTableName"))
-                            {
-                                GetDataTableFromSQLiteDB(s_RInstance);
-                                SetTableRowNames(s_RInstance, Parameters["newDataTableName"]);
-                                
-                            }
-                            if (Parameters.ContainsKey("columnMetaDataTableName"))
-                            {
-                                GetColumnMetadataFromSQLiteDB(s_RInstance);
-                                SetTableRowNames(s_RInstance, Parameters["newColumnMetaDataTableName"]);
-                                
-                            }
-                            if (Parameters.ContainsKey("rowMetaDataTableName"))
-                            {
-                                GetRowMetadataFromSQLiteDB(s_RInstance);
-                                SetTableRowNames(s_RInstance, Parameters["newRowMetaDataTableName"]);                                
-                            }
+                            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                            //    "Cyclops encountered a ParseException while reading from SQLite DB: " +
+                            //    pe.ToString() + ".");
                         }
+                        catch (AccessViolationException ave)
+                        {
+                            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                            //    "Cyclops encountered an AccessViolationException while reading from SQLite DB: " +
+                            //    ave.ToString() + ".");
+                        }
+                        catch (Exception exc)
+                        {
+                            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
+                            //    "Cyclops encountered an Exception while reading from SQLite DB: " +
+                            //    exc.ToString() + ".");
+                        }
+                        break;
+                    case "csv":
+                        ReadCSV_File();
+                        break;
+                    case "tsv":
+                        ReadTSV_File();
+                        break;
+                    case "sqlserver":
 
-                        traceLog.Info("Importing Table: " + s_RStatement);
-                        engine.EagerEvaluate(s_RStatement);
+                        break;
+                    case "access":
 
-                        DisconnectFromDatabase(s_RInstance);
-                        
-                    }
-                    catch (ParseException pe)
-                    {
-                        //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                        //    "Cyclops encountered a ParseException while reading from SQLite DB: " +
-                        //    pe.ToString() + ".");
-                    }
-                    catch (AccessViolationException ave)
-                    {
-                        //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                        //    "Cyclops encountered an AccessViolationException while reading from SQLite DB: " +
-                        //    ave.ToString() + ".");
-                    }
-                    catch (Exception exc)
-                    {
-                        //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                        //    "Cyclops encountered an Exception while reading from SQLite DB: " +
-                        //    exc.ToString() + ".");
-                    }                    
-                    break;
-                case (int)ImportDataType.CSV:
-                    string s_Read = string.Format("{0} <- read.csv(\"{1}\")",
-                        Parameters["newDataTableName"],
-                        Parameters["workDir"].Replace('\\', '/') + "/" + Parameters["dataTableName"]);
-
-                    traceLog.Info("Importing CSV: " + s_Read);
-                    engine.EagerEvaluate(s_Read);
-                    break;
-                case (int)ImportDataType.TSV:
-
-                    break;
-                case (int)ImportDataType.SQLServer:
-
-                    break;
-                case (int)ImportDataType.MSAccess:
-
-                    break;
+                        break;
+                }
             }
 
+            traceLog.Info("IMPORT DATA MODULE: Completed successfully, progressing to next module!");
             RunChildModules();
+        }
+
+        /// <summary>
+        /// Determine is all the necessary parameters are being passed to the object
+        /// </summary>
+        /// <returns>Returns true import module can proceed</returns>
+        public bool CheckPassedParameters()
+        {
+            bool b_2Pass = true;
+
+            // NECESSARY PARAMETERS
+            if (!dsp.HasSource)
+            {
+                traceLog.Error("ERROR ImportDataModule: 'source': \"" +
+                    dsp.Source + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasTarget)
+            {
+                traceLog.Error("ERROR ImportDataModule: 'target': \"" +
+                    dsp.Target + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasWorkDir)
+            {
+                traceLog.Error("ERROR ImportDataModule: 'workDir': \"" + 
+                    dsp.WorkDirectory + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasImportDatasetType)
+            {
+                traceLog.Error("ERROR ImportDataModule: 'importDatasetType': \"" +
+                    dsp.ImportDatasetType + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasNewTableName)
+            {
+                traceLog.Error("ERROR ImportDataModule: 'newTableName': \"" + 
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasTableType)
+            {
+                traceLog.Error("ERROR ImportDataModule: 'tableType': \"" +
+                    dsp.TableType + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+
+
+            return b_2Pass;
         }
 
         /// <summary>
         /// Creates a connection to a sqlite database
         /// </summary>
         /// <param name="RInstance">Instance of your R workspace</param>
-        protected void ConnectToSQLiteDatabase(string RInstance)
+        protected void ConnectToSQLiteDatabase()
         {
-            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-            //    "Cyclops connecting to SQLite database.");
-
-            REngine engine = REngine.GetInstanceFromID(RInstance);
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
             string s_InputFileName = "";
-            if (!Parameters.ContainsKey(clsCyclopsParametersKey.GetParameterName(
-                    "InputFileName")))
-            {
-                if (Parameters.ContainsKey("workDir"))
-                {
-                    //s_InputFileName = Path.Combine(Parameters["workDir"].ToString(), "Results.db3");
-                    s_InputFileName = Parameters["workDir"] + "/Results.db3";
-                }
-                else
-                {
-                    s_InputFileName = "Results.db3";
-                }
-            }
+            if (dsp.HasWorkDir & dsp.HasInputFileName)
+                s_InputFileName = dsp.WorkDirectory + "/" + dsp.InputFileName;
+            else if (dsp.HasInputFileName)
+                s_InputFileName = dsp.InputFileName;
             else
-            {
-                s_InputFileName = Parameters[clsCyclopsParametersKey.GetParameterName(
-                        "InputFileName")].Replace('\\', '/');
-            }
+                s_InputFileName = dsp.WorkDirectory + "/Results.db3";
 
             if (File.Exists(s_InputFileName))
             {
@@ -257,11 +288,11 @@ namespace Cyclops
                                 "m <- dbDriver(\"SQLite\", max.con=25)\n" +
                                 "con <- dbConnect(m, dbname = \"{0}\")",
                                     s_InputFileName);
-                s_RStatement = s_RStatement.Replace('\\', '/');
 
                 try
                 {
                     traceLog.Info("Connecting to SQLite Database: " + s_RStatement);
+                    s_Current_R_Statement += s_RStatement + "\n";
                     engine.EagerEvaluate(s_RStatement);
                 }
                 catch (IOException exc)
@@ -286,21 +317,23 @@ namespace Cyclops
         /// Terminates the connection to the SQLite database, releasing control of the database.
         /// </summary>
         /// <param name="RInstance">Instance of the R Workspace</param>
-        public void DisconnectFromDatabase(string RInstance)
+        public void DisconnectFromDatabase()
         {            
-            REngine engine = REngine.GetInstanceFromID(RInstance);
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             
             string s_RStatement = "terminated <- dbDisconnect(con)";
 
             traceLog.Info("Disconnecting from Database: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
             engine.EagerEvaluate(s_RStatement);
 
-            bool b_Disconnected = clsGenericRCalls.AssessBoolean(RInstance, "terminated");
+            bool b_Disconnected = clsGenericRCalls.AssessBoolean(s_RInstance, "terminated");
 
             if (b_Disconnected)
             {
                 s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
                 traceLog.Info("Cleaning Database Connection: " + s_RStatement);
+                s_Current_R_Statement += s_RStatement + "\n";
                 engine.EagerEvaluate(s_RStatement);
             }
             else
@@ -316,9 +349,9 @@ namespace Cyclops
         /// ExpressionSet
         /// </summary>
         /// <param name="RInstance">Instance of the R Workspace</param>
-        protected void GetAssayDataFromSQLiteDB(string RInstance)
+        protected void GetAssayDataFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(RInstance);
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Pull in the AssayData
             string s_RStatement = string.Format("library(\"Biobase\")\n" +
                 "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
@@ -326,10 +359,11 @@ namespace Cyclops
                 "tmpData <- as.matrix(tmpData)\n" +
                 "rownames(tmpData) <- as.numeric(tmpData[,1])\n" +
                 "tmpData <- tmpData[,-1]\n" +
-                "DataCleaning(tmpData)",
+                "DataCleaning(tmpData)",                
                 Parameters["assayData"]);
 
             traceLog.Info("Retrieving Assay Data from SQLite: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
             engine.EagerEvaluate(s_RStatement);             
         }
 
@@ -338,9 +372,9 @@ namespace Cyclops
         /// Expression set
         /// </summary>
         /// <param name="RInstance">Instance of the R Workspace</param>
-        protected void GetPhenotypeDataFromSQLiteDB(string RInstance)
+        protected void GetPhenotypeDataFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(RInstance);
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Pull in the Phenotype Data
             string s_RStatement = string.Format("rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                 "tmpPheno <- fetch(rt, n=-1)\n" +
@@ -363,6 +397,7 @@ namespace Cyclops
                 Parameters["phenoDataLink"]);
 
             traceLog.Info("Retrieving Phenotype Data from SQLite: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -371,7 +406,7 @@ namespace Cyclops
         /// Expression set
         /// </summary>
         /// <param name="s_RInstance">Instance of the R Workspace</param>
-        public void GetFeatureDataFromSQLiteDB(string s_RInstance)
+        public void GetFeatureDataFromSQLiteDB()
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Pull in the Features Data
@@ -394,6 +429,7 @@ namespace Cyclops
                 Parameters["rowMetaDataLink"]);
 
             traceLog.Info("Retrieving Feature Data from SQLite: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -402,18 +438,19 @@ namespace Cyclops
         /// so there are no row duplicates
         /// </summary>
         /// <param name="RInstance">Instance of the R Workspace</param>
-        public void GetDataTableFromSQLiteDB(string RInstance)
+        public void GetDataTableFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(RInstance);
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = string.Format(
                  "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                  "{1} <- fetch(rt, n = -1)\n" +
                  "dbClearResult(rt)\n" +
                  "DataCleaning({1})",
-                 Parameters["dataTableName"],
-                 Parameters["newDataTableName"]);
+                 dsp.InputTableName,
+                 dsp.NewTableName);
 
             traceLog.Info("Retrieving Table from SQLite: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -422,18 +459,19 @@ namespace Cyclops
         /// cleans it up so there are no row duplicates
         /// </summary>
         /// <param name="RInstance">Instance of the R Workspace</param>
-        public void GetColumnMetadataFromSQLiteDB(string RInstance)
+        public void GetColumnMetadataFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(RInstance);
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = string.Format(
-                  "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
-                  "{1} <- fetch(rt, n = -1)\n" +
-                  "dbClearResult(rt)\n" +
-                  "DataCleaning({1})",
-                  Parameters["columnMetaDataTableName"],
-                  Parameters["newColumnMetaDataTableName"]);
+                 "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
+                 "{1} <- fetch(rt, n = -1)\n" +
+                 "dbClearResult(rt)\n" +
+                 "DataCleaning({1})",
+                 dsp.InputTableName,
+                 dsp.NewTableName);
 
             traceLog.Info("Retrieving Column Metadata from SQLite: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -442,18 +480,19 @@ namespace Cyclops
         /// cleans it up so there are no row duplicates
         /// </summary>
         /// <param name="RInstance">Instance of the R Workspace</param>
-        public void GetRowMetadataFromSQLiteDB(string RInstance)
+        public void GetRowMetadataFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(RInstance);
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = string.Format(
                                     "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                                     "{1} <- fetch(rt, n = -1)\n" +
                                     "dbClearResult(rt)\n" +
                                     "DataCleaning({1})",
-                                    Parameters["rowMetaDataTableName"],
-                                    Parameters["newRowMetaDataTableName"]);
+                                    dsp.InputTableName,
+                                    dsp.NewTableName);
 
             traceLog.Info("Retrieving Row Metadata from SQLite: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
             engine.EagerEvaluate(s_RStatement);
         }
 
@@ -462,18 +501,19 @@ namespace Cyclops
         /// </summary>
         /// <param name="RInstance">>Instance of the R Workspace</param>
         /// <param name="TableName">Name of the table</param>
-        public void SetTableRowNames(string RInstance, string TableName)
+        public void SetTableRowNames(string TableName)
         {
             if (Parameters.ContainsKey("rowNames"))
             {
-                REngine engine = REngine.GetInstanceFromID(RInstance);
+                REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = string.Format(
                     "rownames({0}) <- {0}[,{1}]\n" +
                     "{0} <- {0}[,-{1}]",
                     TableName,
-                    Parameters["rowNames"]);
+                    dsp.RowNames);
 
                 traceLog.Info("Setting Rownames on Table: " + s_RStatement);
+                s_Current_R_Statement += s_RStatement + "\n";
                 engine.EagerEvaluate(s_RStatement);
             }
         }
@@ -481,34 +521,370 @@ namespace Cyclops
         private string GetModuleNameExtension()
         {
             string s_Return = "";
-            if (Parameters.ContainsKey("dataTableName"))
+            if (dsp.TableType.Equals("dataTableName"))
             {
-                s_Return = ". Importing DataTable: " + Parameters["dataTableName"] + 
-                    " -> " + Parameters["newDataTableName"];
+                s_Return = ". Importing DataTable: " + dsp.InputTableName + 
+                    " -> " + dsp.NewTableName;
             }
-            else if (Parameters.ContainsKey("rowMetaDataTableName"))
+            else if (dsp.TableType.Equals("rowMetaDataTableName"))
             {
-                s_Return = ". Importing Row Metadata Table: " + Parameters["rowMetaDataTableName"] +
-                    " -> " + Parameters["newRowMetaDataTableName"];
+                s_Return = ". Importing Row Metadata Table: " + dsp.InputTableName +
+                    " -> " + dsp.NewTableName;
             }
-            else if (Parameters.ContainsKey("columnMetaDataTableName"))
+            else if (dsp.TableType.Equals("columnMetaDataTableName"))
             {
-                s_Return = ". Importing Column Metadata Table: " + Parameters["columnMetaDataTableName"] +
-                    " -> " + Parameters["newColumnMetaDataTableName"];
+                s_Return = ". Importing Column Metadata Table: " + dsp.InputTableName +
+                    " -> " + dsp.NewTableName;
             }
             return s_Return;
         }
 
-        /// <summary>
-        /// Checks the dictionary to ensure all the necessary parameters are present
-        /// </summary>
-        /// <returns>True if all necessary parameters are present</returns>
-        protected bool CheckPassedParameters()
+        private void ReadCSV_File()
         {
-            // NECESSARY PARAMETERS
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_RStatement = string.Format("{0} <- read.csv(\"{1}\")",
+                            dsp.NewTableName,
+                            dsp.WorkDirectory + "/" + dsp.InputFileName);
+
+            traceLog.Info("Importing CSV: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
+            engine.EagerEvaluate(s_RStatement);
+        }
+
+        private void ReadTSV_File()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_RStatement = string.Format("{0} <- read.table(" +
+                            "file=\"{1}\", sep=\"\\t\", header=T)",
+                            dsp.NewTableName,
+                            dsp.WorkDirectory + "/" + dsp.InputFileName);
+
+            traceLog.Info("Importing TSV: " + s_RStatement);
+            s_Current_R_Statement += s_RStatement + "\n";
+            engine.EagerEvaluate(s_RStatement);
+        }
 
 
-            return true;
+        /// <summary>
+        /// Unit Test for Importing a CSV file
+        /// </summary>
+        /// <returns>Information regarding the result of the UnitTest</returns>
+        public clsTestResult TestCSV_FileImport()
+        {
+            dsp.GetParameters(ModuleName, Parameters);
+            clsTestResult result = new clsTestResult(true, "");
+            result.Module = ModuleName;
+
+            try
+            {
+                if (!CheckPassedParameters())
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING CSV FILE: Not all required parameters were passed in!";
+                    return result;
+                }
+                    
+                ReadCSV_File();
+                if (dsp.RowNames.Length > 0)
+                    SetTableRowNames(dsp.NewTableName);
+
+                // Confirm by testing if the new table exists within the environment
+                if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.NewTableName))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING CSV FILE: After importing csv, " +
+                        "the new table name could not be found within the R workspace";
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+
+                System.Data.DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.NewTableName);
+                if (dt.Columns.Count != 35)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING CSV FILE: After importing csv, " +
+                        "the new table was supposed to have 35 columns, and instead has " +
+                        dt.Columns.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+                if (dt.Rows.Count != 25)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING CSV FILE: After importing csv, " +
+                        "the new table was supposed to have 25 columns, and instead has " +
+                        dt.Rows.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+            }
+            catch (Exception exc)
+            {
+                result.IsSuccessful = false;
+                result.Message = "ERROR IMPORTING CSV FILE: " + dsp.InputFileName + "\n\n" + exc.ToString();
+                result.R_Statement = s_Current_R_Statement;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Unit Test for Importing a TSV file
+        /// </summary>
+        /// <returns>Information regarding the result of the UnitTest</returns>
+        public clsTestResult TestTSV_FileImport()
+        {
+            dsp.GetParameters(ModuleName, Parameters);
+            clsTestResult result = new clsTestResult(true, "");
+            result.Module = ModuleName;
+
+            try
+            {
+                if (!CheckPassedParameters())
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING TSV FILE: Not all required parameters were passed in!";
+                    return result;
+                }
+
+                ReadTSV_File();
+
+                if (dsp.RowNames.Length > 0)
+                    SetTableRowNames(dsp.NewTableName);
+
+                // Confirm by testing if the new table exists within the environment
+                if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.NewTableName))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING TSV FILE: After importing tsv, " +
+                        "the new table name could not be found within the R workspace";
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+
+                System.Data.DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.NewTableName);
+                if (dt.Columns.Count != 35)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING CSV FILE: After importing tsv, " +
+                        "the new table was supposed to have 35 columns, and instead has " +
+                        dt.Columns.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+                if (dt.Rows.Count != 25)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING CSV FILE: After importing tsv, " +
+                        "the new table was supposed to have 25 columns, and instead has " +
+                        dt.Rows.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+            }
+            catch (Exception exc)
+            {
+                result.IsSuccessful = false;
+                result.Message = "ERROR IMPORTING TSV FILE: " + dsp.InputFileName + "\n\n" + exc.ToString();
+                result.R_Statement = s_Current_R_Statement;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Unit Test for Importing a Data Table from a SQLite database
+        /// </summary>
+        /// <returns>Information regarding the result of the UnitTest</returns>
+        public clsTestResult TestImportDataTableFromSQLite()
+        {
+            dsp.GetParameters(ModuleName, Parameters);
+            clsTestResult result = new clsTestResult(true, "");
+            result.Module = ModuleName;
+
+            try
+            {
+                if (!CheckPassedParameters())
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING DATATABE FROM SQLITE: Not all required parameters were passed in!";
+                    return result;
+                }
+
+                ConnectToSQLiteDatabase();
+                GetDataTableFromSQLiteDB();
+                if (dsp.RowNames.Length > 0)
+                    SetTableRowNames(dsp.NewTableName);
+                DisconnectFromDatabase();
+
+                // Confirm by testing if the new table exists within the environment
+                if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.NewTableName))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING DATATABE FROM SQLITE: After importing DataTable, " +
+                        "the new table name could not be found within the R workspace";
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+
+                System.Data.DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.NewTableName);
+                if (dt.Columns.Count != 66)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING DATA TABLE: After importing data table, " +
+                        "the new table was supposed to have 66 columns, and instead has " +
+                        dt.Columns.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+                if (dt.Rows.Count != 1311)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING DATA TABLE: After importing data table, " +
+                        "the new table was supposed to have 1,311 columns, and instead has " +
+                        dt.Rows.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+            }
+            catch (Exception exc)
+            {
+                result.IsSuccessful = false;
+                result.Message = "ERROR IMPORTING DATATABE FROM SQLITE: " + dsp.InputFileName + "\n\n" + exc.ToString();
+                result.R_Statement = s_Current_R_Statement;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Unit Test for Importing a Row Metadata Table from a SQLite database
+        /// </summary>
+        /// <returns>Information regarding the result of the UnitTest</returns>
+        public clsTestResult TestImportRowMetadataTableFromSQLite()
+        {
+            dsp.GetParameters(ModuleName, Parameters);
+            clsTestResult result = new clsTestResult(true, "");
+            result.Module = ModuleName;
+
+            try
+            {
+                if (!CheckPassedParameters())
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING ROW METADATATABE FROM SQLITE: Not all required parameters were passed in!";
+                    return result;
+                }
+
+                ConnectToSQLiteDatabase();
+                GetRowMetadataFromSQLiteDB();
+                if (dsp.RowNames.Length > 0)
+                    SetTableRowNames(dsp.NewTableName);
+                DisconnectFromDatabase();
+
+                // Confirm by testing if the new table exists within the environment
+                if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.NewTableName))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING ROW METADATATABE FROM SQLITE: After importing DataTable, " +
+                        "the new table name could not be found within the R workspace";
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+
+                System.Data.DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.NewTableName);
+                if (dt.Columns.Count != 5)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING ROW METADATA TABLE: After importing row metadata table, " +
+                        "the new table was supposed to have 5 columns, and instead has " +
+                        dt.Columns.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+                if (dt.Rows.Count != 22439)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING ROW METADATA TABLE: After importing row metadata table, " +
+                        "the new table was supposed to have 22,439 rows, and instead has " +
+                        dt.Rows.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+            }
+            catch (Exception exc)
+            {
+                result.IsSuccessful = false;
+                result.Message = "ERROR IMPORTING ROW METADATATABE FROM SQLITE: " + dsp.InputFileName + "\n\n" + exc.ToString();
+                result.R_Statement = s_Current_R_Statement;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Unit Test for Importing a Column Metadata Table from a SQLite database
+        /// </summary>
+        /// <returns>Information regarding the result of the UnitTest</returns>
+        public clsTestResult TestImportColumnMetadataTableFromSQLite()
+        {
+            dsp.GetParameters(ModuleName, Parameters);
+            clsTestResult result = new clsTestResult(true, "");
+            result.Module = ModuleName;
+
+            try
+            {
+                if (!CheckPassedParameters())
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING COLUMN METADATATABE FROM SQLITE: Not all required parameters were passed in!";
+                    return result;
+                }
+
+                ConnectToSQLiteDatabase();
+                GetColumnMetadataFromSQLiteDB();
+                if (dsp.RowNames.Length > 0)
+                    SetTableRowNames(dsp.NewTableName);
+                DisconnectFromDatabase();
+
+                // Confirm by testing if the new table exists within the environment
+                if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.NewTableName))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING COLUMN METADATATABE FROM SQLITE: After importing DataTable, " +
+                        "the new table name could not be found within the R workspace";
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+
+                System.Data.DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.NewTableName);
+                if (dt.Columns.Count != 13)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING column METADATA TABLE: After importing column metadata table, " +
+                        "the new table was supposed to have 13 columns, and instead has " +
+                        dt.Columns.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+                if (dt.Rows.Count != 99)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR IMPORTING COLUMN METADATA TABLE: After importing column metadata table, " +
+                        "the new table was supposed to have 99 columns, and instead has " +
+                        dt.Rows.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+            }
+            catch (Exception exc)
+            {
+                result.IsSuccessful = false;
+                result.Message = "ERROR IMPORTING COLUMN METADATATABE FROM SQLITE: " + dsp.InputFileName + "\n\n" + exc.ToString();
+                result.R_Statement = s_Current_R_Statement;
+            }
+
+            return result;
         }
         #endregion
     }

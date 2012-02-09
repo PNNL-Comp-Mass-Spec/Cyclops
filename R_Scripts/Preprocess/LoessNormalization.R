@@ -1,4 +1,4 @@
-﻿
+
 # Written by Ashoka D. Polpitiya 
 # for the Department of Energy (PNNL, Richland, WA)
 # Copyright 2007, Battelle Memorial Institute

@@ -1,4 +1,4 @@
-﻿
+
 # Written by Laura Schaffnit & Ashoka D. Polpitiya
 # for the Department of Energy (PNNL, Richland, WA)
 # Copyright 2009, Battelle Memorial Institute

@@ -33,7 +33,7 @@ namespace Cyclops
     /// <summary>
     /// Reads a Cyclops XML Workflow and assemble the modules
     /// </summary>
-    public class clsCyclopsXMLReader : clsBaseDataModule
+    public class clsCyclopsXMLReader : DataModules.clsBaseDataModule
     {        
         private XmlNodeReader reader;
         private enum ModuleType {Data, Visual, Export};
@@ -42,18 +42,33 @@ namespace Cyclops
 
         #region Constructors
         /// <summary>
-        /// Basic constructor
+        /// Reads the Cyclops XML workflow, and assembles the modules in the specified order and
+        /// configuration
         /// </summary>
         public clsCyclopsXMLReader()
         {
         }
         /// <summary>
-        /// Constructor that requires the parameters to run Cyclops Pipeline
+        /// Reads the Cyclops XML workflow, and assembles the modules in the specified order and
+        /// configuration
         /// </summary>
         /// <param name="ParametersForCyclops">Parameters to run a Cyclops Pipeline</param>
         public clsCyclopsXMLReader(Dictionary<string, string> ParametersForCyclops)
         {
             d_CyclopsParameters = ParametersForCyclops;
+        }
+
+        /// <summary>
+        /// Reads the Cyclops XML workflow, and assembles the modules in the specified order and
+        /// configuration
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="ParametersForCyclops">Parameters to run a Cyclops Pipeline</param>
+        public clsCyclopsXMLReader(clsCyclopsModel TheCyclopsModel,
+            Dictionary<string, string> ParametersForCyclops)
+        {
+            d_CyclopsParameters = ParametersForCyclops;
+            Model = TheCyclopsModel;
         }
         #endregion
 
@@ -64,7 +79,7 @@ namespace Cyclops
         /// <param name="XML_FileName">Path to the XML Workflow file</param>
         /// <param name="InstanceOfR">Name of the instance of R workspace</param>
         /// <returns>the root node module</returns>
-        public clsBaseDataModule ReadXML_Workflow(string XML_FileName, string InstanceOfR)
+        public DataModules.clsBaseDataModule ReadXML_Workflow(string XML_FileName, string InstanceOfR)
         {
             if (!File.Exists(XML_FileName))
             {
@@ -74,10 +89,10 @@ namespace Cyclops
 
             ModuleType currentModuleType = ModuleType.Data;
 
-            clsBaseDataModule root = null;                     // keeps track of the root of the tree
-            clsBaseDataModule currentNode = root;              // pointer to keep track of where you are in the tree as you add nodes
-            clsBaseVisualizationModule currentVizNode = null;  // current pointer for visualization modules - important for adding parameters
-            clsBaseExportModule currentExportNode = null;      // current pointer for export modules - important for adding parameters
+            DataModules.clsBaseDataModule root = null;                     // keeps track of the root of the tree
+            DataModules.clsBaseDataModule currentNode = root;              // pointer to keep track of where you are in the tree as you add nodes
+            VisualizationModules.clsBaseVisualizationModule currentVizNode = null;  // current pointer for visualization modules - important for adding parameters
+            ExportModules.clsBaseExportModule currentExportNode = null;      // current pointer for export modules - important for adding parameters
 
             try
             {
@@ -98,8 +113,8 @@ namespace Cyclops
 
                                             switch (modid)
                                             {
-                                                case "Import":                                                    
-                                                    clsImportDataModule import = new clsImportDataModule(InstanceOfR);
+                                                case "Import":
+                                                    DataModules.clsImportDataModule import = new DataModules.clsImportDataModule(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = import;
@@ -112,7 +127,7 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "Transform":
-                                                    clsTransformModule transform = new clsTransformModule(InstanceOfR);
+                                                    DataModules.clsTransformModule transform = new DataModules.clsTransformModule(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = transform;
@@ -125,7 +140,7 @@ namespace Cyclops
                                                     }
                                                     break;       
                                                 case "LoadRSourceFiles":
-                                                    clsRSourceFileModule source = new clsRSourceFileModule(InstanceOfR);
+                                                    DataModules.clsRSourceFileModule source = new DataModules.clsRSourceFileModule(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = source;
@@ -138,7 +153,7 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "LoadRWorkspace":
-                                                    clsLoadRWorkspaceModule load = new clsLoadRWorkspaceModule(InstanceOfR);
+                                                    DataModules.clsLoadRWorkspaceModule load = new DataModules.clsLoadRWorkspaceModule(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = load;
@@ -151,7 +166,7 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "Aggregate":
-                                                    clsAggregate aggregate = new clsAggregate(InstanceOfR);
+                                                    DataModules.clsAggregate aggregate = new DataModules.clsAggregate(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = aggregate;
@@ -164,7 +179,7 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "BetaBinomial":
-                                                    clsBetaBinomialModelModule bbm = new clsBetaBinomialModelModule(InstanceOfR);                                                    
+                                                    DataModules.clsBetaBinomialModelModule bbm = new DataModules.clsBetaBinomialModelModule(Model, InstanceOfR);                                                    
                                                     if (root == null)
                                                     {
                                                         root = bbm;
@@ -177,7 +192,7 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "RMD":
-                                                    clsRMD rmd = new clsRMD(InstanceOfR);
+                                                    DataModules.clsRMD rmd = new DataModules.clsRMD(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = rmd;
@@ -189,8 +204,21 @@ namespace Cyclops
                                                         currentNode = rmd;
                                                     }
                                                     break;
+                                                case "RRollup":
+                                                    DataModules.clsRRollup rrollup = new DataModules.clsRRollup(Model, InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = rrollup;
+                                                        currentNode = rrollup;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(rrollup);
+                                                        currentNode = rrollup;
+                                                    }
+                                                    break;
                                                 case "FoldChange":
-                                                    clsFoldChange fc = new clsFoldChange(InstanceOfR);
+                                                    DataModules.clsFoldChange fc = new DataModules.clsFoldChange(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = fc;
@@ -203,7 +231,7 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "FilterByTable":
-                                                    clsFilterByAnotherTable filterByTable = new clsFilterByAnotherTable(InstanceOfR);
+                                                    DataModules.clsFilterByAnotherTable filterByTable = new DataModules.clsFilterByAnotherTable(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = filterByTable;
@@ -216,7 +244,8 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "CombineSpectralCountResults":
-                                                    clsCombineSpectralCountResultFiles combine = new clsCombineSpectralCountResultFiles(InstanceOfR);
+                                                    DataModules.clsCombineSpectralCountResultFiles combine = 
+                                                        new DataModules.clsCombineSpectralCountResultFiles(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = combine;
@@ -229,7 +258,7 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "NormalizeSpectralCounts":
-                                                    clsNormalizingSpectralCounts norm = new clsNormalizingSpectralCounts(InstanceOfR);
+                                                    DataModules.clsNormalizingSpectralCounts norm = new DataModules.clsNormalizingSpectralCounts(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = norm;
@@ -242,7 +271,7 @@ namespace Cyclops
                                                     }
                                                     break;
                                                 case "DataTableManipulation":
-                                                    clsDataTableManipulation dtm = new clsDataTableManipulation(InstanceOfR);
+                                                    DataModules.clsDataTableManipulation dtm = new DataModules.clsDataTableManipulation(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = dtm;
@@ -254,8 +283,21 @@ namespace Cyclops
                                                         currentNode = dtm;
                                                     }
                                                     break;
+                                                case "ProteinProphet":
+                                                    DataModules.clsProteinProphet pp = new DataModules.clsProteinProphet(Model, InstanceOfR);
+                                                    if (root == null)
+                                                    {
+                                                        root = pp;
+                                                        currentNode = pp;
+                                                    }
+                                                    else
+                                                    {
+                                                        currentNode.AddDataChild(pp);
+                                                        currentNode = pp;
+                                                    }
+                                                    break;
                                                 case "Clean":
-                                                    clsCleanUpRSourceFileObjects clean = new clsCleanUpRSourceFileObjects(InstanceOfR);
+                                                    DataModules.clsCleanUpRSourceFileObjects clean = new DataModules.clsCleanUpRSourceFileObjects(Model, InstanceOfR);
                                                     if (root == null)
                                                     {
                                                         root = clean;
@@ -290,15 +332,50 @@ namespace Cyclops
                                     switch (modid)
                                     {
                                         case "Hexbin":
-                                            clsHexbin hexbin = new clsHexbin(InstanceOfR);
-                                            currentVizNode = hexbin;
+                                            VisualizationModules.clsHexbin hexbin = new VisualizationModules.clsHexbin(InstanceOfR);
                                             if (root == null)
                                             {
-                                                Console.WriteLine("Error: trying to add a Hexbin Module without a root!");
+                                                traceLog.Error("Error: trying to add a Hexbin Module without a root!");
                                             }
                                             else
                                             {
+                                                traceLog.Info("Adding Hexbin module from XML...");
                                                 currentNode.AddVisualChild(hexbin);
+                                            }
+                                            break;
+                                        case "Histogram":
+                                            VisualizationModules.clsHistogram hist = new VisualizationModules.clsHistogram(InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("Error: trying to add a Histogram Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                traceLog.Info("Adding Histogram module from XML...");
+                                                currentNode.AddVisualChild(hist);
+                                            }
+                                            break;
+                                        case "Heatmap":
+                                            VisualizationModules.clsHeatmap heat = new VisualizationModules.clsHeatmap(InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("Error: trying to add a Heatmap Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                traceLog.Info("Adding Heatmap module from XML...");
+                                                currentNode.AddVisualChild(heat);
+                                            }
+                                            break;
+                                        case "BoxPlot":
+                                            VisualizationModules.clsBoxPlot box = new VisualizationModules.clsBoxPlot(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                            }
+                                            else
+                                            {
+                                                traceLog.Info("Adding Boxplot module from XML...");
+                                                currentNode.AddVisualChild(box);
                                             }
                                             break;
                                     }
@@ -311,7 +388,7 @@ namespace Cyclops
                                     switch (modid)
                                     {
                                         case "Save":
-                                            clsSaveEnvironment se_Node = new clsSaveEnvironment(InstanceOfR);
+                                            ExportModules.clsSaveEnvironment se_Node = new ExportModules.clsSaveEnvironment(Model, InstanceOfR);
                                             currentExportNode = se_Node;
                                             if (root == null)
                                             {
@@ -323,7 +400,7 @@ namespace Cyclops
                                             }
                                             break;
                                         case "ExportTable":
-                                            clsExportTableModule tab = new clsExportTableModule(InstanceOfR);
+                                            ExportModules.clsExportTableModule tab = new ExportModules.clsExportTableModule(InstanceOfR);
                                             currentExportNode = tab;
                                             if (root == null)
                                             {
@@ -353,10 +430,28 @@ namespace Cyclops
                                                 d_Parameters.Add(reader.GetAttribute("key").ToString(),
                                                 reader.GetAttribute("value"));
                                             }
-                                            else // if the key is already in the dictionary -> replace the value
+                                            else // if the key is already in the dictionary -> add the value as List<string>
                                             {
-                                                d_Parameters[reader.GetAttribute("key").ToString()] =
-                                                    reader.GetAttribute("value");
+                                                string myKey = reader.GetAttribute("key").ToString();
+                                                dynamic d = d_Parameters[myKey];
+                                                if (d.GetType() == typeof(String))
+                                                {
+                                                    List<string> l = new List<string>();
+                                                    l.Add(d);
+                                                    l.Add(reader.GetAttribute("value"));
+                                                    d_Parameters[myKey] = l;
+                                                }
+                                                else if (d.GetType() == typeof(List<string>))
+                                                {
+                                                    List<string> l = (List<string>)d_Parameters[myKey];
+                                                    l.Add(reader.GetAttribute("value"));
+                                                    d_Parameters[myKey] = l;
+                                                }
+                                                else // otherwise, just replace the value
+                                                {
+                                                    d_Parameters[reader.GetAttribute("key").ToString()] =
+                                                        reader.GetAttribute("value");
+                                                }
                                             }
                                         }
                                     }

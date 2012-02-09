@@ -30,7 +30,7 @@ namespace Cyclops
     /// <summary>
     /// Simple module for testing functions
     /// </summary>
-    public class clsMyTestingModule : clsBaseDataModule
+    public class clsMyTestingModule : DataModules.clsBaseDataModule
     {
         private string s_RInstance;
 

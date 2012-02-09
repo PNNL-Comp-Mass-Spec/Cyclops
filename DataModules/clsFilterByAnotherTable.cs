@@ -24,29 +24,41 @@ using System.Collections.Generic;
 using RDotNet;
 using log4net;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     public class clsFilterByAnotherTable : clsBaseDataModule
     {
-        private string s_RInstance, s_xLink="", s_yLink="", 
-            s_NewTableName="", s_xTable="", s_yTable="";
+        private string s_RInstance;
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
-        /// Basic constructor
+        /// Filters a table based on the values within another table
         /// </summary>
         public clsFilterByAnotherTable()
         {
             ModuleName = "Filter By Another Table Module";
         }
         /// <summary>
-        /// Constructor that requires the instance of the R workspace
+        /// Filters a table based on the values within another table
         /// </summary>
-        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsFilterByAnotherTable(string InstanceOfR)
         {
             ModuleName = "Filter By Another Table Module";
+            s_RInstance = InstanceOfR;
+        }
+        /// <summary>
+        /// Filters a table based on the values within another table
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsFilterByAnotherTable(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "Filter By Another Table Module";
+            Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -65,6 +77,8 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            dsp.GetParameters(ModuleName, Parameters);
+
             traceLog.Info("Filtering by another table...");
 
             if (CheckPassedParameters())
@@ -74,7 +88,7 @@ namespace Cyclops
                     FilterByAnotherTable();
                 }
             }
-            
+
             RunChildModules();
         }
 
@@ -84,44 +98,46 @@ namespace Cyclops
         /// <returns>True if all necessary parameters are present</returns>
         protected bool CheckPassedParameters()
         {
+            bool b_2Pass = true;
+
             // NECESSARY PARAMETERS
-            if (Parameters.ContainsKey("xLink"))
-                s_xLink = Parameters["xLink"];
-            else
+            if (!dsp.HasXLink)
             {
-                traceLog.Error("FilterByAnotherTable class: 'xLink' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("FilterByAnotherTable class: 'xLink': \"" +
+                    dsp.X_Link + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
-            if (Parameters.ContainsKey("yLink"))
-                s_yLink = Parameters["yLink"];
-            else
+            if (!dsp.HasYLink)
             {
-                traceLog.Error("FilterByAnotherTable class: 'yLink' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("FilterByAnotherTable class: 'yLink': \"" +
+                    dsp.Y_Link + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
-            if (Parameters.ContainsKey("newTableName"))
-                s_NewTableName = Parameters["newTableName"];
-            else
+            if (!dsp.HasNewTableName)
             {
-                traceLog.Error("FilterByAnotherTable class: 'newTableName' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("FilterByAnotherTable class: 'newTableName': \"" +
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
-            if (Parameters.ContainsKey("xTable"))
-                s_xTable = Parameters["xTable"];
-            else
+            if (!dsp.HasXTable)
             {
-                traceLog.Error("FilterByAnotherTable class: 'xTable' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("FilterByAnotherTable class: 'xTable': \"" +
+                    dsp.X_Table + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
-            if (Parameters.ContainsKey("yTable"))
-                s_yTable = Parameters["yTable"];
-            else
+            if (!dsp.HasYTable)
             {
-                traceLog.Error("FilterByAnotherTable class: 'yTable' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("FilterByAnotherTable class: 'yTable': \"" +
+                    dsp.Y_Table + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
 
-            return true;
+            return b_2Pass;
         }
 
         /// <summary>
@@ -130,13 +146,14 @@ namespace Cyclops
         /// <returns></returns>
         private bool CheckTablesExist()
         {
-            if (clsGenericRCalls.ContainsObject(s_RInstance, s_xTable) &
-                clsGenericRCalls.ContainsObject(s_RInstance, s_yTable))
+            if (clsGenericRCalls.ContainsObject(s_RInstance, dsp.X_Table) &
+                clsGenericRCalls.ContainsObject(s_RInstance, dsp.Y_Table))
             {
                 return true;
             }
             else
             {
+                Model.SuccessRunningPipeline = false;
                 traceLog.Error("ERROR FilterByAnotherTable class: one of the tables does not exist!");
                 return false;
             }
@@ -148,13 +165,13 @@ namespace Cyclops
 
             // Determine how to setup the link in the subset, either should be
             // "rownames" or the index of the column
-            if (s_xLink.Equals("rownames") & s_yLink.Equals("rownames"))
+            if (dsp.X_Link.Equals("rownames") & dsp.Y_Link.Equals("rownames"))
             {
                 string s_RStatement = string.Format(
                     "{0} <- {1}[which(rownames({1}) %in% rownames({2})),]",
-                    s_NewTableName,
-                    s_xTable,
-                    s_yTable
+                    dsp.NewTableName,
+                    dsp.X_Table,
+                    dsp.Y_Table
                     );
 
                 try
@@ -164,6 +181,71 @@ namespace Cyclops
                 }
                 catch (Exception exc)
                 {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("ERROR Filtering Table: " + exc.ToString());
+                }
+            }
+            else if (dsp.X_Link.Equals("rownames"))
+            {
+                string s_RStatement = string.Format(
+                    "{0} <- {1}[which(rownames({1}) %in% {2}${3}),]",
+                    dsp.NewTableName,
+                    dsp.X_Table,
+                    dsp.Y_Table,
+                    dsp.Y_Link
+                    );
+
+                try
+                {
+                    traceLog.Info("Filtering Table: " + s_RStatement);
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (Exception exc)
+                {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("ERROR Filtering Table: " + exc.ToString());
+                }
+            }
+            else if (dsp.Y_Link.Equals("rownames"))
+            {
+                string s_RStatement = string.Format(
+                    "{0} <- {1}[which({1}${3} %in% rownames({2}))),]",
+                    dsp.NewTableName,
+                    dsp.X_Table,
+                    dsp.Y_Table,
+                    dsp.X_Link
+                    );
+
+                try
+                {
+                    traceLog.Info("Filtering Table: " + s_RStatement);
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (Exception exc)
+                {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("ERROR Filtering Table: " + exc.ToString());
+                }
+            }
+            else
+            {
+                string s_RStatement = string.Format(
+                    "{0} <- {1}[which({1}${3} %in% {2}${4})),]",
+                    dsp.NewTableName,
+                    dsp.X_Table,
+                    dsp.Y_Table,
+                    dsp.X_Link,
+                    dsp.Y_Link
+                    );
+
+                try
+                {
+                    traceLog.Info("Filtering Table: " + s_RStatement);
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (Exception exc)
+                {
+                    Model.SuccessRunningPipeline = false;
                     traceLog.Error("ERROR Filtering Table: " + exc.ToString());
                 }
             }

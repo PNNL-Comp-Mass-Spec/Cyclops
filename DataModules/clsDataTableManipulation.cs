@@ -26,7 +26,7 @@ using System.Text;
 
 using RDotNet;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// Brings DataFrames and Matrices from R over to C# for further manipulation
@@ -34,22 +34,35 @@ namespace Cyclops
     public class clsDataTableManipulation : clsBaseDataModule
     {
         private string s_RInstance;
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
 
         #region Constructors
         /// <summary>
-        /// Basic constructor
+        /// Module that brings DataFrames and Matrices from R over to C# for further manipulation
         /// </summary>
         public clsDataTableManipulation()
         {
             ModuleName = "DataTable Manipulation Module";
         }
         /// <summary>
-        /// Constructor that requires the instance of the R workspace
+        /// Module that brings DataFrames and Matrices from R over to C# for further manipulation
         /// </summary>
-        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsDataTableManipulation(string InstanceOfR)
         {
             ModuleName = "DataTable Manipulation Module";
+            s_RInstance = InstanceOfR;
+        }
+        /// <summary>
+        /// Module that brings DataFrames and Matrices from R over to C# for further manipulation
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsDataTableManipulation(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "DataTable Manipulation Module";
+            Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -64,19 +77,22 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            dsp.GetParameters(ModuleName, Parameters);
+
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            if (!Parameters.ContainsKey("table"))
+            if (!dsp.HasInputTableName)
             {
                 // TODO: create an error message
+                Model.SuccessRunningPipeline = false;
                 return;
             }
 
-            DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, Parameters["table"]);
+            DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.InputTableName);
 
             Console.WriteLine(dt.Rows.Count + " rows!");
             Console.WriteLine(dt.Columns.Count + " columns!");
 
-            string s = Parameters["table"];
+            string s = dsp.InputTableName;
             DataFrame df = engine.EagerEvaluate(s).AsDataFrame();
 
 

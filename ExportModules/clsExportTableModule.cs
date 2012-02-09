@@ -26,26 +26,47 @@ using System.IO;
 using System.Threading;
 
 using RDotNet;
+using log4net;
 
-namespace Cyclops
+namespace Cyclops.ExportModules
 {
     /// <summary>
     /// Exports tables from R environment to SQLite database, CSV, TSV, MSAccess, or SQLServer
     /// </summary>
     public class clsExportTableModule : clsBaseExportModule
     {
-        public enum ExportDataType { SQLite, CSV, TSV, MSAccess, SQLServer };
-        private int dataType;
+        private ExportModules.cslExportParameterHandler esp =
+            new ExportModules.cslExportParameterHandler();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
+
         private string s_RInstance;
 
         #region Constructors
+        /// <summary>
+        /// Exports a data.frame or matrix from R to a designated target (TXT, CSV, etc.)
+        /// </summary>
         public clsExportTableModule()
         {
             ModuleName = "Export Table Module";
         }
+        /// <summary>
+        /// Exports a data.frame or matrix from R to a designated target (TXT, CSV, etc.)
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsExportTableModule(string InstanceOfR)
         {
             ModuleName = "Export Table Module";
+            s_RInstance = InstanceOfR;
+        }
+        /// <summary>
+        /// Exports a data.frame or matrix from R to a designated target (TXT, CSV, etc.)
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsExportTableModule(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "Export Table Module";
+            Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -55,83 +76,227 @@ namespace Cyclops
         #endregion
 
         #region Functions
-        /// <summary>
-        /// Sets the DataType that the object is going to pull the data from
-        /// </summary>
-        /// <param name="DataType">ImportDataType</param>
-        public void SetDataType(ExportDataType DataType)
-        {
-            dataType = (int)DataType;
-        }
-
-        /// <summary>
-        /// Given the list of parameters from the Dictionary Parameters,
-        /// determine the source the data should be export out to and set the DataType
-        /// </summary>
-        public void SetDataTypeFromParameters()
-        {
-            string s_DataType = Parameters["source"].ToString();
-            switch (s_DataType)
-            {
-                case "sqlite":
-                    SetDataType(ExportDataType.SQLite);
-                    break;
-                case "msAccess":
-                    SetDataType(ExportDataType.MSAccess);
-                    break;
-                case "csv":
-                    SetDataType(ExportDataType.CSV);
-                    break;
-                case "tsv":
-                    SetDataType(ExportDataType.TSV);
-                    break;
-                case "sqlServer":
-                    SetDataType(ExportDataType.SQLServer);
-                    break;
-            }
-        }
-
+            
         /// <summary>
         /// Runs module
         /// </summary>
         public override void PerformOperation()
         {
-            // Determine what source the data needs to export out to
-            SetDataTypeFromParameters();
+            esp.GetParameters(ModuleName, Parameters);
 
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
-            string s_Command = "";
-
-            switch (dataType)
+            if (CheckPassedParameters())
             {
-                case (int)ExportDataType.SQLite:
 
-                    break;
-                case (int)ExportDataType.CSV:
-                    string s_FileName = Parameters["fileName"];
-                    if (Path.GetDirectoryName(s_FileName).Equals("") &
-                        Parameters.ContainsKey("workDir"))
-                    {
-                        s_FileName = Parameters["workDir"] + "/" + s_FileName;
-                    }
-                    s_FileName = s_FileName.Replace('\\', '/');
-                    s_Command = string.Format("write.csv({0}, file=\"{1}\")",
-                        Parameters["tableName"],
-                        s_FileName);
-                    break;
-                case (int)ExportDataType.TSV:
+                REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
-                    break;
-                case (int)ExportDataType.MSAccess:
+                string s_Command = "";
 
-                    break;
-                case (int)ExportDataType.SQLServer:
+                switch (esp.Source)
+                {
+                    case "sqlite":
+                        ConnectToSQLiteDatabase();
+                        s_Command = string.Format("dbWriteTable(" +
+                            "conn=con, name=\"{0}\", value={1})",
+                            esp.NewTableName, 
+                            esp.TableName);
+                        try
+                        {
+                            engine.EagerEvaluate(s_Command);
+                        }
+                        catch (Exception exc)
+                        {
+                            Model.SuccessRunningPipeline = false;
+                            traceLog.Error("ERROR ExportTable sqlite table: " + exc.ToString());
+                        }
+                        DisconnectFromDatabase();
+                        break;
+                    case "csv":
+                        if (esp.HasFileName)
+                        {
+                            if (esp.IncludeRowNames)
+                            {
+                                s_Command = string.Format("jnb_Write(df={0}, " +
+                                    "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
+                                    "sepChar=\"{3}\")",
+                                    esp.TableName,
+                                    esp.WorkDirectory + "/" + esp.FileName,
+                                    esp.RownamesColumnHeader,
+                                    esp.SeparatingCharacter);
+                            }
+                            else
+                            {
+                                s_Command = string.Format("jnb_Write(df={0}, " +
+                                    "fileName=\"{1}\", row.names=FALSE, " +
+                                    "sepChar=\"{2}\")",
+                                    esp.TableName,
+                                    esp.WorkDirectory + "/" + esp.FileName,
+                                    esp.SeparatingCharacter);
+                            }
 
-                    break;
+                            try
+                            {
+                                traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
+                                engine.EagerEvaluate(s_Command);
+                            }
+                            catch (Exception exc)
+                            {
+                                Model.SuccessRunningPipeline = false;
+                                traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
+                            }
+                        }
+                        break;
+                    case "tsv":
+                        if (esp.HasFileName)
+                        {
+                            if (esp.IncludeRowNames)
+                            {
+                                s_Command = string.Format("jnb_Write(df={0}, " +
+                                    "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
+                                    "sepChar=\"{3}\")",
+                                    esp.TableName,
+                                    esp.WorkDirectory + "/" + esp.FileName,
+                                    esp.RownamesColumnHeader,
+                                    esp.SeparatingCharacter);
+                            }
+                            else
+                            {
+                                s_Command = string.Format("jnb_Write(df={0}, " +
+                                    "fileName=\"{1}\", row.names=FALSE, " +
+                                    "sepChar=\"{2}\")",
+                                    esp.TableName,
+                                    esp.WorkDirectory + "/" + esp.FileName,
+                                    esp.SeparatingCharacter);
+                            }
+
+                            try
+                            {
+                                traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
+                                engine.EagerEvaluate(s_Command);
+                            }
+                            catch (Exception exc)
+                            {
+                                Model.SuccessRunningPipeline = false;
+                                traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
+                            }
+                        }
+                        break;
+                    case "access":
+
+                        break;
+                    case "sqlserver":
+
+                        break;
+                }                
+            }
+        }
+
+        /// <summary>
+        /// Determine is all the necessary parameters are being passed to the object
+        /// </summary>
+        /// <returns>Returns true import module can proceed</returns>
+        public bool CheckPassedParameters()
+        {
+            bool b_2Param = true; 
+
+            // NECESSARY PARAMETERS
+            if (!esp.HasSource)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR ExportTable: 'source' was not found in the passed parameters");
+                b_2Param = false;
+            }
+            if (!esp.HasTableName)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR ExportTable: 'tableName' was not found in the passed parameters");
+                b_2Param = false;
+            }
+            if (!esp.HasWorkDirectory)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR ExportTable: 'workDir' was not found in the passed parameters");
+                b_2Param = false;
             }
 
-            engine.EagerEvaluate(s_Command);
+            return b_2Param;
+        }
+
+        /// <summary>
+        /// Creates a connection to a sqlite database
+        /// </summary>
+        /// <param name="RInstance">Instance of your R workspace</param>
+        protected void ConnectToSQLiteDatabase()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+            string s_DatabaseFileName = "";
+            if (esp.HasWorkDirectory & esp.HasFileName)
+                s_DatabaseFileName = esp.WorkDirectory + "/" + esp.FileName;
+            else if (esp.HasFileName)
+                s_DatabaseFileName = esp.FileName;
+            else
+                s_DatabaseFileName = esp.WorkDirectory + "/Results.db3";
+
+            if (File.Exists(s_DatabaseFileName))
+            {
+                string s_RStatement = string.Format(
+                                "require(RSQLite)\n" +
+                                "m <- dbDriver(\"SQLite\", max.con=25)\n" +
+                                "con <- dbConnect(m, dbname = \"{0}\")",
+                                    s_DatabaseFileName);
+
+                try
+                {
+                    traceLog.Info("Connecting to SQLite Database: " + s_RStatement);
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (IOException exc)
+                {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("Cyclops encountered an IOException while connecting to SQLite database: " +
+                        exc.ToString() + ".");
+                }
+                catch (AccessViolationException ave)
+                {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("Cyclops encountered an AccessViolationException while connecting to SQLite database: " +
+                        ave.ToString() + ".");
+                }
+                catch (Exception ex)
+                {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("Cyclops encountered an Exception while connecting to SQLite database:" +
+                        ex.ToString() + ".");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Terminates the connection to the SQLite database, releasing control of the database.
+        /// </summary>
+        /// <param name="RInstance">Instance of the R Workspace</param>
+        public void DisconnectFromDatabase()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+            string s_RStatement = "terminated <- dbDisconnect(con)";
+
+            traceLog.Info("Disconnecting from Database: " + s_RStatement);
+            engine.EagerEvaluate(s_RStatement);
+
+            bool b_Disconnected = clsGenericRCalls.AssessBoolean(s_RInstance, "terminated");
+
+            if (b_Disconnected)
+            {
+                s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
+                traceLog.Info("Cleaning Database Connection: " + s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+            }
+            else
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("Cyclops was unsuccessful at disconnecting from SQLITE database");
+            }
         }
         #endregion
     }

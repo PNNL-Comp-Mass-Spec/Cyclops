@@ -23,19 +23,24 @@ using System.Collections.Generic;
 
 using RDotNet;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// Base class for Data Modules
     /// </summary>
     public abstract class clsBaseDataModule : clsBaseModule
     {
-        private List<clsBaseVisualizationModule> l_ChildVisualizationModules = new List<clsBaseVisualizationModule>();
-        private List<clsBaseExportModule> l_ChildExportModules = new List<clsBaseExportModule>();
+        private List<VisualizationModules.clsBaseVisualizationModule> l_ChildVisualizationModules = new List<VisualizationModules.clsBaseVisualizationModule>();
+        private List<ExportModules.clsBaseExportModule> l_ChildExportModules = new List<ExportModules.clsBaseExportModule>();
         private List<clsBaseDataModule> l_ChildDataModules = new List<clsBaseDataModule>();
 
         #region Properties
-        
+        // instance of the model class
+        public clsCyclopsModel Model
+        {
+            get;
+            set;
+        }
         #endregion
 
         #region Methods
@@ -53,7 +58,7 @@ namespace Cyclops
         /// Adds a child visualization module
         /// </summary>
         /// <param name="Child">Visualization Child Module to Add</param>
-        public void AddVisualChild(clsBaseVisualizationModule Child)
+        public void AddVisualChild(VisualizationModules.clsBaseVisualizationModule Child)
         {
             l_ChildVisualizationModules.Add(Child);
         }
@@ -62,7 +67,7 @@ namespace Cyclops
         /// Adds a child export module
         /// </summary>
         /// <param name="Child">Export Child Module to Add</param>
-        public void AddExportChild(clsBaseExportModule Child)
+        public void AddExportChild(ExportModules.clsBaseExportModule Child)
         {
             l_ChildExportModules.Add(Child);
         }
@@ -79,11 +84,11 @@ namespace Cyclops
         /// </summary>
         public void RunChildModules()
         {
-            foreach (clsBaseVisualizationModule bvm in l_ChildVisualizationModules)
+            foreach (VisualizationModules.clsBaseVisualizationModule bvm in l_ChildVisualizationModules)
             {
                 bvm.PerformOperation();
             }
-            foreach (clsBaseExportModule bem in l_ChildExportModules)
+            foreach (ExportModules.clsBaseExportModule bem in l_ChildExportModules)
             {
                 bem.PerformOperation();
             }
@@ -105,11 +110,11 @@ namespace Cyclops
         /// </summary>
         public void PrintChildModules()
         {
-            foreach (clsBaseVisualizationModule bvm in l_ChildVisualizationModules)
+            foreach (VisualizationModules.clsBaseVisualizationModule bvm in l_ChildVisualizationModules)
             {
                 bvm.PrintModule();
             }
-            foreach (clsBaseExportModule bem in l_ChildExportModules)
+            foreach (ExportModules.clsBaseExportModule bem in l_ChildExportModules)
             {
                 bem.PrintModule();
             }

@@ -24,8 +24,9 @@ using System.Linq;
 using System.Text;
 
 using RDotNet;
+using log4net;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// Runs the RMD_RUNS function in R that will log10 transform peptide peak intensity, that is,
@@ -44,22 +45,36 @@ namespace Cyclops
     public class clsRMD : clsBaseDataModule
     {
         private string s_RInstance;
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
-        /// Basic constructor
+        /// Performs Bobbie-Jo's RMD analysis to identify statistical outlier datasets
         /// </summary>
         public clsRMD()
         {
             ModuleName = "RMD Module";
         }
         /// <summary>
-        /// Constructor that requires the Name of the R instance
+        /// Performs Bobbie-Jo's RMD analysis to identify statistical outlier datasets
         /// </summary>
-        /// <param name="InstanceOfR">Path to R DLL</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsRMD(string InstanceOfR)
         {
             ModuleName = "RMD Module";
+            s_RInstance = InstanceOfR;
+        }
+        /// <summary>
+        /// Performs Bobbie-Jo's RMD analysis to identify statistical outlier datasets
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsRMD(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "RMD Module";
+            Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -74,11 +89,38 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
-            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.INFO,
-            //    "Cyclops is performing RMD analysis.");
+            dsp.GetParameters(ModuleName, Parameters);
 
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            if (CheckPassedParameters())
+            {
+                RunRMD();                
+            }
 
+            RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            bool b_2Pass = true;
+
+            // NECESSARY PARAMETERS
+            if (!dsp.HasNewTableName)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'newTableName': \"" +
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+
+            return b_2Pass;
+        }
+
+        private void InstallLibraries()
+        {
             if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "moment"))
                 clsGenericRCalls.InstallPackage(s_RInstance, "moment");
             if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "fields"))
@@ -87,6 +129,13 @@ namespace Cyclops
                 clsGenericRCalls.InstallPackage(s_RInstance, "geoR");
             if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "pcaPP"))
                 clsGenericRCalls.InstallPackage(s_RInstance, "pcaPP");
+        }
+
+        private void RunRMD()
+        {
+            InstallLibraries();
+
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
             // Construct the R statement
             // load in the libraries
@@ -94,7 +143,7 @@ namespace Cyclops
                 "require(fields)\n" +
                 "require(geoR)\n" +
                 "require(pcaPP)\n";
-            
+
             s_RStatement += string.Format(
                 "{0} <- DetectOutliers({1}, {2}, {3}, {4}, {5})",
                 Parameters["newListName"], // returns a list of objects with datasets to keep
@@ -105,14 +154,15 @@ namespace Cyclops
 
             try
             {
+                traceLog.Info("RMD MODULE: " + s_RStatement);
                 engine.EagerEvaluate(s_RStatement);
             }
             catch (Exception exc)
             {
                 // TODO handle problems with execution
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("RMD MODULE ERROR: " + exc.ToString());
             }
-
-            RunChildModules();
         }
         #endregion
     }

@@ -38,11 +38,12 @@ namespace Cyclops
     /// </summary>
     public class clsCyclopsModel
     {
-        private clsBaseDataModule root = null, currentNode = null;
+        private DataModules.clsBaseDataModule root = null, currentNode = null;
         private REngine engine;
         private string s_RInstance;
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        private bool b_SuccessRunningPipeline = true;
 
 
         #region Constructors
@@ -105,11 +106,26 @@ namespace Cyclops
         }
         #endregion
 
-        #region Members
+        #region Properties
+        /// <summary>
+        /// Flag to indicate if the pipeline completed successfully.
+        /// </summary>
+        public bool SuccessRunningPipeline
+        {
+            get
+            {
+                return b_SuccessRunningPipeline;
+            }
+            set
+            {
+                b_SuccessRunningPipeline = value;
+            }
+
+        }
         /// <summary>
         /// Root module of Cyclops Pipeline
         /// </summary>
-        public clsBaseDataModule Root
+        public DataModules.clsBaseDataModule Root
         {
             get { return root; }
             set { root = value; }
@@ -117,7 +133,7 @@ namespace Cyclops
         /// <summary>
         /// Pointer to current module in Cyclops Pipeline
         /// </summary>
-        public clsBaseDataModule CurrentNode
+        public DataModules.clsBaseDataModule CurrentNode
         {
             get { return currentNode; }
             set { currentNode = value; }
@@ -145,9 +161,17 @@ namespace Cyclops
         /// <summary>
         /// Creates a new instance of the R workspace
         /// </summary>
-        public void CreateInstanceOfR()
+        public bool CreateInstanceOfR()
         {
-            engine = REngine.CreateInstance(s_RInstance, new[] { "-q" }); // quiet mode
+            try
+            {
+                engine = REngine.CreateInstance(s_RInstance, new[] { "-q" }); // quiet mode
+                return true;
+            }
+            catch (Exception exc)
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -170,7 +194,7 @@ namespace Cyclops
 
             CreateInstanceOfR();
 
-            clsCyclopsXMLReader reader = new clsCyclopsXMLReader(CyclopsParameters);
+            clsCyclopsXMLReader reader = new clsCyclopsXMLReader(this, CyclopsParameters);
 
             string value = "";
             CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("Workflow"),
@@ -238,7 +262,7 @@ namespace Cyclops
             {
                 root.PerformOperation();
                 engine.Close();
-                return true;
+                return SuccessRunningPipeline;
             }
             else
             {
@@ -257,6 +281,29 @@ namespace Cyclops
             else
             {
                 Console.WriteLine("There were no modules in the pipeline!");
+            }
+        }
+
+        private bool CreateLogTableInR()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_Command = "t_log <- data.frame(" +
+                "\"DateTime\"=Sys.time()" +             // record time of call
+                ",\"Module\"=\"CyclopsModel\"" +        // Module that ran function
+                ",\"Target\"=\"\"" +                    // Target table
+                ",\"Function\"=\"Create R Session\"" +  // Type of function called
+                ", \"Statement\"=\"\")";                // R statement passed
+            try
+            {
+                engine.EagerEvaluate(s_Command);
+
+                return true;
+            }
+            catch (Exception exc)
+            {
+                // TODO : Handle exception
+
+                return false;
             }
         }
         #endregion

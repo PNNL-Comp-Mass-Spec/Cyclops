@@ -24,7 +24,7 @@ using System.IO;
 
 using log4net;
 
-namespace Cyclops
+namespace Cyclops.VisualizationModules
 {
     /// <summary>
     /// Base class for visualization modules
@@ -33,6 +33,16 @@ namespace Cyclops
     {
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
+        #region Properties
+        // instance of the model class
+        public clsCyclopsModel Model
+        {
+            get;
+            set;
+        }
+        #endregion
+
+        #region Methods
         /// <summary>
         /// Creates a directory to store image files
         /// </summary>
@@ -45,6 +55,7 @@ namespace Cyclops
                 s_WorkDir = s_WorkDir.Replace('\\', '/');
                 if (!Directory.Exists(s_WorkDir))
                 {
+                    Model.SuccessRunningPipeline = false;
                     traceLog.Info("Creating Plots Directory");
                     Directory.CreateDirectory(s_WorkDir);
                 }
@@ -54,7 +65,7 @@ namespace Cyclops
                 if (!Directory.Exists("Plots"))
                     Directory.CreateDirectory("Plots");
             }
-
         }
+        #endregion
     }
 }

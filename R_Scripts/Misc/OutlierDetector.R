@@ -1,4 +1,4 @@
-﻿#"Improved quality control processing of peptide-centric LC-MS proteomics data"
+#"Improved quality control processing of peptide-centric LC-MS proteomics data"
 #Melissa M. Matzke, Katrina M. Waters, Thomas O. Metz1, Jon M. Jacobs1,
 #Amy C. Sims2, Ralph S. Baric2, Joel G. Pounds2 and Bobbie-Jo M. Webb-Robertson
 

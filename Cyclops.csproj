@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -34,6 +34,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\..\DownloadedProjects\SharpZipLib\bin\net-20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\DownloadedProjects\log4net-1.2.10\bin\net\2.0\release\log4net.dll</HintPath>
@@ -44,6 +47,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.66.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -52,7 +56,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsCyclopsModel.cs" />
+    <Compile Include="clsSQLiteHandler.cs" />
+    <Compile Include="clsTestResult.cs" />
+    <Compile Include="clsZipCompression.cs" />
     <Compile Include="DataModules\clsCombineSpectralCountResultFiles.cs" />
+    <Compile Include="DataModules\clsDataModuleParameterHandler.cs" />
     <Compile Include="DataModules\clsDataTableManipulation.cs" />
     <Compile Include="DataModules\clsFilterByAnotherTable.cs" />
     <Compile Include="DataModules\clsCast.cs" />
@@ -61,11 +69,15 @@
     <Compile Include="DataModules\clsMelt.cs" />
     <Compile Include="DataModules\clsMerge.cs" />
     <Compile Include="DataModules\clsNormalizingSpectralCounts.cs" />
+    <Compile Include="DataModules\clsProteinProphet.cs" />
     <Compile Include="DataModules\clsRMD.cs" />
     <Compile Include="DataModules\clsAggregate.cs" />
     <Compile Include="DataModules\clsBaseDataModule.cs" />
+    <Compile Include="DataModules\clsRRollup.cs" />
     <Compile Include="ExportModules\clsBaseExportModule.cs" />
     <Compile Include="clsBaseModule.cs" />
+    <Compile Include="ExportModules\cslExportParameterHandler.cs" />
+    <Compile Include="MiscModules\clsMiscFunctions.cs" />
     <Compile Include="VisualizationModules\clsBaseVisualizationModule.cs" />
     <Compile Include="DataModules\clsBetaBinomialModelModule.cs" />
     <Compile Include="clsCyclopsParametersKey.cs" />
@@ -76,6 +88,7 @@
     <Compile Include="IBaseModule.cs" />
     <Compile Include="DataModules\clsImportDataModule.cs" />
     <Compile Include="DataModules\clsLoadRWorkspaceModule.cs" />
+    <Compile Include="VisualizationModules\clsBoxPlot.cs" />
     <Compile Include="VisualizationModules\clsHeatmap.cs" />
     <Compile Include="VisualizationModules\clsHexbin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -83,7 +96,7 @@
     <Compile Include="ExportModules\clsSaveEnvironment.cs" />
     <Compile Include="DataModules\clsTransformModule.cs" />
     <Compile Include="VisualizationModules\clsHistogram.cs" />
-    <Compile Include="VisualizationModules\clsVisualizationGlobalParameters.cs" />
+    <Compile Include="VisualizationModules\clsVisualizationParameterHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DataModules\DataModulesDiagram.cd" />

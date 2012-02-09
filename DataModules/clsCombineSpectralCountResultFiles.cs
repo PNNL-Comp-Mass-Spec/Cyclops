@@ -22,8 +22,9 @@ using System;
 using System.Collections.Generic;
 
 using RDotNet;
+using log4net;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// This is a specialized class specifically for combining tables 
@@ -32,28 +33,38 @@ namespace Cyclops
     public class clsCombineSpectralCountResultFiles : clsBaseDataModule
     {
         private string s_RInstance;
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
-        /// Basic constructor
+        /// Special module for combining tables from a spectral count analysis
         /// </summary>
         public clsCombineSpectralCountResultFiles()
         {
             ModuleName = "Combine Spectral Count Result Tables Module";
         }
         /// <summary>
-        /// Constructor that requires the instance of the R workspace
+        /// Special module for combining tables from a spectral count analysis
         /// </summary>
-        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsCombineSpectralCountResultFiles(string InstanceOfR)
         {
             ModuleName = "Combine Spectral Count Result Tables Module";
             s_RInstance = InstanceOfR;
         }
-        #endregion
-
-        #region Members
-
+        /// <summary>
+        /// Special module for combining tables from a spectral count analysis
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsCombineSpectralCountResultFiles(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "Combine Spectral Count Result Tables Module";
+            Model = TheCyclopsModel;
+            s_RInstance = InstanceOfR;
+        }
         #endregion
 
         #region Properties
@@ -66,32 +77,86 @@ namespace Cyclops
         /// </summary>
         public override void PerformOperation()
         {
+            dsp.GetParameters(ModuleName, Parameters);
+
+            if (CheckPassedParameters())
+            {
+                CombineSpectralCounts();
+            }
+
+            RunChildModules();
+        }
+
+        /// <summary>
+        /// Checks the dictionary to ensure all the necessary parameters are present
+        /// </summary>
+        /// <returns>True if all necessary parameters are present</returns>
+        protected bool CheckPassedParameters()
+        {
+            bool b_2Pass = true;
+
+            // NECESSARY PARAMETERS
+            if (!dsp.HasNewTableName)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'newTableName': \"" +
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasPvalueTable)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'pValueTable': \"" +
+                    dsp.P_ValueTable + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            if (!dsp.HasFoldChangeTable)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'foldChangeTable': \"" +
+                    dsp.FoldChangeTable + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+
+            return b_2Pass;
+        }
+
+        private void CombineSpectralCounts()
+        {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
             string s_RStatement = "";
 
-            if (!Parameters.ContainsKey("normalizedTable"))
+            if (!dsp.HasNormalizedTable)
             {
                 s_RStatement = string.Format(
                     "{0} <- cbind(\"pValue\"={1}[,1], {2}, {1}[,2:ncol({1})])",
-                    Parameters["newTableName"],
-                    Parameters["pValueTable"],
-                    Parameters["foldChangeTable"]);
+                    dsp.NewTableName,
+                    dsp.HasPvalueTable,
+                    dsp.FoldChangeTable);
             }
             else
             {
                 s_RStatement = string.Format(
                     "{0} <- cbind(\"pValue\"={1}[,1], {2}, {3}, {1}[,2:ncol({1})])",
-                    Parameters["newTableName"],
-                    Parameters["pValueTable"],
-                    Parameters["foldChangeTable"],
-                    Parameters["normalizedTable"]);
+                    dsp.NewTableName,
+                    dsp.HasPvalueTable,
+                    dsp.FoldChangeTable,
+                    dsp.NormalizedTable);
             }
 
-            engine.EagerEvaluate(s_RStatement);
-
-            RunChildModules();
+            try
+            {
+                traceLog.Info("COMBINING SPECTRAL COUNT TABLES: " + s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (Exception exc)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR COMBINING SPECTRAL COUNT TABLES: " + exc.ToString());
+            }
         }
+
         #endregion
     }
 }

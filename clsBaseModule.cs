@@ -30,7 +30,7 @@ namespace Cyclops
     {
         private string s_ModuleName = "";
         private Dictionary<string, dynamic> d_Parameters;
-        private clsBaseDataModule bdm_ParentModule;
+        private DataModules.clsBaseDataModule bdm_ParentModule;
 
         #region Properties
         public string ModuleName
@@ -55,12 +55,12 @@ namespace Cyclops
                 return false;
         }
 
-        public void SetParent(clsBaseDataModule Parent)
+        public void SetParent(DataModules.clsBaseDataModule Parent)
         {
             bdm_ParentModule = Parent;
         }
 
-        public clsBaseDataModule GetParent()
+        public DataModules.clsBaseDataModule GetParent()
         {
             return bdm_ParentModule;
         }

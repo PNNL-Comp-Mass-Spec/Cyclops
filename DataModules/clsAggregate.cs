@@ -26,32 +26,44 @@ using System.Text;
 using log4net;
 using RDotNet;
 
-namespace Cyclops
+namespace Cyclops.DataModules
 {
     /// <summary>
     /// Aggregates Tables based on Columns, ColumnMetadata, Rows, or RowMetadata
     /// </summary>
     public class clsAggregate : clsBaseDataModule
     {
-        private string s_RInstance, s_NewTableName="", s_DataTable="",
-            s_Factor="", s_Margin="", s_Function="";
+        private string s_RInstance, s_Current_R_Statement = "";
+        private DataModules.clsDataModuleParameterHandler dsp =
+            new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         #region Constructors
         /// <summary>
-        /// Basic constructor
+        /// Modules Aggregates data by columns or rows.
         /// </summary>
         public clsAggregate()
         {
             ModuleName = "Aggregate Module";
         }
         /// <summary>
-        /// Constructor that requires the instance of the R workspace
+        /// Modules Aggregates data by columns or rows.
         /// </summary>
         /// <param name="InstanceOfR">Instance of the R workspace</param>
         public clsAggregate(string InstanceOfR)
         {
             ModuleName = "Aggregate Module";
+            s_RInstance = InstanceOfR;
+        }
+        /// <summary>
+        /// Modules Aggregates data by columns or rows.
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        public clsAggregate(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "Aggregate Module";
+            Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -67,34 +79,8 @@ namespace Cyclops
         public override void PerformOperation()
         {
             traceLog.Info("Aggregating Datasets...");
-            
-            if (CheckPassedParameters())
-            {               
-                string[] s_FactorsComplete = s_Factor.Split('$');
-                GetOrganizedFactorsVector(s_RInstance, s_DataTable,
-                    s_FactorsComplete[0], s_FactorsComplete[1]);
 
-                // check that the table exists
-                if (clsGenericRCalls.ContainsObject(s_RInstance, s_FactorsComplete[0]))
-                {
-                    // check that the table has the expected column
-                    if (clsGenericRCalls.TableContainsColumn(s_RInstance, s_FactorsComplete[0],
-                        s_FactorsComplete[1]))
-                    {
-                        AggregateData();
-                    }
-                    else
-                    {
-                        traceLog.Error("ERROR: Aggregation class. The factors table does not contain " +
-                            "the necessary column: " + s_FactorsComplete[1]);
-                    }
-                }
-                else
-                {
-                    traceLog.Error("ERROR: Aggregation class. The factors table does not exist: " +
-                        s_FactorsComplete[0]);
-                }
-            }
+            AggregateData();
 
             RunChildModules();
         }
@@ -105,44 +91,46 @@ namespace Cyclops
         /// <returns>True if all necessary parameters are present</returns>
         protected bool CheckPassedParameters()
         {
+            bool b_2Pass = true;
+
             // NECESSARY PARAMETERS
-            if (Parameters.ContainsKey("newTableName"))
-                s_NewTableName = Parameters["newTableName"];
-            else
+            if (!dsp.HasNewTableName)
             {
-                traceLog.Error("ERROR: Aggregation class: 'newTableName' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'newTableName': \"" + 
+                    dsp.NewTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
-            if (Parameters.ContainsKey("dataTable"))
-                s_DataTable = Parameters["dataTable"];
-            else
+            if (!dsp.HasInputTableName)
             {
-                traceLog.Error("ERROR: Aggregation class: 'dataTable' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'inputTableName': \"" +
+                    dsp.InputTableName + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
-            if (Parameters.ContainsKey("factor"))
-                s_Factor = Parameters["factor"];
-            else
+            if (!dsp.HasFactorComplete)
             {
-                traceLog.Error("ERROR: Aggregation class: 'factor' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'factor': \"" +
+                    dsp.FactorComplete + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
-            if (Parameters.ContainsKey("margin"))
-                s_Margin = Parameters["margin"];
-            else
+            if (!dsp.HasMargin)
             {
-                traceLog.Error("ERROR: Aggregation class: 'margin' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'margin': \"" +
+                    dsp.Margin + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
-            if (Parameters.ContainsKey("function"))
-                s_Function = Parameters["function"];
-            else
+            if (!dsp.HasFunction)
             {
-                traceLog.Error("ERROR: Aggregation class: 'function' was not found in the passed parameters");
-                return false;
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: Aggregation class: 'function': \"" +
+                    dsp.Function + "\", was not found in the passed parameters");
+                b_2Pass = false;
             }
 
-            return true;
+            return b_2Pass;
         }
 
         /// <summary>
@@ -151,25 +139,120 @@ namespace Cyclops
         /// <param name="InstanceOfR">Instance of the R workspace</param>
         private void AggregateData()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            dsp.GetParameters(ModuleName, Parameters);
 
-            string s_RStatement = string.Format(
-                    "{0} <- jnb_Aggregate(x=data.matrix({1}), " +
-                    "myFactor={2}, MARGIN={3}, FUN={4})",
-                    s_NewTableName,
-                    s_DataTable,
-                    s_Factor,
-                    s_Margin,
-                    s_Function);
+            if (CheckPassedParameters())
+            {
+                // check that the table exists
+                if (clsGenericRCalls.ContainsObject(s_RInstance, dsp.FactorTable))
+                {
+                    // check that the table has the expected column
+                    if (clsGenericRCalls.TableContainsColumn(s_RInstance, dsp.FactorTable,
+                        dsp.FactorColumn))
+                    {
+                        GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
+                            dsp.FactorTable, dsp.FactorColumn);
+
+
+                        REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+                        string s_RStatement = string.Format(
+                                "{0} <- jnb_Aggregate(x=data.matrix({1}), " +
+                                "myFactor={2}, MARGIN={3}, FUN={4})",
+                                dsp.NewTableName,
+                                dsp.InputTableName,
+                                dsp.FactorComplete,
+                                dsp.Margin,
+                                dsp.Function);
+                        try
+                        {
+                            traceLog.Info("Aggregating datasets: " + s_RStatement);
+                            s_Current_R_Statement = s_RStatement;
+                            engine.EagerEvaluate(s_RStatement);
+                        }
+                        catch (Exception exc)
+                        {
+                            Model.SuccessRunningPipeline = false;
+                            traceLog.Error("ERROR: Aggregating data: " + exc.ToString());
+                        }
+
+                    }
+                    else
+                    {
+                        Model.SuccessRunningPipeline = false;
+                        traceLog.Error("ERROR: Aggregation class. The factors table does not contain " +
+                            "the necessary column: " + dsp.FactorColumn);
+                    }
+                }
+                else
+                {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("ERROR: Aggregation class. The factors table does not exist: " +
+                        dsp.FactorTable);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Unit Test for Aggregating data
+        /// </summary>
+        /// <returns>Information regarding the result of the UnitTest</returns>
+        public clsTestResult TestAggregation()
+        {
+            dsp.GetParameters(ModuleName, Parameters);
+            clsTestResult result = new clsTestResult(true, "");
+            result.Module = ModuleName;
+
             try
             {
-                traceLog.Info("Aggregating datasets: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
+                if (!CheckPassedParameters())
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR AGGREGATING DATA: Not all required parameters were passed in!";
+                    return result;
+                }
+
+                AggregateData();
+
+                // Confirm by testing if the new table exists within the environment
+                if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.NewTableName))
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR AGGREGATING: After Aggregating " +
+                        dsp.InputTableName +
+                        ", the new table name could not be found within the R workspace";
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+
+                System.Data.DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.NewTableName);
+                if (dt.Columns.Count != 2)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR AGGREGATING DATA: After aggregating the table, " +
+                        "the new table was supposed to have 2 columns, and instead has " +
+                        dt.Columns.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
+                if (dt.Rows.Count != 94)
+                {
+                    result.IsSuccessful = false;
+                    result.Message = "ERROR AGGREGATING DATA: After aggregating the table, " +
+                        "the new table was supposed to have 94 rows, and instead has " +
+                        dt.Rows.Count;
+                    result.R_Statement = s_Current_R_Statement;
+                    return result;
+                }
             }
             catch (Exception exc)
             {
-                traceLog.Error("ERROR: Aggregating data: " + exc.ToString());
+                result.IsSuccessful = false;
+                result.Message = "ERROR AGGREGATING: " + dsp.InputFileName + "\n\n" + exc.ToString();
+                result.R_Statement = s_Current_R_Statement;
             }
+
+            return result;
         }
         #endregion
     }

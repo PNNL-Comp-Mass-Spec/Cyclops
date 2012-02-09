@@ -1,4 +1,4 @@
-﻿
+
 # Written by Joseph N. Brown
 # for the Department of Energy (PNNL, Richland, WA)
 # Battelle Memorial Institute
@@ -39,7 +39,7 @@ jnb_Aggregate <- function(x, myFactor, MARGIN, FUN)
 			stop(paste("The number of factors passed",
 			"does not equal the number of rows in your data"))
 
-		tmp <- by(x, INDICES=myFactor, FUN=FUN)
+		tmp <- by(x, INDICES=myFactor, FUN=FUN, na.rm=T)
 		return(as.data.frame(do.call(rbind, tmp)))
 	} else if (MARGIN == 2) {
 		# test the number of columns and factors passed
@@ -47,7 +47,7 @@ jnb_Aggregate <- function(x, myFactor, MARGIN, FUN)
 			stop(paste("The number of factors passed",
 			"does not equal the number of columns in your data"))
 
-		tmp <- by(t(x), INDICES=myFactor, FUN=FUN)
+		tmp <- by(t(x), INDICES=myFactor, FUN=FUN, na.rm=T)
 		return(as.data.frame(do.call(cbind,tmp)))
 	}
 }

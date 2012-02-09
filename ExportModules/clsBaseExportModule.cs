@@ -22,13 +22,21 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Cyclops
+namespace Cyclops.ExportModules
 {
     /// <summary>
     /// Base Export Module
     /// </summary>
     public abstract class clsBaseExportModule : clsBaseModule
     {
-        
+
+        #region Properties
+        // instance of the model class
+        public clsCyclopsModel Model
+        {
+            get;
+            set;
+        }
+        #endregion
     }    
 }
