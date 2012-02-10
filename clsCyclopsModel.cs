@@ -189,13 +189,21 @@ namespace Cyclops
         /// the modules for the pipeline
         /// </summary>
         public void AssembleModulesFromXML()
-        {
-            traceLog.Info("Assembling Modules from XML.");
+        {            
+            traceLog.Info("Establishing connection to R...");
 
-            CreateInstanceOfR();
-
+            try
+            {
+                CreateInstanceOfR();
+                traceLog.Info("Connection with R established successfully!");
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR establishing connection with R: " + exc.ToString());
+            }
+            
             clsCyclopsXMLReader reader = new clsCyclopsXMLReader(this, CyclopsParameters);
-
+            
             string value = "";
             CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("Workflow"),
                 out value);
@@ -207,6 +215,7 @@ namespace Cyclops
                 value = Path.Combine(s_Path, value);
                 if (File.Exists(value))
                 {
+                    traceLog.Info("Assembling Modules from XML: " + value);
                     root = reader.ReadXML_Workflow(value,
                         s_RInstance);
                 }
@@ -223,9 +232,19 @@ namespace Cyclops
         /// <param name="WorkFlowFile">Full path to the XML file</param>
         public void AssembleModulesFromXML(string WorkFlowFile)
         {
-            traceLog.Info("Assembing Modules from XML: " + WorkFlowFile + ".");
+            traceLog.Info("Establishing connection to R...");
 
-            CreateInstanceOfR();
+            try
+            {
+                CreateInstanceOfR();
+                traceLog.Info("Connection with R established successfully!");
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR establishing connection with R: " + exc.ToString());
+            }
+
+            traceLog.Info("Assembing Modules from XML: " + WorkFlowFile + ".");
 
             clsCyclopsXMLReader reader = new clsCyclopsXMLReader(CyclopsParameters);
 
@@ -239,10 +258,23 @@ namespace Cyclops
         /// <param name="RDLL">Path to R</param>
         public void AssembleModulesFromXML(string WorkFlowFile, string RDLL)
         {
+            traceLog.Info("Establishing connection to R...");
+            try
+            {
+                CreateInstanceOfR();
+                traceLog.Info("Connection with R established successfully!");
+                traceLog.Info("Setting RDLL: " + RDLL);
+                SetREngineDLL(RDLL);
+                traceLog.Info("RDLL set successfully!");
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR establishing connection with R & setting RDLL: " + exc.ToString());
+            }
+
             traceLog.Info("Assembing Modules from XML: " + WorkFlowFile + ".");
 
-            SetREngineDLL(RDLL);
-            CreateInstanceOfR();
+            
 
             clsCyclopsXMLReader xmlReader = new clsCyclopsXMLReader(CyclopsParameters);
 

@@ -36,6 +36,7 @@ Boxplots <- function(x,
 				res=600,
                          ...)
 { 
+  require(Cairo)
   CairoPNG(filename=file,width=IMGwidth,height=IMGheight,pointsize=FNTsize,bg=bkground,res=res) 
 
   #if user does not specify columns, just take all of them

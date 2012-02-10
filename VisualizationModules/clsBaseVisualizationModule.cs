@@ -46,8 +46,9 @@ namespace Cyclops.VisualizationModules
         /// <summary>
         /// Creates a directory to store image files
         /// </summary>
-        public void CreatePlotsFolder()
+        public bool CreatePlotsFolder()
         {
+            bool b_DirectoryCreated = false;
             if (Parameters.ContainsKey("workDir"))
             {
                 string s_WorkDir = Parameters["workDir"];
@@ -58,13 +59,20 @@ namespace Cyclops.VisualizationModules
                     Model.SuccessRunningPipeline = false;
                     traceLog.Info("Creating Plots Directory");
                     Directory.CreateDirectory(s_WorkDir);
+                    b_DirectoryCreated = true;
                 }
+                b_DirectoryCreated = true;
             }
             else
             {
                 if (!Directory.Exists("Plots"))
+                {
                     Directory.CreateDirectory("Plots");
+                    b_DirectoryCreated = true;
+                }
             }
+
+            return b_DirectoryCreated;
         }
         #endregion
     }

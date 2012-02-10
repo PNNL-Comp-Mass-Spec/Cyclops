@@ -75,7 +75,7 @@ namespace Cyclops.ExportModules
         
         #endregion
 
-        #region Functions
+        #region Methods
             
         /// <summary>
         /// Runs module
@@ -96,7 +96,7 @@ namespace Cyclops.ExportModules
                     case "sqlite":
                         ConnectToSQLiteDatabase();
                         s_Command = string.Format("dbWriteTable(" +
-                            "conn=con, name=\"{0}\", value={1})",
+                            "conn=con, name=\"{0}\", value=data.frame({1}))",
                             esp.NewTableName, 
                             esp.TableName);
                         try
