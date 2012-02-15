@@ -34,11 +34,13 @@ namespace Cyclops
     /// Reads a Cyclops XML Workflow and assemble the modules
     /// </summary>
     public class clsCyclopsXMLReader : DataModules.clsBaseDataModule
-    {        
+    {
+        #region Variables
         private XmlNodeReader reader;
         private enum ModuleType {Data, Visual, Export};
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -117,6 +119,111 @@ namespace Cyclops
                                     traceLog.Info("READING XML MODULE: " + modid);
                                     switch (modid)
                                     {
+                                        case "Aggregate":
+                                            DataModules.clsAggregate aggregate = new DataModules.clsAggregate(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = aggregate;
+                                                currentNode = aggregate;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(aggregate);
+                                                currentNode = aggregate;
+                                            }
+                                            break;
+                                        case "BetaBinomial":
+                                            DataModules.clsBetaBinomialModelModule bbm = new DataModules.clsBetaBinomialModelModule(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = bbm;
+                                                currentNode = bbm;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(bbm);
+                                                currentNode = bbm;
+                                            }
+                                            break;
+                                        case "CentralTendency":
+                                            DataModules.clsCentralTendency centralTend = new DataModules.clsCentralTendency(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = centralTend;
+                                                currentNode = centralTend;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(centralTend);
+                                                currentNode = centralTend;
+                                            }
+                                            break;
+                                        case "Clean":
+                                            DataModules.clsCleanUpRSourceFileObjects clean = new DataModules.clsCleanUpRSourceFileObjects(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = clean;
+                                                currentNode = clean;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(clean);
+                                                currentNode = clean;
+                                            }
+                                            break;
+                                        case "CombineSpectralCountResults":
+                                            DataModules.clsCombineSpectralCountResultFiles combine =
+                                                new DataModules.clsCombineSpectralCountResultFiles(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = combine;
+                                                currentNode = combine;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(combine);
+                                                currentNode = combine;
+                                            }
+                                            break;
+                                        case "DataTableManipulation":
+                                            DataModules.clsDataTableManipulation dtm = new DataModules.clsDataTableManipulation(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = dtm;
+                                                currentNode = dtm;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(dtm);
+                                                currentNode = dtm;
+                                            }
+                                            break;
+                                        case "FilterByTable":
+                                            DataModules.clsFilterByAnotherTable filterByTable = new DataModules.clsFilterByAnotherTable(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = filterByTable;
+                                                currentNode = filterByTable;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(filterByTable);
+                                                currentNode = filterByTable;
+                                            }
+                                            break;
+                                        case "FoldChange":
+                                            DataModules.clsFoldChange fc = new DataModules.clsFoldChange(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = fc;
+                                                currentNode = fc;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(fc);
+                                                currentNode = fc;
+                                            }
+                                            break;
                                         case "Import":
                                             DataModules.clsImportDataModule import = new DataModules.clsImportDataModule(Model, InstanceOfR);
                                             if (root == null)
@@ -130,19 +237,19 @@ namespace Cyclops
                                                 currentNode = import;
                                             }
                                             break;
-                                        case "Transform":
-                                            DataModules.clsTransformModule transform = new DataModules.clsTransformModule(Model, InstanceOfR);
+                                        case "LinearRegression":
+                                            DataModules.clsLinearRegression linreg = new DataModules.clsLinearRegression(Model, InstanceOfR);
                                             if (root == null)
                                             {
-                                                root = transform;
-                                                currentNode = transform;
+                                                root = linreg;
+                                                currentNode = linreg;
                                             }
                                             else
                                             {
-                                                currentNode.AddDataChild(transform);
-                                                currentNode = transform;
+                                                currentNode.AddDataChild(linreg);
+                                                currentNode = linreg;
                                             }
-                                            break;
+                                            break;  
                                         case "LoadRSourceFiles":
                                             DataModules.clsRSourceFileModule source = new DataModules.clsRSourceFileModule(Model, InstanceOfR);
                                             if (root == null)
@@ -169,30 +276,17 @@ namespace Cyclops
                                                 currentNode = load;
                                             }
                                             break;
-                                        case "Aggregate":
-                                            DataModules.clsAggregate aggregate = new DataModules.clsAggregate(Model, InstanceOfR);
+                                        case "NormalizeSpectralCounts":
+                                            DataModules.clsNormalizingSpectralCounts norm = new DataModules.clsNormalizingSpectralCounts(Model, InstanceOfR);
                                             if (root == null)
                                             {
-                                                root = aggregate;
-                                                currentNode = aggregate;
+                                                root = norm;
+                                                currentNode = norm;
                                             }
                                             else
                                             {
-                                                currentNode.AddDataChild(aggregate);
-                                                currentNode = aggregate;
-                                            }
-                                            break;
-                                        case "BetaBinomial":
-                                            DataModules.clsBetaBinomialModelModule bbm = new DataModules.clsBetaBinomialModelModule(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = bbm;
-                                                currentNode = bbm;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(bbm);
-                                                currentNode = bbm;
+                                                currentNode.AddDataChild(norm);
+                                                currentNode = norm;
                                             }
                                             break;
                                         case "RMD":
@@ -220,73 +314,7 @@ namespace Cyclops
                                                 currentNode.AddDataChild(rrollup);
                                                 currentNode = rrollup;
                                             }
-                                            break;
-                                        case "FoldChange":
-                                            DataModules.clsFoldChange fc = new DataModules.clsFoldChange(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = fc;
-                                                currentNode = fc;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(fc);
-                                                currentNode = fc;
-                                            }
-                                            break;
-                                        case "FilterByTable":
-                                            DataModules.clsFilterByAnotherTable filterByTable = new DataModules.clsFilterByAnotherTable(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = filterByTable;
-                                                currentNode = filterByTable;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(filterByTable);
-                                                currentNode = filterByTable;
-                                            }
-                                            break;
-                                        case "CombineSpectralCountResults":
-                                            DataModules.clsCombineSpectralCountResultFiles combine =
-                                                new DataModules.clsCombineSpectralCountResultFiles(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = combine;
-                                                currentNode = combine;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(combine);
-                                                currentNode = combine;
-                                            }
-                                            break;
-                                        case "NormalizeSpectralCounts":
-                                            DataModules.clsNormalizingSpectralCounts norm = new DataModules.clsNormalizingSpectralCounts(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = norm;
-                                                currentNode = norm;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(norm);
-                                                currentNode = norm;
-                                            }
-                                            break;
-                                        case "DataTableManipulation":
-                                            DataModules.clsDataTableManipulation dtm = new DataModules.clsDataTableManipulation(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = dtm;
-                                                currentNode = dtm;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(dtm);
-                                                currentNode = dtm;
-                                            }
-                                            break;
+                                            break;    
                                         case "ProteinProphet":
                                             DataModules.clsProteinProphet pp = new DataModules.clsProteinProphet(Model, InstanceOfR);
                                             if (root == null)
@@ -300,19 +328,7 @@ namespace Cyclops
                                                 currentNode = pp;
                                             }
                                             break;
-                                        case "Clean":
-                                            DataModules.clsCleanUpRSourceFileObjects clean = new DataModules.clsCleanUpRSourceFileObjects(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = clean;
-                                                currentNode = clean;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(clean);
-                                                currentNode = clean;
-                                            }
-                                            break;
+                                        
                                         case "Test":
                                             clsMyTestingModule test = new clsMyTestingModule(InstanceOfR);
                                             if (root == null)
@@ -324,6 +340,19 @@ namespace Cyclops
                                             {
                                                 currentNode.AddDataChild(test);
                                                 currentNode = test;
+                                            }
+                                            break;
+                                        case "Transform":
+                                            DataModules.clsTransformModule transform = new DataModules.clsTransformModule(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = transform;
+                                                currentNode = transform;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(transform);
+                                                currentNode = transform;
                                             }
                                             break;
 
@@ -402,6 +431,7 @@ namespace Cyclops
                                             currentExportNode = se_Node;
                                             if (root == null)
                                             {
+                                                traceLog.Error("ERROR reading XML, " + se_Node.ModuleName + ", trying to add a Save Module without a root!");
                                                 Console.WriteLine("Error: trying to add a Save Module without a root!");
                                             }
                                             else
@@ -414,11 +444,25 @@ namespace Cyclops
                                             currentExportNode = tab;
                                             if (root == null)
                                             {
+                                                traceLog.Error("ERROR reading XML, " + tab.ModuleName + ", trying to add a Save Module without a root!");
                                                 Console.WriteLine("Error: trying to add a ExportTable Module without a root!");
                                             }
                                             else
                                             {
                                                 currentNode.AddExportChild(tab);
+                                            }
+                                            break;
+                                        case "QC_Fractions":
+                                            ExportModules.clsQC_Fraction_HTML qc = new ExportModules.clsQC_Fraction_HTML(Model, InstanceOfR);
+                                            currentExportNode = qc;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("ERROR reading XML, " + qc.ModuleName + ", trying to add a Save Module without a root!");
+                                                Console.WriteLine("Error: trying to add a ExportTable Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddExportChild(qc);
                                             }
                                             break;
                                     }
@@ -514,7 +558,6 @@ namespace Cyclops
             }
             finally
             {
-                traceLog.Error("ERROR Reading XML Workflow, reached \"finally\" clause...");
                 if (reader != null)
                     reader.Close();
             }

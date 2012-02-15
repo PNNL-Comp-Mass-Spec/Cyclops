@@ -30,6 +30,12 @@ namespace Cyclops.DataModules
 {
     /// <summary>
     /// Transforms datasets in R using log transformations and scaling operations
+    /// Parameters include:
+    /// - "newTableName"    - name of the new table to be generated.
+    /// - "inputTableName"  - name of the table in R workspace
+    /// - "logBase"         - Base to perform log transformation
+    /// - "scale"           - value to multiply by
+    /// - "add"             - value to add by
     /// </summary>
     public class clsTransformModule : clsBaseDataModule
     {

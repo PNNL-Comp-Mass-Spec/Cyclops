@@ -56,7 +56,6 @@ namespace Cyclops.VisualizationModules
                 s_WorkDir = s_WorkDir.Replace('\\', '/');
                 if (!Directory.Exists(s_WorkDir))
                 {
-                    Model.SuccessRunningPipeline = false;
                     traceLog.Info("Creating Plots Directory");
                     Directory.CreateDirectory(s_WorkDir);
                     b_DirectoryCreated = true;

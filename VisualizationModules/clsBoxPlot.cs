@@ -108,11 +108,13 @@ namespace Cyclops.VisualizationModules
             {
                 traceLog.Error("ERROR Boxplot class: 'tableName' was not found in the passed parameters");
                 b_2Param = false;
+                Model.SuccessRunningPipeline = false;
             }
             if (!vgp.HasPlotFileName)
             {
                 traceLog.Error("ERROR Boxplot class: 'plotFileName' was not found in the passed parameters");
                 b_2Param = false;
+                Model.SuccessRunningPipeline = false;
             }
 
             return b_2Param;
@@ -123,6 +125,20 @@ namespace Cyclops.VisualizationModules
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "";
 
+            // If a Factor to color by has been chosen, make sure that the
+            // Factor Table contains the column.
+            bool b_FactorIsPresent = true;
+            if (!vgp.FixedEffect.Equals(""))
+            {
+                b_FactorIsPresent = clsGenericRCalls.TableContainsColumn(s_RInstance, vgp.ColumnFactorTable, vgp.FixedEffect);
+                if (!b_FactorIsPresent)
+                {
+                    traceLog.Error("ERROR in BoxPlot: The factor table (" + vgp.ColumnFactorTable + ") " +
+                        "does NOT contain the factor " + vgp.FixedEffect);
+                    Model.SuccessRunningPipeline = false;
+                }
+            }
+
             s_RStatement += string.Format("Boxplots(x={0}, Columns={1}, " +
                 "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
                 "colorFactorName=\"{5}\", " +
@@ -130,28 +146,28 @@ namespace Cyclops.VisualizationModules
                 "boxwidth={10}, showcount={11}, showlegend={12}, stamp={13}, " +
                 "do.ylim={14}, ymin={15}, ymax={16}, ylabel=\"{17}\", " +
                 "IMGwidth={18}, IMGheight={19}, FNTsize={20}, res={21})",
-                vgp.TableName,                          // 0
-                vgp.DataColumns,                        // 1
-                vgp.PlotFileName,                       // 2
-                vgp.ColorByFactor,                      // 3
-                vgp.ColumnFactorTable,                  // 4
-                vgp.FixedEffect,                        // 5
-                vgp.Outliers,                           // 6
-                vgp.Color,                              // 7
-                vgp.BackgroundColor,                    // 8
-                vgp.LabelScale,                         // 9
-                vgp.BoxWidth,                           // 10
-                vgp.ShowCount,                          // 11
-                vgp.ShowLegend,                         // 12
-                vgp.Stamp,                              // 13
-                vgp.DoYLim,                             // 14
-                vgp.yMin,                               // 15
-                vgp.yMax,                               // 16
-                vgp.yLabel,                             // 17
-                vgp.Width,                              // 18
-                vgp.Height,                             // 19
-                vgp.FontSize,                           // 20
-                vgp.Resolution);                        // 21
+                vgp.TableName,                                          // 0
+                vgp.DataColumns.Length > 0 ? vgp.DataColumns : "NULL",  // 1
+                vgp.PlotFileName,                                       // 2
+                vgp.ColorByFactor,                                      // 3
+                vgp.ColumnFactorTable,                                  // 4
+                vgp.FixedEffect,                                        // 5
+                vgp.Outliers,                                           // 6
+                vgp.Color,                                              // 7
+                vgp.BackgroundColor,                                    // 8
+                vgp.LabelScale,                                         // 9
+                vgp.BoxWidth,                                           // 10
+                vgp.ShowCount,                                          // 11
+                vgp.ShowLegend,                                         // 12
+                vgp.Stamp,                                              // 13
+                vgp.DoYLim,                                             // 14
+                vgp.yMin,                                               // 15
+                vgp.yMax,                                               // 16
+                vgp.yLabel,                                             // 17
+                vgp.Width,                                              // 18
+                vgp.Height,                                             // 19
+                vgp.FontSize,                                           // 20
+                vgp.Resolution);                                        // 21
                         
             try
             {
@@ -161,7 +177,9 @@ namespace Cyclops.VisualizationModules
                 else
                     traceLog.Error(Path.GetDirectoryName(vgp.PlotFileName) + " DOES NOT exist!");
 
-                engine.EagerEvaluate(s_RStatement);
+                if (b_FactorIsPresent)
+                    engine.EagerEvaluate(s_RStatement);
+
                 if (File.Exists(vgp.PlotFileName))
                     traceLog.Info("Boxplot was written out to: " + vgp.PlotFileName);
                 else

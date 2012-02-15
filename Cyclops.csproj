@@ -59,6 +59,7 @@
     <Compile Include="clsSQLiteHandler.cs" />
     <Compile Include="clsTestResult.cs" />
     <Compile Include="clsZipCompression.cs" />
+    <Compile Include="DataModules\clsCentralTendency.cs" />
     <Compile Include="DataModules\clsCombineSpectralCountResultFiles.cs" />
     <Compile Include="DataModules\clsDataModuleParameterHandler.cs" />
     <Compile Include="DataModules\clsDataTableManipulation.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="DataModules\clsCast.cs" />
     <Compile Include="DataModules\clsCleanUpRSourceFileObjects.cs" />
     <Compile Include="DataModules\clsFoldChange.cs" />
+    <Compile Include="DataModules\clsLinearRegression.cs" />
     <Compile Include="DataModules\clsMelt.cs" />
     <Compile Include="DataModules\clsMerge.cs" />
     <Compile Include="DataModules\clsNormalizingSpectralCounts.cs" />
@@ -76,6 +78,7 @@
     <Compile Include="DataModules\clsRRollup.cs" />
     <Compile Include="ExportModules\clsBaseExportModule.cs" />
     <Compile Include="clsBaseModule.cs" />
+    <Compile Include="ExportModules\clsQC_Fraction_HTML.cs" />
     <Compile Include="ExportModules\cslExportParameterHandler.cs" />
     <Compile Include="MiscModules\clsMiscFunctions.cs" />
     <Compile Include="VisualizationModules\clsBaseVisualizationModule.cs" />
@@ -104,6 +107,7 @@
     <None Include="Logging.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="R_Scripts\Misc\QualityControl.R" />
     <None Include="R_Scripts\Preprocess\SpectralCountNormalization.R" />
     <None Include="R_Scripts\Rollup\Aggregate.R" />
     <None Include="R_Scripts\Statistics\KruskalWalis.R">
