@@ -39,8 +39,11 @@ namespace Cyclops.ExportModules
             s_CanvasHeight="600",
             s_FileName = "",
             s_FontSize="20",
-            s_HeaderFontSize="40",
-            s_IncludeRowNames = "true",
+            s_HeaderFontSize="40",   
+            s_HeatmapFileName="",
+            s_Height = "700",
+            s_IncludeHeatmap = "TRUE",
+            s_IncludeRowNames = "true",            
             s_Margin="30",
             s_ModuleName = "", 
             s_NewTableName = "",
@@ -50,6 +53,7 @@ namespace Cyclops.ExportModules
             s_SeparatingCharacter = "",
             s_Source = "", 
             s_TableName = "", 
+            s_Width = "850",
             s_WorkDir = "";
 
         private bool b_HasSource = false, b_HasTableName = false,
@@ -129,6 +133,20 @@ namespace Cyclops.ExportModules
             get { return s_HeaderFontSize; }
             set { s_HeaderFontSize = value; }
         }
+        public string HeatmapFileName
+        {
+            get { return s_HeatmapFileName; }
+            set { s_HeatmapFileName = value; }
+        }
+        public string Height
+        {
+            get { return s_Height; }
+            set { s_Height = value; }
+        }
+        public bool IncludeHeatmap
+        {
+            get { return s_IncludeHeatmap.ToUpper().Equals("TRUE") ? true : false; }
+        }
         public bool IncludeRowNames
         {
             get
@@ -192,6 +210,11 @@ namespace Cyclops.ExportModules
             get { return s_TableName; }
             set { s_TableName = value; }
         }
+        public string Width
+        {
+            get { return s_Width; }
+            set { s_Width = value; }
+        }
         public string WorkDirectory
         {
             get { return s_WorkDir; }
@@ -247,6 +270,15 @@ namespace Cyclops.ExportModules
                     case "headerFontSize":
                         HeaderFontSize = kvp.Value;
                         break;
+                    case "heatmapFileName":
+                        HeatmapFileName = kvp.Value;
+                        break;
+                    case "height":
+                        Height = kvp.Value;
+                        break;
+                    case "includeHeatmap":
+                        s_IncludeRowNames = kvp.Value;
+                        break;
                     case "includeRowNames":
                         s_IncludeRowNames = kvp.Value;
                         break;
@@ -279,6 +311,9 @@ namespace Cyclops.ExportModules
                         TableName = kvp.Value;
                         if (TableName.Length > 0)
                             b_HasTableName = true;
+                        break;
+                    case "width":
+                        Width = kvp.Value;
                         break;
                     case "workDir":
                         WorkDirectory = kvp.Value.Replace('\\', '/');

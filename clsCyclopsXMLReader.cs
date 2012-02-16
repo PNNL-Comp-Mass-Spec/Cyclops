@@ -328,7 +328,19 @@ namespace Cyclops
                                                 currentNode = pp;
                                             }
                                             break;
-                                        
+                                        case "QC_Peptide_Overlap":
+                                            DataModules.clsQCPeptideOverlap pepOverlap = new DataModules.clsQCPeptideOverlap(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = pepOverlap;
+                                                currentNode = pepOverlap;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(pepOverlap);
+                                                currentNode = pepOverlap;
+                                            }
+                                            break;                                        
                                         case "Test":
                                             clsMyTestingModule test = new clsMyTestingModule(InstanceOfR);
                                             if (root == null)
@@ -365,6 +377,32 @@ namespace Cyclops
                                     traceLog.Info("READING XML VISUAL: " + modid);
                                     switch (modid)
                                     {
+                                        case "BoxPlot":
+                                            VisualizationModules.clsBoxPlot box = new VisualizationModules.clsBoxPlot(Model, InstanceOfR);
+                                            currentVizNode = box;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("Error: trying to add a Boxplot Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                traceLog.Info("Adding Boxplot module from XML...");
+                                                currentNode.AddVisualChild(box);
+                                            }
+                                            break;
+                                        case "Heatmap":
+                                            VisualizationModules.clsHeatmap heat = new VisualizationModules.clsHeatmap(InstanceOfR);
+                                            currentVizNode = heat;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("Error: trying to add a Heatmap Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                traceLog.Info("Adding Heatmap module from XML...");
+                                                currentNode.AddVisualChild(heat);
+                                            }
+                                            break;  
                                         case "Hexbin":
                                             VisualizationModules.clsHexbin hexbin = new VisualizationModules.clsHexbin(InstanceOfR);
                                             currentVizNode = hexbin;
@@ -390,31 +428,18 @@ namespace Cyclops
                                                 traceLog.Info("Adding Histogram module from XML...");
                                                 currentNode.AddVisualChild(hist);
                                             }
-                                            break;
-                                        case "Heatmap":
-                                            VisualizationModules.clsHeatmap heat = new VisualizationModules.clsHeatmap(InstanceOfR);
-                                            currentVizNode = heat;
+                                            break;   
+                                        case "QC_Fraction_Heatmap":
+                                            VisualizationModules.clsQCFractionHeatmap fractionHeat = new VisualizationModules.clsQCFractionHeatmap(Model, InstanceOfR);
+                                            currentVizNode = fractionHeat;
                                             if (root == null)
                                             {
-                                                traceLog.Error("Error: trying to add a Heatmap Module without a root!");
+                                                traceLog.Error("Error: trying to add a QC Fraction Heatmap Module without a root!");
                                             }
                                             else
                                             {
-                                                traceLog.Info("Adding Heatmap module from XML...");
-                                                currentNode.AddVisualChild(heat);
-                                            }
-                                            break;
-                                        case "BoxPlot":
-                                            VisualizationModules.clsBoxPlot box = new VisualizationModules.clsBoxPlot(Model, InstanceOfR);
-                                            currentVizNode = box;
-                                            if (root == null)
-                                            {
-                                                traceLog.Error("Error: trying to add a Boxplot Module without a root!");
-                                            }
-                                            else
-                                            {
-                                                traceLog.Info("Adding Boxplot module from XML...");
-                                                currentNode.AddVisualChild(box);
+                                                traceLog.Info("Adding QC Fraction Heatmap module from XML...");
+                                                currentNode.AddVisualChild(fractionHeat);
                                             }
                                             break;
                                     }

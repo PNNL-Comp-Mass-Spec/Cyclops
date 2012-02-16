@@ -29,12 +29,28 @@ using log4net;
 
 namespace Cyclops.VisualizationModules
 {
+    /// <summary>
+    /// Plots a boxplot using the BoxPlot function
+    /// 
+    /// Parameters include:
+    /// tableName:      Name of table in R workspace as source for plot
+    /// plotFileName:   Name of the file to return in the Plots directory
+    /// 
+    /// backgroundColor:    Color of plot background        Defaults to white
+    /// width:              Width of the plot in pixels     Defaults to 1200
+    /// height:             Height of the plot in pixels    Defaults to 1200
+    /// fontSize:           Size of font text in plot       Defaults to 12
+    /// resolution:         Resolution of plot              Defaults to 600
+    /// TODO: ADD THE OTHER PARAMTERS
+    /// </summary>
     public class clsBoxPlot : clsBaseVisualizationModule
     {
+        #region Variables
         protected string s_RInstance;
         VisualizationModules.clsVisualizationParameterHandler vgp = 
             new VisualizationModules.clsVisualizationParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        #endregion
 
         #region Constructors
         /// <summary>

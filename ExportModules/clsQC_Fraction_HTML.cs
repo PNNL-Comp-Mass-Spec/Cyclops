@@ -29,6 +29,20 @@ using log4net;
 
 namespace Cyclops.ExportModules
 {
+    /// <summary>
+    /// Required Parameters:
+    /// tableName:  name of the table to use
+    /// fileName:   name of the html file name to save the QC plot
+    /// 
+    /// canvasHeight:   height of the canvas element in html file
+    /// rectHeight:     height of the rectangles
+    /// overlapHeight:  related to rectangle height
+    /// margin:         margin around the canvas element in the html
+    /// headerFontSize: font size for "Fractions" at top of html
+    /// fontSize:       font size for text in html file
+    /// 
+    /// includeHeatmap: true or false, whether to include the heatmap in the html file
+    /// </summary>
     public class clsQC_Fraction_HTML : clsBaseExportModule
     {
         private ExportModules.cslExportParameterHandler esp =
@@ -108,30 +122,7 @@ namespace Cyclops.ExportModules
             traceLog.Info("Preparing HTML file for 2D-LC Fraction QC...");
 
             BuildHtmlFile();            
-        }
-
-        private void RunQC_Analysis()
-        {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
-            string s_RStatement = string.Format("{0} <- ja_OverlapMatrix(" +
-                "x={1}, y=unique({1}$Fraction))",
-                esp.NewTableName,
-                esp.TableName);
-
-            try
-            {
-                traceLog.Info("Executing QC Fraction Overlap Call in R: " +
-                    s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Executing QC Fraction Overlap Call in R: " +
-                    exc.ToString());
-                Model.SuccessRunningPipeline = false;
-            }
-        }
+        }        
 
         private void BuildHtmlFile()
         {
@@ -139,8 +130,6 @@ namespace Cyclops.ExportModules
 
             if (CheckPassedParameters())
             {
-                RunQC_Analysis();
-
                 // Builds the HTML file in StringBuilder
                 StringBuilder sb_HTML = new StringBuilder();
                 sb_HTML.Append(WriteHtmlHeader());
@@ -167,7 +156,7 @@ namespace Cyclops.ExportModules
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_Peptides = "", s_Command = string.Format("{0}${1}", 
-                esp.NewTableName,
+                esp.TableName,
                 Attribute);
             NumericVector nv = engine.EagerEvaluate(s_Command).AsNumeric();
 
@@ -294,11 +283,11 @@ namespace Cyclops.ExportModules
                 s_Tab + s_Tab + s_Tab + s_Tab + "ctx.fillStyle = 'rgb(0,0,0)';" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + s_Tab + "ctx.fillText(Overlaps[s], (s*rectWidth) + rectWidth, 3.5*rectHeight, rectWidth);" + s_LineDelimiter +                
                 s_Tab + s_Tab + s_Tab + "}" + s_LineDelimiter + s_LineDelimiter +
-                s_Tab + s_Tab + s_Tab + "ctx.fillStyle='rgb(173,216,230)';" + s_LineDelimiter +
-                s_Tab + s_Tab + s_Tab + "ctx.fillRect(0, 4*rectHeight, ctx.canvas.width, overlapHeight);" + s_LineDelimiter +
-			    s_Tab + s_Tab + s_Tab + "ctx.strokeRect(0, 4*rectHeight, ctx.canvas.width, overlapHeight);" + s_LineDelimiter +
-			    s_Tab + s_Tab + s_Tab + "ctx.fillStyle = 'rgb(0,0,0)';" + s_LineDelimiter +
-                s_Tab + s_Tab + s_Tab + "ctx.fillText(totalPeptides, ctx.canvas.width/2, 4.5*rectHeight, ctx.canvas.width);" + s_LineDelimiter +
+                s_Tab + s_Tab + s_Tab + "ctx.fillStyle='rgb(0,0,255)';" + s_LineDelimiter +
+                s_Tab + s_Tab + s_Tab + "ctx.fillRect(0, 4*rectHeight+20, ctx.canvas.width, overlapHeight);" + s_LineDelimiter +
+			    s_Tab + s_Tab + s_Tab + "ctx.strokeRect(0, 4*rectHeight+20, ctx.canvas.width, overlapHeight);" + s_LineDelimiter +
+			    s_Tab + s_Tab + s_Tab + "ctx.fillStyle = 'rgb(255,255,255)';" + s_LineDelimiter +
+                s_Tab + s_Tab + s_Tab + "ctx.fillText(totalPeptides, ctx.canvas.width/2, 4.5*rectHeight+20, ctx.canvas.width);" + s_LineDelimiter +
                 s_Tab + s_Tab + "}" +   s_LineDelimiter);
 
 
@@ -319,6 +308,15 @@ namespace Cyclops.ExportModules
             s_Body += s_Tab + s_Tab + "<CANVAS id='myCanvas' width='600' height='300'>"
                 + "Your browser does not support the 'CANVAS' tag.</CANVAS>" + s_LineDelimiter;
             s_Body += s_Tab + "</BODY>" + s_LineDelimiter;
+
+            if (esp.IncludeHeatmap)
+            {
+                s_Body += string.Format(
+                    s_Tab + s_Tab + "<IMG src='Plots/{0}' alt=Fraction intersection heatmap' width='{1}' height='{2}' />",
+                    esp.HeatmapFileName,
+                    esp.Width,
+                    esp.Height);
+            }
             return s_Body;
         }
 

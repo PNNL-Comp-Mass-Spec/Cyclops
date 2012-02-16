@@ -72,6 +72,7 @@
     <Compile Include="DataModules\clsMerge.cs" />
     <Compile Include="DataModules\clsNormalizingSpectralCounts.cs" />
     <Compile Include="DataModules\clsProteinProphet.cs" />
+    <Compile Include="DataModules\clsQCPeptideOverlap.cs" />
     <Compile Include="DataModules\clsRMD.cs" />
     <Compile Include="DataModules\clsAggregate.cs" />
     <Compile Include="DataModules\clsBaseDataModule.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="ExportModules\clsSaveEnvironment.cs" />
     <Compile Include="DataModules\clsTransformModule.cs" />
     <Compile Include="VisualizationModules\clsHistogram.cs" />
+    <Compile Include="VisualizationModules\clsQCFractionHeatmap.cs" />
     <Compile Include="VisualizationModules\clsVisualizationParameterHandler.cs" />
   </ItemGroup>
   <ItemGroup>
