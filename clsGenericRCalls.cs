@@ -271,7 +271,48 @@ namespace Cyclops
                 }
                 else if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("matrix"))
                 {
-                    DataFrame dataset = engine.EagerEvaluate("data.frame(" +TheDataFrame + ")").AsDataFrame();
+                    DataFrame dataset = engine.EagerEvaluate("data.frame(" + TheDataFrame + ")").AsDataFrame();
+
+                    for (int i = 0; i < dataset.ColumnCount; i++)
+                    {
+                        DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                        dt_Return.Columns.Add(dc);
+                    }
+
+                    for (int r = 0; r < dataset.RowCount; r++)
+                    {                        
+                        DataFrameRow df_Row = dataset.GetRow(r);
+                        string[] s_Row = new string[df_Row.RowIndex];
+                        for (int i = 0; i < df_Row.RowIndex; i++)
+                        {
+                            s_Row[i] = df_Row[i].ToString();
+                        }
+                        dt_Return.Rows.Add(s_Row);
+                    }
+                }
+            }
+
+            return dt_Return;
+        }
+
+        /// <summary>
+        /// Converts an data.frame from R into a DataTable in C#
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="TheDataFrame">Name of data.frame</param>
+        /// <param name="IgnoreLs">If you table of interest is hidden within a list or object, set this to true</param>
+        /// <returns>DataTable version of your data.frame</returns>
+        public static DataTable GetDataTable(string InstanceOfR, string TheDataFrame,
+            bool IgnoreLs)
+        {
+            DataTable dt_Return = new DataTable();
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            if (IgnoreLs || ContainsObject(InstanceOfR, TheDataFrame))
+            {
+                if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("data.frame"))
+                {
+                    DataFrame dataset = engine.EagerEvaluate(TheDataFrame).AsDataFrame();
 
                     for (int i = 0; i < dataset.ColumnCount; i++)
                     {
@@ -281,8 +322,35 @@ namespace Cyclops
 
                     for (int r = 0; r < dataset.RowCount; r++)
                     {
-                        dynamic d_Row = dataset.GetRow(r);
+                        DataFrameRow d_Row = dataset.GetRow(r);
                         dt_Return.Rows.Add(d_Row);
+                    }
+                }
+                else if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("matrix"))
+                {
+                    DataFrame dataset = engine.EagerEvaluate("data.frame(" +TheDataFrame + ")").AsDataFrame();
+
+                    for (int i = 0; i < dataset.ColumnCount; i++)
+                    {
+                        DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                        if (dc.Namespace.Equals(""))
+                        {
+                            int j = i + 1;
+                            dc.Namespace = j.ToString();
+                        }
+                        dt_Return.Columns.Add(dc);
+                    }
+
+                    for (int r = 0; r < dataset.RowCount; r++)
+                    {
+                        DataFrameRow df_Row = dataset.GetRow(r);
+
+                        string[] s_Row = new string[df_Row.DataFrame.ColumnCount];
+                        for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                        {
+                            s_Row[i] = df_Row[i].ToString();
+                        }
+                        dt_Return.Rows.Add(s_Row);
                     }
                 }
             }

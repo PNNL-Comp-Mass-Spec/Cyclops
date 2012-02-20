@@ -77,11 +77,14 @@
     <Compile Include="DataModules\clsAggregate.cs" />
     <Compile Include="DataModules\clsBaseDataModule.cs" />
     <Compile Include="DataModules\clsRRollup.cs" />
+    <Compile Include="DataModules\clsSQLiteSummaryTableGenerator.cs" />
     <Compile Include="ExportModules\clsBaseExportModule.cs" />
     <Compile Include="clsBaseModule.cs" />
+    <Compile Include="ExportModules\clsHTMLSummary.cs" />
     <Compile Include="ExportModules\clsQC_Fraction_HTML.cs" />
     <Compile Include="ExportModules\cslExportParameterHandler.cs" />
     <Compile Include="MiscModules\clsMiscFunctions.cs" />
+    <Compile Include="VisualizationModules\clsBarPlot.cs" />
     <Compile Include="VisualizationModules\clsBaseVisualizationModule.cs" />
     <Compile Include="DataModules\clsBetaBinomialModelModule.cs" />
     <Compile Include="clsCyclopsParametersKey.cs" />

@@ -29,21 +29,7 @@ using log4net;
 
 namespace Cyclops.VisualizationModules
 {
-    /// <summary>
-    /// Plots a boxplot using the BoxPlot function
-    /// 
-    /// Parameters include:
-    /// tableName:      Name of table in R workspace as source for plot
-    /// plotFileName:   Name of the file to return in the Plots directory
-    /// 
-    /// backgroundColor:    Color of plot background        Defaults to white
-    /// width:              Width of the plot in pixels     Defaults to 1200
-    /// height:             Height of the plot in pixels    Defaults to 1200
-    /// fontSize:           Size of font text in plot       Defaults to 12
-    /// resolution:         Resolution of plot              Defaults to 600
-    /// TODO: ADD THE OTHER PARAMTERS
-    /// </summary>
-    public class clsBoxPlot : clsBaseVisualizationModule
+    public class clsBarPlot : clsBaseVisualizationModule
     {
         #region Members
         protected string s_RInstance;
@@ -54,29 +40,29 @@ namespace Cyclops.VisualizationModules
 
         #region Constructors
         /// <summary>
-        /// Develops a boxplot from a table
+        /// Develops a barplot from a table
         /// </summary>
-        public clsBoxPlot()
+        public clsBarPlot()
         {
-            ModuleName = "Boxplot Module";
+            ModuleName = "Barplot Module";
         }
         /// <summary>
-        /// Develops a boxplot from a table
+        /// Develops a barplot from a table
         /// </summary>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
-        public clsBoxPlot(string InstanceOfR)
+        public clsBarPlot(string InstanceOfR)
         {
-            ModuleName = "Boxplot Module";
+            ModuleName = "Barplot Module";
             s_RInstance = InstanceOfR;            
         }
         /// <summary>
-        /// Develops a boxplot from a table
+        /// Develops a barplot from a table
         /// </summary>
         /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
-        public clsBoxPlot(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        public clsBarPlot(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
-            ModuleName = "Boxplot Module";
+            ModuleName = "Barplot Module";
             Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
@@ -102,11 +88,11 @@ namespace Cyclops.VisualizationModules
                 if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
                 {
                     // Perform Boxplot
-                    CreateBoxPlot();
+                    CreateBarPlot();
                 }
                 else
                 {
-                    traceLog.Error("ERROR Boxplot class: " + vgp.TableName + " not found in the R workspace.");
+                    traceLog.Error("ERROR Barplot class: " + vgp.TableName + " not found in the R workspace.");
                 }
             }
         }
@@ -122,13 +108,13 @@ namespace Cyclops.VisualizationModules
             //NECESSARY PARAMETERS
             if (!vgp.HasTableName)
             {
-                traceLog.Error("ERROR Boxplot class: 'tableName' was not found in the passed parameters");
+                traceLog.Error("ERROR Barplot class: 'tableName' was not found in the passed parameters");
                 b_2Param = false;
                 Model.SuccessRunningPipeline = false;
             }
             if (!vgp.HasPlotFileName)
             {
-                traceLog.Error("ERROR Boxplot class: 'plotFileName' was not found in the passed parameters");
+                traceLog.Error("ERROR Barplot class: 'plotFileName' was not found in the passed parameters");
                 b_2Param = false;
                 Model.SuccessRunningPipeline = false;
             }
@@ -136,54 +122,42 @@ namespace Cyclops.VisualizationModules
             return b_2Param;
         }
 
-        private void CreateBoxPlot()
+        private void CreateBarPlot()
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "";
 
-            // If a Factor to color by has been chosen, make sure that the
-            // Factor Table contains the column.
-            bool b_FactorIsPresent = true;
-            if (!vgp.FixedEffect.Equals(""))
-            {
-                b_FactorIsPresent = clsGenericRCalls.TableContainsColumn(s_RInstance, vgp.ColumnFactorTable, vgp.FixedEffect);
-                if (!b_FactorIsPresent)
-                {
-                    traceLog.Error("ERROR in BoxPlot: The factor table (" + vgp.ColumnFactorTable + ") " +
-                        "does NOT contain the factor " + vgp.FixedEffect);
-                    Model.SuccessRunningPipeline = false;
-                }
-            }
-
-            s_RStatement += string.Format("Boxplots(x={0}, Columns={1}, " +
-                "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
-                "colorFactorName=\"{5}\", " +
-                "outliers={6}, color=\"{7}\", bkground=\"{8}\", labelscale={9}, " +
-                "boxwidth={10}, showcount={11}, showlegend={12}, stamp={13}, " +
-                "do.ylim={14}, ymin={15}, ymax={16}, ylabel=\"{17}\", " +
-                "IMGwidth={18}, IMGheight={19}, FNTsize={20}, res={21})",
+            s_RStatement += string.Format("plotBars(" +
+                "x={0}, Data.Column=\"{1}\", " +
+                "file=\"{2}\", " +
+                "bkground=\"{3}\", " +
+                "takeLog={4}, " +
+                "base={5}, " +
+                "names.arg=\"{6}\", " +
+                "xLab=\"{7}\", " +
+                "yLab=\"{8}\", " +
+                "title=\"{9}\", " +
+                "col={10}, " + 
+                "IMGwidth={11}, " +
+                "IMGheight={12}, " +
+                "FNTsize={13}, " +
+                "res={14})",
                 vgp.TableName,                                          // 0
-                vgp.DataColumns.Length > 0 ? vgp.DataColumns : "NULL",  // 1
+                vgp.DataColumns,                                        // 1
                 vgp.PlotFileName,                                       // 2
-                vgp.ColorByFactor,                                      // 3
-                vgp.ColumnFactorTable,                                  // 4
-                vgp.FixedEffect,                                        // 5
-                vgp.Outliers,                                           // 6
-                vgp.Color,                                              // 7
-                vgp.BackgroundColor,                                    // 8
-                vgp.LabelScale,                                         // 9
-                vgp.BoxWidth,                                           // 10
-                vgp.ShowCount,                                          // 11
-                vgp.ShowLegend,                                         // 12
-                vgp.Stamp,                                              // 13
-                vgp.DoYLim,                                             // 14
-                vgp.yMin,                                               // 15
-                vgp.yMax,                                               // 16
-                vgp.yLabel,                                             // 17
-                vgp.Width,                                              // 18
-                vgp.Height,                                             // 19
-                vgp.FontSize,                                           // 20
-                vgp.Resolution);                                        // 21
+                vgp.BackgroundColor,                                    // 3
+                vgp.Log,                                                // 4
+                vgp.LogBase,                                            // 5
+                vgp.Names,                                              // 6
+                vgp.xLabel,                                             // 7
+                vgp.yLabel,                                             // 8
+                vgp.Main,                                               // 9
+                vgp.BarColor.Equals("NULL") ? "NULL" : "\"" + vgp.BarColor + "\"",// 10
+                vgp.Width,                                              // 11
+                vgp.Height,                                             // 12
+                vgp.FontSize,                                           // 13
+                vgp.Resolution                                          // 14
+                );
                         
             try
             {
@@ -193,11 +167,10 @@ namespace Cyclops.VisualizationModules
                 else
                     traceLog.Error(Path.GetDirectoryName(vgp.PlotFileName) + " DOES NOT exist!");
 
-                if (b_FactorIsPresent)
                     engine.EagerEvaluate(s_RStatement);
 
                 if (File.Exists(vgp.PlotFileName))
-                    traceLog.Info("Boxplot was written out to: " + vgp.PlotFileName);
+                    traceLog.Info("Barplot was written out to: " + vgp.PlotFileName);
                 else
                     traceLog.Error("Unable to find the plot file: " + vgp.PlotFileName);
                 FileInfo fi = new FileInfo(vgp.PlotFileName);

@@ -340,7 +340,20 @@ namespace Cyclops
                                                 currentNode.AddDataChild(pepOverlap);
                                                 currentNode = pepOverlap;
                                             }
-                                            break;                                        
+                                            break; 
+                                        case "SummaryTableInsert":
+                                            DataModules.clsSQLiteSummaryTableGenerator summaryInserter = new DataModules.clsSQLiteSummaryTableGenerator(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = summaryInserter;
+                                                currentNode = summaryInserter;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(summaryInserter);
+                                                currentNode = summaryInserter;
+                                            }
+                                            break;
                                         case "Test":
                                             clsMyTestingModule test = new clsMyTestingModule(InstanceOfR);
                                             if (root == null)
@@ -377,6 +390,19 @@ namespace Cyclops
                                     traceLog.Info("READING XML VISUAL: " + modid);
                                     switch (modid)
                                     {
+                                        case "BarPlot":
+                                            VisualizationModules.clsBarPlot bar = new VisualizationModules.clsBarPlot(Model, InstanceOfR);
+                                            currentVizNode = bar;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("Error: trying to add a Barplot Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                traceLog.Info("Adding Barplot module from XML...");
+                                                currentNode.AddVisualChild(bar);
+                                            }
+                                            break;
                                         case "BoxPlot":
                                             VisualizationModules.clsBoxPlot box = new VisualizationModules.clsBoxPlot(Model, InstanceOfR);
                                             currentVizNode = box;
@@ -451,17 +477,17 @@ namespace Cyclops
                                     traceLog.Info("READING XML EXPORT: " + modid);
                                     switch (modid)
                                     {
-                                        case "Save":
-                                            ExportModules.clsSaveEnvironment se_Node = new ExportModules.clsSaveEnvironment(Model, InstanceOfR);
-                                            currentExportNode = se_Node;
+                                        case "HtmlSummary":
+                                            ExportModules.clsHTMLSummary summary = new ExportModules.clsHTMLSummary(Model, InstanceOfR);
+                                            currentExportNode = summary;
                                             if (root == null)
                                             {
-                                                traceLog.Error("ERROR reading XML, " + se_Node.ModuleName + ", trying to add a Save Module without a root!");
-                                                Console.WriteLine("Error: trying to add a Save Module without a root!");
+                                                traceLog.Error("ERROR reading XML, " + summary.ModuleName + ", trying to add an Export Module without a root!");
+                                                Console.WriteLine("Error: trying to add a ExportTable Module without a root!");
                                             }
                                             else
                                             {
-                                                currentNode.AddExportChild(se_Node);
+                                                currentNode.AddExportChild(summary);
                                             }
                                             break;
                                         case "ExportTable":
@@ -469,7 +495,7 @@ namespace Cyclops
                                             currentExportNode = tab;
                                             if (root == null)
                                             {
-                                                traceLog.Error("ERROR reading XML, " + tab.ModuleName + ", trying to add a Save Module without a root!");
+                                                traceLog.Error("ERROR reading XML, " + tab.ModuleName + ", trying to add an Export Module without a root!");
                                                 Console.WriteLine("Error: trying to add a ExportTable Module without a root!");
                                             }
                                             else
@@ -482,12 +508,25 @@ namespace Cyclops
                                             currentExportNode = qc;
                                             if (root == null)
                                             {
-                                                traceLog.Error("ERROR reading XML, " + qc.ModuleName + ", trying to add a Save Module without a root!");
+                                                traceLog.Error("ERROR reading XML, " + qc.ModuleName + ", trying to add an Export without a root!");
                                                 Console.WriteLine("Error: trying to add a ExportTable Module without a root!");
                                             }
                                             else
                                             {
                                                 currentNode.AddExportChild(qc);
+                                            }
+                                            break;
+                                        case "Save":
+                                            ExportModules.clsSaveEnvironment se_Node = new ExportModules.clsSaveEnvironment(Model, InstanceOfR);
+                                            currentExportNode = se_Node;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("ERROR reading XML, " + se_Node.ModuleName + ", trying to add an Export Module without a root!");
+                                                Console.WriteLine("Error: trying to add a Save Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddExportChild(se_Node);
                                             }
                                             break;
                                     }

@@ -46,6 +46,7 @@ namespace Cyclops.DataModules
             s_Center="FALSE",                           // used in RRollup, center peptide abundace to 0
             s_CommaSep_wQuotesIdentifiers = "",
             s_CommaSep_woQuotesIdentifiers = "",
+            s_ColumnName = "",
             s_DatabasePath = "",
             s_FactorColumn = "",
             s_FactorComplete = "",
@@ -82,6 +83,7 @@ namespace Cyclops.DataModules
             s_Semicolon_woQuotesSepIdentifiers = "",
             s_SetZeroToNA = "false",
             s_Source = "",
+            s_SummaryTableName = "",
             s_TableType = "",
             s_TabSep_wQuotesIdentifiers = "",
             s_TabSep_woQuotesIdentifiers = "",
@@ -155,6 +157,12 @@ namespace Cyclops.DataModules
         {
             get { return b_AutoScale; }
             set { b_AutoScale = value; }
+        }
+
+        public string ColumnName
+        {
+            get { return s_ColumnName; }
+            set { s_ColumnName = value; }
         }
 
         public bool HasCommaSeparatedListWithQuotes
@@ -250,6 +258,12 @@ namespace Cyclops.DataModules
         {
             get { return s_NewTableName; }
             set { s_NewTableName = value; }
+        }
+
+        public string SummaryTableName
+        {
+            get { return s_SummaryTableName; }
+            set { s_SummaryTableName = value; }
         }
 
         /// <summary>
@@ -967,6 +981,9 @@ namespace Cyclops.DataModules
                         string s_AutoScale = kvp.Value;
                         AutoScale = s_AutoScale.ToLower().Equals("true") ? true : false;
                         break;
+                    case "columnName":
+                        s_ColumnName = kvp.Value;
+                        break;
                     case "commaSepWithQuotesIdentifiers":
                         List<string> l_csqi = kvp.Value;
                         string s_csqi = SeparateListOfStrings(l_csqi, ',', true);
@@ -1131,6 +1148,9 @@ namespace Cyclops.DataModules
                         break;
                     case "center":
                         s_Center = kvp.Value;
+                        break;
+                    case "summaryTableName":
+                        s_SummaryTableName = kvp.Value;
                         break;
                 }
             }

@@ -31,12 +31,13 @@ namespace Cyclops.ExportModules
     /// </summary>
     public class cslExportParameterHandler
     {
-        #region Variables
+        #region Members
         //private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private Dictionary<string, dynamic> d_Param = new Dictionary<string, dynamic>();
 
         private string
             s_CanvasHeight="600",
+            s_DatabaseName="Results.db3",
             s_FileName = "",
             s_FontSize="20",
             s_HeaderFontSize="40",   
@@ -81,6 +82,11 @@ namespace Cyclops.ExportModules
         {
             get { return s_CanvasHeight; }
             set { s_CanvasHeight = value; }
+        }
+        public string DatabaseName
+        {
+            get { return s_DatabaseName; }
+            set { s_DatabaseName = value; }
         }
         public string FileName
         {
@@ -258,6 +264,9 @@ namespace Cyclops.ExportModules
                 {
                     case "canvasHeight":
                         CanvasHeight = kvp.Value;
+                        break;
+                    case "databaseName":
+                        DatabaseName = kvp.Value;
                         break;
                     case "fileName":
                         FileName = kvp.Value;

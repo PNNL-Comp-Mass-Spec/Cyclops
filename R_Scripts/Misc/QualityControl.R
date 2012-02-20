@@ -71,6 +71,11 @@ ja_OverlapMatrix <- function(x, y, DoCount = TRUE)
     {
       y1.1[i,i] <- 0
     }
+
+	colnames(y1) <- 1:ncol(y1)
+	colnames(y1.1) <- 1:ncol(y1.1)
+	rownames(y1) <- 1:nrow(y1)
+	rownames(y1.1) <- 1:nrow(y1.1)
     
 	y3 <- list(myMatrix=y1, myMatrix1=y1.1, myPeptides=y2, Overlap=ol,
              totalPeptides=length(unique(unlist(subset(x, select=c("Peptide"))))))

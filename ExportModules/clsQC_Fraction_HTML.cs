@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Data;
 
 using RDotNet;
 using log4net;
@@ -45,13 +46,16 @@ namespace Cyclops.ExportModules
     /// </summary>
     public class clsQC_Fraction_HTML : clsBaseExportModule
     {
+        #region Members
         private ExportModules.cslExportParameterHandler esp =
             new ExportModules.cslExportParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private string s_LineDelimiter = "\n";
         private string s_Tab = "\t";
+        private DataTable dt_Overlap = new DataTable("FractionOverlap");
 
         private string s_RInstance;
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -62,7 +66,7 @@ namespace Cyclops.ExportModules
             ModuleName = "Quality Control Module";
         }
         /// <summary>
-        /// /// Exports an HTML file that displays the QC for 2D-LC fractions
+        /// Exports an HTML file that displays the QC for 2D-LC fractions
         /// </summary>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsQC_Fraction_HTML(string InstanceOfR)
@@ -71,7 +75,7 @@ namespace Cyclops.ExportModules
             s_RInstance = InstanceOfR;
         }
         /// <summary>
-        /// /// Exports an HTML file that displays the QC for 2D-LC fractions
+        /// Exports an HTML file that displays the QC for 2D-LC fractions
         /// </summary>
         /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
@@ -124,6 +128,9 @@ namespace Cyclops.ExportModules
             BuildHtmlFile();            
         }        
 
+        /// <summary>
+        /// Construct the HTML file
+        /// </summary>
         private void BuildHtmlFile()
         {
             esp.GetParameters(ModuleName, Parameters);
@@ -179,7 +186,6 @@ namespace Cyclops.ExportModules
         {
             StringBuilder sb_ReturnScripts = new StringBuilder();
 
-            // TODO : Get the Arrays from R needed to design the rectangles
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string
                 s_Peptides = GetPeptideCount("myPeptides"),
@@ -255,8 +261,10 @@ namespace Cyclops.ExportModules
                 + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + s_Tab + "ctx.textAlign='center';" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + s_Tab + "ctx.textBaseline='middle';" + s_LineDelimiter +
+                s_Tab + s_Tab + s_Tab + s_Tab + "ctx.font = 'bold' + fontSize + 'px Arial';" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + s_Tab + "ctx.fillText('F' + i_Counter, i*rectWidth + rectWidth/2," +
 					"rectHeight + rectHeight/2);" + s_LineDelimiter +
+                    s_Tab + s_Tab + s_Tab + s_Tab + "ctx.font = fontSize + 'px Arial';" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + s_Tab + "ctx.fillStyle = rectColor;" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + s_Tab + "ctx.fillRect(i * rectWidth, (2*rectHeight), rectWidth, rectHeight);" 
                 + s_LineDelimiter +
@@ -287,6 +295,7 @@ namespace Cyclops.ExportModules
                 s_Tab + s_Tab + s_Tab + "ctx.fillRect(0, 4*rectHeight+20, ctx.canvas.width, overlapHeight);" + s_LineDelimiter +
 			    s_Tab + s_Tab + s_Tab + "ctx.strokeRect(0, 4*rectHeight+20, ctx.canvas.width, overlapHeight);" + s_LineDelimiter +
 			    s_Tab + s_Tab + s_Tab + "ctx.fillStyle = 'rgb(255,255,255)';" + s_LineDelimiter +
+                s_Tab + s_Tab + s_Tab + "ctx.font = 'bold' + fontSize + 'px Arial';" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + "ctx.fillText(totalPeptides, ctx.canvas.width/2, 4.5*rectHeight+20, ctx.canvas.width);" + s_LineDelimiter +
                 s_Tab + s_Tab + "}" +   s_LineDelimiter);
 
@@ -294,6 +303,7 @@ namespace Cyclops.ExportModules
             sb_ReturnScripts.Append("</SCRIPT>" + s_LineDelimiter);
             return sb_ReturnScripts;
         }
+
 
         private string WriteEndHead()
         {
@@ -305,10 +315,31 @@ namespace Cyclops.ExportModules
         {
             string s_Body = s_Tab + "<BODY onload='drawRects()' onresize='drawRects()'>" 
                 + s_LineDelimiter;
+
+            // Write FRACTION DATASET INFORMATION
+            s_Body += s_Tab + s_Tab + "<H2>Fraction identifiers and associated datasets:</H2>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + "<TABLE><TR><TD>" + s_LineDelimiter;
+
+            DataTable dt_Fractions = GetFractionAndDatasetInfo();
+            s_Body += WriteTable(dt_Fractions, "left", 0, 2, 4);
+
+            s_Body += s_Tab + s_Tab + "</TD></TR> <TR><TD>" + s_LineDelimiter;
+            s_Body += string.Format(s_Tab + s_Tab + "<IMG src='Plots/{0}' width='400' height='400' />",
+                "qc_Summary.png");
+            s_Body += s_Tab + s_Tab + "</TD><TD>" + s_LineDelimiter;
+            s_Body += string.Format(s_Tab + s_Tab + "<IMG src='Plots/{0}' width='400' height='400' />",
+                "log_qc_Summary.png");
+            s_Body += s_Tab + s_Tab + "</TD></TR> </TABLE>" + s_LineDelimiter + s_LineDelimiter;
+
+
+            // Write CANVAS ELEMENT
             s_Body += s_Tab + s_Tab + "<CANVAS id='myCanvas' width='600' height='300'>"
                 + "Your browser does not support the 'CANVAS' tag.</CANVAS>" + s_LineDelimiter;
-            s_Body += s_Tab + "</BODY>" + s_LineDelimiter;
 
+            // Write the PEPTIDE COUNT TABLE
+            s_Body += s_LineDelimiter + WritePeptideCountTable();
+
+            // INCLUDE HEATMAP IF REQUESTED
             if (esp.IncludeHeatmap)
             {
                 s_Body += string.Format(
@@ -317,13 +348,163 @@ namespace Cyclops.ExportModules
                     esp.Width,
                     esp.Height);
             }
+            
+            s_Body += s_Tab + "</BODY>" + s_LineDelimiter;
             return s_Body;
+        }
+
+        /// <summary>
+        /// Generates the html code to display a table on the webpage
+        /// </summary>
+        /// <param name="Table">Table to display</param>
+        /// <param name="alignment">How to align the table on the page, eg. left, center, right</param>
+        /// <param name="border">Size of border</param>
+        /// <param name="TabSpaces">Number of tab spaces before the table tag</param>
+        /// <returns></returns>
+        private string WriteTable(DataTable Table, string alignment, int border, int TabSpaces, int CellPadding)
+        {
+            string s_TableTabs = "", s_RowTabs = "";
+
+            for (int i = 0; i < TabSpaces; i++)
+            {
+                s_TableTabs += s_Tab;
+                s_RowTabs += s_Tab;
+            }
+            s_RowTabs += s_Tab;
+
+            string s_Table = string.Format(s_TableTabs + "<TABLE align='{0}' border='{1}' " +
+                "CELLPADDING={2} RULES=GROUPS FRAME=BOX>" +
+                s_LineDelimiter,
+                alignment,
+                border,
+                CellPadding);
+
+            s_Table += s_RowTabs + "<THEAD>" + s_LineDelimiter +
+                s_RowTabs + "<TR>";
+            
+            // Write the table headers
+            foreach (DataColumn c in Table.Columns)
+            {
+                s_Table += "<TH><B><P align='center'>" + c.ColumnName + "</P></B></TH>";
+            }
+            s_Table += "</TR>" + s_LineDelimiter + s_RowTabs + "</THEAD>" + s_LineDelimiter;
+
+            int i_Row = 0;
+            foreach (DataRow r in Table.Rows)
+            {
+                i_Row++;
+                if (i_Row % 2 == 0)
+                    s_Table += s_RowTabs + "<TR bgcolor='lightgrey'>";
+                else
+                    s_Table += s_RowTabs + "<TR>";
+                for (int c = 0; c < Table.Columns.Count; c++)
+                {
+                    s_Table += "<TD><P align='center'>" + r[c].ToString() + "</P></TD>";
+                }
+                s_Table += "</TR>" + s_LineDelimiter;
+            }
+
+            s_Table += s_TableTabs + "</TABLE>" + s_LineDelimiter + s_LineDelimiter;
+            return s_Table;
+        }
+
+        private string WritePeptideCountTable()
+        {
+            string s_Table = s_Tab + s_Tab + "<TABLE align='center' border='0' CELLPADDING=3 RULES=ALL FRAME=BOX>" +
+                s_LineDelimiter + s_Tab + s_Tab + s_Tab + "<TR bgcolor='#4682B4'>" + 
+                s_LineDelimiter + s_Tab + s_Tab + s_Tab + s_Tab;
+            dt_Overlap = clsGenericRCalls.GetDataTable(s_RInstance, esp.TableName + "$myMatrix", true);
+
+            // Write out the table header
+            for (int i = 0; i < dt_Overlap.Columns.Count + 1; i++)
+            {
+                if (i == 0)
+                    s_Table += "<TD><P style='color:white'><B>Fraction</B></P></TD>";
+                else
+                    s_Table += "<TD><P style='color:white' align='center'><B>F" + i + "</B></P></TD>";
+            }
+            s_Table += "</TR>" + s_LineDelimiter;
+
+            // Write out the table rows
+            for (int r = 0; r < dt_Overlap.Rows.Count; r++)
+            {
+                s_Table += s_Tab + s_Tab + "<TR><TD bgcolor='#4682B4'><P style='color:white' align='center'><B>F" + 
+                    (r + 1) + "</B></P></TD>";
+                for (int c = 0; c < dt_Overlap.Columns.Count; c++)
+                {
+                    if (r == c)
+                    {
+                        s_Table += "<TD bgcolor='#000000'><P style='color:white' align='center'><B>" +
+                            dt_Overlap.Rows[r][c].ToString() + "</B></P></TD>";
+                    }
+                    else if (r == c + 1)
+                    {
+                        s_Table += "<TD bgcolor='#CAFF70'><P style='color:red' align='center'><B>" +
+                            dt_Overlap.Rows[r][c].ToString() + "</B></P></TD>";
+                    }
+                    else if (c > r) // the upper right of the table will display percentages
+                    {
+                        int i_PepCnt = Int32.Parse(dt_Overlap.Rows[r][r].ToString());
+                        int i_Pep = Int32.Parse(dt_Overlap.Rows[r][c].ToString());
+                        double d_Percent = (double)i_Pep / (double)i_PepCnt * 100;
+                        if (c - 1 == r)
+                        {
+                            s_Table += "<TD bgcolor='#CAFF70'><P style='color:red' align='center'><B>" +
+                                string.Format("{0:0.0}", d_Percent) + "%</B></P></TD>";
+                        }
+                        else
+                        {
+                            s_Table += "<TD><P align='center'>" +
+                                string.Format("{0:0.0}", d_Percent) + "%</P></TD>";
+                        }
+                    }
+                    else
+                    {
+                        s_Table += "<TD><P align='center'>" +
+                            dt_Overlap.Rows[r][c].ToString() + "</P></TD>";
+                    }
+                }
+                s_Table += "</TR>" + s_LineDelimiter;
+            }
+
+            s_Table += s_Tab + s_Tab + "</TABLE>" + s_LineDelimiter + s_LineDelimiter;
+
+            return s_Table;
         }
 
         private string WriteEndHtml()
         {
             string s_End = "</HTML>";
             return s_End;    
+        }
+
+        private DataTable GetFractionAndDatasetInfo()
+        {
+            string s_Command = "Select Fraction, Dataset, Dataset_ID FROM t_factors ORDER BY Fraction";
+
+            DataTable tmp = clsSQLiteHandler.GetDataTable(
+                s_Command,
+                Path.Combine(esp.WorkDirectory,esp.DatabaseName));
+
+            DataTable dt_Return = new DataTable();
+            DataColumn dc_Fraction = new DataColumn("Fraction", typeof(Int32));
+            dt_Return.Columns.Add(dc_Fraction);
+            DataColumn dc_Dataset = new DataColumn("Dataset", typeof(String));
+            dt_Return.Columns.Add(dc_Dataset);
+            DataColumn dc_DatasetID = new DataColumn("Dataset_ID", typeof(Int32));
+            dt_Return.Columns.Add(dc_DatasetID);
+
+            foreach (DataRow r in tmp.Rows)
+            {
+                dt_Return.Rows.Add(Int32.Parse(r[0].ToString()),
+                    r[1].ToString(),
+                    Int32.Parse(r[2].ToString()));
+            }
+
+            //dt_Return.Select(null, "Fraction");
+            dt_Return = new DataView(dt_Return, "", "Fraction ASC", DataViewRowState.CurrentRows).ToTable();
+            
+            return dt_Return;
         }
 
         #endregion

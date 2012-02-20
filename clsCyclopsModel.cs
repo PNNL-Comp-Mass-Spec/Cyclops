@@ -38,13 +38,14 @@ namespace Cyclops
     /// </summary>
     public class clsCyclopsModel
     {
+        #region Members
         private DataModules.clsBaseDataModule root = null, currentNode = null;
         private REngine engine;
         private string s_RInstance;
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private bool b_SuccessRunningPipeline = true;
-
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -148,7 +149,7 @@ namespace Cyclops
         }
         #endregion
 
-        #region Functions
+        #region Methods
         /// <summary>
         /// Sets the path the R DLL
         /// </summary>

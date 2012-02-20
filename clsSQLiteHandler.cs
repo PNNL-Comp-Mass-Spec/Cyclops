@@ -75,5 +75,91 @@ namespace Cyclops
             }
             return dt;
         }
+
+        /// <summary>
+        /// Creates a table within a SQLite database
+        /// </summary>
+        /// <param name="Connection">Path and Filename of the SQLite database</param>
+        /// <param name="TableName">Name of the new table to create</param>
+        /// <param name="AutoID">Create an autoincrementing primary key in the first column of the table</param>
+        /// <param name="Columns">Keys are column names and values are the type of variable</param>
+        public static void CreateTable(string Connection, string TableName, bool AutoID, Dictionary<string, string> Columns)
+        {
+            string s_Command = "CREATE " + TableName + "(" +
+                (AutoID ? "ID INTEGER PRIMARY KEY AUTOINCREMENT, " : "");
+
+            foreach (string k in Columns.Keys)
+            {
+                s_Command += k + " " + Columns[k] + ", ";
+            }
+            s_Command = s_Command.Substring(0, s_Command.Length - 2);   // removes the last comma and space
+            s_Command += ");";
+ 
+            try
+            {
+                var connStr = new SQLiteConnectionStringBuilder()
+                {
+                    DataSource = Connection
+                };
+
+                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+                {
+                    conn.Open();
+                    SQLiteCommand cmd = conn.CreateCommand();
+                    cmd.CommandText = s_Command;
+
+                    cmd = conn.CreateCommand();
+                    cmd.CommandText = s_Command;
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                }
+
+            }
+            catch (IOException ioe)
+            {
+                Console.WriteLine("IOEXCEPTION: " + ioe.ToString());
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine("EXC: " + exc.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Runs a NonQuery against the specified database
+        /// </summary>
+        /// <param name="Command">Command to execute</param>
+        /// <param name="Connection">Path and Filename of the SQLite database</param>
+        public static void RunNonQuery(string Command, string Connection)
+        {
+            try
+            {
+                var connStr = new SQLiteConnectionStringBuilder()
+                {
+                    DataSource = Connection
+                };
+
+                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+                {
+                    conn.Open();
+                    SQLiteCommand cmd = conn.CreateCommand();
+                    cmd.CommandText = Command;
+
+                    cmd = conn.CreateCommand();
+                    cmd.CommandText = Command;
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                }
+
+            }
+            catch (IOException ioe)
+            {
+                Console.WriteLine("IOEXCEPTION: " + ioe.ToString());
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine("EXC: " + exc.ToString());
+            }
+        }
     }
 }

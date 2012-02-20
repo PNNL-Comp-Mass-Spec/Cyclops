@@ -127,22 +127,75 @@ plot_hist <- function(Data,
    },
    interrupt = function(ex)
    {
-     cat("An interrupt was detected.\n");
+     cat("An interrupt was detected.\n")
      print(ex);
    },
    error = function(ex)
    {
      plot(c(1,1),type="n",axes=F,xlab="",ylab="")
      text(1.5,1,paste("Error:", ex),cex=2)
-     cat("An error was detected.\n");
+     cat("An error was detected.\n")
      print(ex);
    },
    finally =
    {
-     cat("Releasing tempfile...");
+     cat("Releasing tempfile...")
      par(mfrow=c(1,1),pch=1)
      dev.off()
-     cat("done\n");
+     cat("done\n")
    }) # tryCatch()
   # return(recordPlot())    
+}
+
+plotBars <- function(x,
+					Data.Column,
+					file="deleteme.png",
+					bkground="white",
+					takeLog=F,
+					base=NULL,
+					names.arg=NULL,
+					xLab=NULL,
+					yLab=NULL,
+					title=NULL,
+					col=NULL,
+					IMGwidth,
+					IMGheight,
+					FNTsize,
+					res=res)
+{
+	require(Cairo)
+    CairoPNG(filename=file,width=IMGwidth,height=IMGheight,pointsize=FNTsize,bg=bkground,res=res)
+	try
+	{
+		
+		if (length(col)==0)
+			col <- rainbow(dim(x)[1])
+
+		xc <- x[,Data.Column]
+		if (takeLog && !is.null(base))
+			xc <- log(xc, base)
+
+		barplot(xc, 
+			names.arg=x[,names.arg],
+			xlab=xLab,
+			ylab=yLab,
+			main=title,
+			col=col)
+	}
+	interrupt = function(ex)
+	{
+		cat("An interruption was detected.\n")
+		print(ex)
+	}
+	error = function(ex)
+	{
+		cat("An error was detected.\n")
+		print(ex)
+	}
+	finally = 
+	{
+		cat("Releasing tempfile...")
+		dev.off()
+		cat("done\n")
+	}	
 }

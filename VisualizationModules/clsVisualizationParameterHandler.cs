@@ -74,8 +74,11 @@ namespace Cyclops.VisualizationModules
             s_Horizontal = "TRUE",
             s_ImageType = "png",
             s_LabelScale = "0.8",
+            s_Log = "FALSE",
+            s_LogBase = "NULL",
             s_Main = "",
             s_ModuleName = "",
+            s_Names = "",
             s_Outliers = "TRUE",
             s_PlotFileName = "",
             s_PointSize = "12",
@@ -251,6 +254,16 @@ namespace Cyclops.VisualizationModules
             get { return s_LabelScale; }
             set { s_LabelScale = value; }
         }
+        public string Log
+        {
+            get { return s_Log; }
+            set { s_Log = value; }
+        }
+        public string LogBase
+        {
+            get { return s_LogBase; }
+            set { s_LogBase = value; }
+        }
         public string FontSize
         {
             get { return s_FontSize; }
@@ -299,6 +312,11 @@ namespace Cyclops.VisualizationModules
         {
             get { return s_Main; }
             set { s_Main = value; }
+        }
+        public string Names
+        {
+            get { return s_Names; }
+            set { s_Names = value; }
         }
         public string BackgroundColor
         {
@@ -581,7 +599,10 @@ namespace Cyclops.VisualizationModules
                         yLabel = kvp.Value;
                         break;
                     case "main":
-                        Main = kvp.Value;
+                        s_Main = kvp.Value;
+                        break;
+                    case "names":
+                        s_Names = kvp.Value;
                         break;
                     case "xColumn":
                         xColumn = kvp.Value;
@@ -679,6 +700,12 @@ namespace Cyclops.VisualizationModules
                     case "labelScale": // default 0.8
                         s_LabelScale = kvp.Value;
                         break; 
+                    case "log":
+                        s_Log = kvp.Value;
+                        break;
+                    case "logBase":
+                        s_LogBase = kvp.Value;
+                        break;
                     case "dataColumns":
                         DataColumns = kvp.Value;
                         if (DataColumns.Length > 0)
