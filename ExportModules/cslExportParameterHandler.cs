@@ -43,8 +43,10 @@ namespace Cyclops.ExportModules
             s_HeaderFontSize="40",   
             s_HeatmapFileName="",
             s_Height = "700",
+            s_InputFileName = "Results.db3",
             s_IncludeHeatmap = "TRUE",
-            s_IncludeRowNames = "true",            
+            s_IncludeRowNames = "true", 
+            s_Legend = "",
             s_Margin="30",
             s_ModuleName = "", 
             s_NewTableName = "",
@@ -159,6 +161,16 @@ namespace Cyclops.ExportModules
             {
                 return s_IncludeRowNames.ToLower().Equals("true") ? true : false;
             }
+        }
+        public string InputFileName
+        {
+            get { return s_InputFileName; }
+            set { s_InputFileName = value; }
+        }
+        public string Legend
+        {
+            get { return s_Legend; }
+            set { s_Legend = value; }
         }
         public string Margin
         {
@@ -291,6 +303,9 @@ namespace Cyclops.ExportModules
                     case "includeRowNames":
                         s_IncludeRowNames = kvp.Value;
                         break;
+                    case "inputFileName":
+                        s_InputFileName = kvp.Value;
+                        break;
                     case "margin":
                         Margin = kvp.Value;
                         break;
@@ -298,6 +313,9 @@ namespace Cyclops.ExportModules
                         NewTableName = kvp.Value;
                         if (NewTableName.Length > 0)
                             b_HasNewTableName = true;
+                        break;
+                    case "legend":
+                        s_Legend = kvp.Value;
                         break;
                     case "overlapHeight":
                         OverlapHeight = kvp.Value;

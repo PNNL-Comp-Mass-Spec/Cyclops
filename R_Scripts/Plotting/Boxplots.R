@@ -17,7 +17,8 @@ Boxplots <- function(x,
                          Columns = NULL,
                          file="deleteme.png",
                          colorByFactor = FALSE,
-				 colorFactor = NULL,                                       
+						 colorFactorTable = NULL,                                       
+						 colorFactorName = NULL,
                          outliers=TRUE,
                          color="wheat2",
                          bkground="white",
@@ -45,6 +46,19 @@ Boxplots <- function(x,
   
   box_color <- rep(color, dim(x)[2])
   
+  # Prepare the colorFactor
+  colorFactor <- c()
+  if (colorByFactor && !is.null(colorFactorTable) && !is.null(colorFactorName)) {
+	ColMeta <- unique(subset(colorFactorTable, select=c("Alias", colorFactorName)))
+	coln <- data.frame("Alias" = colnames(x))
+	mdata <- merge(x=coln, y=ColMeta, by.x="Alias", by.y="Alias", all.y=F)
+	colorFactor = unlist(subset(mdata, select=colorFactorName))
+  }
+  else {
+	do.ylim= TRUE
+  }
+  
+  uF <- c()
   if (colorByFactor && length(colorFactor) == dim(x)[2])
       {
         uF <- unique(colorFactor)
@@ -65,7 +79,7 @@ Boxplots <- function(x,
 
       if(do.ylim)
         boxplot(data.frame(x),outline=outliers,notch=T,las=2,
-            boxwex=boxwidth,col=colF,cex.axis=labelscale,ylim=c(ymin, ymax),
+            boxwex=boxwidth,col=color,cex.axis=labelscale,ylim=c(ymin, ymax),
 			ylab=ylabel,...)
       else 
         boxplot(data.frame(x),outline=outliers,notch=T,las=2,

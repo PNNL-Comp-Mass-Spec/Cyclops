@@ -27,6 +27,7 @@ RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
     Data <- data.matrix(Data)
     ProtInfo <- unique(ProtInfo)
 		
+	containsOneHitWonders <- FALSE
     minCountPerP <- 2
     minPresence <- minPresence/100
     protIPI <- ProtInfo[,protInfo_ProtCol]
@@ -75,6 +76,8 @@ RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
                     k = k + 1
                 }
             }
+		else
+			containsOneHitWonders <- TRUE
     }
 	
     rownames(protData) <- proteinNames
@@ -82,7 +85,7 @@ RRollup.proteins <- function(Data, ProtInfo, minPresence=50, Mode="median",
     orData <- remove.duplicates(orData)
     
 
-    if (oneHitWonders)
+    if (oneHitWonders && containsOneHitWonders)
     {
         k = 1
         for (prot in 1:length(restIPI))

@@ -477,19 +477,6 @@ namespace Cyclops
                                     traceLog.Info("READING XML EXPORT: " + modid);
                                     switch (modid)
                                     {
-                                        case "HtmlSummary":
-                                            ExportModules.clsHTMLSummary summary = new ExportModules.clsHTMLSummary(Model, InstanceOfR);
-                                            currentExportNode = summary;
-                                            if (root == null)
-                                            {
-                                                traceLog.Error("ERROR reading XML, " + summary.ModuleName + ", trying to add an Export Module without a root!");
-                                                Console.WriteLine("Error: trying to add a ExportTable Module without a root!");
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddExportChild(summary);
-                                            }
-                                            break;
                                         case "ExportTable":
                                             ExportModules.clsExportTableModule tab = new ExportModules.clsExportTableModule(Model, InstanceOfR);
                                             currentExportNode = tab;
@@ -501,6 +488,19 @@ namespace Cyclops
                                             else
                                             {
                                                 currentNode.AddExportChild(tab);
+                                            }
+                                            break;
+                                        case "LBF_Summary":
+                                            ExportModules.clsLBF_Summary_HTML lbf_Summary = new ExportModules.clsLBF_Summary_HTML(Model, InstanceOfR);
+                                            currentExportNode = lbf_Summary;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("ERROR reading XML, " + lbf_Summary.ModuleName + ", trying to add an Export Module without a root!");
+                                                Console.WriteLine("Error: trying to add a ExportTable Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddExportChild(lbf_Summary);
                                             }
                                             break;
                                         case "QC_Fractions":

@@ -161,7 +161,7 @@ namespace Cyclops.VisualizationModules
                         
             try
             {
-                traceLog.Info("Performing Boxplot: " + s_RStatement);
+                traceLog.Info("Performing Barplot: " + s_RStatement);
                 if (Directory.Exists(Path.GetDirectoryName(vgp.PlotFileName)))
                     traceLog.Info(Path.GetDirectoryName(vgp.PlotFileName) + " exists, and available to be written to...");
                 else

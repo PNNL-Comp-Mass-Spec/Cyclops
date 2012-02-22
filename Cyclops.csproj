@@ -81,7 +81,9 @@
     <Compile Include="ExportModules\clsBaseExportModule.cs" />
     <Compile Include="clsBaseModule.cs" />
     <Compile Include="ExportModules\clsHTMLSummary.cs" />
+    <Compile Include="ExportModules\clsLBF_Summary_HTML.cs" />
     <Compile Include="ExportModules\clsQC_Fraction_HTML.cs" />
+    <Compile Include="ExportModules\clsSummaryHTMLTemplate.cs" />
     <Compile Include="ExportModules\cslExportParameterHandler.cs" />
     <Compile Include="MiscModules\clsMiscFunctions.cs" />
     <Compile Include="VisualizationModules\clsBarPlot.cs" />

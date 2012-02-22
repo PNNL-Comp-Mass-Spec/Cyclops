@@ -157,17 +157,17 @@ namespace Cyclops.VisualizationModules
 
             s_RStatement += string.Format("Boxplots(x={0}, Columns={1}, " +
                 "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
-                "colorFactorName=\"{5}\", " +
+                "colorFactorName={5}, " +
                 "outliers={6}, color=\"{7}\", bkground=\"{8}\", labelscale={9}, " +
                 "boxwidth={10}, showcount={11}, showlegend={12}, stamp={13}, " +
                 "do.ylim={14}, ymin={15}, ymax={16}, ylabel=\"{17}\", " +
                 "IMGwidth={18}, IMGheight={19}, FNTsize={20}, res={21})",
                 vgp.TableName,                                          // 0
-                vgp.DataColumns.Length > 0 ? vgp.DataColumns : "NULL",  // 1
+                vgp.DataColumns.Length > 0 ? "\"" + vgp.DataColumns + "\"" : "NULL",  // 1
                 vgp.PlotFileName,                                       // 2
                 vgp.ColorByFactor,                                      // 3
                 vgp.ColumnFactorTable,                                  // 4
-                vgp.FixedEffect,                                        // 5
+                vgp.FixedEffect.Length > 0 ? "\"" + vgp.FixedEffect + "\"": "NULL",  // 5
                 vgp.Outliers,                                           // 6
                 vgp.Color,                                              // 7
                 vgp.BackgroundColor,                                    // 8
@@ -192,9 +192,8 @@ namespace Cyclops.VisualizationModules
                     traceLog.Info(Path.GetDirectoryName(vgp.PlotFileName) + " exists, and available to be written to...");
                 else
                     traceLog.Error(Path.GetDirectoryName(vgp.PlotFileName) + " DOES NOT exist!");
-
-                if (b_FactorIsPresent)
-                    engine.EagerEvaluate(s_RStatement);
+                                
+                engine.EagerEvaluate(s_RStatement);
 
                 if (File.Exists(vgp.PlotFileName))
                     traceLog.Info("Boxplot was written out to: " + vgp.PlotFileName);

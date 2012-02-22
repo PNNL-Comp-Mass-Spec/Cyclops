@@ -69,7 +69,7 @@ namespace Cyclops.DataModules
             s_ModuleName = "",
             s_NewTableName = "",
             s_NormalizedTable = "",
-            s_OneHitWonders="TRUE",                     // used in RRollup method, default in algorithm is true
+            s_OneHitWonders="FALSE",                     // used in RRollup method, default in algorithm is true
             s_Password = "",
             s_PeptideColumn="3",                        // used in RRollup
             s_ProteinColumn="1",                        // used in RRollup
