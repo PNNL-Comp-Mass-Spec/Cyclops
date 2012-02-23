@@ -101,6 +101,7 @@ namespace Cyclops.ExportModules
                             esp.TableName);
                         try
                         {
+                            traceLog.Info("EXPORTING to SQLite: " + s_Command);
                             engine.EagerEvaluate(s_Command);
                         }
                         catch (Exception exc)

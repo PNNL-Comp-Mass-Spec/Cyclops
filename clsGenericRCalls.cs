@@ -251,44 +251,58 @@ namespace Cyclops
             DataTable dt_Return = new DataTable();
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
 
-            if (ContainsObject(InstanceOfR, TheDataFrame))
+            if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("data.frame"))
             {
-                if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("data.frame"))
+                DataFrame dataset = engine.EagerEvaluate(TheDataFrame).AsDataFrame();
+
+                for (int i = 0; i < dataset.ColumnCount; i++)
                 {
-                    DataFrame dataset = engine.EagerEvaluate(TheDataFrame).AsDataFrame();
-
-                    for (int i = 0; i < dataset.ColumnCount; i++)
+                    DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                    if (dc.Namespace.Equals(""))
                     {
-                        DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
-                        dt_Return.Columns.Add(dc);
+                        int j = i + 1;
+                        dc.Namespace = j.ToString();
                     }
-
-                    for (int r = 0; r < dataset.RowCount; r++)
-                    {
-                        dynamic d_Row = dataset.GetRow(r);
-                        dt_Return.Rows.Add(d_Row);
-                    }
+                    dt_Return.Columns.Add(dc);
                 }
-                else if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("matrix"))
+
+                for (int r = 0; r < dataset.RowCount; r++)
                 {
-                    DataFrame dataset = engine.EagerEvaluate("data.frame(" + TheDataFrame + ")").AsDataFrame();
+                    DataFrameRow df_Row = dataset.GetRow(r);
 
-                    for (int i = 0; i < dataset.ColumnCount; i++)
+                    string[] s_Row = new string[df_Row.DataFrame.ColumnCount];
+                    for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
                     {
-                        DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
-                        dt_Return.Columns.Add(dc);
+                        s_Row[i] = df_Row[i].ToString();
                     }
+                    dt_Return.Rows.Add(s_Row);
+                }
+            }
+            else if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("matrix"))
+            {
+                DataFrame dataset = engine.EagerEvaluate("data.frame(" + TheDataFrame + ")").AsDataFrame();
 
-                    for (int r = 0; r < dataset.RowCount; r++)
-                    {                        
-                        DataFrameRow df_Row = dataset.GetRow(r);
-                        string[] s_Row = new string[df_Row.RowIndex];
-                        for (int i = 0; i < df_Row.RowIndex; i++)
-                        {
-                            s_Row[i] = df_Row[i].ToString();
-                        }
-                        dt_Return.Rows.Add(s_Row);
+                for (int i = 0; i < dataset.ColumnCount; i++)
+                {
+                    DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                    if (dc.Namespace.Equals(""))
+                    {
+                        int j = i + 1;
+                        dc.Namespace = j.ToString();
                     }
+                    dt_Return.Columns.Add(dc);
+                }
+
+                for (int r = 0; r < dataset.RowCount; r++)
+                {
+                    DataFrameRow df_Row = dataset.GetRow(r);
+
+                    string[] s_Row = new string[df_Row.DataFrame.ColumnCount];
+                    for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                    {
+                        s_Row[i] = df_Row[i].ToString();
+                    }
+                    dt_Return.Rows.Add(s_Row);
                 }
             }
 
@@ -317,13 +331,24 @@ namespace Cyclops
                     for (int i = 0; i < dataset.ColumnCount; i++)
                     {
                         DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                        if (dc.Namespace.Equals(""))
+                        {
+                            int j = i + 1;
+                            dc.Namespace = j.ToString();
+                        }
                         dt_Return.Columns.Add(dc);
                     }
 
                     for (int r = 0; r < dataset.RowCount; r++)
                     {
-                        DataFrameRow d_Row = dataset.GetRow(r);
-                        dt_Return.Rows.Add(d_Row);
+                        DataFrameRow df_Row = dataset.GetRow(r);
+
+                        string[] s_Row = new string[df_Row.DataFrame.ColumnCount];
+                        for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                        {
+                            s_Row[i] = df_Row[i].ToString();
+                        }
+                        dt_Return.Rows.Add(s_Row);
                     }
                 }
                 else if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("matrix"))

@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsCyclopsModel.cs" />
+    <Compile Include="clsMiscFunctions.cs" />
     <Compile Include="clsSQLiteHandler.cs" />
     <Compile Include="clsTestResult.cs" />
     <Compile Include="clsZipCompression.cs" />

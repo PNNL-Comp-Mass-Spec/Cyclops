@@ -50,6 +50,7 @@ Boxplots <- function(x,
   colorFactor <- c()
   if (colorByFactor && !is.null(colorFactorTable) && !is.null(colorFactorName)) {
 	ColMeta <- unique(subset(colorFactorTable, select=c("Alias", colorFactorName)))
+	ColMeta <- ColMeta[which(ColMeta[,"Alias"] %in% colnames(x)),]
 	coln <- data.frame("Alias" = colnames(x))
 	mdata <- merge(x=coln, y=ColMeta, by.x="Alias", by.y="Alias", all.y=F)
 	colorFactor = unlist(subset(mdata, select=colorFactorName))

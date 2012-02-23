@@ -136,13 +136,59 @@ namespace Cyclops.ExportModules
                 StreamWriter sw = new StreamWriter(Path.Combine(esp.WorkDirectory, esp.FileName));
                 sw.Write(sb_HTML);
                 sw.Close();
+
+                WriteCSSFile();
             }
         }
 
         private string WriteHtmlHeader()
         {
             string s_HTML = "<HTML>" + s_LineDelimiter + s_Tab + "<HEAD>" + s_LineDelimiter;
+            s_HTML += s_Tab + s_Tab + "<TITLE>Label-free Quantitative " +
+                "Proteome Analysis Summary</TITLE>" + s_LineDelimiter;
+            s_HTML += s_Tab + s_Tab + "<LINK rel='stylesheet' href='lbfstyle.css'>" +
+                s_LineDelimiter;
             return s_HTML;
+        }
+
+        private void WriteCSSFile()
+        {
+            StreamWriter sw_CSS = new StreamWriter(Path.Combine(esp.WorkDirectory, "lbfstyle.css"));
+
+            StringBuilder sb_CSS = new StringBuilder();
+            sb_CSS.Append("ul#list-nav {" + s_LineDelimiter +
+                s_Tab + "list-style:none;" + s_LineDelimiter +
+                s_Tab + "margin:20px;" + s_LineDelimiter +
+                s_Tab + "padding:0;" + s_LineDelimiter +
+                s_Tab + "width:600px;" + s_LineDelimiter +
+                s_Tab + "position:fixed;" + s_LineDelimiter +
+                s_Tab + "left:50%;" + s_LineDelimiter +
+                s_Tab + "margin-left:-300px;" + s_LineDelimiter +
+                "}" + s_LineDelimiter + s_LineDelimiter);
+
+            sb_CSS.Append("ul#list-nav li {" + s_LineDelimiter +
+                s_Tab + "display:inline;" + s_LineDelimiter +
+                s_Tab + "font-weight:bold;" + s_LineDelimiter +
+                "}" + s_LineDelimiter + s_LineDelimiter);
+
+            sb_CSS.Append("ul#list-nav li a {" + s_LineDelimiter +
+                s_Tab + "text-decoration:none;" + s_LineDelimiter +
+                s_Tab + "padding:5px 0;" + s_LineDelimiter +
+                s_Tab + "width:180px;" + s_LineDelimiter +
+                s_Tab + "background:#485e49;" + s_LineDelimiter +
+                s_Tab + "color:#eee;" + s_LineDelimiter +
+                s_Tab + "float:left;" + s_LineDelimiter +
+                s_Tab + "text-align:center;" + s_LineDelimiter +
+                s_Tab + "border-left:1px solid #fff;" + s_LineDelimiter +
+                "}" + s_LineDelimiter + s_LineDelimiter);
+
+            sb_CSS.Append("ul#list-nav li a:hover {" + s_LineDelimiter +
+                s_Tab + "background:#a2b3a1;" + s_LineDelimiter +
+                s_Tab + "color:#000" + s_LineDelimiter +
+                "}" + s_LineDelimiter);
+
+            sw_CSS.WriteLine(sb_CSS);
+            sw_CSS.Close();
         }
 
         private StringBuilder WriteHtmlScripts()
@@ -163,6 +209,22 @@ namespace Cyclops.ExportModules
         private string WriteHtmlBody()
         {
             string s_Body = s_Tab + "<BODY>" + s_LineDelimiter;
+            s_Body += s_Tab + "<A NAME='datasets'></A>";
+
+            // Write out navigation bar
+            s_Body += s_Tab + "<CENTER>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + "<NAV>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + s_Tab + "<UL ID='list-nav'>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + s_Tab + s_Tab +
+                "<LI><A HREF='#datasets'>Datasets</A></LI>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + s_Tab + s_Tab + 
+                "<LI><A HREF='#PepSummary'>Filtering Summary</A></LI>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + s_Tab + s_Tab +
+                "<LI><A HREF='#TranBox'>Transformation Boxplots</A></LI>" + s_LineDelimiter;            
+            s_Body += s_Tab + s_Tab + s_Tab + "</UL>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + "</NAV>" + s_LineDelimiter;
+            s_Body += s_Tab + "</CENTER><BR><BR>" + s_LineDelimiter + s_LineDelimiter;
+
 
             // Write LBF DATASET INFORMATION
             s_Body += s_Tab + s_Tab + "<H2>Datasets used in Label-Free Quantitative Analysis:</H2>" + s_LineDelimiter;
@@ -176,18 +238,46 @@ namespace Cyclops.ExportModules
             DataTable dt_Legend = GetLegendInfo();
             if (dt_Legend != null)
             {
-                s_Body += "<TD valign='bottom'>" + s_LineDelimiter + WriteTable(dt_Legend, "right", 0, 2, 4);
+                s_Body += "<TD valign='bottom'>" + s_LineDelimiter + s_Tab + s_Tab +
+                    "<H2><A NAME='PepSummary'>Bar Plot Legend</A></H2>" + s_LineDelimiter + 
+                    WriteTable(dt_Legend, "right", 0, 2, 4);
             }
 
-            s_Body += "</TR>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + "</TR>" + s_LineDelimiter;
 
             s_Body += s_Tab + s_Tab + "<TR><TD>" + s_LineDelimiter;
-            s_Body += string.Format(s_Tab + s_Tab + "<IMG src='Plots/{0}' width='400' height='400' />",
+            s_Body += string.Format(s_Tab + s_Tab + 
+                "<A HREF='Plots/{0}'>" + 
+                "<IMG src='Plots/{0}' width='400' height='400' /></A>",
                 "qc_Summary.png");
             s_Body += s_Tab + s_Tab + "</TD><TD>" + s_LineDelimiter;
-            s_Body += string.Format(s_Tab + s_Tab + "<IMG src='Plots/{0}' width='400' height='400' />",
+            s_Body += string.Format(s_Tab + s_Tab + 
+                "<A HREF='Plots/{0}'>" +
+                "<IMG src='Plots/{0}' width='400' height='400' /></A>",
                 "log_qc_Summary.png");
-            s_Body += s_Tab + s_Tab + "</TD></TR> </TABLE>" + s_LineDelimiter + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + "</TD></TR>" + s_LineDelimiter;
+
+
+            if (clsGenericRCalls.ContainsObject(s_RInstance, "T_MAC_LBF_Summary"))
+            {
+                DataTable dt_Summary = clsGenericRCalls.GetDataTable(s_RInstance, "T_MAC_LBF_Summary");
+                s_Body += s_Tab + s_Tab + "<TR><TD><H2>Summary</H2>" + s_LineDelimiter;
+                s_Body += WriteTable(dt_Summary, "left", 0, 2, 4) + s_Tab + s_Tab + "</TD></TR>";
+            }
+
+            s_Body += s_Tab + s_Tab + "<TR><TD>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + "<B>Log2 Transformed</B></TD><TD><B>CT Log2 Transformed</B></TD>" +
+                "</TR>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + string.Format("<TR><TD>" +
+                "<A NAME='TranBox' HREF='Plots/{0}'>" +
+                "<IMG src='Plots/{0}' width='400' height='400' " +
+                "/></A></TD><TD>" +
+                "<A HREF='Plots/{1}'>" +
+                "<IMG src='Plots/{1}' width='400' height='400' /></A>",
+                "Boxplot_Log_T_Data.png",
+                "Boxplot_CT_Log_T_Data.png");
+            s_Body += "</TD></TR>" + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + "</TABLE>" + s_LineDelimiter + s_LineDelimiter;
 
             s_Body += s_Tab + "</BODY>" + s_LineDelimiter;
             return s_Body;
