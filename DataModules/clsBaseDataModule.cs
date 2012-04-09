@@ -135,12 +135,12 @@ namespace Cyclops.DataModules
         public void GetOrganizedFactorsVector(string InstanceOfR, string NameOfDataTable,
             string NameOfColumnMetadataTable, string FactorColumn)
         {
-            string yMergeColumn = "AbbrName";
+            string yMergeColumn = "Alias";
 
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
             string s_RStatement = string.Format(
                 "tmp <- cbind(\"{2}\"=colnames({0}))\n" +
-                "{1} <- merge(x=tmp, y={1}, by.x=\"AbbrName\", by.y=\"{2}\", , all.x=T, all.y=F, sort=F)\n" +
+                "{1} <- merge(x=tmp, y={1}, by.x=\"{2}\", by.y=\"{2}\", , all.x=T, all.y=F, sort=F)\n" +
                 "rm(tmp)",
                 NameOfDataTable,
                 NameOfColumnMetadataTable,
@@ -148,6 +148,74 @@ namespace Cyclops.DataModules
 
             engine.EagerEvaluate(s_RStatement);
         }
+
+
+        public clsLink LinkUpWithBetaBinomialModelWithQuasiTel(string InstanceOfR)
+        {
+            clsLink link = new clsLink();
+            link.Run = false;
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            List<string> l_BBM = new List<string>();
+            List<string> l_Quasi = new List<string>();
+
+            // Get any potential beta-binomial results table(s)
+            CharacterVector cv = engine.EagerEvaluate("ls()[grep('^BBM_', ls())]").AsCharacter();
+            foreach (string s in cv)
+            {
+                l_BBM.Add(s);
+            }
+
+            // Retrieve the QuasiTel results table(s)
+            cv = engine.EagerEvaluate("ls()[grep('^QuasiTel_', ls())]").AsCharacter();
+            foreach (string s in cv)
+            {
+                l_Quasi.Add(s);
+            }
+
+            if (l_BBM.Count > 0 & l_Quasi.Count > 0)
+            {
+                link.Run = true;
+                string s_RStatement = string.Format(
+                    "BBM_QuasiTel_Analysis <- cbind(");
+
+                foreach (string s in l_BBM)
+                {
+                    s_RStatement += "'BBM'=" + s + "[,1], " +
+                        "'BBM_AdjP'=p.adjust(" + s + "[,1], method='BH'), ";
+                }
+
+                foreach (string s in l_Quasi)
+                {
+                    s_RStatement += "'" + s + "'=" + s + "[,8], " +
+                        "'" + s + "_AdjP'=p.adjust(" + s + "[,8], method='BH'), ";
+                }
+
+                s_RStatement += " T_SpectralCounts)";
+                link.Statement = s_RStatement;
+            }
+
+            return link;
+        }
         #endregion
+    }
+
+    public class clsLink
+    {
+        public clsLink()
+        {
+        }
+
+        public bool Run
+        {
+            get;
+            set;
+        }
+
+        public string Statement
+        {
+            get;
+            set;
+        }
     }
 }

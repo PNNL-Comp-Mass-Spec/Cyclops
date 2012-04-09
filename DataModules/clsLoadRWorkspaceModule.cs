@@ -113,6 +113,7 @@ namespace Cyclops.DataModules
                     string s_Command = string.Format(
                         "load(\"{0}\")",
                         dsp.InputFileName.Replace('\\', '/'));
+                    traceLog.Info("LOADING SOURCE FILE: " + s_Command);
                     s_Current_R_Statement = s_Command;
                     engine.EagerEvaluate(s_Command);
                 }

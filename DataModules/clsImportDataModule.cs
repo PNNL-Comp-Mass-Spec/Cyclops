@@ -132,6 +132,7 @@ namespace Cyclops.DataModules
                                 GetDataTableFromSQLiteDB();
                                 if (dsp.RowNames.Length > 0)
                                     SetTableRowNames(dsp.NewTableName);
+                                SetDataMatrix(dsp.NewTableName);
                             }
                             else if (dsp.TableType.Equals("columnMetaDataTable"))
                             {
@@ -166,8 +167,6 @@ namespace Cyclops.DataModules
 
                             traceLog.Info("Importing Table: " + s_RStatement);
                             s_Current_R_Statement += s_RStatement + "\n";
-
-                            
 
                             engine.EagerEvaluate(s_RStatement);
                             traceLog.Info("IMPORT DATA MODULE: " + dsp.InputTableName +
@@ -364,7 +363,9 @@ namespace Cyclops.DataModules
 
             traceLog.Info("Retrieving Assay Data from SQLite: " + s_RStatement);
             s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);             
+            engine.EagerEvaluate(s_RStatement);
+
+            SetDataMatrix("tmpData");
         }
 
         /// <summary>
@@ -499,7 +500,6 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Sets the rownames for a table in R and removes that column from the table
         /// </summary>
-        /// <param name="RInstance">>Instance of the R Workspace</param>
         /// <param name="TableName">Name of the table</param>
         public void SetTableRowNames(string TableName)
         {
@@ -513,6 +513,21 @@ namespace Cyclops.DataModules
                     dsp.RowNames);
 
                 traceLog.Info("Setting Rownames on Table: " + s_RStatement);
+                s_Current_R_Statement += s_RStatement + "\n";
+                engine.EagerEvaluate(s_RStatement);
+            }
+        }
+
+        public void SetDataMatrix(string TableName)
+        {
+            if (dsp.AsDataMatrix.Equals("true"))
+            {
+                REngine engine = REngine.GetInstanceFromID(s_RInstance);
+                string s_RStatement = string.Format(
+                    "{0} <- data.matrix({0})",
+                    TableName);
+
+                traceLog.Info("Setting Table to data.matrix: " + s_RStatement);
                 s_Current_R_Statement += s_RStatement + "\n";
                 engine.EagerEvaluate(s_RStatement);
             }

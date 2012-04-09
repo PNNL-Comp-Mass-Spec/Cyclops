@@ -33,6 +33,26 @@ namespace Cyclops
     public static class clsGenericRCalls
     {
         #region Functions
+        public static Dictionary<string, string> Version(string InstanceOfR)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            Dictionary<string, string> d_Return = new Dictionary<string, string>();
+            GenericVector gv = engine.GetSymbol("Version").AsList();
+
+            if (gv == null)
+            {
+                Console.Write("Is null!");
+            }
+            else
+            {
+                foreach (SymbolicExpression s in gv)
+                {
+                    Console.Write(s.ToString());
+                }
+            }
+            return d_Return;
+        }
+
         /// <summary>
         /// Returns all the objects in the R workspace
         /// </summary>
@@ -72,7 +92,7 @@ namespace Cyclops
         /// </summary>
         /// <param name="InstanceOfR">Instance of your R workspace</param>
         /// <param name="ObjectName">Object to return maximum of</param>
-        /// <returns></returns>
+        /// <returns>Maximum Value</returns>
         public static double? GetMaximumValue(string InstanceOfR, string ObjectName)
         {
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
@@ -87,7 +107,7 @@ namespace Cyclops
         /// </summary>
         /// <param name="InstanceOfR">Instance of your R workspace</param>
         /// <param name="Vector">Vector to return length of</param>
-        /// <returns></returns>
+        /// <returns>Length of Vector</returns>
         public static Int32 GetLengthOfVector(string InstanceOfR, string Vector)
         {
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
@@ -96,6 +116,49 @@ namespace Cyclops
                 Vector);
             IntegerVector iv = engine.EagerEvaluate(s_Command).AsInteger();
             return iv[0];
+        }
+
+        /// <summary>
+        /// Get the number of unique entries for a column in a given table
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="TableName">Name of the Table</param>
+        /// <param name="ColumnName">Name of Column in Table</param>
+        /// <returns>Number of unique entries in the column</returns>
+        public static int GetUniqueLengthOfColumn(string InstanceOfR,
+            string TableName, string ColumnName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            string s_Command = string.Format("length(unique({0}${1}))",
+                TableName,
+                ColumnName);
+            IntegerVector iv = engine.EagerEvaluate(s_Command).AsInteger();
+            return iv[0];
+        }
+
+        /// <summary>
+        /// Retrieves the unique elements within a column in a table
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="TableName">Name of the Table</param>
+        /// <param name="ColumnName">Name of Column in Table</param>
+        /// <returns>Unique elements within the column</returns>
+        public static List<string> GetUniqueColumnElementsWithinTable(string InstanceOfR,
+            string TableName, string ColumnName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            string s_Command = string.Format("unique({0}${1})",
+                TableName,
+                ColumnName);
+            CharacterVector cv = engine.EagerEvaluate(s_Command).AsCharacter();
+            List<string> l_Return = new List<string>();
+            foreach (string s in cv)
+            {
+                l_Return.Add(s);
+            }
+            return l_Return;
         }
 
         /// <summary>
@@ -134,6 +197,24 @@ namespace Cyclops
         }
 
         /// <summary>
+        /// Tests whether an object exists in the workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="ObjectName">Name of object</param>
+        /// <returns>TRUE if object exists</returns>
+        public static bool Exists(string InstanceOfR, string ObjectName)
+        {
+            bool b_Return = false;
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string RStatement = "exists(\"" + ObjectName + "\")";
+            CharacterVector cv = engine.EagerEvaluate(RStatement).AsCharacter();
+            if (cv[0].Equals("TRUE"))
+                b_Return = true;
+
+            return b_Return;
+        }
+
+        /// <summary>
         /// Determines if an object is present in the R Workspace or not
         /// </summary>
         /// <param name="InstanceOfR">Instance of your R workspace</param>
@@ -141,11 +222,53 @@ namespace Cyclops
         /// <returns>true if the object is present in the R workspace</returns>
         public static bool ContainsObject(string InstanceOfR, string ObjectName)
         {
-            List<string> l_Objects = ls(InstanceOfR);
-            if (l_Objects.Contains(ObjectName))
-                return true;
+            if (!ObjectName.Contains("$"))
+            {
+                List<string> l_Objects = ls(InstanceOfR);
+                if (l_Objects.Contains(ObjectName))
+                    return true;
+                else
+                    return false;
+            }
             else
-                return false;
+            {
+                string[] s_Split = ObjectName.Split('$');
+                if (s_Split.Length == 2)
+                {
+                    List<string> l_Objects = ls(InstanceOfR);
+                    if (l_Objects.Contains(s_Split[0]))
+                        return true;
+                    else
+                        return false;
+
+
+                    //if (GetClassOfObject(InstanceOfR, s_Split[0]).Equals("list"))
+                    //{
+                    //    REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+                    //    List<string> l_Return = new List<string>();
+                    //    CharacterVector cv = engine.EagerEvaluate(
+                    //        string.Format("attributes({0})",s_Split[0])).AsCharacter();
+                    //    foreach (string s in cv)
+                    //    {
+                    //        l_Return.Add(s);
+                    //    }
+
+                    //    if (l_Return.Contains(s_Split[1]))
+                    //    {
+                    //        return true;
+                    //    }
+                    //    else
+                    //    {
+                    //        return false;
+                    //    }
+                    //}
+                }
+                else
+                {                    
+                    return false;  
+                }                    
+            }
+            return false;
         }
 
         /// <summary>

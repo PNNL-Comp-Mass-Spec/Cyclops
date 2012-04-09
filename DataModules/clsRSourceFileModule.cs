@@ -152,7 +152,7 @@ namespace Cyclops.DataModules
         {
             foreach (string s in Directory.GetFiles(MyDirectory))
             {
-                if (Path.GetExtension(s).Equals(".R"))
+                if (Path.GetExtension(s).ToUpper().Equals(".R"))
                     LoadRSourceFile(s, RInstance);
             }
             foreach (string s in Directory.GetDirectories(MyDirectory))

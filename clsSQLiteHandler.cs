@@ -22,14 +22,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Data;
+using System.Data.SQLite;
 using System.IO;
 
 using System.Data.SQLite;
+
+using log4net;
 
 namespace Cyclops
 {
     public static class clsSQLiteHandler
     {
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
+
         /// <summary>
         /// Retrieves a table from SQLite Database, and returns it in the 
         /// form of a DataTable.
@@ -67,11 +72,13 @@ namespace Cyclops
             }
             catch (IOException ioe)
             {
-                Console.WriteLine("IOEXCEPTION: " + ioe.ToString());
+                traceLog.Error("SQLite Handler IOException in GetDataTable(): " +
+                    ioe.ToString());
             }
             catch (Exception exc)
             {
-                Console.WriteLine("EXC: " + exc.ToString());
+                traceLog.Error("SQLite Handler Exception in GetDataTable(): " +
+                    exc.ToString());
             }
             return dt;
         }
@@ -117,11 +124,13 @@ namespace Cyclops
             }
             catch (IOException ioe)
             {
-                Console.WriteLine("IOEXCEPTION: " + ioe.ToString());
+                traceLog.Error("SQLite Handler IOException in CreateTable(): " +
+                    ioe.ToString());
             }
             catch (Exception exc)
             {
-                Console.WriteLine("EXC: " + exc.ToString());
+                traceLog.Error("SQLite Handler Exception in CreateTable(): " +
+                    exc.ToString());
             }
         }
 
@@ -154,11 +163,137 @@ namespace Cyclops
             }
             catch (IOException ioe)
             {
-                Console.WriteLine("IOEXCEPTION: " + ioe.ToString());
+                traceLog.Error("SQLite Handler IOException in RunNonQuery(): " +
+                    ioe.ToString());
             }
             catch (Exception exc)
             {
-                Console.WriteLine("EXC: " + exc.ToString());
+                traceLog.Error("SQLite Handler Exception in RunNonQuery(): " +
+                    exc.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Creates an index on a column within a table
+        /// </summary>
+        /// <param name="Connection">Path and Filename of the SQLite database</param>
+        /// <param name="Table">Table name</param>
+        /// <param name="Column">Name of Column to index within the table</param>
+        /// <param name="IndexName">Name of the index, if null/blank, one will be automatically generated</param>
+        public static void CreateIndex(string Connection,
+            string Table, string Column, string IndexName)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(IndexName))
+                    IndexName = "idx_" + Table + "_" + Column;
+
+                string s_Command = string.Format(
+                    "CREATE INDEX {0} ON {1}({2})",
+                    IndexName,
+                    Table,
+                    Column);
+
+                traceLog.Info("SQLite Handler Creating Index: " + s_Command);
+
+                var connStr = new SQLiteConnectionStringBuilder()
+                {
+                    DataSource = Connection
+                };
+
+                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+                {
+                    conn.Open();
+                    SQLiteCommand cmd = conn.CreateCommand();
+                    cmd.CommandText = s_Command;
+
+                    cmd = conn.CreateCommand();
+                    cmd.CommandText = s_Command;
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                }
+            }
+            catch (IOException ioe)
+            {
+                traceLog.Error("SQLite Handler IOException in CreateIndex(): " +
+                    ioe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("SQLite Handler Exception in CreateIndex(): " +
+                    exc.ToString());
+            }
+        }
+
+        /// <summary>
+        /// DataTable to SQLite Table, if the SQLite table does not exist, it 
+        /// automatically creates that table and updates it.
+        /// </summary>
+        /// <param name="PathToDatabase">Full path the the sqlite database</param>
+        /// <param name="Table">Source DataTable</param>
+        /// <param name="TableName">Name of table in SQLite database</param>
+        public static void WriteDataTableToSQLiteTable(string PathToDatabase,
+            DataTable Table, string TableName)
+        {
+            try
+            {
+                // make the Mage module that will source the .Net DataTable object
+                clsMageDataTableSource source = new clsMageDataTableSource();
+                source.SourceTable = Table;
+
+                // make the Mage module that will write data to SQLite database
+                Mage.SQLiteWriter writer = new Mage.SQLiteWriter();
+                writer.DbPath = PathToDatabase;
+                writer.TableName = TableName;
+
+                // build and run Mage pipeline
+                Mage.ProcessingPipeline.Assemble("Write_Pipeline", source, writer).RunRoot(null);
+            }
+            catch (IOException ioe)
+            {
+                traceLog.Error("SQLite Handler IOException in WriteDataTableToSQLiteTable(): " +
+                    ioe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("SQLite Handler Exception in WriteDataTableToSQLiteTable(): " +
+                    exc.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Tab-delimited Text File to SQLite Table, if the SQLite table does not exist,
+        /// it automatically creates that table and updates it.
+        /// </summary>
+        /// <param name="PathToDatabase">Full path the the sqlite database</param>
+        /// <param name="PathToTextFile">Full path the the tab-delimited text file</param>
+        /// <param name="TableName">Name of table in SQLite database</param>
+        public static void WriteTabDelimitedTextFileToSQLiteTable(string PathToDatabase,
+            string PathToTextFile, string TableName)
+        {
+            try
+            {
+                // Create a delimited file reader and write a new table with this info to database
+                Mage.DelimitedFileReader fileReader = new Mage.DelimitedFileReader();
+                fileReader.FilePath = PathToTextFile;
+
+                // make the Mage module that will write the text file to SQLite database
+                Mage.SQLiteWriter writer = new Mage.SQLiteWriter();
+                writer.DbPath = PathToDatabase;
+                writer.TableName = TableName;
+
+                // build and run Mage pipeline
+                Mage.ProcessingPipeline.Assemble("Write_Pipeline", fileReader, writer).RunRoot(null);
+            }
+            catch (IOException ioe)
+            {
+                traceLog.Error("SQLite Handler IOException in WriteTabDelimitedTextFileToSQLiteTable(): " +
+                    ioe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("SQLite Handler Exception in WriteTabDelimitedTextFileToSQLiteTable(): " +
+                    exc.ToString());
             }
         }
     }

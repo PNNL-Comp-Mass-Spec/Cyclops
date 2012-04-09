@@ -14,10 +14,25 @@
 # -------------------------------------------------------------------------
 
 # Do the Linear Regression normalization
-LinReg_normalize <- function(Data, replicates, plotflag=FALSE,
+#	reference:
+#		1: first dataset
+#		2: median
+#		3: least missing
+LinReg_normalize <- function(x, factorTable, factorCol,
+							plotflag=FALSE,
                             reference=1,folder="C:/temp/")
 {
   require(MASS)
+  replicates <- c()
+  if (length(factorTable[,factorCol]) == length(colnames(x))) {	
+	replicates <- factorTable[,factorCol]
+  } else {
+	# find the column index that contains the alias
+	ci <- jnb_ColIndexFinder(x=factorTable, y=colnames(x))
+	factorTable <- unique(factorTable[,c(ci,match(factorCol,colnames(factorTable)))])
+	replicates <- factorTable[,factorCol]
+  }
+  
   Nreps <- unique(as.vector(t(replicates)))
   #print(Nreps)
   #browser()
@@ -25,16 +40,16 @@ LinReg_normalize <- function(Data, replicates, plotflag=FALSE,
   {
     idx <- which(replicates == Nreps[i])
     #print(idx)
-    dataset <- Data[,idx] # extract data for sample i with all the replicates
+    dataset <- x[,idx] # extract data for sample i with all the replicates
 
     if (length(idx) > 1) # do LOESS
     {
       fittedData <- doLinearRegression(dataset, plotflag=plotflag,
                                     folder=folder, reference=reference)
-      Data[,idx] <- fittedData
+      x[,idx] <- fittedData
     }
   }# for
-  return(Data)
+  return(x)
 }# function
 
 #------------------------------------------------------------------
@@ -134,3 +149,17 @@ doLinearRegression <- function(dataset, plotflag=FALSE,
   } # for
   return(fittedData)
 }
+
+
+
+#----------------------------------------------------------------------------
+jnb_ColIndexFinder <- function(x, y) {
+	options(warn=-1) # suppress warning messages
+	ind <- c()
+	for (i in 1:length(colnames(x))) {
+		if (y %in% x[,i]) 
+			return(i)
+	}
+	return(NULL)
+}
+

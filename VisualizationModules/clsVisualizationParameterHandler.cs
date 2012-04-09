@@ -48,6 +48,7 @@ namespace Cyclops.VisualizationModules
             s_ColorByFactor = "FALSE",
             s_ColumnFactorTable = "",
             s_ConsolidationFactor = "",
+            s_CorrelationListName = "",
             s_DataColumns = "",
             s_DoYLim = "FALSE",
             s_Factor = "1",
@@ -88,6 +89,7 @@ namespace Cyclops.VisualizationModules
             s_ShowLegend = "TRUE",
             s_Stamp = "NULL",
             s_TableName = "",
+            s_Type = "",
             s_Width = "1200",
             s_WorkDir = "",
             s_xColumn = "",
@@ -149,6 +151,12 @@ namespace Cyclops.VisualizationModules
         {
             get { return s_ConsolidationFactor; }
             set { s_ConsolidationFactor = value; }
+        }
+
+        public string CorrelationListName
+        {
+            get { return s_CorrelationListName; }
+            set { s_CorrelationListName = value; }
         }
         /// <summary>
         /// Index for Factor, defaults to 1
@@ -514,6 +522,12 @@ namespace Cyclops.VisualizationModules
             get { return s_yMax; }
             set { s_yMax = value; }
         }
+
+        public string Type
+        {
+            get { return s_Type; }
+            set { s_Type = value; }
+        }
         #endregion
 
         #region Methods
@@ -565,6 +579,9 @@ namespace Cyclops.VisualizationModules
                         break;
                     case "Consolidation_Factor":
                         ConsolidationFactor = kvp.Value;
+                        break;
+                    case "correlationListName":
+                        CorrelationListName = kvp.Value;
                         break;
                     case "doYLim":
                         DoYLim = kvp.Value;
@@ -737,6 +754,9 @@ namespace Cyclops.VisualizationModules
                         break;
                     case "rowFactorTable":
                         RowFactorTable = kvp.Value;
+                        break;
+                    case "type":
+                        s_Type = kvp.Value;
                         break;
                     case "yMin":
                         yMin = kvp.Value;

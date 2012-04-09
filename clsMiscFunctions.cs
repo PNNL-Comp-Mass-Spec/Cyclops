@@ -20,8 +20,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
+
+using log4net;
 
 namespace Cyclops
 {
@@ -30,6 +34,8 @@ namespace Cyclops
     /// </summary>
     public static class clsMiscFunctions
     {
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");
+
         /// <summary>
         /// Concatenates the items in the list.
         /// </summary>
@@ -53,6 +59,56 @@ namespace Cyclops
             s_Return += MakeRCompliant ? ")" : "";
 
             return s_Return;
+        }
+
+        /// <summary>
+        /// Saves the DataTable as a tab-delimited text file
+        /// </summary>
+        /// <param name="TheDataTable">DataTable to Save</param>
+        /// <param name="FileName">Where the DataTable will be saved to</param>
+        public static void SaveDataTable(DataTable TheDataTable, string FileName)
+        {
+            try
+            {
+                StreamWriter sw_Writer = new StreamWriter(FileName);
+
+                // write the headers to the file
+                for (int columns = 0; columns < TheDataTable.Columns.Count; columns++)
+                {
+                    if ((TheDataTable.Columns.Count - 1) == columns)
+                    {
+                        sw_Writer.Write(TheDataTable.Columns[columns].ToString() + "\n");
+                    }
+                    else
+                    {
+                        sw_Writer.Write(TheDataTable.Columns[columns].ToString() + "\t");
+                    }
+                }
+
+                // write the data to the file
+                for (int rows = 0; rows < TheDataTable.Rows.Count; rows++)
+                {
+                    for (int columns = 0; columns < TheDataTable.Columns.Count; columns++)
+                    {
+                        if ((TheDataTable.Columns.Count - 1) == columns)
+                        {
+                            sw_Writer.Write(TheDataTable.Rows[rows][columns].ToString()
+                                + "\n");
+                        }
+                        else
+                        {
+                            sw_Writer.Write(TheDataTable.Rows[rows][columns].ToString()
+                                + "\t");
+                        }
+                    }
+                }
+
+                sw_Writer.Close();
+            }
+            catch (IOException ioe)
+            {
+                traceLog.Error("Miscellaneous Functions Error writing datatable to file: " + ioe.ToString());
+            }
         }
     }
 }

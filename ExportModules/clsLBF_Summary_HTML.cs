@@ -277,6 +277,20 @@ namespace Cyclops.ExportModules
                 "Boxplot_Log_T_Data.png",
                 "Boxplot_CT_Log_T_Data.png");
             s_Body += "</TD></TR>" + s_LineDelimiter;
+
+
+            string s_LR_BoxplotFile = "Plots/Boxplot_LR_Log_T_Data.png";
+            if (File.Exists(s_LR_BoxplotFile))
+            {
+                s_Body += s_Tab + s_Tab + string.Format("<TR><TD>" +
+                    "<B>LR Log2 Transformed<B>" +
+                    "<A HREF='{0}'>" +
+                    "<IMG src='{0}' width='400' height='400' /></A>" +
+                    "</TD>",
+                    s_LR_BoxplotFile);
+                s_Body += "</TR>" + s_LineDelimiter;
+            }           
+
             s_Body += s_Tab + s_Tab + "</TABLE>" + s_LineDelimiter + s_LineDelimiter;
 
             s_Body += s_Tab + "</BODY>" + s_LineDelimiter;
@@ -393,6 +407,26 @@ namespace Cyclops.ExportModules
             }
 
             return dt_Legend;
+        }
+
+        /// <summary>
+        /// Modifies the Summary table by adding a column for percent of original
+        /// </summary>
+        /// <param name="dt_Summary">Summary DataTable</param>
+        /// <param name="LastRowForPercent">Last Row to calculate percent, all after this one are 'NA'</param>
+        /// <returns></returns>
+        private DataTable ModifySummaryTable(DataTable dt_Summary, int LastRowForPercent)
+        {
+            DataTable dt_Return = new DataTable("ModifiedSummaryTable");
+
+            foreach (DataColumn dc in dt_Summary.Columns)
+            {
+                dt_Return.Columns.Add(new DataColumn(dc.ColumnName));
+            }
+            DataColumn dc_Percent = new DataColumn("PercentOfOriginal");
+            dt_Return.Columns.Add(dc_Percent);
+
+            return dt_Return;
         }
         #endregion
     }

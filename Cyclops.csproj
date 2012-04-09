@@ -41,6 +41,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\DownloadedProjects\log4net-1.2.10\bin\net\2.0\release\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Mage">
+      <HintPath>..\..\IDM\InterDetect\DLLLibrary\Mage.dll</HintPath>
+    </Reference>
     <Reference Include="R.NET, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\DownloadedProjects\RdotNET\rdotnet_20110915\R.NET\bin\Debug\R.NET.dll</HintPath>
@@ -56,10 +59,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsCyclopsModel.cs" />
+    <Compile Include="DataModules\clsIDPicker.cs" />
+    <Compile Include="clsMageDataTableSource.cs" />
     <Compile Include="clsMiscFunctions.cs" />
     <Compile Include="clsSQLiteHandler.cs" />
     <Compile Include="clsTestResult.cs" />
     <Compile Include="clsZipCompression.cs" />
+    <Compile Include="DataModules\clsANOVA.cs" />
     <Compile Include="DataModules\clsCentralTendency.cs" />
     <Compile Include="DataModules\clsCombineSpectralCountResultFiles.cs" />
     <Compile Include="DataModules\clsDataModuleParameterHandler.cs" />
@@ -71,9 +77,12 @@
     <Compile Include="DataModules\clsLinearRegression.cs" />
     <Compile Include="DataModules\clsMelt.cs" />
     <Compile Include="DataModules\clsMerge.cs" />
+    <Compile Include="DataModules\clsMissedCleavageAssessor.cs" />
     <Compile Include="DataModules\clsNormalizingSpectralCounts.cs" />
     <Compile Include="DataModules\clsProteinProphet.cs" />
+    <Compile Include="DataModules\clsPValueAdjust.cs" />
     <Compile Include="DataModules\clsQCPeptideOverlap.cs" />
+    <Compile Include="DataModules\clsQuasiTel.cs" />
     <Compile Include="DataModules\clsRMD.cs" />
     <Compile Include="DataModules\clsAggregate.cs" />
     <Compile Include="DataModules\clsBaseDataModule.cs" />
@@ -99,6 +108,7 @@
     <Compile Include="DataModules\clsImportDataModule.cs" />
     <Compile Include="DataModules\clsLoadRWorkspaceModule.cs" />
     <Compile Include="VisualizationModules\clsBoxPlot.cs" />
+    <Compile Include="VisualizationModules\clsCorrelationHeatmap.cs" />
     <Compile Include="VisualizationModules\clsHeatmap.cs" />
     <Compile Include="VisualizationModules\clsHexbin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -124,6 +134,7 @@
     <None Include="R_Scripts\Statistics\NonParametricMethods.R">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="R_Scripts\Statistics\QuasiTelV2.r" />
     <None Include="R_Scripts\Statistics\ShapiroWilks.R">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

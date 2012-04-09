@@ -20,51 +20,51 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
-using System.Threading;
 
-using RDotNet;
 using log4net;
+using RDotNet;
 
 namespace Cyclops.DataModules
 {
     /// <summary>
-    /// Performs the Beta-Binomial Model analysis on spectral count datasets
+    /// Performs QuasiTel statistical analysis on spectral count data
     /// </summary>
-    public class clsBetaBinomialModelModule : clsBaseDataModule
+    public class clsQuasiTel : clsBaseDataModule
     {
         private string s_RInstance, s_Current_R_Statement = "";
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        private int i_NumberOfFactors = 2;
 
         #region Constructors
         /// <summary>
-        /// Performs a BetaBinomial Statistical Analysis on Spectral Count data.
+        /// Performs a QuasiTel Statistical Analysis on Spectral Count data.
         /// </summary>
-        public clsBetaBinomialModelModule()
+        public clsQuasiTel()
         {
-            ModuleName = "Beta-Binomial Model Module";
+            ModuleName = "QuasiTel Module";
         }
         /// <summary>
-        /// Performs a BetaBinomial Statistical Analysis on Spectral Count data.
+        /// Performs a QuasiTel Statistical Analysis on Spectral Count data.
         /// </summary>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
-        public clsBetaBinomialModelModule(string InstanceOfR)
+        public clsQuasiTel(string InstanceOfR)
         {
-            ModuleName = "Beta-Binomial Model Module";
+            ModuleName = "QuasiTel Module";
             s_RInstance = InstanceOfR;
         }
         /// <summary>
-        /// Performs a BetaBinomial Statistical Analysis on Spectral Count data.
+        /// Performs a QuasiTel Statistical Analysis on Spectral Count data.
         /// </summary>
         /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
-        public clsBetaBinomialModelModule(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        public clsQuasiTel(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
-            ModuleName = "Beta-Binomial Model Module";
+            ModuleName = "QuasiTel Module";
             Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
@@ -84,24 +84,20 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
+            string rhome = System.Environment.GetEnvironmentVariable("R_HOME");
+            if (string.IsNullOrEmpty(rhome))
+                rhome = @"C:\Program Files\R\R-2.13.1";
+
+            System.Environment.SetEnvironmentVariable("R_HOME", rhome);
+            System.Environment.SetEnvironmentVariable("PATH", System.Environment.GetEnvironmentVariable("PATH") + ";" + rhome + @"\bin\i386");
+
             dsp.GetParameters(ModuleName, Parameters);
 
-            traceLog.Info("Cyclops performing Beta-Binomial Model");
-
-            string s_RStatement = "";
-
-            // Check if the package is already installed, if not install it
-            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "BetaBinomial"))
-            {
-                Model.SuccessRunningPipeline = false;
-                traceLog.Error("BetaBinomial Package not loaded into R!");
-                // TODO: INSTALL THE BETABINOMIAL PACKAGE FROM ZIP
-            }
-
-
+            traceLog.Info("Cyclops performing QuasiTel Analysis");
+                        
             if (CheckPassedParameters())
             {
-                PerformBetaBinomialAnalysis();
+                PerformQuasiTelAnalysis();
             }
 
             
@@ -120,22 +116,16 @@ namespace Cyclops.DataModules
             if (!dsp.HasNewTableName)
             {
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("BetaBinomial class: 'newTableName': \"" +
+                traceLog.Error("QuasiTel class: 'newTableName': \"" +
                     dsp.NewTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasInputTableName)
             {
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("BetaBinomial class: 'inputTableName': \"" +
+                traceLog.Error("QuasiTel class: 'inputTableName': \"" +
                 dsp.InputTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
-            }            
-            if (!dsp.HasTheta)
-            {
-                traceLog.Error("BetaBinomial class: 'theta': \"" +
-                    dsp.Theta + "\", was not found in the passed parameters, and " +
-                    "automatically assigned 'TRUE'");
             }
 
             if (Parameters.ContainsKey("Fixed_Effect"))
@@ -143,116 +133,200 @@ namespace Cyclops.DataModules
                 dsp.FactorColumn = Parameters["Fixed_Effect"];
 
                 if (string.IsNullOrEmpty(dsp.FactorColumn))
+                {
                     b_2Pass = false;
+                    return b_2Pass;
+                }
             }
 
             if (!dsp.HasFactorTable)
             {
-                traceLog.Error("BetaBinomial class: 'factorTable': \"" +
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("QuasiTel class: 'factorTable': \"" +
                     dsp.FactorComplete + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
 
             if (!dsp.HasFactorComplete)
             {
-                traceLog.Error("BetaBinomial class: 'factor': \"" +
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("QuasiTel class: 'factor': \"" +
                     dsp.FactorComplete + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+
+            // Grab the number of factors
+            i_NumberOfFactors = clsGenericRCalls.GetUniqueLengthOfColumn(s_RInstance,
+                dsp.FactorTable, dsp.FactorColumn);
+
+            if (i_NumberOfFactors < 2)
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("QuasiTel class: 'factor': \"" +
+                    dsp.FactorComplete + "\", contains less than 2 values. " +
+                    "QuasiTel can not make a comparison");
                 b_2Pass = false;
             }
 
             return b_2Pass;
         }
 
-        private void PerformBetaBinomialAnalysis()
+        private void PerformQuasiTelAnalysis()
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
-            string s_TmpFactorVariable = "tmpTable" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
+            string s_TmpDataTable = "tmpDataTable_" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
+            string s_TmpFactorTable = "tmpFactorTable_" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
+            string s_TmpFactor1 = "tmpFactor1_" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
+            string s_TmpFactor2 = "tmpFactor2_" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
+
+            int i_ColNum = 0, i_FactorCnt = 0;
 
             try
             {
-                string s_RStatement = "require(BetaBinomial)\n";
+                string s_RStatement = "";
                 if (dsp.RemovePeptideColumn)
                 {
-                    s_RStatement += string.Format(
-                        "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
+                    s_RStatement = string.Format(
+                        "{0} <- data.matrix({1}[,2:ncol({1})])\n",
+                        s_TmpDataTable,
                         dsp.InputTableName);
-                    dsp.InputTableName = dsp.InputTableName + "_tmpT";
                 }
 
-                traceLog.Info("BETA-BINOMIAL MODEL: " + s_RStatement);
+                traceLog.Info("QuasiTel Analysis: " + s_RStatement);
                 engine.EagerEvaluate(s_RStatement);
 
-                GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
+                GetOrganizedFactorsVector(s_RInstance, s_TmpDataTable,
                     dsp.FactorTable, dsp.FactorColumn);
 
                 // Make sure that the factors table contains the field to perform the comparison
                 if (clsGenericRCalls.GetColumnNames(s_RInstance, dsp.FactorTable).Contains(dsp.FactorColumn))
                 {
-                    int i_ColNum = clsGenericRCalls.GetColumnNames(s_RInstance, dsp.InputTableName).Count;
-                    int i_FactorCnt = clsGenericRCalls.GetLengthOfVector(s_RInstance, dsp.FactorComplete);
+                    i_ColNum = clsGenericRCalls.GetColumnNames(s_RInstance, s_TmpDataTable).Count;
+                    i_FactorCnt = clsGenericRCalls.GetLengthOfVector(s_RInstance, dsp.FactorComplete);
                     if (i_ColNum == i_FactorCnt)
                     {
-                        s_RStatement = string.Format(
-                        "{1} <- data.matrix({1})\n" +
-                        "{1}[is.na({1})] <- 0\n" +
-                        "sink(\"\")\n" +
-                        "{4} <- largescale.bb.test({1}, {2}, " +
-                        "theta.equal={3})\n" +
-                        "sink()\n" +
-                        "{0} <- cbind(\"pValue\"={4}, {1})\n" +
-                        "colnames({0})[1] <- \"pValue\"\n" +
-                        "rm({4})",
-                        dsp.NewTableName,
-                        dsp.InputTableName,
-                        dsp.FactorComplete,
-                        dsp.Theta,
-                        s_TmpFactorVariable);
 
-                        if (dsp.RemovePeptideColumn)
+                        List<string> l_Factors = clsGenericRCalls.GetUniqueColumnElementsWithinTable(s_RInstance,
+                            dsp.FactorTable, dsp.FactorColumn);
+
+                        // setup the pairwise comparisons
+                        for (int i = 0; i < l_Factors.Count - 1; i++)
                         {
-                            s_RStatement += string.Format("\nrm({0})",
-                                dsp.InputTableName);
+                            for (int j = 1; j < l_Factors.Count; j++)
+                            {
+                                string s_ComparisonTableName = "QuasiTel_" +
+                                    l_Factors[i] + "_v_" + l_Factors[j];
+
+                                // grab the variables
+                                s_RStatement = string.Format(
+                                    "{0} <- as.vector(unlist(subset({1}, " +
+                                    "{2} == '{3}' | {2} == '{4}', " +
+                                    "select=c('Alias'))))\n",
+                                    s_TmpFactorTable,
+                                    dsp.FactorTable,
+                                    dsp.FactorColumn,
+                                    l_Factors[i],
+                                    l_Factors[j]);
+                                // grab the relevant data
+                                s_RStatement += string.Format(
+                                    "{0} <- {1}[,which(colnames({1}) %in% {2})]\n",
+                                    s_TmpDataTable,
+                                    dsp.InputTableName,
+                                    s_TmpFactorTable);
+                                // 0 out the null values
+                                s_RStatement += string.Format(
+                                    "{0} <- data.matrix({0})\n" +
+                                    "{0}[is.na({0})] <- 0\n",
+                                    s_TmpDataTable);
+                                // get the column names to pass in as factors
+                                s_RStatement += string.Format(
+                                    "{0} <- as.vector(unlist(subset({1}, " +
+                                    "{2} == '{3}', select=c('Alias'))))\n",
+                                    s_TmpFactor1,
+                                    dsp.FactorTable,
+                                    dsp.FactorColumn,
+                                    l_Factors[i]);
+                                s_RStatement += string.Format(
+                                    "{0} <- as.vector(unlist(subset({1}, " +
+                                    "{2} == '{3}', select=c('Alias'))))\n",
+                                    s_TmpFactor2,
+                                    dsp.FactorTable,
+                                    dsp.FactorColumn,
+                                    l_Factors[j]);
+                                // run the analysis
+                                s_RStatement += string.Format(
+                                    "{0} <- quasitel({1}, {2}, {3})\n",
+                                    s_ComparisonTableName,
+                                    s_TmpDataTable,
+                                    s_TmpFactor1,
+                                    s_TmpFactor2);
+                                // remove temp tables                                
+                                s_RStatement += string.Format(
+                                    "rm({0})\nrm({1})\n" +
+                                    "rm({2})\nrm({3})\n",
+                                    s_TmpDataTable,
+                                    s_TmpFactorTable,
+                                    s_TmpFactor1,
+                                    s_TmpFactor2);
+
+                                // Execute the R statement
+                                traceLog.Info("QuasiTel class: Running analysis:\n" +
+                                    s_RStatement);
+                                StringWriter sw = new StringWriter();
+                                Console.SetOut(sw);
+                                try
+                                {
+                                    engine.EagerEvaluate(s_RStatement);
+                                }
+                                catch (ParseException pe)
+                                {
+                                    traceLog.Error("QUASITEL PARSE EXCEPTION: " + pe.ToString() +
+                                        "\n\n" + sw.ToString());
+                                }
+                                catch (Exception exc)
+                                {
+                                    traceLog.Error("QUASITEL EXCEPTION: " + exc.ToString() +
+                                           "\n\n" + sw.ToString());
+                                }
+                            }
                         }
 
-                        traceLog.Info("BETA-BINOMIAL MODEL: " + s_RStatement);
-
-                        s_Current_R_Statement = s_RStatement;
-                        engine.EagerEvaluate(s_RStatement);
+                        clsLink LinkUpWithBBM = LinkUpWithBetaBinomialModelWithQuasiTel(s_RInstance);
+                        if (LinkUpWithBBM.Run)
+                        {
+                            traceLog.Info("Preparing to Linking up with BBM Results: " + LinkUpWithBBM.Statement);
+                            engine.EagerEvaluate(LinkUpWithBBM.Statement);
+                        }
                     }
                     else
                     {
                         Model.SuccessRunningPipeline = false;
-                        traceLog.Error("ERROR BetaBinomial class: Dimensions of spectral count table " +
-                            "do not match the dimensions of your factor vector");
+                        traceLog.Error(string.Format(
+                            "ERROR QuasiTel class: Dimensions of spectral count table ({0}) " +
+                            "do not match the dimensions of your factor vector ({1})",
+                            i_ColNum,
+                            i_FactorCnt));
                     }
                 }
                 else
                 {
                     Model.SuccessRunningPipeline = false;
-                    traceLog.Error(string.Format("ERROR Betabinomial class: The factors table does not " +
+                    traceLog.Error(string.Format("ERROR QuasiTel class: The factors table does not " +
                         "contain the factor, {0}", dsp.FactorColumn));
                 }
-
-                clsLink LinkUpWithQuasiTel = LinkUpWithBetaBinomialModelWithQuasiTel(s_RInstance);
-                if (LinkUpWithQuasiTel.Run)
-                {
-                    traceLog.Info("Preparing to Linking up with QuasiTel Results: " + LinkUpWithQuasiTel.Statement);
-                    engine.EagerEvaluate(LinkUpWithQuasiTel.Statement);
-                }
-
-
             }
             catch (Exception exc)
             {
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR Performing BetaBinomial Analysis: " + exc.ToString());
+                traceLog.Error("ERROR Performing QuasiTel Analysis: " + exc.ToString());
             }
-
         }
 
+        
+
         /// <summary>
-        /// Unit Test for Beta-binomial Model data
+        /// Unit Test for QuasiTel
         /// </summary>
         /// <returns>Information regarding the result of the UnitTest</returns>
         public clsTestResult TestBetaBinomialModel()
@@ -266,7 +340,7 @@ namespace Cyclops.DataModules
                 if (!CheckPassedParameters())
                 {
                     result.IsSuccessful = false;
-                    result.Message = "ERROR BETA-BINOMIAL MODEL: Not all required parameters were passed in!";
+                    result.Message = "ERROR QuasiTel: Not all required parameters were passed in!";
                     return result;
                 }
 
@@ -276,13 +350,13 @@ namespace Cyclops.DataModules
 
                 dsp.InputTableName = "t";
 
-                PerformBetaBinomialAnalysis();
+                PerformQuasiTelAnalysis();
 
                 // Confirm by testing if the new table exists within the environment
                 if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.NewTableName))
                 {
                     result.IsSuccessful = false;
-                    result.Message = "ERROR BETA-BINOMIAL MODEL: After running beta-binomial model " +
+                    result.Message = "ERROR QuasiTel MODEL: After running beta-binomial model " +
                         dsp.InputTableName +
                         ", the new table name could not be found within the R workspace";
                     result.R_Statement = s_Current_R_Statement;

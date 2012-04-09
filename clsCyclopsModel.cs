@@ -109,6 +109,15 @@ namespace Cyclops
 
         #region Properties
         /// <summary>
+        /// The total number of modules to be run in pipeline.
+        /// </summary>
+        public int NumberOfModules
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Flag to indicate if the pipeline completed successfully.
         /// </summary>
         public bool SuccessRunningPipeline
@@ -247,7 +256,7 @@ namespace Cyclops
 
             traceLog.Info("Assembing Modules from XML: " + WorkFlowFile + ".");
 
-            clsCyclopsXMLReader reader = new clsCyclopsXMLReader(CyclopsParameters);
+            clsCyclopsXMLReader reader = new clsCyclopsXMLReader(this, CyclopsParameters);
 
             root = reader.ReadXML_Workflow(WorkFlowFile, s_RInstance);
         }
@@ -275,9 +284,9 @@ namespace Cyclops
 
             traceLog.Info("Assembing Modules from XML: " + WorkFlowFile + ".");
 
-            
 
-            clsCyclopsXMLReader xmlReader = new clsCyclopsXMLReader(CyclopsParameters);
+
+            clsCyclopsXMLReader xmlReader = new clsCyclopsXMLReader(this, CyclopsParameters);
 
             root = xmlReader.ReadXML_Workflow(WorkFlowFile, s_RInstance);
         }
@@ -340,5 +349,10 @@ namespace Cyclops
             }
         }
         #endregion
+    }
+
+    public struct CyclopsPipelineStatusManager
+    {
+        public string ModuleName;
     }
 }

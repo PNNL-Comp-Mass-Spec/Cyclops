@@ -40,6 +40,7 @@ namespace Cyclops
         private enum ModuleType {Data, Visual, Export};
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        private int i_ModuleCounter = 0;
         #endregion
 
         #region Constructors
@@ -125,11 +126,28 @@ namespace Cyclops
                                             {
                                                 root = aggregate;
                                                 currentNode = aggregate;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(aggregate);
                                                 currentNode = aggregate;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "Anova":
+                                            DataModules.clsANOVA anova = new DataModules.clsANOVA(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = anova;
+                                                currentNode = anova;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(anova);
+                                                currentNode = anova;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "BetaBinomial":
@@ -138,11 +156,13 @@ namespace Cyclops
                                             {
                                                 root = bbm;
                                                 currentNode = bbm;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(bbm);
                                                 currentNode = bbm;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "CentralTendency":
@@ -151,11 +171,13 @@ namespace Cyclops
                                             {
                                                 root = centralTend;
                                                 currentNode = centralTend;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(centralTend);
                                                 currentNode = centralTend;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "Clean":
@@ -164,11 +186,13 @@ namespace Cyclops
                                             {
                                                 root = clean;
                                                 currentNode = clean;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(clean);
                                                 currentNode = clean;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "CombineSpectralCountResults":
@@ -178,11 +202,13 @@ namespace Cyclops
                                             {
                                                 root = combine;
                                                 currentNode = combine;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(combine);
                                                 currentNode = combine;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "DataTableManipulation":
@@ -191,11 +217,13 @@ namespace Cyclops
                                             {
                                                 root = dtm;
                                                 currentNode = dtm;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(dtm);
                                                 currentNode = dtm;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "FilterByTable":
@@ -204,11 +232,13 @@ namespace Cyclops
                                             {
                                                 root = filterByTable;
                                                 currentNode = filterByTable;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(filterByTable);
                                                 currentNode = filterByTable;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "FoldChange":
@@ -217,11 +247,13 @@ namespace Cyclops
                                             {
                                                 root = fc;
                                                 currentNode = fc;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(fc);
                                                 currentNode = fc;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "Import":
@@ -230,11 +262,13 @@ namespace Cyclops
                                             {
                                                 root = import;
                                                 currentNode = import;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(import);
                                                 currentNode = import;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "LinearRegression":
@@ -243,11 +277,13 @@ namespace Cyclops
                                             {
                                                 root = linreg;
                                                 currentNode = linreg;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(linreg);
                                                 currentNode = linreg;
+                                                i_ModuleCounter++;
                                             }
                                             break;  
                                         case "LoadRSourceFiles":
@@ -256,11 +292,13 @@ namespace Cyclops
                                             {
                                                 root = source;
                                                 currentNode = source;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(source);
                                                 currentNode = source;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "LoadRWorkspace":
@@ -269,11 +307,28 @@ namespace Cyclops
                                             {
                                                 root = load;
                                                 currentNode = load;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(load);
                                                 currentNode = load;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "MissedCleavageSummary":
+                                            DataModules.clsMissedCleavageAssessor missedCleavages = new DataModules.clsMissedCleavageAssessor(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = missedCleavages;
+                                                currentNode = missedCleavages;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(missedCleavages);
+                                                currentNode = missedCleavages;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "NormalizeSpectralCounts":
@@ -282,50 +337,43 @@ namespace Cyclops
                                             {
                                                 root = norm;
                                                 currentNode = norm;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(norm);
                                                 currentNode = norm;
+                                                i_ModuleCounter++;
                                             }
                                             break;
-                                        case "RMD":
-                                            DataModules.clsRMD rmd = new DataModules.clsRMD(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = rmd;
-                                                currentNode = rmd;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(rmd);
-                                                currentNode = rmd;
-                                            }
-                                            break;
-                                        case "RRollup":
-                                            DataModules.clsRRollup rrollup = new DataModules.clsRRollup(Model, InstanceOfR);
-                                            if (root == null)
-                                            {
-                                                root = rrollup;
-                                                currentNode = rrollup;
-                                            }
-                                            else
-                                            {
-                                                currentNode.AddDataChild(rrollup);
-                                                currentNode = rrollup;
-                                            }
-                                            break;    
                                         case "ProteinProphet":
                                             DataModules.clsProteinProphet pp = new DataModules.clsProteinProphet(Model, InstanceOfR);
                                             if (root == null)
                                             {
                                                 root = pp;
                                                 currentNode = pp;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(pp);
                                                 currentNode = pp;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "PValueAdjust":
+                                            DataModules.clsPValueAdjust pvaladj = new DataModules.clsPValueAdjust(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = pvaladj;
+                                                currentNode = pvaladj;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(pvaladj);
+                                                currentNode = pvaladj;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "QC_Peptide_Overlap":
@@ -334,11 +382,58 @@ namespace Cyclops
                                             {
                                                 root = pepOverlap;
                                                 currentNode = pepOverlap;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(pepOverlap);
                                                 currentNode = pepOverlap;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "QuasiTel":
+                                            DataModules.clsQuasiTel quasitel = new DataModules.clsQuasiTel(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = quasitel;
+                                                currentNode = quasitel;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(quasitel);
+                                                currentNode = quasitel;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "RMD":
+                                            DataModules.clsRMD rmd = new DataModules.clsRMD(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = rmd;
+                                                currentNode = rmd;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(rmd);
+                                                currentNode = rmd;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "RRollup":
+                                            DataModules.clsRRollup rrollup = new DataModules.clsRRollup(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = rrollup;
+                                                currentNode = rrollup;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(rrollup);
+                                                currentNode = rrollup;
+                                                i_ModuleCounter++;
                                             }
                                             break; 
                                         case "SummaryTableInsert":
@@ -347,11 +442,13 @@ namespace Cyclops
                                             {
                                                 root = summaryInserter;
                                                 currentNode = summaryInserter;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(summaryInserter);
                                                 currentNode = summaryInserter;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "Test":
@@ -360,11 +457,13 @@ namespace Cyclops
                                             {
                                                 root = test;
                                                 currentNode = test;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(test);
                                                 currentNode = test;
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "Transform":
@@ -373,11 +472,13 @@ namespace Cyclops
                                             {
                                                 root = transform;
                                                 currentNode = transform;
+                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(transform);
                                                 currentNode = transform;
+                                                i_ModuleCounter++;
                                             }
                                             break;
 
@@ -401,6 +502,7 @@ namespace Cyclops
                                             {
                                                 traceLog.Info("Adding Barplot module from XML...");
                                                 currentNode.AddVisualChild(bar);
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "BoxPlot":
@@ -414,6 +516,21 @@ namespace Cyclops
                                             {
                                                 traceLog.Info("Adding Boxplot module from XML...");
                                                 currentNode.AddVisualChild(box);
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "CorrelationHeatmap":
+                                            VisualizationModules.clsCorrelationHeatmap corrHeat = new VisualizationModules.clsCorrelationHeatmap(Model, InstanceOfR);
+                                            currentVizNode = corrHeat;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("Error: trying to add a Correlation Heatmap Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                traceLog.Info("Adding Correlation Heatmap module from XML...");
+                                                currentNode.AddVisualChild(corrHeat);
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "Heatmap":
@@ -427,6 +544,7 @@ namespace Cyclops
                                             {
                                                 traceLog.Info("Adding Heatmap module from XML...");
                                                 currentNode.AddVisualChild(heat);
+                                                i_ModuleCounter++;
                                             }
                                             break;  
                                         case "Hexbin":
@@ -440,6 +558,7 @@ namespace Cyclops
                                             {
                                                 traceLog.Info("Adding Hexbin module from XML...");
                                                 currentNode.AddVisualChild(hexbin);
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "Histogram":
@@ -453,6 +572,7 @@ namespace Cyclops
                                             {
                                                 traceLog.Info("Adding Histogram module from XML...");
                                                 currentNode.AddVisualChild(hist);
+                                                i_ModuleCounter++;
                                             }
                                             break;   
                                         case "QC_Fraction_Heatmap":
@@ -466,6 +586,7 @@ namespace Cyclops
                                             {
                                                 traceLog.Info("Adding QC Fraction Heatmap module from XML...");
                                                 currentNode.AddVisualChild(fractionHeat);
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                     }
@@ -488,6 +609,7 @@ namespace Cyclops
                                             else
                                             {
                                                 currentNode.AddExportChild(tab);
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "LBF_Summary":
@@ -501,6 +623,7 @@ namespace Cyclops
                                             else
                                             {
                                                 currentNode.AddExportChild(lbf_Summary);
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "QC_Fractions":
@@ -514,6 +637,7 @@ namespace Cyclops
                                             else
                                             {
                                                 currentNode.AddExportChild(qc);
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "Save":
@@ -527,6 +651,7 @@ namespace Cyclops
                                             else
                                             {
                                                 currentNode.AddExportChild(se_Node);
+                                                i_ModuleCounter++;
                                             }
                                             break;
                                     }
@@ -626,6 +751,7 @@ namespace Cyclops
                     reader.Close();
             }
 
+            Model.NumberOfModules = i_ModuleCounter; // report the total number of modules
             return root;
         }
         #endregion

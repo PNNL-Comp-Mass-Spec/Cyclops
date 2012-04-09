@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Cyclops
 {
@@ -78,6 +79,22 @@ namespace Cyclops
         {
             return ModuleName;
         }
+
+        public virtual string GetTemporaryTableName()
+        {
+            string s_Suffix = "";
+            Thread.Sleep(2);
+            Random rnd = new Random((int) DateTime.Now.Ticks & 0x0000FFFF);
+            string chars = "2346789ABCDEFGHJKLMNPQRTUVWXYZabcdefghjkmnpqrtuvwxyz";
+
+            for (int i = 0; i < 20; i++)
+            {
+                s_Suffix += chars.Substring(rnd.Next(chars.Length), 1);
+            }
+
+            return "tmpTable_" + s_Suffix;
+        }
+
         #endregion
     }
 }

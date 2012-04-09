@@ -32,11 +32,16 @@ namespace Cyclops.DataModules
 {
     public class clsProteinProphet : clsBaseDataModule
     {
+        #region Members
         private string s_RInstance, s_Current_R_Statement = "", s_DbName = "",
             s_Directory = "";
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+
+        private List<string> l_ProteinProphetCommands = new List<string>();
+        private string s_FastaFilePath = ""; // The full path to the fasta file.
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -69,7 +74,7 @@ namespace Cyclops.DataModules
         #endregion
 
         #region Properties
-
+        
         #endregion
 
         #region Methods
@@ -94,14 +99,33 @@ namespace Cyclops.DataModules
         public override void PerformOperation()
         {
             traceLog.Info("Peforming ProteinProphet Analysis...");
-
+            
             dsp.GetParameters(ModuleName, Parameters);
+
+            traceLog.Info("Fasta file to be used in analysis: " + dsp.DatabasePath);
+
+            if (dsp.RunAnalysis)
+            {
+                traceLog.Info("ProteinProphet: Run analysis requested and proceeding...");
+                RunProteinProphet();
+            }
+            else
+            {
+                traceLog.Info("ProteinProphet: Run analysis was NOT REQUESTED and will not be performed.");
+            }
+            
+            RunChildModules();
+        }
+
+        private void RunProteinProphet()
+        {
+
             s_Directory = dsp.WorkDirectory + "/ProteinProphet";
 
             bool b_ContinueRunning = true;
 
             b_ContinueRunning = CreateProteinProphetDirectory(); // Step 1
-            if (!b_ContinueRunning) 
+            if (!b_ContinueRunning)
             {
                 Model.SuccessRunningPipeline = false;
                 // handle problem creating the ProteinProphet directory
@@ -111,7 +135,7 @@ namespace Cyclops.DataModules
             }
 
             b_ContinueRunning = ExtractProteinProphetSoftware(); // Step 2
-            if (!b_ContinueRunning) 
+            if (!b_ContinueRunning)
             {
                 Model.SuccessRunningPipeline = false;
                 // handle problem extracting the software
@@ -121,7 +145,7 @@ namespace Cyclops.DataModules
             }
 
             b_ContinueRunning = CopyDatabaseOver(); // Step 3
-            if (!b_ContinueRunning) 
+            if (!b_ContinueRunning)
             {
                 Model.SuccessRunningPipeline = false;
                 // handle problem copying the database over to working directory
@@ -132,7 +156,7 @@ namespace Cyclops.DataModules
             }
 
             b_ContinueRunning = CreateDatabaseDatFile(); // Step 4
-            if (!b_ContinueRunning) 
+            if (!b_ContinueRunning)
             {
                 Model.SuccessRunningPipeline = false;
                 // handle problem creating the database.dat file
@@ -141,7 +165,7 @@ namespace Cyclops.DataModules
             }
 
             b_ContinueRunning = ConstructProteinProphetInputFile(); // Step 5 - 8
-            if (!b_ContinueRunning) 
+            if (!b_ContinueRunning)
             {
                 Model.SuccessRunningPipeline = false;
                 // handle problem creating the database.dat file
@@ -160,7 +184,62 @@ namespace Cyclops.DataModules
 
             b_ContinueRunning = RunProteinProphetThruCrunchOneFile();
 
-            RunChildModules();
+            string s_ProteinProphetTempDatabase = Path.Combine(dsp.WorkDirectory,
+                "ProteinProphetTempDB.db3");
+            CreateTempSQLiteDatabase(s_ProteinProphetTempDatabase);
+
+            string s_PeptideResultsFileFromProteinProphet =
+                Path.Combine(dsp.WorkDirectory, "ProteinProphet",
+                "ProteinProphetInputFile-outputfile.txt.pep");
+            string s_ProteinResultsFileFromProteinProphet =
+                Path.Combine(dsp.WorkDirectory, "ProteinProphet",
+                "ProteinProphetInputFile-outputfile.txt.pro");
+
+
+            clsSQLiteHandler.WriteTabDelimitedTextFileToSQLiteTable(s_ProteinProphetTempDatabase,
+                s_PeptideResultsFileFromProteinProphet, "T_Peptides");
+            clsSQLiteHandler.WriteTabDelimitedTextFileToSQLiteTable(s_ProteinProphetTempDatabase,
+                s_ProteinResultsFileFromProteinProphet, "T_Proteins");
+
+            clsSQLiteHandler.CreateIndex(s_ProteinProphetTempDatabase,
+                "T_Peptides", "ITEM", null);
+            clsSQLiteHandler.CreateIndex(s_ProteinProphetTempDatabase,
+                "T_Proteins", "ITEM", null);
+
+            string s_QueryProteinProphetTempDatabase =
+                "SELECT p.ITEM AS ProteinGroup, r.ORF AS Protein, p.PEPTIDE As Peptide " +
+                "FROM T_Peptides p INNER JOIN T_Proteins r ON p.ITEM = r.ITEM " +
+                "GROUP BY p.ITEM, r.ORF, p.PEPTIDE";
+
+            DataTable dt_ProteinProphetResults = clsSQLiteHandler.GetDataTable(
+                s_QueryProteinProphetTempDatabase, s_ProteinProphetTempDatabase);
+
+            clsSQLiteHandler.WriteDataTableToSQLiteTable(
+                Path.Combine(dsp.WorkDirectory, dsp.InputFileName), dt_ProteinProphetResults,
+                "T_ProteinProphetResultsTable");
+
+            clsSQLiteHandler.CreateIndex(Path.Combine(dsp.WorkDirectory, dsp.InputFileName),
+                "T_ProteinProphetResultsTable", "Protein", null);
+            clsSQLiteHandler.CreateIndex(Path.Combine(dsp.WorkDirectory, dsp.InputFileName),
+                "T_ProteinProphetResultsTable", "Peptide", null);
+
+            File.Move(s_PeptideResultsFileFromProteinProphet,
+                Path.Combine(dsp.WorkDirectory, "ProteinProphetResults_Peptides.txt"));
+            File.Move(s_ProteinResultsFileFromProteinProphet,
+                Path.Combine(dsp.WorkDirectory, "ProteinProphetResults_Proteins.txt"));
+
+            clsMiscFunctions.SaveDataTable(dt_ProteinProphetResults,
+                Path.Combine(dsp.WorkDirectory, "T_ProteinProphetResults.txt"));
+
+            string s_CreateProteinProphetPeptideCountTable =
+                "CREATE TABLE T_ProteinProphetPeptideCount AS " +
+                "SELECT ProteinGroup, COUNT(DISTINCT Peptide) AS PeptideCount " +
+                "FROM T_ProteinProphetResultsTable GROUP BY ProteinGroup";
+
+            clsSQLiteHandler.RunNonQuery(s_CreateProteinProphetPeptideCountTable,
+                Path.Combine(dsp.WorkDirectory, dsp.InputFileName));
+
+            RemoveTempSQLiteDatabase(s_ProteinProphetTempDatabase);
         }
         
         /// <summary>
@@ -176,6 +255,7 @@ namespace Cyclops.DataModules
             if (!Directory.Exists(s_Directory))
             {
                 Directory.CreateDirectory(s_Directory);
+                traceLog.Info("ProteinProphet: Temporary directory created.");
                 b_Return = true;
             }
             else
@@ -186,6 +266,7 @@ namespace Cyclops.DataModules
                 {
                     File.Delete(s);
                 }
+                traceLog.Info("ProteinProphet: Existing ProteinProphet directory has been cleared for use.");
                 return true;
             }
 
@@ -206,7 +287,7 @@ namespace Cyclops.DataModules
             string[] s_Files2Check = new string[] {
                 s_Directory + "/html_to_txt.pl",
                 s_Directory + "/makedgn.exe",
-                s_Directory + "/proph_to_access.exe",
+                //s_Directory + "/proph_to_access.exe",
                 s_Directory + "/proph_to_access.pl",
                 s_Directory + "/ProProphet.pl",
                 s_Directory + "/PROPT.BAT",
@@ -226,6 +307,8 @@ namespace Cyclops.DataModules
                 }
             }
 
+            if (b_Return)
+                traceLog.Info("ProteinProphet: Zip file has been extracted successfully.");
             return b_Return;
         }
 
@@ -237,16 +320,53 @@ namespace Cyclops.DataModules
         private bool CopyDatabaseOver()
         {
             bool b_Return = false;
-            s_DbName = dsp.DatabasePath;
-            string s_Destination = s_Directory + "/" + Path.GetFileName(s_DbName);
+            string[] s_FastaFiles = Directory.GetFiles(dsp.DatabasePath,
+                "*.fasta");
 
-            File.Copy(s_DbName, s_Destination);
+            string s_Destination = "";
 
-            // test if the function completed successfully
-            if (File.Exists(s_Destination))
+            try
             {
-                b_Return = true;
+                // Copy the files over from local directory
+                foreach (string s in s_FastaFiles)
+                {
+                    s_DbName = Path.Combine(s_Directory,
+                        Path.GetFileName(s));
+                    File.Copy(s, s_DbName);                    
+                }
+
+                // Now clean out the local directory
+                string[] s_Files2Delete = Directory.GetFiles(dsp.DatabasePath);
+                foreach (string s in s_Files2Delete)
+                {
+                    File.Delete(s);
+                }
+
+                // test if the function completed successfully
+                if (File.Exists(s_DbName))
+                {
+                    b_Return = true;
+                }
+                else
+                {
+                    traceLog.Error("ProteinProphet: ERROR, Fasta file was not copied: " + 
+                        s_Destination);
+                }
             }
+            catch (IOException ioe)
+            {
+                traceLog.Error("ProteinProphet: IOError copying fasta file over to temporary directory: " +
+                    ioe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ProteinProphet: Error copying fasta file over to temporary directory: " +
+                    exc.ToString());
+            }
+
+            if (b_Return)
+                traceLog.Info("ProteinProphet: Fasta file has been copied over to temporary directory.");
+                
             return b_Return;
         }
 
@@ -258,15 +378,28 @@ namespace Cyclops.DataModules
         {
             bool b_Return = false;
             string s_DbFileName = s_Directory + "/database.dat";
-            StreamWriter sw = new StreamWriter(s_DbFileName);
-            sw.Write(Path.GetFileName(s_DbName));
-            sw.Close();
-
-            // test if the function completed successfully
-            if (File.Exists(s_DbFileName))
+            try
             {
-                b_Return = true;
+                StreamWriter sw = new StreamWriter(s_DbFileName);
+                sw.Write(Path.GetFileName(s_DbName));
+                sw.Close();
+
+                // test if the function completed successfully
+                if (File.Exists(s_DbFileName))
+                {
+                    b_Return = true;
+                }
             }
+            catch (IOException ioe)
+            {
+                traceLog.Error("ProteinProphet: IOERROR Creating database.dat file: " + ioe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ProteinProphet: ERROR Creating database.dat file: " + exc.ToString());
+            }
+            if (b_Return)
+                traceLog.Info("ProteinProphet: database.dat file created successfully.");
             return b_Return;
         }
 
@@ -281,52 +414,54 @@ namespace Cyclops.DataModules
             bool b_Return = false;
             string s_Command = "SELECT * FROM " +
                 dsp.InputTableName;
-            //string s_Connection = "Data Source=" + dsp.WorkDirectory + Path.DirectorySeparatorChar +
-            //    dsp.InputFileName + ";Version=3;";
-            //string s_Connection = @"Data Source=C:\DMS_WorkDir\Test\ResultsDatabase.db3; Version=3;";
             string s_Connection = dsp.WorkDirectory + Path.DirectorySeparatorChar +
                 dsp.InputFileName;
 
             traceLog.Info("ProteinProphet class, COMMAND: " + s_Command);
             traceLog.Info("ProteinProphet class, CONNECTION: " + s_Connection);
-            //if (File.Exists(@"C:\DMS_WorkDir\Test\ResultsDatabase.db3"))
-            //    Console.WriteLine("The FILE EXISTS " + s_Connection);
-            //else
-            //    Console.WriteLine("File DOES NOT EXIST");
-
-            //SQLiteConnection conn = new SQLiteConnection(s_Connection);
-            //try
-            //{
-            //    conn.Open();
-            //    conn.Close();
-            //    Console.WriteLine("The database opened!");
-            //}
-            //catch (Exception exc)
-            //{
-            //    Console.WriteLine("Error: " + exc.ToString());
-            //}
-
-            //Console.ReadKey();
 
             DataTable dt_Tmp = clsSQLiteHandler.GetDataTable(s_Command, s_Connection);
             string s_OutputFile = s_Directory + "/ProteinProphetInputFile.html";
-            // write out the input file
-            StreamWriter sw = new StreamWriter(s_OutputFile);
-            for (int i = 0; i < dt_Tmp.Rows.Count; i++)
+
+            try
             {
-                int j = i + 1;
-                sw.WriteLine(j + "\tfile" + i + "\t" + j + "\t" +
-                    dt_Tmp.Rows[i]["Peptide"].ToString() + "\t2\t1\t1\t" +
-                    dt_Tmp.Rows[i]["Protein"].ToString() + "\t" +
-                    dt_Tmp.Rows[i]["PeptideEx"].ToString() + "\t" +
-                    "1\t1\t1\t1\t1\t1\t1\t1");
+                // write out the input file
+                StreamWriter sw = new StreamWriter(s_OutputFile);
+                for (int i = 0; i < dt_Tmp.Rows.Count; i++)
+                {
+                    string pep = dt_Tmp.Rows[i]["Peptide"].ToString();
+                    pep = pep.Replace("*", "");
+                    pep = pep.Replace("#", "");
+                    string prot = dt_Tmp.Rows[i]["Protein"].ToString();
+                    string pepex = dt_Tmp.Rows[i]["PeptideEx"].ToString();
+                    pepex = pepex.Replace("*", "");
+                    pepex = pepex.Replace("#", "");
+
+                    int j = i + 1;
+                    sw.WriteLine(j + "\tfile0\t" + j + "\t" +
+                        pep + "\t2\t1\t1\t" +
+                        prot + "\t" +
+                        pepex + "\t" +
+                        "1\t1\t1\t1\t1\t1\t1\t1");
+                }
+                sw.Close();
             }
-            sw.Close();
+            catch (IOException ioe)
+            {
+                traceLog.Error("ProteinProphet: IOERROR writing out input file: " +
+                    ioe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ProteinProphet: ERROR writing out input file: " +
+                    exc.ToString());
+            }
             
             FileInfo fi = new FileInfo(s_OutputFile);
             if (File.Exists(s_OutputFile) &
                 fi.Length > 0)
             {
+                traceLog.Info("ProteinProphet: Input file created successfully!");
                 b_Return = true;
             }
 
@@ -344,14 +479,22 @@ namespace Cyclops.DataModules
             string s_OutputFile = s_Directory + "/crunch-one.bat";
             StreamWriter sw = new StreamWriter(s_OutputFile);
             //sw.WriteLine("cd " + s_Directory);
-            sw.WriteLine("set FNAME=ProteinProphetInputFile");
-            sw.WriteLine("set DATABASE=" + Path.GetFileName(s_DbName));
-            sw.WriteLine(
-                "txt_to_ppr.pl %FNAME%.html\n" +
-                "makedgn *tmp2 %DATABASE%\n" +
-                "ProProphet.pl *%FNAME%*.html %FNAME%-outputfile HTML\n" +
-                "html_to_txt.pl %FNAME%-outputfile.htm %FNAME%-outputfile.txt\n" +
-                "proph_to_access.pl %FNAME%-outputfile.txt");
+
+            //l_ProteinProphetCommands.Add("set FNAME=ProteinProphetInputFile");
+            //l_ProteinProphetCommands.Add("set DATABASE=" + Path.GetFileName(s_DbName));
+            l_ProteinProphetCommands.Add("txt_to_ppr.pl ProteinProphetInputFile.html");
+            l_ProteinProphetCommands.Add(string.Format("makedgn *tmp2 {0}", Path.GetFileName(s_DbName)));
+            l_ProteinProphetCommands.Add("ProProphet.pl *ProteinProphetInputFile*.html ProteinProphetInputFile-outputfile HTML");
+            l_ProteinProphetCommands.Add("html_to_txt.pl ProteinProphetInputFile-outputfile.htm ProteinProphetInputFile-outputfile.txt");
+            l_ProteinProphetCommands.Add("proph_to_access.pl ProteinProphetInputFile-outputfile.txt");
+
+            foreach (string s in l_ProteinProphetCommands)
+            {
+                sw.WriteLine(s);
+                traceLog.Info("PROTEIN PROPHET EXECUTING: " + s);
+                //ExecuteCommandSync(s);
+            }
+
             sw.Close();
 
             FileInfo fi = new FileInfo(s_OutputFile);
@@ -400,6 +543,66 @@ namespace Cyclops.DataModules
                 sw_Output.Close();
             }
             return b_Return;
+        }
+
+        /// <summary>
+        /// Executes a shell command synchronously.
+        /// </summary>
+        /// <param name="command">string command</param>
+        /// <returns>string, as output of the command.</returns>
+        private void ExecuteCommandSync(object command)
+        {
+            try
+            {
+                // create the ProcessStartInfo using "cmd" as the program to be run,
+                // and "/c " as the parameters.
+                // Incidentally, /c tells cmd that we want it to execute the command that follows,
+                // and then exit.
+                System.Diagnostics.ProcessStartInfo procStartInfo =
+                    new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command);
+                traceLog.Info("PROTEIN PROPHET EXECUTING: " + command);
+
+                // The following commands are needed to redirect the standard output.
+                // This means that it will be redirected to the Process.StandardOutput StreamReader.
+                procStartInfo.RedirectStandardOutput = true;
+                procStartInfo.UseShellExecute = false;
+                // Do not create the black window.
+                procStartInfo.CreateNoWindow = true;
+                // Now we create a process, assign its ProcessStartInfo and start it
+                System.Diagnostics.Process proc = new System.Diagnostics.Process();
+                proc.StartInfo = procStartInfo;
+                proc.Start();
+                // Get the output into a string
+                string result = proc.StandardOutput.ReadToEnd();
+                // Display the command output.
+                Console.WriteLine(result);
+            }
+            catch (Exception objException)
+            {
+                // Log the exception
+                traceLog.Error("ERROR IN PROTEINPROPHET: " + objException.ToString());
+            }
+        }
+
+        private bool CreateTempSQLiteDatabase(string FileName)
+        {
+            bool b_FileExists = false;
+            SQLiteConnection.CreateFile(FileName);
+            if (File.Exists(FileName))
+                b_FileExists = true;
+            return b_FileExists;
+        }
+
+        private bool RemoveTempSQLiteDatabase(string FileName)
+        {
+            bool b_FileExists = File.Exists(FileName);
+
+            if (b_FileExists)
+                File.Delete(FileName);
+
+            b_FileExists = File.Exists(FileName);
+
+            return b_FileExists;
         }
         #endregion
     }

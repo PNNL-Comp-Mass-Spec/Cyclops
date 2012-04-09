@@ -94,91 +94,118 @@ namespace Cyclops.ExportModules
                 switch (esp.Source)
                 {
                     case "sqlite":
-                        ConnectToSQLiteDatabase();
-                        s_Command = string.Format("dbWriteTable(" +
-                            "conn=con, name=\"{0}\", value=data.frame({1}))",
-                            esp.NewTableName, 
-                            esp.TableName);
-                        try
+                        if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
                         {
-                            traceLog.Info("EXPORTING to SQLite: " + s_Command);
-                            engine.EagerEvaluate(s_Command);
-                        }
-                        catch (Exception exc)
-                        {
-                            Model.SuccessRunningPipeline = false;
-                            traceLog.Error("ERROR ExportTable sqlite table: " + exc.ToString());
-                        }
-                        DisconnectFromDatabase();
-                        break;
-                    case "csv":
-                        if (esp.HasFileName)
-                        {
-                            if (esp.IncludeRowNames)
-                            {
-                                s_Command = string.Format("jnb_Write(df={0}, " +
-                                    "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
-                                    "sepChar=\"{3}\")",
-                                    esp.TableName,
-                                    esp.WorkDirectory + "/" + esp.FileName,
-                                    esp.RownamesColumnHeader,
-                                    esp.SeparatingCharacter);
-                            }
-                            else
-                            {
-                                s_Command = string.Format("jnb_Write(df={0}, " +
-                                    "fileName=\"{1}\", row.names=FALSE, " +
-                                    "sepChar=\"{2}\")",
-                                    esp.TableName,
-                                    esp.WorkDirectory + "/" + esp.FileName,
-                                    esp.SeparatingCharacter);
-                            }
-
+                            ConnectToSQLiteDatabase();
+                            s_Command = string.Format("dbWriteTable(" +
+                                "conn=con, name=\"{0}\", value=data.frame({1}))",
+                                esp.NewTableName,
+                                esp.TableName);
                             try
                             {
-                                traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
+                                traceLog.Info("EXPORTING to SQLite: " + s_Command);
                                 engine.EagerEvaluate(s_Command);
                             }
                             catch (Exception exc)
                             {
                                 Model.SuccessRunningPipeline = false;
-                                traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
+                                traceLog.Error("ERROR ExportTable sqlite table: " + exc.ToString());
                             }
+                            DisconnectFromDatabase();
+                        }
+                        else
+                        {
+                            traceLog.Info("EXPORT TABLE: table '" +
+                                esp.TableName + "' was not found in the R workspace, " +
+                                "and therefore was not exported to the sqlite database.");
+                        }
+                        break;
+                    case "csv":
+                        if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
+                        {
+                            if (esp.HasFileName)
+                            {
+                                if (esp.IncludeRowNames)
+                                {
+                                    s_Command = string.Format("jnb_Write(df={0}, " +
+                                        "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
+                                        "sepChar=\"{3}\")",
+                                        esp.TableName,
+                                        esp.WorkDirectory + "/" + esp.FileName,
+                                        esp.RownamesColumnHeader,
+                                        esp.SeparatingCharacter);
+                                }
+                                else
+                                {
+                                    s_Command = string.Format("jnb_Write(df={0}, " +
+                                        "fileName=\"{1}\", row.names=FALSE, " +
+                                        "sepChar=\"{2}\")",
+                                        esp.TableName,
+                                        esp.WorkDirectory + "/" + esp.FileName,
+                                        esp.SeparatingCharacter);
+                                }
+
+                                try
+                                {
+                                    traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
+                                    engine.EagerEvaluate(s_Command);
+                                }
+                                catch (Exception exc)
+                                {
+                                    Model.SuccessRunningPipeline = false;
+                                    traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
+                                }
+                            }
+                        }
+                        else
+                        {
+                            traceLog.Info("EXPORT TABLE: table '" +
+                                   esp.TableName + "' was not found in the R workspace, " +
+                                   "and therefore was not exported to csv file.");
                         }
                         break;
                     case "tsv":
-                        if (esp.HasFileName)
+                        if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
                         {
-                            if (esp.IncludeRowNames)
+                            if (esp.HasFileName)
                             {
-                                s_Command = string.Format("jnb_Write(df={0}, " +
-                                    "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
-                                    "sepChar=\"{3}\")",
-                                    esp.TableName,
-                                    esp.WorkDirectory + "/" + esp.FileName,
-                                    esp.RownamesColumnHeader,
-                                    esp.SeparatingCharacter);
-                            }
-                            else
-                            {
-                                s_Command = string.Format("jnb_Write(df={0}, " +
-                                    "fileName=\"{1}\", row.names=FALSE, " +
-                                    "sepChar=\"{2}\")",
-                                    esp.TableName,
-                                    esp.WorkDirectory + "/" + esp.FileName,
-                                    esp.SeparatingCharacter);
-                            }
+                                if (esp.IncludeRowNames)
+                                {
+                                    s_Command = string.Format("jnb_Write(df={0}, " +
+                                        "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
+                                        "sepChar=\"{3}\")",
+                                        esp.TableName,
+                                        esp.WorkDirectory + "/" + esp.FileName,
+                                        esp.RownamesColumnHeader,
+                                        esp.SeparatingCharacter);
+                                }
+                                else
+                                {
+                                    s_Command = string.Format("jnb_Write(df={0}, " +
+                                        "fileName=\"{1}\", row.names=FALSE, " +
+                                        "sepChar=\"{2}\")",
+                                        esp.TableName,
+                                        esp.WorkDirectory + "/" + esp.FileName,
+                                        esp.SeparatingCharacter);
+                                }
 
-                            try
-                            {
-                                traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
-                                engine.EagerEvaluate(s_Command);
+                                try
+                                {
+                                    traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
+                                    engine.EagerEvaluate(s_Command);
+                                }
+                                catch (Exception exc)
+                                {
+                                    Model.SuccessRunningPipeline = false;
+                                    traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
+                                }
                             }
-                            catch (Exception exc)
-                            {
-                                Model.SuccessRunningPipeline = false;
-                                traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
-                            }
+                        }
+                        else
+                        {
+                            traceLog.Info("EXPORT TABLE: table '" +
+                                   esp.TableName + "' was not found in the R workspace, " +
+                                   "and therefore was not exported to tsv file.");
                         }
                         break;
                     case "access":

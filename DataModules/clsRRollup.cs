@@ -112,6 +112,18 @@ namespace Cyclops.DataModules
                 Model.SuccessRunningPipeline = false;
                 traceLog.Error("ERROR: RRollup class: 'proteinInfoTable' was not " +
                     "found in the passed parameters");
+                b_2Pass = false;
+            }
+
+            // if the table does not exist, do not throw an cyclops error, but do not run RRollup
+            // this is because Linear Regression only runs if there is a consolidation factor
+            // if the linear regression table does not exist, then don't run RRollup
+            if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.InputTableName))
+            {
+                //Model.SuccessRunningPipeline = false;
+                traceLog.Info("ERROR RRollup class: '" + dsp.InputTableName +
+                    "' was not found in the R workspace!");
+                b_2Pass = false;
             }
 
             return b_2Pass;

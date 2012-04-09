@@ -133,6 +133,17 @@ namespace Cyclops.VisualizationModules
                 Model.SuccessRunningPipeline = false;
             }
 
+            // if the table does not exist, do not throw an cyclops error, but do not plot boxplots
+            // this is because Linear Regression only runs if there is a consolidation factor
+            // if the linear regression table does not exist, then don't run boxplot
+            if (!clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+            {
+                //Model.SuccessRunningPipeline = false;
+                traceLog.Info("ERROR Boxplot class: '" + vgp.TableName +
+                    "' was not found in the R workspace!");
+                b_2Param = false;
+            }
+
             return b_2Param;
         }
 
@@ -167,7 +178,7 @@ namespace Cyclops.VisualizationModules
                 vgp.PlotFileName,                                       // 2
                 vgp.ColorByFactor,                                      // 3
                 vgp.ColumnFactorTable,                                  // 4
-                vgp.FixedEffect.Length > 0 ? "\"" + vgp.FixedEffect + "\"": "NULL",  // 5
+                vgp.ConsolidationFactor.Length > 0 ? "\"" + vgp.ConsolidationFactor + "\"": "NULL",  // 5
                 vgp.Outliers,                                           // 6
                 vgp.Color,                                              // 7
                 vgp.BackgroundColor,                                    // 8

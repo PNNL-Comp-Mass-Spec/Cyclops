@@ -43,15 +43,19 @@ namespace Cyclops.DataModules
             s_AllX = "TRUE",
             s_AllY = "TRUE",
             s_AltInputTableName = "",
+            s_AsDataMatrix="true",
             s_Center="FALSE",                           // used in RRollup, center peptide abundace to 0
             s_CommaSep_wQuotesIdentifiers = "",
             s_CommaSep_woQuotesIdentifiers = "",
+            s_ConsolidationFactor,                      // passed through the ATM
             s_ColumnName = "",
             s_DatabasePath = "",
+            s_DecoyPrefix = "Reversed_",              // used in IDPicker
             s_FactorColumn = "",
             s_FactorComplete = "",
             s_FactorTable = "",
             s_FilePath = @"\\gigasax\DMS_Workflows\Cyclops\ProteinProphet.zip",
+            s_FixedEffect = "",                         // passed through the ATM
             s_FoldChangeTable = "",
             s_Function = "",
             s_gMinPCount="5",                           // used in RRollup
@@ -62,23 +66,37 @@ namespace Cyclops.DataModules
             s_InputTableName = "",
             s_LogBase = "2",
             s_Margin = "",
+            s_MaxAmbiguousIds="2",                      // used in IDPicker
+            s_MaxFDR = "0.1",                           // used in IDPicker
             s_MeanCenter="FALSE",                       // used in CentralTendency
             s_MinOverlap="3",                           // used in RRollup method
+            s_MinAdditionalPeptides="2",                // used in IDPicker            
+            s_MinDistinctPeptides="2",                  // used in IDPicker
             s_MinPresence="10",                         // used in RRollup
+            s_MinSpectraPerProtein="2",                 // used in IDPicker
             s_Mode="median",                            // used in RRollup
+            s_ModsAreDistinctByDefault="true",          // used in IDPicker
             s_ModuleName = "",
             s_NewTableName = "",
             s_NormalizedTable = "",
-            s_OneHitWonders="FALSE",                     // used in RRollup method, default in algorithm is true
+            s_NormalizedSearchScores = "msgfspecprob",  // used in IDPicker
+            s_OneHitWonders="FALSE",                    // used in RRollup method, default in algorithm is true
+            s_OptimizeScoreWeights = "1",               // used in IDPicker
+            s_OutputTextReport="true",                  // used in IDPicker
             s_Password = "",
             s_PeptideColumn="3",                        // used in RRollup
             s_ProteinColumn="1",                        // used in RRollup
             s_ProteinInfo="",                           // used in RRollup
             s_P_ValueTable = "",            
             s_PvalueThreshold = "0.0001",
+            s_QuantitativeMethod="",                    // used in IDPicker
+            s_RawSourcePath="",                         // used in IDPicker
             s_RemoveFirstCharacters = "",
+            s_RemovePeptideColumn = "false",
             s_Rowname = "",
+            s_RunAnalysis = "false",
             s_Scale = "1",
+            s_SearchScoreWeights = "msgfspecprob -1",   // used in IDPicker
             s_Semicolon_wQuotesSepIdentifiers = "",
             s_Semicolon_woQuotesSepIdentifiers = "",
             s_SetZeroToNA = "false",
@@ -148,6 +166,12 @@ namespace Cyclops.DataModules
             set { s_AltInputTableName = value; }
         }
 
+        public string AsDataMatrix
+        {
+            get { return s_AsDataMatrix.ToLower(); }
+            set { s_AsDataMatrix = value; }
+        }
+
         /// <summary>
         /// Used in the Transform function to prevent negative
         /// numbers, it tells the function to dynamically
@@ -180,6 +204,12 @@ namespace Cyclops.DataModules
                 return s_CommaSep_woQuotesIdentifiers.Length > 0 ? true : false;
             }
         }
+
+        public string ConsolidationFactor
+        {
+            get { return s_ConsolidationFactor; }
+            set { s_ConsolidationFactor = value; }
+        }
         
         /// <summary>
         /// Describes where the data is coming from, e.g. SQLite, CSV, TXT, etc.
@@ -199,6 +229,12 @@ namespace Cyclops.DataModules
         {
             get { return s_FilePath; }
             set { s_FilePath = value; }
+        }
+
+        public string FixedEffect
+        {
+            get { return s_FixedEffect; }
+            set { s_FixedEffect = value; }
         }
 
         public string DatabasePath
@@ -244,6 +280,83 @@ namespace Cyclops.DataModules
             set { s_InputTableName = value; }
         }
 
+        public string DecoyPrefix
+        {
+            get { return s_DecoyPrefix; }
+            set { s_DecoyPrefix = value; }
+        }
+
+        public string MaxAmbiguousIds
+        {
+            get { return s_MaxAmbiguousIds; }
+            set { s_MaxAmbiguousIds = value; }
+        }
+
+        public string MaxFDR
+        {
+            get { return s_MaxFDR; }
+            set { s_MaxFDR = value; }
+        }
+
+        public string MinAdditionalPeptides
+        {
+            get { return s_MinAdditionalPeptides; }
+            set { s_MinAdditionalPeptides = value; }
+        }
+
+        public string MinDistinctPeptides
+        {
+            get { return s_MinDistinctPeptides; }
+            set { s_MinDistinctPeptides = value; }
+        }
+
+        public string MinSpectraPerProtein
+        {
+            get { return s_MinSpectraPerProtein; }
+            set { s_MinSpectraPerProtein = value; }
+        }
+
+        public string ModsAreDistinctByDefault
+        {
+            get { return s_ModsAreDistinctByDefault.ToLower(); }
+            set { s_ModsAreDistinctByDefault = value; }
+        }
+
+        public string NormalizedSearchScores
+        {
+            get { return s_NormalizedSearchScores; }
+            set { s_NormalizedSearchScores = value; }
+        }
+
+        public string OptimizeScoreWeights
+        {
+            get { return s_OptimizeScoreWeights; }
+            set { s_OptimizeScoreWeights = value; }
+        }
+
+        public string OutputTextReport
+        {
+            get { return s_OutputTextReport.ToLower(); }
+            set { s_OutputTextReport = value; }
+        }
+
+        public string QuantitativeMethod
+        {
+            get { return s_QuantitativeMethod; }
+            set { s_QuantitativeMethod = value; }
+        }
+
+        public string RawSourcePath
+        {
+            get { return s_RawSourcePath; }
+            set { s_RawSourcePath = value; }
+        }
+
+        public string SearchScoreWeights
+        {
+            get { return s_SearchScoreWeights; }
+            set { s_SearchScoreWeights = value; }
+        }
 
         public string MeanCenter
         {
@@ -717,6 +830,38 @@ namespace Cyclops.DataModules
             }
         }
 
+        public bool RemovePeptideColumn
+        {
+            get
+            {
+                return s_RemovePeptideColumn.ToLower().Equals("true") ? true : false;
+            }
+        }
+        
+        public string SetRemovePeptideColumn
+        {
+            set
+            {
+                s_RemovePeptideColumn = value;
+            }
+        }
+
+        public bool RunAnalysis
+        {
+            get
+            {
+                return s_RunAnalysis.ToLower().Equals("true") ? true : false;
+            }
+        }
+
+        public string SetRunAnalysis
+        {
+            set
+            {
+                s_RunAnalysis = value;
+            }
+        }
+
         public string Set02NA
         {
             get
@@ -977,6 +1122,9 @@ namespace Cyclops.DataModules
                     case "altInputTableName":
                         AltInputTableName = kvp.Value;
                         break;
+                    case "asDataMatrix":
+                        AsDataMatrix = kvp.Value;
+                        break;
                     case "autoScale":
                         string s_AutoScale = kvp.Value;
                         AutoScale = s_AutoScale.ToLower().Equals("true") ? true : false;
@@ -993,6 +1141,45 @@ namespace Cyclops.DataModules
                         List<string> l_csnqi = kvp.Value;
                         string s_csnqi = SeparateListOfStrings(l_csnqi, ',', false);
                         CommaSeparatedWithoutQuotesIdentifiers = s_csnqi;
+                        break;
+                    case "Consolidation_Factor":
+                        s_ConsolidationFactor = kvp.Value;
+                        break;
+                    case "decoyPrefix":
+                        s_DecoyPrefix = kvp.Value;
+                        break;
+                    case "Fixed_Effect":
+                        s_FixedEffect = kvp.Value;
+                        break;
+                    case "maxAmbiguousIds":
+                        s_MaxAmbiguousIds = kvp.Value;
+                        break;
+                    case "maxFDR":
+                        s_MaxFDR = kvp.Value;
+                        break;
+                    case "minAdditionalPeptides":
+                        s_MinAdditionalPeptides = kvp.Value;
+                        break;
+                    case "minDistinctPeptides":
+                        s_MinDistinctPeptides = kvp.Value;
+                        break;
+                    case "minSpectraPerProtein":
+                        s_MinSpectraPerProtein = kvp.Value;
+                        break;
+                    case "normalizedSearchScore":
+                        s_NormalizedSearchScores = kvp.Value;
+                        break;
+                    case "optimizedSearchScore":
+                        s_OptimizeScoreWeights = kvp.Value;
+                        break;
+                    case "outputTextReport":
+                        s_OutputTextReport = kvp.Value;
+                        break;
+                    case "quantitativeMethod":
+                        s_QuantitativeMethod = kvp.Value;
+                        break;
+                    case "rawSourcePath":
+                        s_RawSourcePath = kvp.Value;
                         break;
                     case "orgdbdir":
                         DatabasePath = kvp.Value;
@@ -1035,9 +1222,6 @@ namespace Cyclops.DataModules
                         break;
                     case "factorColumn":
                         FactorColumn = kvp.Value;                       
-                        break;
-                    case "Fixed_Effect":
-                        FactorColumn = kvp.Value;
                         break;
                     case "factorComplete":
                         FactorComplete = kvp.Value;                       
@@ -1085,6 +1269,15 @@ namespace Cyclops.DataModules
                         List<string> l_tsnqi = kvp.Value;
                         string s_tsnqi = SeparateListOfStrings(l_tsnqi, '\t', false);
                         TabSeparatedWithoutQuotesIdentifiers = s_tsnqi;
+                        break;
+                    case "removePeptideColumn":
+                        s_RemovePeptideColumn = kvp.Value;
+                        break;
+                    case "RunProteinProphet":
+                        s_RunAnalysis = kvp.Value;
+                        break;
+                    case "runAnalysis":
+                        s_RunAnalysis = kvp.Value;
                         break;
                     case "semicolonSepWithQuotesIdentifiers":
                         List<string> l_ssqi = kvp.Value;

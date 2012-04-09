@@ -32,12 +32,8 @@ namespace Cyclops.DataModules
     /// Parameters:
     /// inputTableName: table to perform linear regression on
     /// newTableName: new table name
-    /// factorTable: name of the column factor table
-    /// variable: '1', '2', '3' representing 1) first dataset, 2) median, and 3) dataset with least missing data
-    /// 
-    /// uses the consolidation factor for dataset replicates
     /// </summary>
-    public class clsLinearRegression : clsBaseDataModule
+    public class clsANOVA : clsBaseDataModule
     {
         #region Members
         private string s_RInstance, s_Current_R_Statement = "";
@@ -48,29 +44,29 @@ namespace Cyclops.DataModules
 
         #region Contructors
         /// <summary>
-        /// Module to perform linear regression on datasets
+        /// Module to perform ANOVA
         /// </summary>
-        public clsLinearRegression()
+        public clsANOVA()
         {
-            ModuleName = "Linear Regression Module";
+            ModuleName = "ANOVA Module";
         }
         /// <summary>
-        /// Module to perform linear regression on datasets
+        /// Module to perform ANOVA
         /// </summary>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
-        public clsLinearRegression(string InstanceOfR)
+        public clsANOVA(string InstanceOfR)
         {
-            ModuleName = "Linear Regression Module";
+            ModuleName = "ANOVA Module";
             s_RInstance = InstanceOfR;
         }
         /// <summary>
-        /// Module to perform linear regression on datasets
+        /// Module to perform ANOVA
         /// </summary>
         /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
-        public clsLinearRegression(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        public clsANOVA(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
-            ModuleName = "Linear Regression Module";
+            ModuleName = "ANOVA Module";
             Model = TheCyclopsModel;
             s_RInstance = InstanceOfR;
         }
@@ -83,9 +79,9 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            traceLog.Info("Performing Linear Regression on Datasets...");
+            traceLog.Info("Performing ANOVA...");
 
-            RegressData();
+            ANOVA();
 
             RunChildModules();
         }
@@ -102,48 +98,22 @@ namespace Cyclops.DataModules
             if (!dsp.HasNewTableName)
             {
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR Linear Regression class: 'newTableName': \"" +
+                traceLog.Error("ERROR: ANOVA class: 'newTableName': \"" +
                     dsp.NewTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasInputTableName)
             {
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR Linear Regression class: 'inputTableName': \"" +
+                traceLog.Error("ERROR: ANOVA class: 'inputTableName': \"" +
                     dsp.InputTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
-            }
-            if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.FactorTable))
-            {
-
-            }            
-            if (string.IsNullOrEmpty(dsp.FactorTable))
-            {
-                b_2Pass = false;
-                traceLog.Error("ERROR Linear Regression class: 'factorTable' is null or empty. " +
-                    "Linear Regression will not be performed on the datasets.");
-                return b_2Pass;
-            }
-            if (string.IsNullOrEmpty(dsp.FactorColumn))
-            {
-                b_2Pass = false;
-                traceLog.Error("ERROR Linear Regression class: 'factorColumn'/'Fixed_Effect' " +
-                    " was not passed in. Linear Regression will not be performed on the datasets.");
-                return b_2Pass;
-            }
-            if (!clsGenericRCalls.TableContainsColumn(s_RInstance, dsp.FactorTable, dsp.FactorColumn))
-            {
-                b_2Pass = false;
-                traceLog.Error("ERROR Linear Regression class: 'factorTable' (" +
-                    dsp.FactorTable + ") was not found in R workspace! " +
-                    "Linear Regression will not be performed on the datasets.");
-                return b_2Pass;
             }
 
             return b_2Pass;
         }
 
-        private void RegressData()
+        private void ANOVA()
         {
             dsp.GetParameters(ModuleName, Parameters);
 
@@ -152,38 +122,20 @@ namespace Cyclops.DataModules
                 REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = "";
 
-                s_RStatement += string.Format("{0} <- LinReg_normalize(" +
-                    "x={1}, factorTable={2}, factorCol=\"{3}\", " +
-                    "reference={4})",
-                    dsp.NewTableName,
-                    dsp.InputTableName,
-                    dsp.FactorTable,
-                    dsp.ConsolidationFactor,
-                    dsp.Variable);
+                // TODO : make R statement to perform ANOVA
 
                 try
                 {
-                    if (!dsp.ConsolidationFactor.Equals(""))
-                    {
-                        traceLog.Info("Linear Regression on Datasets: " + s_RStatement);
-                        engine.EagerEvaluate(s_RStatement);
-                    }
-                    else
-                    {
-                        traceLog.Info("Linear Regression: Consolidation Factor was not specified, " +
-                            "so no linear regression was performed.");
-                    }
-
+                    traceLog.Info("Performing ANOVA: " + s_RStatement);
+                    engine.EagerEvaluate(s_RStatement);
                 }
                 catch (Exception exc)
                 {
-                    traceLog.Error("Error Linear Regression on datasets: " + exc.ToString());
+                    traceLog.Error("Error ANOVA: " + exc.ToString());
                     Model.SuccessRunningPipeline = false;
                 }
-
             }
         }
-
         #endregion
     }
 }
