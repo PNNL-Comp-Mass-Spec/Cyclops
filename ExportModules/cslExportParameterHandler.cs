@@ -56,6 +56,7 @@ namespace Cyclops.ExportModules
             s_SeparatingCharacter = "",
             s_Source = "", 
             s_TableName = "", 
+            s_Target = "",
             s_Width = "850",
             s_WorkDir = "";
 
@@ -228,6 +229,12 @@ namespace Cyclops.ExportModules
             get { return s_TableName; }
             set { s_TableName = value; }
         }
+
+        public string Target
+        {
+            get { return s_Target; }
+            set { s_Target = value; }
+        }
         public string Width
         {
             get { return s_Width; }
@@ -338,6 +345,9 @@ namespace Cyclops.ExportModules
                         TableName = kvp.Value;
                         if (TableName.Length > 0)
                             b_HasTableName = true;
+                        break;
+                    case "target":
+                        Target = kvp.Value;
                         break;
                     case "width":
                         Width = kvp.Value;

@@ -27,6 +27,7 @@ using System.Threading;
 
 using RDotNet;
 using log4net;
+using Mage;
 
 namespace Cyclops.ExportModules
 {
@@ -86,135 +87,179 @@ namespace Cyclops.ExportModules
 
             if (CheckPassedParameters())
             {
-
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
-                string s_Command = "";
-
                 switch (esp.Source)
                 {
+                    case "R":
+                        ExportFromR();
+                        break;
                     case "sqlite":
-                        if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
+                        ExportFromSQLite();
+                        break;
+                }       
+            }
+        }
+
+        private void ExportFromR()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+            string s_Command = "";
+
+            switch (esp.Target)
+            {
+                case "sqlite":
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
+                    {
+                        ConnectToSQLiteDatabase();
+                        s_Command = string.Format("dbWriteTable(" +
+                            "conn=con, name=\"{0}\", value=data.frame({1}))",
+                            esp.NewTableName,
+                            esp.TableName);
+                        try
                         {
-                            ConnectToSQLiteDatabase();
-                            s_Command = string.Format("dbWriteTable(" +
-                                "conn=con, name=\"{0}\", value=data.frame({1}))",
-                                esp.NewTableName,
-                                esp.TableName);
+                            traceLog.Info("EXPORTING to SQLite: " + s_Command);
+                            engine.EagerEvaluate(s_Command);
+                        }
+                        catch (Exception exc)
+                        {
+                            Model.SuccessRunningPipeline = false;
+                            traceLog.Error("ERROR ExportTable sqlite table: " + exc.ToString());
+                        }
+                        DisconnectFromDatabase();
+                    }
+                    else
+                    {
+                        traceLog.Info("EXPORT TABLE: table '" +
+                            esp.TableName + "' was not found in the R workspace, " +
+                            "and therefore was not exported to the sqlite database.");
+                    }
+                    break;
+                case "csv":
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
+                    {
+                        if (esp.HasFileName)
+                        {
+                            if (esp.IncludeRowNames)
+                            {
+                                s_Command = string.Format("jnb_Write(df={0}, " +
+                                    "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
+                                    "sepChar=\"{3}\")",
+                                    esp.TableName,
+                                    esp.WorkDirectory + "/" + esp.FileName,
+                                    esp.RownamesColumnHeader,
+                                    esp.SeparatingCharacter);
+                            }
+                            else
+                            {
+                                s_Command = string.Format("jnb_Write(df={0}, " +
+                                    "fileName=\"{1}\", row.names=FALSE, " +
+                                    "sepChar=\"{2}\")",
+                                    esp.TableName,
+                                    esp.WorkDirectory + "/" + esp.FileName,
+                                    esp.SeparatingCharacter);
+                            }
+
                             try
                             {
-                                traceLog.Info("EXPORTING to SQLite: " + s_Command);
+                                traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
                                 engine.EagerEvaluate(s_Command);
                             }
                             catch (Exception exc)
                             {
                                 Model.SuccessRunningPipeline = false;
-                                traceLog.Error("ERROR ExportTable sqlite table: " + exc.ToString());
+                                traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
                             }
-                            DisconnectFromDatabase();
                         }
-                        else
+                    }
+                    else
+                    {
+                        traceLog.Info("EXPORT TABLE: table '" +
+                               esp.TableName + "' was not found in the R workspace, " +
+                               "and therefore was not exported to csv file.");
+                    }
+                    break;
+                case "tsv":
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
+                    {
+                        if (esp.HasFileName)
                         {
-                            traceLog.Info("EXPORT TABLE: table '" +
-                                esp.TableName + "' was not found in the R workspace, " +
-                                "and therefore was not exported to the sqlite database.");
-                        }
-                        break;
-                    case "csv":
-                        if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
-                        {
-                            if (esp.HasFileName)
+                            if (esp.IncludeRowNames)
                             {
-                                if (esp.IncludeRowNames)
-                                {
-                                    s_Command = string.Format("jnb_Write(df={0}, " +
-                                        "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
-                                        "sepChar=\"{3}\")",
-                                        esp.TableName,
-                                        esp.WorkDirectory + "/" + esp.FileName,
-                                        esp.RownamesColumnHeader,
-                                        esp.SeparatingCharacter);
-                                }
-                                else
-                                {
-                                    s_Command = string.Format("jnb_Write(df={0}, " +
-                                        "fileName=\"{1}\", row.names=FALSE, " +
-                                        "sepChar=\"{2}\")",
-                                        esp.TableName,
-                                        esp.WorkDirectory + "/" + esp.FileName,
-                                        esp.SeparatingCharacter);
-                                }
-
-                                try
-                                {
-                                    traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
-                                    engine.EagerEvaluate(s_Command);
-                                }
-                                catch (Exception exc)
-                                {
-                                    Model.SuccessRunningPipeline = false;
-                                    traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
-                                }
+                                s_Command = string.Format("jnb_Write(df={0}, " +
+                                    "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
+                                    "sepChar=\"{3}\")",
+                                    esp.TableName,
+                                    esp.WorkDirectory + "/" + esp.FileName,
+                                    esp.RownamesColumnHeader,
+                                    esp.SeparatingCharacter);
                             }
-                        }
-                        else
-                        {
-                            traceLog.Info("EXPORT TABLE: table '" +
-                                   esp.TableName + "' was not found in the R workspace, " +
-                                   "and therefore was not exported to csv file.");
-                        }
-                        break;
-                    case "tsv":
-                        if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
-                        {
-                            if (esp.HasFileName)
+                            else
                             {
-                                if (esp.IncludeRowNames)
-                                {
-                                    s_Command = string.Format("jnb_Write(df={0}, " +
-                                        "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
-                                        "sepChar=\"{3}\")",
-                                        esp.TableName,
-                                        esp.WorkDirectory + "/" + esp.FileName,
-                                        esp.RownamesColumnHeader,
-                                        esp.SeparatingCharacter);
-                                }
-                                else
-                                {
-                                    s_Command = string.Format("jnb_Write(df={0}, " +
-                                        "fileName=\"{1}\", row.names=FALSE, " +
-                                        "sepChar=\"{2}\")",
-                                        esp.TableName,
-                                        esp.WorkDirectory + "/" + esp.FileName,
-                                        esp.SeparatingCharacter);
-                                }
+                                s_Command = string.Format("jnb_Write(df={0}, " +
+                                    "fileName=\"{1}\", row.names=FALSE, " +
+                                    "sepChar=\"{2}\")",
+                                    esp.TableName,
+                                    esp.WorkDirectory + "/" + esp.FileName,
+                                    esp.SeparatingCharacter);
+                            }
 
-                                try
-                                {
-                                    traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
-                                    engine.EagerEvaluate(s_Command);
-                                }
-                                catch (Exception exc)
-                                {
-                                    Model.SuccessRunningPipeline = false;
-                                    traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
-                                }
+                            try
+                            {
+                                traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
+                                engine.EagerEvaluate(s_Command);
+                            }
+                            catch (Exception exc)
+                            {
+                                Model.SuccessRunningPipeline = false;
+                                traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
                             }
                         }
-                        else
-                        {
-                            traceLog.Info("EXPORT TABLE: table '" +
-                                   esp.TableName + "' was not found in the R workspace, " +
-                                   "and therefore was not exported to tsv file.");
-                        }
-                        break;
-                    case "access":
+                    }
+                    else
+                    {
+                        traceLog.Info("EXPORT TABLE: table '" +
+                               esp.TableName + "' was not found in the R workspace, " +
+                               "and therefore was not exported to tsv file.");
+                    }
+                    break;
+                case "access":
 
-                        break;
-                    case "sqlserver":
+                    break;
+                case "sqlserver":
 
-                        break;
-                }                
+                    break;
+            }
+        }
+
+        private void ExportFromSQLite()
+        {
+            if (esp.Target.Equals("tsv") ||
+                esp.Target.Equals("txt") ||
+                esp.Target.Equals("csv"))
+            {
+                SQLiteReader reader = new SQLiteReader();
+                reader.Database = Path.Combine(esp.WorkDirectory, esp.InputFileName);
+                reader.SQLText = string.Format("SELECT * FROM {0}",
+                    esp.TableName);
+
+                DelimitedFileWriter writer = new DelimitedFileWriter();
+                writer.FilePath = Path.Combine(esp.WorkDirectory, esp.FileName);
+                writer.Delimiter = esp.SeparatingCharacter.Equals("\\t") ? "\t" : esp.SeparatingCharacter;
+
+
+                traceLog.Info("Writing SQLite table out to " + esp.Target + "\n" +
+                    "SQLite database: " + reader.Database + "\n" +
+                    "Table name: " + esp.TableName + "\n" +
+                    "Output filename: " + writer.FilePath);
+
+                try
+                {
+                    ProcessingPipeline.Assemble("Writing Table out to Text", reader, writer).RunRoot(null);
+                }
+                catch (Exception exc)
+                {
+                    traceLog.Error("ERROR Exporting SQLite table to text: " + exc.ToString());
+                }
             }
         }
 
