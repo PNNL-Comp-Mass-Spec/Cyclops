@@ -87,6 +87,7 @@ namespace Cyclops.VisualizationModules
             s_RowFactorTable = "",
             s_ShowCount = "TRUE",
             s_ShowLegend = "TRUE",
+            s_SkipTheFirstColumn = "false",            // for correlation heatmap of spectral count data where PeptideCount is present
             s_Stamp = "NULL",
             s_TableName = "",
             s_Type = "",
@@ -307,6 +308,15 @@ namespace Cyclops.VisualizationModules
         {
             get { return s_ShowLegend; }
             set { s_ShowLegend = value; }
+        }
+
+        /// <summary>
+        /// true/false indicating whether or not to skip the first column (in cases where PeptideCount is present)
+        /// </summary>
+        public string SkipTheFirstColumn
+        {
+            get { return s_SkipTheFirstColumn.ToLower(); }
+            set { s_SkipTheFirstColumn = value; }
         }
         /// <summary>
         /// Whether to include outliers, defaults to TRUE
@@ -745,6 +755,9 @@ namespace Cyclops.VisualizationModules
                         break;
                     case "showLegend":  // defaults to TRUE
                         ShowLegend = kvp.Value;
+                        break;
+                    case "skipTheFirstColumn":  // defaults to FALSE
+                        s_SkipTheFirstColumn = kvp.Value;
                         break;
                     case "stamp": // defaults to NULL
                         Stamp = kvp.Value;

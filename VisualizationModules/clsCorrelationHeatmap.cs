@@ -98,6 +98,13 @@ namespace Cyclops.VisualizationModules
                     RunCorrelationAnalysis();
                     CreatePlotFile();
                 }
+                else
+                {
+                    traceLog.Error("ERROR Correlation Heatmap module: " +
+                        vgp.TableName + " table was not found in the R workspace.\n" +
+                        "The Correlation Plot analysis can not continue without this " +
+                        "table present.");
+                }
             }
         }
 
@@ -166,11 +173,12 @@ namespace Cyclops.VisualizationModules
 
             string s_RStatement = string.Format(
                 "require(Hmisc)\n" +
-                "{0} <- rcorr(data.matrix({1}){2})\n" +
-                "{3} <- list(cor={0}$r, n={0}$n, prob={0}$P)\n" +
+                "{0} <- rcorr(data.matrix({1}{2}){3})\n" +
+                "{4} <- list(cor={0}$r, n={0}$n, prob={0}$P)\n" +
                 "rm({0})\n",
-                s_TemporaryTableName,
+                s_TemporaryTableName,                
                 vgp.TableName,
+                vgp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
                 !string.IsNullOrEmpty(vgp.Type) ? ", type=c(\"" + vgp.Type + "\")" : "",
                 vgp.CorrelationListName);
 

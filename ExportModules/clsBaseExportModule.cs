@@ -29,6 +29,9 @@ namespace Cyclops.ExportModules
     /// </summary>
     public abstract class clsBaseExportModule : clsBaseModule
     {
+        #region Members
+
+        #endregion
 
         #region Properties
         // instance of the model class
@@ -38,5 +41,9 @@ namespace Cyclops.ExportModules
             set;
         }
         #endregion
-    }    
+
+        #region Methods
+        
+        #endregion
+    }
 }

@@ -124,14 +124,14 @@ namespace Cyclops.DataModules
                     "Linear Regression will not be performed on the datasets.");
                 return b_2Pass;
             }
-            if (string.IsNullOrEmpty(dsp.FactorColumn))
+            if (string.IsNullOrEmpty(dsp.ConsolidationFactor))
             {
                 b_2Pass = false;
-                traceLog.Error("ERROR Linear Regression class: 'factorColumn'/'Fixed_Effect' " +
+                traceLog.Error("ERROR Linear Regression class: 'factorColumn'/'Consolidation_Factor' " +
                     " was not passed in. Linear Regression will not be performed on the datasets.");
                 return b_2Pass;
             }
-            if (!clsGenericRCalls.TableContainsColumn(s_RInstance, dsp.FactorTable, dsp.FactorColumn))
+            if (!clsGenericRCalls.TableContainsColumn(s_RInstance, dsp.FactorTable, dsp.ConsolidationFactor))
             {
                 b_2Pass = false;
                 traceLog.Error("ERROR Linear Regression class: 'factorTable' (" +

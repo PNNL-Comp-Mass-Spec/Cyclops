@@ -165,6 +165,20 @@ namespace Cyclops.VisualizationModules
                     Model.SuccessRunningPipeline = false;
                 }
             }
+                        
+            string s_TmpTable = GetTemporaryTableName();
+            if (vgp.SkipTheFirstColumn.ToLower().Equals("true"))
+            {
+                s_RStatement += string.Format("{0} <- {1}[,-1]\n",
+                    s_TmpTable,
+                    vgp.TableName);
+            }
+            else
+            {
+                s_RStatement += string.Format("{0} <- {1}\n",
+                    s_TmpTable,
+                    vgp.TableName);
+            }
 
             s_RStatement += string.Format("Boxplots(x={0}, Columns={1}, " +
                 "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
@@ -172,8 +186,9 @@ namespace Cyclops.VisualizationModules
                 "outliers={6}, color=\"{7}\", bkground=\"{8}\", labelscale={9}, " +
                 "boxwidth={10}, showcount={11}, showlegend={12}, stamp={13}, " +
                 "do.ylim={14}, ymin={15}, ymax={16}, ylabel=\"{17}\", " +
-                "IMGwidth={18}, IMGheight={19}, FNTsize={20}, res={21})",
-                vgp.TableName,                                          // 0
+                "IMGwidth={18}, IMGheight={19}, FNTsize={20}, res={21})\n" +
+                "rm({0})\n",
+                s_TmpTable,                                             // 0
                 vgp.DataColumns.Length > 0 ? "\"" + vgp.DataColumns + "\"" : "NULL",  // 1
                 vgp.PlotFileName,                                       // 2
                 vgp.ColorByFactor,                                      // 3

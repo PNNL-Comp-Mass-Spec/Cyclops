@@ -86,16 +86,25 @@
     <Compile Include="DataModules\clsRMD.cs" />
     <Compile Include="DataModules\clsAggregate.cs" />
     <Compile Include="DataModules\clsBaseDataModule.cs" />
+    <Compile Include="DataModules\clsRoot.cs" />
     <Compile Include="DataModules\clsRRollup.cs" />
     <Compile Include="DataModules\clsSQLiteSummaryTableGenerator.cs" />
+    <Compile Include="DataModules\clsSummarizeData.cs" />
+    <Compile Include="DataModules\clsZRollup.cs" />
     <Compile Include="ExportModules\clsBaseExportModule.cs" />
     <Compile Include="clsBaseModule.cs" />
+    <Compile Include="ExportModules\clsHTMLFileHandler.cs" />
+    <Compile Include="ExportModules\clsHtmlLinkNode.cs" />
     <Compile Include="ExportModules\clsHTMLSummary.cs" />
     <Compile Include="ExportModules\clsLBF_Summary_HTML.cs" />
     <Compile Include="ExportModules\clsQC_Fraction_HTML.cs" />
+    <Compile Include="ExportModules\clsSCO_Summary_HTML.cs" />
     <Compile Include="ExportModules\clsSummaryHTMLTemplate.cs" />
     <Compile Include="ExportModules\cslExportParameterHandler.cs" />
     <Compile Include="MiscModules\clsMiscFunctions.cs" />
+    <Compile Include="Operations\clsBaseOperationModule.cs" />
+    <Compile Include="Operations\clsSpectralCountMainOperation.cs" />
+    <Compile Include="Operations\clsLabelFreeMainOperation.cs" />
     <Compile Include="VisualizationModules\clsBarPlot.cs" />
     <Compile Include="VisualizationModules\clsBaseVisualizationModule.cs" />
     <Compile Include="DataModules\clsBetaBinomialModelModule.cs" />
@@ -228,6 +237,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="R_Scripts\Misc\OutlierDetector.R" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="R_Scripts\Rollup\ZRollup.R" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

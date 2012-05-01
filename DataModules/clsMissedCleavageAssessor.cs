@@ -126,6 +126,8 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
+                DropAnyExistingTables();
+
                 string s_Command = "";
 
                 if (dsp.FactorColumn.Equals("*"))
@@ -189,6 +191,20 @@ namespace Cyclops.DataModules
             }
         }
 
+        /// <summary>
+        /// If the table already exists, this function drops the table so the table can be reentered into the database.
+        /// </summary>
+        private void DropAnyExistingTables()
+        {
+            if (clsSQLiteHandler.TableExists(dsp.NewTableName, Path.Combine(dsp.WorkDirectory, dsp.InputFileName)))
+            {
+                string s_Command = string.Format("DROP TABLE {0}",
+                    dsp.NewTableName);
+
+                clsSQLiteHandler.RunNonQuery(s_Command, Path.Combine(dsp.WorkDirectory, dsp.InputFileName));
+            }
+        }
+
         private void AddDictionaryResultsToRWorkspace()
         {
             DataTable dt_MissedCleavages = new DataTable("MissedCleavages");
@@ -210,6 +226,9 @@ namespace Cyclops.DataModules
                 dt_MissedCleavages.Rows.Add(myRow);
             }
 
+            // save to database
+            clsSQLiteHandler.WriteDataTableToSQLiteTable(
+                Path.Combine(dsp.WorkDirectory, dsp.InputFileName), dt_MissedCleavages, "T_MissedCleavageSummary");
             clsGenericRCalls.SetDataFrame(s_RInstance, dt_MissedCleavages, dsp.NewTableName);
         }
         #endregion

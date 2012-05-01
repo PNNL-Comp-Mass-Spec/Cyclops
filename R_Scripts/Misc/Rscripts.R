@@ -108,14 +108,9 @@ jnb_AutoScale <- function(x) {
 }
 
 # Produces a summary table for a data.frame or matrix in the workspace.
-jnb_Summarize <- function(df
-                      , down_or_across
-                      , removeNulls
-                      )
+jnb_Summarize <- function(df, removeNulls=TRUE)
 {
-    if(down_or_across == "Columns")
-    {
-        returnTable <- data.frame(
+    colSummary <- data.frame(
           rbind(
             "Minimum"=apply(df, MARGIN=2, FUN=min, na.rm=removeNulls)
             ,"Mean"=apply(df, MARGIN=2, FUN=mean, na.rm=removeNulls)
@@ -126,11 +121,11 @@ jnb_Summarize <- function(df
             ,"Present"=apply(df, MARGIN=2, FUN=function(x){sum(!is.na(x))})
             )
         )
-         return(returnTable)
-    }
-    else if (down_or_across == "Rows")# summarize rows in dataset
-    {
-        returnTable <- data.frame(
+	colSummary <- rbind(colSummary
+		, "Percent Absent"=(colSummary[6,]*100)/(colSummary[6,] + colSummary[7,])
+		, "Percent Present"=(colSummary[7,]*100)/(colSummary[6,] + colSummary[7,]))
+		
+    rowSummary <- data.frame(
           cbind(
             "Minimum"=apply(df, MARGIN=1, FUN=min, na.rm=removeNulls)
             ,"Mean"=apply(df, MARGIN=1, FUN=mean, na.rm=removeNulls)
@@ -141,12 +136,8 @@ jnb_Summarize <- function(df
             ,"Present"=apply(df, MARGIN=1, FUN=function(x){sum(!is.na(x))})
             )
         )
-         return(returnTable)
-    }
-    else if (down_or_across == "Total")
-    {
-       returnTable <- data.frame(
-          rbind(
+		
+    totalSummary <- rbind(
             "Minimum" = min(df, na.rm=removeNulls)
             , "Maximum" = max(df, na.rm=removeNulls)
             , "NULLs"=sum(is.na(df))
@@ -154,10 +145,8 @@ jnb_Summarize <- function(df
             , "Percent Absent" = (sum(is.na(df))*100)/(dim(df)[1]*dim(df)[2])
 			, "Percent Present" = (sum(!is.na(df))*100)/(dim(df)[1]*dim(df)[2])
           )
-       )
-       colnames(returnTable)<-c("Totals")
-       return(returnTable)
-    }
+	colnames(totalSummary) <- c("Value")
+	return(list("ColumnSummary"=colSummary, "RowSummary"=rowSummary, "TotalSummary"=totalSummary))
 }
 
 # Exporting csv files with header
@@ -172,11 +161,11 @@ jnb_Write <- function(
 	if (row.names) {
 		header <- paste(c(firstColumnHeader, colnames(df)), collapse=sepChar)
 		cat(header, "\n", file=out)
-		write.table(df, out, sep=sepChar, col.names=FALSE, quote=FALSE)
+		write.table(df, out, sep=sepChar, col.names=FALSE, quote=FALSE, na="")
 	} else {
 		header <- paste(c(colnames(df)), collapse=sepChar)
 		cat(header, "\n", file=out)
-		write.table(df, out, sep=sepChar, row.names=row.names, col.names=FALSE, quote=FALSE)
+		write.table(df, out, sep=sepChar, row.names=row.names, col.names=FALSE, quote=FALSE, na="")
 	}
 	close(out)
 }

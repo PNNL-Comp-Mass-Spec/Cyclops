@@ -44,6 +44,7 @@ namespace Cyclops.ExportModules
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private string s_LineDelimiter = "\n";
         private string s_Tab = "\t";
+        private enum HTMLFileType { Dataset, Index };
 
         private string s_RInstance;
         #endregion
@@ -92,10 +93,10 @@ namespace Cyclops.ExportModules
             bool b_2Param = true;
 
             // NECESSARY PARAMETERS
-            if (!esp.HasTableName)
+            if (!esp.HasFileName)
             {
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR HTML SUMMARY FILE: 'tableName' was not found in the passed parameters");
+                traceLog.Error("ERROR HTML SUMMARY FILE: 'fileName' was not found in the passed parameters");
                 b_2Param = false;
             }
             if (!esp.HasWorkDirectory)
@@ -127,13 +128,118 @@ namespace Cyclops.ExportModules
 
             if (CheckPassedParameters())
             {
+                string s_CssFileName = "styles.css", s_DatasetsFileName = "Datasets.html",
+                    s_QCFileName = "QC.html";
+                List<clsHtmlLinkNode> l_NavBarNodes = new List<clsHtmlLinkNode>();
+                
+                l_NavBarNodes.Add(new clsHtmlLinkNode(
+                    "Home", esp.FileName, false));
+                l_NavBarNodes.Add(new clsHtmlLinkNode(
+                    "Datasets", s_DatasetsFileName, false));
+                l_NavBarNodes.Add(new clsHtmlLinkNode(
+                    "QC Plots", s_QCFileName, false));
+                                
+                using (StreamWriter sw_Css = File.AppendText(Path.Combine(esp.WorkDirectory, s_CssFileName)))
+                {
+                    sw_Css.WriteLine(clsHTMLFileHandler.GetCSS(clsHTMLFileHandler.CssStyle.NavBar, 160));
+                    sw_Css.WriteLine(clsHTMLFileHandler.GetCSS(clsHTMLFileHandler.CssStyle.LeftIndent, 160));
+                    sw_Css.WriteLine(clsHTMLFileHandler.GetCSS(clsHTMLFileHandler.CssStyle.Th, 160));
+                }
+
+                // Construct and write-out the Datasets Page
+                StringBuilder sb_Datasets = new StringBuilder();
+
+                sb_Datasets.Append(clsHTMLFileHandler.GetHtmlHeader());
+                sb_Datasets.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
+                sb_Datasets.Append(clsHTMLFileHandler.GetHtmlJavascriptStart());
+                sb_Datasets.Append(WriteHtmlScripts());
+                sb_Datasets.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
+                sb_Datasets.Append(clsHTMLFileHandler.GetEndHeadStartBody());
+                sb_Datasets.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_Datasets.Append("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:100px;'>\n");
+                sb_Datasets.Append(WriteHtmlBody(HTMLFileType.Dataset));
+                sb_Datasets.Append("\t\t</DIV>\n");
+                sb_Datasets.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
+
+                StreamWriter sw_Datasets = new StreamWriter(Path.Combine(esp.WorkDirectory,
+                    s_DatasetsFileName));
+                sw_Datasets.Write(sb_Datasets);
+                sw_Datasets.Close();
+                sb_Datasets.Clear();
+
+                // Construct and write-out the QC Page
+                StringBuilder sb_QC = new StringBuilder();
+
+                clsHtmlLinkNode node_MissedCleavages = new clsHtmlLinkNode("Missed Cleavages", "mc", true);
+                l_NavBarNodes.Add(node_MissedCleavages);
+                clsHtmlLinkNode node_TrypticPeptides = new clsHtmlLinkNode("Tryptic Peptides", "tp", true);
+                l_NavBarNodes.Add(node_TrypticPeptides);
+
+                sb_QC.Append(clsHTMLFileHandler.GetHtmlHeader());
+                sb_QC.Append(clsHTMLFileHandler.GetHtmlJavascriptStart());
+                sb_QC.Append(WriteHtmlScripts());
+                sb_QC.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
+                sb_QC.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
+                sb_QC.Append(clsHTMLFileHandler.GetEndHeadStartBody());
+                sb_QC.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_QC.Append(WriteHtmlBody(HTMLFileType.Index));
+                sb_QC.Append("\t\t<H2 class='pos_left'>Spectral Count Summary</H2>\n");
+                sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
+                    "Spectral_Count_Summary.png", true, "pos_left", null, null));
+                sb_QC.Append("\t\t<DIV ID='SpectralCount' style='position: absolute; left:700px; top:100px;'>\n");
+                sb_QC.Append(clsHTMLFileHandler.GetTableHtml(
+                    clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_SpecCnt_Summary",
+                    Path.Combine(esp.WorkDirectory, "Results.db3")), null, null, null, null));
+                sb_QC.Append("\t\t</DIV>\n");
+
+                sb_QC.Append("\t\t<A NAME='mc'/A>\n");
+                sb_QC.Append("\t\t<H2 class='pos_left'>Missed Cleavage Summary</H2>\n");
+                sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
+                    "MissedCleavage_Summary.png", true, "pos_left", null, null));
+                sb_QC.Append("\t\t<DIV ID='MissedCleavage' style='position: absolute; left:700px; top:560px;'>\n");
+                sb_QC.Append(clsHTMLFileHandler.GetTableHtml(
+                    clsSQLiteHandler.GetDataTable("SELECT * FROM T_MissedCleavageSummary",
+                    Path.Combine(esp.WorkDirectory, "Results.db3")), null, null, null, null));
+                sb_QC.Append("\t\t</DIV>\n");
+
+                sb_QC.Append("\t\t<A NAME='tp'/A>\n");
+                sb_QC.Append("\t\t<H2 class='pos_left'>Tryptic Peptide Summary</H2>\n");
+                sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
+                    "Tryptic_Summary.png", true, "pos_left", null, null));
+                sb_QC.Append("\t\t<DIV ID='TrypticCoverage' style='position: absolute; left:700px; top:1040px;'>\n");
+                sb_QC.Append(clsHTMLFileHandler.GetTableHtml(
+                    clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_Trypticity_Summary",
+                    Path.Combine(esp.WorkDirectory, "Results.db3")), null, null, null, null));
+                sb_QC.Append("\t\t</DIV>\n");
+
+                StreamWriter sw_QC = new StreamWriter(Path.Combine(esp.WorkDirectory,
+                    s_QCFileName));
+                sw_QC.WriteLine(sb_QC);
+                sw_QC.Close();
+
+                l_NavBarNodes.Remove(node_MissedCleavages);
+                l_NavBarNodes.Remove(node_TrypticPeptides);
+
+                // Construct and write-out the main html summary page
                 StringBuilder sb_HTML = new StringBuilder();
 
-                sb_HTML.Append(WriteHtmlHeader());
+                l_NavBarNodes.Add(new clsHtmlLinkNode(
+                    "Correlation", "ch", true));
+
+                sb_HTML.Append(clsHTMLFileHandler.GetHtmlHeader());
+                sb_HTML.Append(clsHTMLFileHandler.GetHtmlJavascriptStart());
                 sb_HTML.Append(WriteHtmlScripts());
-                sb_HTML.Append(WriteEndHead());
-                sb_HTML.Append(WriteHtmlBody());
-                sb_HTML.Append(WriteEndHtml());
+                sb_HTML.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
+                sb_HTML.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
+                sb_HTML.Append(clsHTMLFileHandler.GetEndHeadStartBody());
+                sb_HTML.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_HTML.Append(WriteHtmlBody(HTMLFileType.Index));
+                sb_HTML.Append("\t\t<A NAME='ch'/A>\n");
+                sb_HTML.Append("\t\t<H2 class='pos_left'>Correlation Heatmap</H2>\n");
+                sb_HTML.Append(clsHTMLFileHandler.GetPictureCode(
+                    "T_SpectralCounts_CorrelationHeatmap.png", true, "pos_left", null, null));
+
+                sb_HTML.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
 
 
                 // TODO : Write the html out to the file
@@ -143,40 +249,30 @@ namespace Cyclops.ExportModules
             }
         }
 
-        private string WriteHtmlHeader()
-        {
-            string s_HTML = "<HTML>" + s_LineDelimiter + s_Tab + "<HEAD>" + s_LineDelimiter;
-            return s_HTML;
-        }
-
         private StringBuilder WriteHtmlScripts()
         {
             StringBuilder sb_ReturnScripts = new StringBuilder();
             // TODO: Build Script
-            
+
             return sb_ReturnScripts;
         }
 
-
-        private string WriteEndHead()
+        private string WriteHtmlBody(HTMLFileType TheHTMLFileType)
         {
-            string s_Head = s_Tab + "</HEAD>" + s_LineDelimiter;
-            return s_Head;
-        }
+            string s_Body = "";
+            switch (TheHTMLFileType)
+            {
+                case HTMLFileType.Dataset:
+                    s_Body = clsHTMLFileHandler.GetDatasetTableHtml(
+                        Path.Combine(esp.WorkDirectory, esp.DatabaseName), null,
+                            "center", 0, 2, 4);
+                    break;
+                case HTMLFileType.Index:
 
-        private string WriteHtmlBody()
-        {
-            string s_Body = s_Tab + "<BODY>"
-                + s_LineDelimiter;
-            
-            s_Body += s_Tab + "</BODY>" + s_LineDelimiter;
+                    break;
+            }
+
             return s_Body;
-        }
-
-        private string WriteEndHtml()
-        {
-            string s_End = "</HTML>";
-            return s_End;
         }
         #endregion
     }

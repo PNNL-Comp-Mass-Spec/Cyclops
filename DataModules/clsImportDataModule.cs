@@ -37,10 +37,12 @@ namespace Cyclops.DataModules
     /// </summary>
     public class clsImportDataModule : clsBaseDataModule
     {
+        #region Members
         private string s_RInstance, s_Current_R_Statement = "";
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private DataModules.clsDataModuleParameterHandler dsp = 
             new DataModules.clsDataModuleParameterHandler();
+        #endregion
 
         #region Constructors
         /// <summary>

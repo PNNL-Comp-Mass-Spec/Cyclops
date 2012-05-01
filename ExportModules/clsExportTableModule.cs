@@ -147,7 +147,7 @@ namespace Cyclops.ExportModules
                                     esp.TableName,
                                     esp.WorkDirectory + "/" + esp.FileName,
                                     esp.RownamesColumnHeader,
-                                    esp.SeparatingCharacter);
+                                    esp.SeparatingCharacter.Replace("\"", ""));
                             }
                             else
                             {
@@ -156,7 +156,7 @@ namespace Cyclops.ExportModules
                                     "sepChar=\"{2}\")",
                                     esp.TableName,
                                     esp.WorkDirectory + "/" + esp.FileName,
-                                    esp.SeparatingCharacter);
+                                    esp.SeparatingCharacter.Replace("\"", ""));
                             }
 
                             try

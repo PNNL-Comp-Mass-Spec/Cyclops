@@ -141,7 +141,7 @@ namespace Cyclops.DataModules
 
             if (!dsp.HasFactorTable)
             {
-                Model.SuccessRunningPipeline = false;
+                //Model.SuccessRunningPipeline = false;
                 traceLog.Error("QuasiTel class: 'factorTable': \"" +
                     dsp.FactorComplete + "\", was not found in the passed parameters");
                 b_2Pass = false;
@@ -149,17 +149,26 @@ namespace Cyclops.DataModules
 
             if (!dsp.HasFactorComplete)
             {
-                Model.SuccessRunningPipeline = false;
+                //Model.SuccessRunningPipeline = false;
                 traceLog.Error("QuasiTel class: 'factor': \"" +
                     dsp.FactorComplete + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
 
             // Grab the number of factors
-            i_NumberOfFactors = clsGenericRCalls.GetUniqueLengthOfColumn(s_RInstance,
-                dsp.FactorTable, dsp.FactorColumn);
+            i_NumberOfFactors = 0;
+            if (!string.IsNullOrEmpty(dsp.FactorTable) &
+                !string.IsNullOrEmpty(dsp.FactorColumn))
+            {
+                i_NumberOfFactors = clsGenericRCalls.GetUniqueLengthOfColumn(s_RInstance,
+                     dsp.FactorTable, dsp.FactorColumn);
+            }
 
-            if (i_NumberOfFactors < 2)
+            if (i_NumberOfFactors == 0)
+            {
+                b_2Pass = false;
+            }
+            else if (i_NumberOfFactors < 2)
             {
                 Model.SuccessRunningPipeline = false;
                 traceLog.Error("QuasiTel class: 'factor': \"" +

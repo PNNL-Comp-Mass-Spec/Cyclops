@@ -296,5 +296,102 @@ namespace Cyclops
                     exc.ToString());
             }
         }
+
+        /// <summary>
+        /// Gets the table information regarding the database from sqlite_master, such as table names etc.
+        /// </summary>
+        /// <param name="DatabasePath">Full path to the database.</param>
+        /// <returns>Datatable of all the information</returns>
+        public static DataTable GetDatabaseInformation(string DatabasePath)
+        {
+            DataTable dt = new DataTable();
+            string s_Command =
+            "SELECT * FROM " +
+            "sqlite_master WHERE type='table'";
+
+            try
+            {
+                var connStr = new SQLiteConnectionStringBuilder()
+                {
+                    DataSource = DatabasePath
+                };
+
+                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+                {
+                    conn.Open();
+                    SQLiteCommand cmd = conn.CreateCommand();
+
+                    cmd = conn.CreateCommand();
+                    cmd.CommandText = s_Command;
+                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    dt.Load(reader);
+                    conn.Close();
+
+                    conn.Close();
+                }
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine("EXC: " + exc.ToString());
+            }
+            return dt;
+        }
+
+
+        /// <summary>
+        /// Determines if a table is present in the database or not
+        /// </summary>
+        /// <param name="TableName">Name of table</param>
+        /// <param name="DatabaseFilePath">Full path to the database</param>
+        /// <returns>True if table is present, otherwise false</returns>
+        public static bool TableExists(string TableName, string DatabaseFilePath)
+        {
+            DataTable dt_Tables = GetDatabaseInformation(DatabaseFilePath);
+            foreach (DataRow dr in dt_Tables.Rows)
+            {
+                if (dr["tbl_name"].ToString().Equals(TableName))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// If a table exists in the database, this will remove the table
+        /// </summary>
+        /// <param name="TableName">Name of table to delete</param>
+        /// <param name="DatabaseFilePath">Full path to the database</param>
+        public static void DropTable(string TableName, string DatabaseFilePath)
+        {
+            if (TableExists(TableName, DatabaseFilePath))
+            {
+                string s_Command = "DROP TABLE " + TableName;
+
+                try
+                {
+                    var connStr = new SQLiteConnectionStringBuilder()
+                    {
+                        DataSource = DatabaseFilePath
+                    };
+
+                    using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+                    {
+                        conn.Open();
+                        SQLiteCommand cmd = conn.CreateCommand();
+
+                        cmd = conn.CreateCommand();
+                        cmd.CommandText = s_Command;
+                        int i = cmd.ExecuteNonQuery();
+                        Console.WriteLine("Returned: " + i);
+                        conn.Close();
+
+                        conn.Close();
+                    }
+                }
+                catch (Exception exc)
+                {
+                    Console.WriteLine("EXC: " + exc.ToString());
+                }
+            }
+        }
     }
 }

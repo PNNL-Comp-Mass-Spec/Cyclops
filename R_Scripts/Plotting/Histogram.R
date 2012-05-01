@@ -171,12 +171,13 @@ plotBars <- function(x,
 		if (length(col)==0)
 			col <- rainbow(dim(x)[1])
 
-		xc <- x[,Data.Column]
+		xc <- as.numeric(as.character(x[,Data.Column]))
 		if (takeLog && !is.null(base))
 			xc <- log(xc, base)
 
+		myArgs <- as.character(x[,names.arg])
 		barplot(xc, 
-			names.arg=x[,names.arg],
+			names.arg=myArgs,
 			xlab=xLab,
 			ylab=yLab,
 			main=title,

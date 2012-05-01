@@ -304,6 +304,8 @@ namespace Cyclops
             {
                 root.PerformOperation();
                 engine.Close();
+                traceLog.Info(string.Format("Cyclops completed {0}",
+                    SuccessRunningPipeline ? "successfully!" : "unsuccessfully."));
                 return SuccessRunningPipeline;
             }
             else

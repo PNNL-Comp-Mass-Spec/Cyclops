@@ -92,6 +92,7 @@ namespace Cyclops.VisualizationModules
                     REngine engine = REngine.GetInstanceFromID(s_RInstance);
                     // Construct the R statement
                     string s_RStatement = "";
+
                     if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "hexbin"))
                         clsGenericRCalls.InstallPackage(s_RInstance, "hexbin");
 
@@ -161,36 +162,42 @@ namespace Cyclops.VisualizationModules
         protected void BinData()
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            string s_RStatement = "bin <- hexbin(";
+            string s_TmpTable = base.GetTemporaryTableName();
+            string s_RStatement = string.Format("{0} <- data.frame({1})\n" +
+                "bin <- hexbin(",
+                s_TmpTable,
+                vgp.TableName);
 
             if (vgp.AbsLogX)
             {
                 s_RStatement += string.Format("abs(log(as.numeric({0}${1}), 10)), ",
-                    vgp.TableName,
+                    s_TmpTable,
                     vgp.xColumn);
             }
             else
             {
                 s_RStatement += string.Format("as.numeric({0}${1}), ",
-                    vgp.TableName,
+                    s_TmpTable,
                     vgp.xColumn);
             }
 
             if (vgp.AbsLogY)
             {
                 s_RStatement += string.Format("abs(log(as.numeric({0}${1}), 10)), ",
-                    vgp.TableName,
+                    s_TmpTable,
                     vgp.yColumn);
             }
             else
             {
                 s_RStatement += string.Format("as.numeric({0}${1}), ",
-                    vgp.TableName,
+                    s_TmpTable,
                     vgp.yColumn);
             }
 
-            s_RStatement += string.Format("xbins={0})\n",
-                vgp.Bins);
+            s_RStatement += string.Format("xbins={0})\n" +
+                "rm({1})",
+                vgp.Bins,
+                s_TmpTable);
 
             try
             {

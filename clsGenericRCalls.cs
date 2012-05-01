@@ -432,6 +432,118 @@ namespace Cyclops
             return dt_Return;
         }
 
+
+        /// <summary>
+        /// Converts an data.frame from R into a DataTable in C#
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>        
+        /// <param name="TheDataFrame">Name of data.frame</param>
+        /// <param name="NameOfFirstColumn">Name of the Rowname column, defaults to "RowNames"</param>
+        /// <returns>DataTable version of your data.frame</returns>
+        public static DataTable GetDataTableIncludingRownames(string InstanceOfR, string TheDataFrame, 
+            string NameOfFirstColumn)
+        {
+            List<string> l_Rownames = GetRowNames(InstanceOfR, TheDataFrame);
+
+            if (string.IsNullOrEmpty(NameOfFirstColumn))
+                NameOfFirstColumn = "RowNames";
+            
+            DataTable dt_Return = new DataTable();
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("data.frame"))
+            {
+                DataFrame dataset = engine.EagerEvaluate(TheDataFrame).AsDataFrame();
+
+                DataColumn dc_RowName = new DataColumn(NameOfFirstColumn);
+                dt_Return.Columns.Add(dc_RowName);
+
+                for (int i = 0; i < dataset.ColumnCount; i++)
+                {
+                    DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                    if (dc.Namespace.Equals(""))
+                    {
+                        int j = i + 1;
+                        dc.Namespace = j.ToString();
+                    }
+                    dt_Return.Columns.Add(dc);
+                }
+
+                // iterate across the rows
+                for (int r = 0; r < dataset.RowCount; r++)
+                {
+                    DataFrameRow df_Row = dataset.GetRow(r);
+
+                    string[] s_Row = new string[df_Row.DataFrame.ColumnCount+1];
+                    s_Row[0] = l_Rownames[r];
+                    for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                    {
+                        s_Row[i+1] = df_Row[i].ToString();
+                    }
+                    dt_Return.Rows.Add(s_Row);
+                }
+            }
+            else if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("matrix"))
+            {
+                DataFrame dataset = engine.EagerEvaluate("data.frame(" + TheDataFrame + ")").AsDataFrame();
+
+                DataColumn dc_RowName = new DataColumn(NameOfFirstColumn);
+                dt_Return.Columns.Add(dc_RowName);
+
+                for (int i = 0; i < dataset.ColumnCount; i++)
+                {
+                    DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                    if (dc.Namespace.Equals(""))
+                    {
+                        int j = i + 1;
+                        dc.Namespace = j.ToString();
+                    }
+                    dt_Return.Columns.Add(dc);
+                }
+
+                // iterate across the rows
+                for (int r = 0; r < dataset.RowCount; r++)
+                {
+                    DataFrameRow df_Row = dataset.GetRow(r);
+
+                    string[] s_Row = new string[df_Row.DataFrame.ColumnCount + 1];
+                    s_Row[0] = l_Rownames[r];
+                    for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                    {
+                        s_Row[i+1] = df_Row[i].ToString();
+                    }
+                    dt_Return.Rows.Add(s_Row);
+                }
+            }
+
+            return dt_Return;
+        }
+
+
+        /// <summary>
+        /// Gets the row names for a data.frame or matrix in the R workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        /// <param name="ObjectName">Name of the data.frame or matrix</param>
+        /// <returns>List of the rownames</returns>
+        public static List<string> GetRowNames(string InstanceOfR, string ObjectName)
+        {
+            List<string> l_Return = new List<string>();
+
+            if (GetClassOfObject(InstanceOfR, ObjectName).Equals("data.frame") ||
+                GetClassOfObject(InstanceOfR, ObjectName).Equals("matrix"))
+            {
+                REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+                CharacterVector cv = engine.EagerEvaluate(string.Format("rownames({0})",
+                    ObjectName)).AsCharacter();
+
+                for (int i = 0; i < cv.Length; i++)
+                    l_Return.Add(cv[i]);
+            }
+            return l_Return;
+        }
+
         /// <summary>
         /// Converts an data.frame from R into a DataTable in C#
         /// </summary>

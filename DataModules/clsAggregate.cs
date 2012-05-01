@@ -33,10 +33,12 @@ namespace Cyclops.DataModules
     /// </summary>
     public class clsAggregate : clsBaseDataModule
     {
+        #region Members
         private string s_RInstance, s_Current_R_Statement = "";
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        #endregion
 
         #region Constructors
         /// <summary>

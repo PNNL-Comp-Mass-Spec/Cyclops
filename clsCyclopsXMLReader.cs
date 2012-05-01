@@ -37,7 +37,7 @@ namespace Cyclops
     {
         #region Variables
         private XmlNodeReader reader;
-        private enum ModuleType {Data, Visual, Export};
+        private enum ModuleType {Data, Visual, Export, Operation};
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private int i_ModuleCounter = 0;
@@ -114,6 +114,63 @@ namespace Cyclops
                         case XmlNodeType.Element:
                             switch (reader.Name)
                             {
+                                case "operation":
+                                    currentModuleType = ModuleType.Operation;
+                                    string opid = reader.GetAttribute("id");
+                                    traceLog.Info("READING XML OPERATION: " + opid);
+                                    switch (opid)
+                                    {
+                                        case "SpectralCountOperation":
+                                            Operations.clsSpectralCountMainOperation specOp = new Operations.clsSpectralCountMainOperation(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = specOp;
+                                                currentNode = specOp;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(specOp);
+                                                currentNode = specOp;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "LabelFreeOperation":
+                                            Operations.clsLabelFreeMainOperation lbfOp = new Operations.clsLabelFreeMainOperation(Model, InstanceOfR);
+                                            #region Set Type of Label-free Analysis
+                                            if (reader.GetAttribute("type").Equals("Log2"))
+                                            {
+                                                lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2);
+                                            }
+                                            else if (reader.GetAttribute("type").Equals("Log2LR"))
+                                            {
+                                                lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2LR);
+                                            }
+                                            else if (reader.GetAttribute("type").Equals("Log2CT"))
+                                            {
+                                                lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2CT);
+                                            }
+                                            else if (reader.GetAttribute("type").Equals("Log2All"))
+                                            {
+                                                lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2All);
+                                            }
+                                            #endregion
+
+                                            if (root == null)
+                                            {
+                                                root = lbfOp;
+                                                currentNode = lbfOp;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(lbfOp);
+                                                currentNode = lbfOp;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                    }
+                                    break;
                                 case "module":
                                     currentModuleType = ModuleType.Data;
                                     string modid = reader.GetAttribute("id");
@@ -421,6 +478,22 @@ namespace Cyclops
                                                 i_ModuleCounter++;
                                             }
                                             break;
+                                        case "Root":
+                                            DataModules.clsRoot main = new DataModules.clsRoot(Model);
+                                            if (root == null)
+                                            {
+                                                root = main;
+                                                currentNode = main;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                traceLog.Warn("WARNING: Adding an empty root node in the middle of the pipeline");
+                                                currentNode.AddDataChild(main);
+                                                currentNode = main;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
                                         case "RRollup":
                                             DataModules.clsRRollup rrollup = new DataModules.clsRRollup(Model, InstanceOfR);
                                             if (root == null)
@@ -436,6 +509,21 @@ namespace Cyclops
                                                 i_ModuleCounter++;
                                             }
                                             break; 
+                                        case "SummarizeData":
+                                            DataModules.clsSummarizeData summarizeData = new DataModules.clsSummarizeData(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = summarizeData;
+                                                currentNode = summarizeData;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(summarizeData);
+                                                currentNode = summarizeData;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
                                         case "SummaryTableInsert":
                                             DataModules.clsSQLiteSummaryTableGenerator summaryInserter = new DataModules.clsSQLiteSummaryTableGenerator(Model, InstanceOfR);
                                             if (root == null)
@@ -504,8 +592,7 @@ namespace Cyclops
                                                 currentNode.AddVisualChild(bar);
                                                 i_ModuleCounter++;
                                             }
-                                            break;
-                                        case "BoxPlot":
+                                            break;case "BoxPlot":
                                             VisualizationModules.clsBoxPlot box = new VisualizationModules.clsBoxPlot(Model, InstanceOfR);
                                             currentVizNode = box;
                                             if (root == null)
@@ -519,6 +606,7 @@ namespace Cyclops
                                                 i_ModuleCounter++;
                                             }
                                             break;
+                                        
                                         case "CorrelationHeatmap":
                                             VisualizationModules.clsCorrelationHeatmap corrHeat = new VisualizationModules.clsCorrelationHeatmap(Model, InstanceOfR);
                                             currentVizNode = corrHeat;
@@ -612,6 +700,20 @@ namespace Cyclops
                                                 i_ModuleCounter++;
                                             }
                                             break;
+                                        case "HTML_Summary":
+                                            ExportModules.clsHTMLSummary generalHtml_Summary = new ExportModules.clsHTMLSummary(Model, InstanceOfR);
+                                            currentExportNode = generalHtml_Summary;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("ERROR reading XML, " + generalHtml_Summary.ModuleName + ", trying to add an Export Module without a root!");
+                                                Console.WriteLine("Error: trying to add a General HTML Summary Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddExportChild(generalHtml_Summary);
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
                                         case "LBF_Summary":
                                             ExportModules.clsLBF_Summary_HTML lbf_Summary = new ExportModules.clsLBF_Summary_HTML(Model, InstanceOfR);
                                             currentExportNode = lbf_Summary;
@@ -651,6 +753,20 @@ namespace Cyclops
                                             else
                                             {
                                                 currentNode.AddExportChild(se_Node);
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "Sco_HTML_Summary":
+                                            ExportModules.clsSCO_Summary_HTML sco_Html_Summary = new ExportModules.clsSCO_Summary_HTML(Model, InstanceOfR);
+                                            currentExportNode = sco_Html_Summary;
+                                            if (root == null)
+                                            {
+                                                traceLog.Error("ERROR reading XML, " + sco_Html_Summary.ModuleName + ", trying to add an Export Module without a root!");
+                                                Console.WriteLine("Error: trying to add a Save Module without a root!");
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddExportChild(sco_Html_Summary);
                                                 i_ModuleCounter++;
                                             }
                                             break;
