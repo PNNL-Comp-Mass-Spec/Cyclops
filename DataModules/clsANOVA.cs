@@ -32,6 +32,12 @@ namespace Cyclops.DataModules
     /// Parameters:
     /// inputTableName: table to perform linear regression on
     /// newTableName: new table name
+    /// mode: type of anova (includes 'msstats')
+    /// rowMetadataTable: name of the row metadata table
+    /// linkRow: column in row metadata table that links to the data table
+    /// rowFactor: column in the row metadata that specifies the protein
+    /// factorTable: name of column metadata table
+    /// linkCol: column in column metadata table that links to column headers, default 'Alias'
     /// </summary>
     public class clsANOVA : clsBaseDataModule
     {
@@ -40,6 +46,8 @@ namespace Cyclops.DataModules
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        private string s_MSstatsLibrary = "//gigasax/DMS_Workflows/Cyclops/MSstats.tar.gz";
+        private string s_MSstatsDataTablename;
         #endregion
 
         #region Contructors
@@ -79,8 +87,6 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            traceLog.Info("Performing ANOVA...");
-
             ANOVA();
 
             RunChildModules();
@@ -110,9 +116,20 @@ namespace Cyclops.DataModules
                 b_2Pass = false;
             }
 
+            if (string.IsNullOrEmpty(dsp.Mode))
+            {
+                Model.SuccessRunningPipeline = false;
+                traceLog.Error("ERROR: ANOVA class: 'mode' was not specified " +
+                    "in the parameters");
+                b_2Pass = false;
+            }
+
             return b_2Pass;
         }
 
+        /// <summary>
+        /// Run the ANOVA analysis
+        /// </summary>
         private void ANOVA()
         {
             dsp.GetParameters(ModuleName, Parameters);
@@ -122,11 +139,43 @@ namespace Cyclops.DataModules
                 REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = "";
 
-                // TODO : make R statement to perform ANOVA
-
                 try
                 {
-                    traceLog.Info("Performing ANOVA: " + s_RStatement);
+                    GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
+                        dsp.FactorTable, dsp.FixedEffect);
+
+                    if (dsp.Mode.ToLower().Equals("msstats"))
+                    {
+                        // Perform MSstats analysis
+                        traceLog.Info("ANOVA: Mode set to 'MSstats'");
+                        s_MSstatsDataTablename = GetTemporaryTableName(); // input data table for MSstas analysis
+
+                        bool b_ContinueMSstats = LoadMSstatsLibrary();
+                        if (b_ContinueMSstats)
+                            b_ContinueMSstats = PrepareDataForMSstats();
+                    }
+                    else if (dsp.Mode.ToLower().Equals("anova"))
+                    {
+                        // Perform the ANOVA from Ashoka's DAnTE
+                        traceLog.Info("ANOVA: Mode set to 'Anova'");
+
+                        s_RStatement = string.Format("{0} <- " +
+                            "DoAnova(data={1}, FixedEffects={2}, " +
+                            "RandomEffects=\"{3}\", interact={4}, " +
+                            "unbalanced={5}, useREML={6}, Factors={7})",
+                            dsp.NewTableName,
+                            dsp.InputTableName,
+                            dsp.FixedEffect,
+                            dsp.RandomEffect,
+                            dsp.Interaction,
+                            dsp.Unbalanced,
+                            dsp.UseREML,
+                            dsp.FactorTable
+                            );
+                    }
+                    
+                    traceLog.Info("Performing ANOVA: \n\t" + s_RStatement);
+
                     engine.EagerEvaluate(s_RStatement);
                 }
                 catch (Exception exc)
@@ -135,6 +184,131 @@ namespace Cyclops.DataModules
                     Model.SuccessRunningPipeline = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Check if MSstats is already installed, if not - install & load it. 
+        /// Otherwise, just load it.
+        /// </summary>
+        private bool LoadMSstatsLibrary()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_RStatement = "";
+            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "plyr"))
+            {
+                clsGenericRCalls.InstallPackage(s_RInstance, "plyr");
+            }
+            else
+            {
+                s_RStatement += "require(plyr)\n";
+            }
+
+            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "MSstats"))
+            {
+                // Installing MSstats
+                s_RStatement += string.Format("source(\"http://bioconductor.org/biocLite.R\")\n" +
+                    "biocLite(\"Biobase\")\n" +
+                    "install.packages(\"lme4\")\n" +
+                    "install.packages(\"gmodels\")\n" +
+                    "install.packages(\"lattice\")\n" +
+                    "library(Biobase)\n" +
+                    "library(lme4)\n" +
+                    "library(gmodels)\n" +
+                    "library(lattice)\n" +
+                    "install.packages(pkgs=\"{0}\", " +
+                    "repos=NULL, type=\"source\")\n" +
+                    "require(MSstats)",
+                    s_MSstatsLibrary);
+            }
+            else
+            {
+                s_RStatement = "require(MSstats)";
+            }
+
+            try
+            {
+                traceLog.Info("ANOVA loading libraries:\n" + s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+                return true;
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("Error loading libraries in ANOVA: " + exc.ToString());
+                Model.SuccessRunningPipeline = false;
+                return false;
+            }
+        }
+
+        private bool PrepareDataForMSstats()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_RStatement = "";
+
+            string s_TmpRowMetadataTable = GetTemporaryTableName();
+            string s_TmpRowMetadataCountTable = GetTemporaryTableName();
+            string s_TmpDataTable = GetTemporaryTableName();
+            string s_TmpMeltTable = GetTemporaryTableName();
+            string s_TmpCBindRowTable = GetTemporaryTableName();
+            string s_TmpCBindColTable = GetTemporaryTableName();
+
+            s_RStatement = string.Format(
+                "require(plyr)\n" +
+                "{0} <- unique(cbind({2}${3}, {2}${4}))\n" +
+                "{1} <- cbind({0}, rep(1, nrow({0})))\n" +
+                "colnames({0}) <- c(\"{3}\", \"{4}\")\n" +
+                "colnames({1}) <- c(\"{3}\", \"{4}\", \"Count\")\n" +
+                "{1} <- transform({1}, Count = as.numeric(Count))\n" +
+                "{1} <- ddply({1}, c(\"{3}\"), summarise, ProteinCount=sum(Count))\n" +
+                "{1} <- {1}[which({1}$ProteinCount == 1),]\n" +
+                "{5} <- {6}[which(rownames({6}) %in% {1}${3}),]\n" +
+                "require(reshape)\n" +
+                "{7} <- melt({5})\n" +
+                "colnames({7}) <- c(\"{3}\", \"dataset\", \"abundance\")\n" +
+                "{8} <- unique(merge(x={7}, y={0}, by.x=\"{3}\", by.y=\"{3}\", " +
+                "all.x=T, all.y=F))\n" +
+                "{9} <- unique(merge(x={8}, y={10}, by.x=\"dataset\", by.y=\"{11}\", " +
+                "all=T))\n",
+                s_TmpRowMetadataTable,
+                s_TmpRowMetadataCountTable,
+                dsp.RowMetadataTable,
+                dsp.LinkRow,
+                dsp.RowFactor,
+                s_TmpDataTable,
+                dsp.InputTableName,
+                s_TmpMeltTable,
+                s_TmpCBindRowTable,
+                s_TmpCBindColTable,
+                dsp.FactorTable,
+                dsp.LinkCol);
+
+            try
+            {
+                traceLog.Info("ANOVA preparing data for analysis:\n" + s_RStatement);
+                engine.EagerEvaluate(s_RStatement);
+                return true;
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("Error preparing data in ANOVA: " + exc.ToString());
+                Model.SuccessRunningPipeline = false;
+                return false;
+            }
+        }
+
+        private void PreprocessDataForMSstats()
+        {
+            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+
+            /// MSstats requires the data to be in a certain format and must
+            /// meet specific conditions (i.e., each peptide must map to only
+            /// a single protein or proteingroup).
+            /// 1. Remove redundant peptides - peptides that map to more than
+            /// one protein or proteingroup
+
+            
+
+
+
         }
         #endregion
     }

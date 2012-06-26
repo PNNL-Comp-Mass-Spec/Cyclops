@@ -62,15 +62,6 @@ namespace Cyclops
         /// <param name="ParametersForCyclops">Parameters for running cyclops</param>
         public clsCyclopsModel(Dictionary<string, string> ParametersForCyclops)
         {
-            //string s_Directory = Directory.GetCurrentDirectory();
-            //string s_LogFileName = DateTime.Now.Hour.ToString() +
-            //    DateTime.Now.Month.ToString() + DateTime.Now.Day.ToString() +
-            //    "_log.txt";
-            //// Set log4net path and kick the logger into action
-            //string LogFileName = Path.Combine("test.txt");
-            //log4net.GlobalContext.Properties["LogName"] = LogFileName;
-            //traceLog = LogManager.GetLogger("TraceLog");
-
             string value = "";
             d_CyclopsParameters = ParametersForCyclops;
             CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("PipelineID"),

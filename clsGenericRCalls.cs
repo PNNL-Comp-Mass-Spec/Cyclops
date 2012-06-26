@@ -208,7 +208,13 @@ namespace Cyclops
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
             string RStatement = "exists(\"" + ObjectName + "\")";
             CharacterVector cv = engine.EagerEvaluate(RStatement).AsCharacter();
-            if (cv[0].Equals("TRUE"))
+            List<string> l_Return = new List<string>();
+            foreach (string s in cv)
+            {
+                l_Return.Add(s);
+            }
+
+            if (l_Return[0].Equals("TRUE"))
                 b_Return = true;
 
             return b_Return;
@@ -443,6 +449,11 @@ namespace Cyclops
         public static DataTable GetDataTableIncludingRownames(string InstanceOfR, string TheDataFrame, 
             string NameOfFirstColumn)
         {
+            if (!ContainsObject(InstanceOfR, TheDataFrame))
+            {                
+                return null;
+            }
+
             List<string> l_Rownames = GetRowNames(InstanceOfR, TheDataFrame);
 
             if (string.IsNullOrEmpty(NameOfFirstColumn))

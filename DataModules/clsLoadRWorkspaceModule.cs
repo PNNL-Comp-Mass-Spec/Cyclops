@@ -75,7 +75,7 @@ namespace Cyclops.DataModules
         public override void PerformOperation()
         {
             dsp.GetParameters(ModuleName, Parameters);
-            traceLog.Info("Loading R Workspace: " + dsp.Source);
+            traceLog.Info("Loading R Workspace: " + dsp.InputFileName.Replace('\\', '/'));
 
             LoadWorkspace();
 

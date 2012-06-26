@@ -110,11 +110,18 @@ namespace Cyclops.DataModules
                     dsp.InputTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
-            if (!dsp.HasFactorComplete)
+            if (!string.IsNullOrEmpty(dsp.FactorTable) &&
+                !string.IsNullOrEmpty(dsp.ConsolidationFactor))
             {
-                Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR: Aggregation class: 'factor': \"" +
-                    dsp.FactorComplete + "\", was not found in the passed parameters");
+                dsp.FactorComplete = dsp.FactorTable + "$" + dsp.ConsolidationFactor;                
+            }
+            else if (!string.IsNullOrEmpty(dsp.FactorColumn))
+            {
+                dsp.FactorComplete = dsp.FactorColumn;
+            }
+            else
+            {
+                /// Unable to set FactorComplete -> Fail
                 b_2Pass = false;
             }
             if (!dsp.HasMargin)
@@ -157,14 +164,14 @@ namespace Cyclops.DataModules
 
 
                         REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
+                                                
                         string s_RStatement = string.Format(
                                 "{0} <- jnb_Aggregate(x=data.matrix({1}), " +
                                 "myFactor={2}, MARGIN={3}, FUN={4})",
                                 dsp.NewTableName,
                                 dsp.InputTableName,
                                 dsp.FactorComplete,
-                                dsp.Margin,
+                                dsp.Margin,  // '1' indicates rows, '2' indicates columns
                                 dsp.Function);
                         try
                         {

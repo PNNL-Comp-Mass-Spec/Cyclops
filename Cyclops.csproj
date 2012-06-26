@@ -103,6 +103,7 @@
     <Compile Include="ExportModules\cslExportParameterHandler.cs" />
     <Compile Include="MiscModules\clsMiscFunctions.cs" />
     <Compile Include="Operations\clsBaseOperationModule.cs" />
+    <Compile Include="Operations\clsiTRAQMainOperation.cs" />
     <Compile Include="Operations\clsSpectralCountMainOperation.cs" />
     <Compile Include="Operations\clsLabelFreeMainOperation.cs" />
     <Compile Include="VisualizationModules\clsBarPlot.cs" />

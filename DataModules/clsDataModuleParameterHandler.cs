@@ -48,6 +48,8 @@ namespace Cyclops.DataModules
             s_CommaSep_wQuotesIdentifiers = "",
             s_CommaSep_woQuotesIdentifiers = "",
             s_ConsolidationFactor,                      // passed through the ATM
+            s_ColMetadataTable = "T_Column_Metadata",
+            s_ColFactor = "",
             s_ColumnName = "",
             s_DatabasePath = "",
             s_DecoyPrefix = "Reversed_",              // used in IDPicker
@@ -64,6 +66,9 @@ namespace Cyclops.DataModules
             s_ImportDatasetType = "",
             s_InputFileName = "Results.db3",
             s_InputTableName = "",
+            s_Interaction = "FALSE",
+            s_LinkRow = "",                             // column used to link to Row Metadata
+            s_LinkCol = "Alias",                        // column used to link to Column Metadata
             s_LogBase = "2",
             s_Margin = "",
             s_MaxAmbiguousIds="2",                      // used in IDPicker
@@ -90,9 +95,12 @@ namespace Cyclops.DataModules
             s_P_ValueTable = "",            
             s_PvalueThreshold = "0.0001",
             s_QuantitativeMethod="",                    // used in IDPicker
+            s_RandomEffect="",
             s_RawSourcePath="",                         // used in IDPicker
             s_RemoveFirstCharacters = "",
             s_RemovePeptideColumn = "false",
+            s_RowMetadataTable = "T_Row_Metadata",
+            s_RowFactor = "",
             s_Rowname = "",
             s_RunAnalysis = "false",
             s_Scale = "1",
@@ -109,6 +117,8 @@ namespace Cyclops.DataModules
             s_TechRepColumn = "",
             s_TechRepComplete = "",
             s_Theta = "TRUE",
+            s_Unbalanced = "TRUE",
+            s_UseREML = "TRUE",
             s_Variable = "variable",
             s_WorkDir = "",
             s_xLink = "",            
@@ -183,6 +193,18 @@ namespace Cyclops.DataModules
             set { b_AutoScale = value; }
         }
 
+        public string ColumnMetadataTable
+        {
+            get { return s_ColMetadataTable; }
+            set { s_ColMetadataTable = value; }
+        }
+
+        public string ColumnFactor
+        {
+            get { return s_ColFactor; }
+            set { s_ColFactor = value; }
+        }
+
         public string ColumnName
         {
             get { return s_ColumnName; }
@@ -243,6 +265,12 @@ namespace Cyclops.DataModules
             set { s_DatabasePath = value; }
         }
 
+        public string Interaction
+        {
+            get { return s_Interaction; }
+            set { s_Interaction = value; }
+        }
+
         /// <summary>
         /// Stores password, typically used for extracting files from zip
         /// </summary>
@@ -278,6 +306,18 @@ namespace Cyclops.DataModules
         {
             get { return s_InputTableName; }
             set { s_InputTableName = value; }
+        }
+
+        public string LinkRow
+        {
+            get { return s_LinkRow; }
+            set { s_LinkRow = value; }
+        }
+
+        public string LinkCol
+        {
+            get { return s_LinkCol; }
+            set { s_LinkCol = value; }
         }
 
         public string DecoyPrefix
@@ -346,10 +386,28 @@ namespace Cyclops.DataModules
             set { s_QuantitativeMethod = value; }
         }
 
+        public string RandomEffect
+        {
+            get { return s_RandomEffect; }
+            set { s_RandomEffect = value; }
+        }
+
         public string RawSourcePath
         {
             get { return s_RawSourcePath; }
             set { s_RawSourcePath = value; }
+        }
+
+        public string RowMetadataTable
+        {
+            get { return s_RowMetadataTable; }
+            set { s_RowMetadataTable = value; }
+        }
+
+        public string RowFactor
+        {
+            get { return s_RowFactor; }
+            set { s_RowFactor = value; }
         }
 
         public string SearchScoreWeights
@@ -397,6 +455,18 @@ namespace Cyclops.DataModules
         {
             get { return s_Target; }
             set { s_Target = value; }
+        }
+
+        public string Unbalanced
+        {
+            get { return s_Unbalanced; }
+            set { s_Unbalanced = value; }
+        }
+
+        public string UseREML
+        {
+            get { return s_UseREML; }
+            set { s_UseREML = value; }
         }
 
         /// <summary>
@@ -1129,6 +1199,12 @@ namespace Cyclops.DataModules
                         string s_AutoScale = kvp.Value;
                         AutoScale = s_AutoScale.ToLower().Equals("true") ? true : false;
                         break;
+                    case "colFactor":
+                        s_ColFactor = kvp.Value;
+                        break;
+                    case "colMetadataTable":
+                        s_ColMetadataTable = kvp.Value;
+                        break;
                     case "columnName":
                         s_ColumnName = kvp.Value;
                         break;
@@ -1150,6 +1226,15 @@ namespace Cyclops.DataModules
                         break;
                     case "Fixed_Effect":
                         s_FixedEffect = kvp.Value;
+                        break;
+                    case "interaction":
+                        s_Interaction = kvp.Value;
+                        break;
+                    case "linkRow":
+                        s_LinkRow = kvp.Value;
+                        break;
+                    case "linkCol":
+                        s_LinkCol = kvp.Value;
                         break;
                     case "maxAmbiguousIds":
                         s_MaxAmbiguousIds = kvp.Value;
@@ -1181,6 +1266,12 @@ namespace Cyclops.DataModules
                     case "rawSourcePath":
                         s_RawSourcePath = kvp.Value;
                         break;
+                    case "rowFactor":
+                        s_RowFactor = kvp.Value;
+                        break;
+                    case "rowMetadataTable":
+                        s_RowMetadataTable = kvp.Value;
+                        break;
                     case "orgdbdir":
                         DatabasePath = kvp.Value;
                         break;
@@ -1195,6 +1286,12 @@ namespace Cyclops.DataModules
                         break;                    
                     case "target":
                         Target = kvp.Value;
+                        break;
+                    case "unbalanced":
+                        s_Unbalanced = kvp.Value;
+                        break;
+                    case "useREML":
+                        s_UseREML = kvp.Value;
                         break;
                     case "importDatasetType":
                         ImportDatasetType = kvp.Value;
@@ -1311,6 +1408,9 @@ namespace Cyclops.DataModules
                         s_RemoveFirstCharacters = kvp.Value;
                         break;
 
+                    case "randomEffect":
+                        s_RandomEffect = kvp.Value;
+                        break;
                     // RRollup parameter names
                     case "proteinInfoTable":
                         s_ProteinInfo = kvp.Value;

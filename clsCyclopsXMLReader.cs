@@ -122,6 +122,27 @@ namespace Cyclops
                                     {
                                         case "SpectralCountOperation":
                                             Operations.clsSpectralCountMainOperation specOp = new Operations.clsSpectralCountMainOperation(Model, InstanceOfR);
+                                            #region Set Type of Label-free Analysis
+                                            try
+                                            {
+                                                switch (reader.GetAttribute("type"))
+                                                {
+                                                    case "Standard":
+                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Standard);
+                                                        break;
+                                                    case "Iterator":
+                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Iterator);
+                                                        break;
+                                                }
+                                            }
+                                            catch (Exception exc)
+                                            {
+                                                traceLog.Error("Error Reading Spectral Count XML workflow. " +
+                                                    "A Pipeline Operation was detected, but there was a problem " +
+                                                    "processing the 'type' attribute. Check that the operation tag " +
+                                                    "contains a 'type' attribute:\n" + exc.ToString());
+                                            }
+                                            #endregion
                                             if (root == null)
                                             {
                                                 root = specOp;
@@ -138,21 +159,33 @@ namespace Cyclops
                                         case "LabelFreeOperation":
                                             Operations.clsLabelFreeMainOperation lbfOp = new Operations.clsLabelFreeMainOperation(Model, InstanceOfR);
                                             #region Set Type of Label-free Analysis
-                                            if (reader.GetAttribute("type").Equals("Log2"))
+                                            try
                                             {
-                                                lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2);
+                                                switch (reader.GetAttribute("type"))
+                                                {
+                                                    case "Log2":
+                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2);
+                                                        break;
+                                                    case "Log2LR":
+                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2LR);
+                                                        break;
+                                                    case "Log2CT":
+                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2CT);
+                                                        break;
+                                                    case "Log2All":
+                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2All);
+                                                        break;
+                                                    case "Practice":
+                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Practice);
+                                                        break;
+                                                }
                                             }
-                                            else if (reader.GetAttribute("type").Equals("Log2LR"))
+                                            catch (Exception exc)
                                             {
-                                                lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2LR);
-                                            }
-                                            else if (reader.GetAttribute("type").Equals("Log2CT"))
-                                            {
-                                                lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2CT);
-                                            }
-                                            else if (reader.GetAttribute("type").Equals("Log2All"))
-                                            {
-                                                lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2All);
+                                                traceLog.Error("Error Reading Label-Free XML workflow. " +
+                                                    "A Pipeline Operation was detected, but there was a problem " +
+                                                    "processing the 'type' attribute. Check that the operation tag " +
+                                                    "contains a 'type' attribute:\n" + exc.ToString());
                                             }
                                             #endregion
 
@@ -166,6 +199,21 @@ namespace Cyclops
                                             {
                                                 currentNode.AddDataChild(lbfOp);
                                                 currentNode = lbfOp;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "iTraqOperation":
+                                            Operations.clsiTRAQMainOperation itqOp = new Operations.clsiTRAQMainOperation(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = itqOp;
+                                                currentNode = itqOp;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(itqOp);
+                                                currentNode = itqOp;
                                                 i_ModuleCounter++;
                                             }
                                             break;
@@ -822,7 +870,12 @@ namespace Cyclops
                                         d_Parameters.Add(kvp.Key, kvp.Value);
                                     }
 
-                                    if (currentModuleType == ModuleType.Data)
+                                    if (currentModuleType == ModuleType.Operation)
+                                    {
+                                        currentNode.Parameters = d_Parameters;
+                                        traceLog.Info(currentNode.GetDescription());
+                                    }
+                                    else if (currentModuleType == ModuleType.Data)
                                     {
                                         currentNode.Parameters = d_Parameters;
                                         traceLog.Info(currentNode.GetDescription());
