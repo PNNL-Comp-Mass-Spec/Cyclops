@@ -87,7 +87,7 @@ namespace Cyclops.VisualizationModules
 
                 if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
                 {
-                    // Perform Boxplot
+                    // Perform Barplot
                     CreateBarPlot();
                 }
                 else
@@ -127,37 +127,86 @@ namespace Cyclops.VisualizationModules
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "";
 
-            s_RStatement += string.Format("plotBars(" +
-                "x={0}, Data.Column=\"{1}\", " +
-                "file=\"{2}\", " +
-                "bkground=\"{3}\", " +
-                "takeLog={4}, " +
-                "base={5}, " +
-                "names.arg=\"{6}\", " +
-                "xLab=\"{7}\", " +
-                "yLab=\"{8}\", " +
-                "title=\"{9}\", " +
-                "col={10}, " + 
-                "IMGwidth={11}, " +
-                "IMGheight={12}, " +
-                "FNTsize={13}, " +
-                "res={14})",
-                vgp.TableName,                                          // 0
-                vgp.DataColumns,                                        // 1
-                vgp.PlotFileName,                                       // 2
-                vgp.BackgroundColor,                                    // 3
-                vgp.Log,                                                // 4
-                vgp.LogBase,                                            // 5
-                vgp.Names,                                              // 6
-                vgp.xLabel,                                             // 7
-                vgp.yLabel,                                             // 8
-                vgp.Main,                                               // 9
-                vgp.BarColor.Equals("NULL") ? "NULL" : "\"" + vgp.BarColor + "\"",// 10
-                vgp.Width,                                              // 11
-                vgp.Height,                                             // 12
-                vgp.FontSize,                                           // 13
-                vgp.Resolution                                          // 14
-                );
+            if (string.IsNullOrEmpty(vgp.Mode))
+            {
+                s_RStatement += string.Format("plotBars(" +
+                    "x={0}, Data.Column=\"{1}\", " +
+                    "file=\"{2}\", " +
+                    "bkground=\"{3}\", " +
+                    "takeLog={4}, " +
+                    "base={5}, " +
+                    "names.arg=\"{6}\", " +
+                    "xLab=\"{7}\", " +
+                    "yLab=\"{8}\", " +
+                    "title=\"{9}\", " +
+                    "col={10}, " +
+                    "IMGwidth={11}, " +
+                    "IMGheight={12}, " +
+                    "FNTsize={13}, " +
+                    "res={14})",
+                    vgp.TableName,                                          // 0
+                    vgp.DataColumns,                                        // 1
+                    vgp.PlotFileName,                                       // 2
+                    vgp.BackgroundColor,                                    // 3
+                    vgp.Log,                                                // 4
+                    vgp.LogBase,                                            // 5
+                    vgp.Names,                                              // 6
+                    vgp.xLabel,                                             // 7
+                    vgp.yLabel,                                             // 8
+                    vgp.Main,                                               // 9
+                    vgp.BarColor.Equals("NULL") ? "NULL" : "\"" + vgp.BarColor + "\"",// 10
+                    vgp.Width,                                              // 11
+                    vgp.Height,                                             // 12
+                    vgp.FontSize,                                           // 13
+                    vgp.Resolution                                          // 14
+                    );
+            }
+            else if (vgp.Mode.Equals("iterator"))
+            {
+                string s_TmpTable = GetTemporaryTableName();
+
+                s_RStatement += string.Format("{0} <- " +
+                    "data.frame(Cleavage=c(\"Tryptic\", " +
+                    "\"Partial\", \"NonTryptic\"), " +
+                    "Frequency=c(sum({1}$Tryptic), " +
+                    "sum({1}$PartTryptic), " +
+                    "sum({1}$NonTryptic)))\n\n",
+                    s_TmpTable,
+                    vgp.TableName);
+
+                s_RStatement += string.Format("plotBars(" +
+                    "x={0}, Data.Column=\"{1}\", " +
+                    "file=\"{2}\", " +
+                    "bkground=\"{3}\", " +
+                    "takeLog={4}, " +
+                    "base={5}, " +
+                    "names.arg=\"{6}\", " +
+                    "xLab=\"{7}\", " +
+                    "yLab=\"{8}\", " +
+                    "title=\"{9}\", " +
+                    "col={10}, " +
+                    "IMGwidth={11}, " +
+                    "IMGheight={12}, " +
+                    "FNTsize={13}, " +
+                    "res={14})\n" +
+                    "rm({0})\n",
+                    s_TmpTable,                                          // 0
+                    vgp.DataColumns,                                        // 1
+                    vgp.PlotFileName,                                       // 2
+                    vgp.BackgroundColor,                                    // 3
+                    vgp.Log,                                                // 4
+                    vgp.LogBase,                                            // 5
+                    vgp.Names,                                              // 6
+                    vgp.xLabel,                                             // 7
+                    vgp.yLabel,                                             // 8
+                    vgp.Main,                                               // 9
+                    vgp.BarColor.Equals("NULL") ? "NULL" : "\"" + vgp.BarColor + "\"",// 10
+                    vgp.Width,                                              // 11
+                    vgp.Height,                                             // 12
+                    vgp.FontSize,                                           // 13
+                    vgp.Resolution                                          // 14
+                    );
+            }
                         
             try
             {
@@ -182,7 +231,7 @@ namespace Cyclops.VisualizationModules
             catch (Exception exc)
             {
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR Performing Boxplot: " + exc.ToString());
+                traceLog.Error("ERROR Performing Barplot: " + exc.ToString());
             }
         }
         #endregion

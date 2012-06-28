@@ -175,8 +175,8 @@ namespace Cyclops
                                                     case "Log2All":
                                                         lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Log2All);
                                                         break;
-                                                    case "Practice":
-                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.Practice);
+                                                    case "AnovaPractice":
+                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.AnovaPractice);
                                                         break;
                                                 }
                                             }

@@ -160,6 +160,10 @@ namespace Cyclops.DataModules
                     {
                         // TODO: Handle the asterisks
                     }
+                    else if (dsp.FactorColumn.Equals("#"))
+                    {
+                        // TODO: Handle the pound
+                    }
                     else
                     {
                         s_Peptide = dr[dsp.FactorColumn].ToString();

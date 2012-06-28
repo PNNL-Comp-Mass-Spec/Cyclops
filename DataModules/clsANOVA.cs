@@ -141,7 +141,10 @@ namespace Cyclops.DataModules
 
                 try
                 {
-                    GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
+                    GetOrganizedFactorsVector(s_RInstance,
+                        !dsp.RemovePeptideColumn ?
+                            dsp.InputTableName :
+                            dsp.InputTableName + "[,-1]",
                         dsp.FactorTable, dsp.FixedEffect);
 
                     if (dsp.Mode.ToLower().Equals("msstats"))
@@ -159,24 +162,50 @@ namespace Cyclops.DataModules
                         // Perform the ANOVA from Ashoka's DAnTE
                         traceLog.Info("ANOVA: Mode set to 'Anova'");
 
-                        s_RStatement = string.Format("{0} <- " +
-                            "DoAnova(data={1}, FixedEffects={2}, " +
-                            "RandomEffects=\"{3}\", interact={4}, " +
-                            "unbalanced={5}, useREML={6}, Factors={7})",
+                        string s_Random = "NULL";
+                        if (!string.IsNullOrEmpty(dsp.RandomEffect) &&
+                            !dsp.RandomEffect.Equals("NULL"))
+                            s_Random = dsp.RandomEffect;
+
+                        string s_TmpTableName = GetTemporaryTableName();
+
+                        //s_RStatement = "tmpTable <- performAnova(Data=" +
+                        //    dsp.InputTableName + ")";
+
+
+                        s_RStatement = string.Format(
+                            "options(warn=-1)\n" +
+                            "{8} <- {1}\n" +
+                            "{0} <- performAnova(Data={8}, FixedEffects=\"{2}\", " +
+                            "RandomEffects={3}, interact={4}, " +
+                            "unbalanced={5}, useREML={6}, Factors=t({7}))\n" +
+                            "rm({8})\n",
                             dsp.NewTableName,
-                            dsp.InputTableName,
+                            dsp.RemovePeptideColumn ?
+                                dsp.InputTableName + "[1:20,-1]" :
+                                dsp.InputTableName,
                             dsp.FixedEffect,
-                            dsp.RandomEffect,
+                            !string.IsNullOrEmpty(dsp.RandomEffect) &&
+                                !dsp.RandomEffect.Equals("NULL") ?
+                                    dsp.RandomEffect :
+                                    "NULL",
                             dsp.Interaction,
                             dsp.Unbalanced,
                             dsp.UseREML,
-                            dsp.FactorTable
+                            dsp.FactorTable,
+                            s_TmpTableName
                             );
                     }
-                    
+
                     traceLog.Info("Performing ANOVA: \n\t" + s_RStatement);
 
                     engine.EagerEvaluate(s_RStatement);
+                }
+                catch (ParseException pexc)
+                {
+                    traceLog.Error("Parse Exception caught in ANOVA:\n" +
+                        pexc.ToString());
+                    Model.SuccessRunningPipeline = false;
                 }
                 catch (Exception exc)
                 {

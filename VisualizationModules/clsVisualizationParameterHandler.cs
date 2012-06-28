@@ -78,6 +78,7 @@ namespace Cyclops.VisualizationModules
             s_Log = "FALSE",
             s_LogBase = "NULL",
             s_Main = "",
+            s_Mode = "",
             s_ModuleName = "",
             s_Names = "",
             s_Outliers = "TRUE",
@@ -330,6 +331,11 @@ namespace Cyclops.VisualizationModules
         {
             get { return s_Main; }
             set { s_Main = value; }
+        }
+        public string Mode
+        {
+            get { return s_Mode; }
+            set { s_Mode = value; }
         }
         public string Names
         {
@@ -627,6 +633,9 @@ namespace Cyclops.VisualizationModules
                         break;
                     case "main":
                         s_Main = kvp.Value;
+                        break;
+                    case "mode":
+                        s_Mode = kvp.Value;
                         break;
                     case "names":
                         s_Names = kvp.Value;

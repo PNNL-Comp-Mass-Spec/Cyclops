@@ -148,18 +148,6 @@ namespace Cyclops.DataModules
                                 if (dsp.RowNames.Length > 0)
                                     SetTableRowNames(dsp.NewTableName);
                             }
-                                //if (Parameters.ContainsKey("columnMetaDataTableName"))
-                                //{
-                                //    GetColumnMetadataFromSQLiteDB(s_RInstance);
-                                //    SetTableRowNames(s_RInstance, Parameters["newColumnMetaDataTableName"]);
-
-                                //}
-                                //if (Parameters.ContainsKey("rowMetaDataTableName"))
-                                //{
-                                //    GetRowMetadataFromSQLiteDB(s_RInstance);
-                                //    SetTableRowNames(s_RInstance, Parameters["newRowMetaDataTableName"]);
-                                //}
-                            //}
 
                             if (dsp.Set_0_to_NA)
                             {

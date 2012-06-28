@@ -136,12 +136,14 @@ namespace Cyclops.DataModules
             string NameOfColumnMetadataTable, string FactorColumn)
         {
             string yMergeColumn = "Alias";
+            string s_TmpTable = GetTemporaryTableName();
 
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
             string s_RStatement = string.Format(
-                "tmp <- cbind(\"{2}\"=colnames({0}))\n" +
-                "{1} <- merge(x=tmp, y={1}, by.x=\"{2}\", by.y=\"{2}\", , all.x=T, all.y=F, sort=F)\n" +
-                "rm(tmp)",
+                "{0} <- cbind(\"{3}\"=colnames({1}))\n" +
+                "{2} <- merge(x={0}, y={2}, by.x=\"{3}\", by.y=\"{3}\", , all.x=T, all.y=F, sort=F)\n" +
+                "rm({0})",
+                s_TmpTable,
                 NameOfDataTable,
                 NameOfColumnMetadataTable,
                 yMergeColumn);

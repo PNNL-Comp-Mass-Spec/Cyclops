@@ -110,9 +110,19 @@ namespace Cyclops.DataModules
 
                 if (!dsp.InputFileName.Equals(String.Empty))
                 {
+                    string s_FileNameOfRFile2Load = dsp.InputFileName;
+
+                    // Smart checker...
+                    if (!System.IO.File.Exists(s_FileNameOfRFile2Load))
+                        s_FileNameOfRFile2Load = System.IO.Path.Combine(
+                            dsp.WorkDirectory,
+                            dsp.InputFileName);
+
+                    s_FileNameOfRFile2Load = s_FileNameOfRFile2Load.Replace('\\', '/');
+
                     string s_Command = string.Format(
                         "load(\"{0}\")",
-                        dsp.InputFileName.Replace('\\', '/'));
+                        s_FileNameOfRFile2Load);
                     traceLog.Info("LOADING SOURCE FILE: " + s_Command);
                     s_Current_R_Statement = s_Command;
                     engine.EagerEvaluate(s_Command);

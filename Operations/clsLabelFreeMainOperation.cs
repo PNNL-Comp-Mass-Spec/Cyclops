@@ -41,10 +41,10 @@ namespace Cyclops.Operations
         /// Log2LR: Log2 transformation, Linear Regression, RRollup
         /// Log2CT: Log2 transformation, Central Tendency, RRollup
         /// </summary>
-        public enum LbfTypes { Log2, Log2LR, Log2CT, Log2All, Practice};
+        public enum LbfTypes { Log2, Log2LR, Log2CT, Log2All, AnovaPractice};
         private string[] s_LabelFreeTableNames = new string[] { "T_LabelFreeLog2PipelineOperation",
             "T_LabelFreeLog2_LR_PipelineOperation", "T_LabelFreeLog2_CT_PipelineOperation",
-            "T_LabelFreeLog2_All_PipelineOperation", "T_PracticeOperation"};
+            "T_LabelFreeLog2_All_PipelineOperation", "T_LabelFree_AnovaPractice"};
         private string s_LabelFreeTableName = "T_LabelFreeLog2PipelineOperation";
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         #endregion
@@ -112,25 +112,23 @@ namespace Cyclops.Operations
         /// <param name="TypeOfAnalysis"></param>
         public void SetType(LbfTypes TypeOfAnalysis)
         {
-            if (TypeOfAnalysis == LbfTypes.Log2)
+            switch(TypeOfAnalysis)
             {
-                s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2];
-            }
-            else if (TypeOfAnalysis == LbfTypes.Log2LR)
-            {
-                s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2LR];
-            }
-            else if (TypeOfAnalysis == LbfTypes.Log2CT)
-            {
-                s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2CT];
-            }
-            else if (TypeOfAnalysis == LbfTypes.Log2All)
-            {
-                s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2All];
-            }
-            else if (TypeOfAnalysis == LbfTypes.Practice)
-            {
-                s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Practice];
+                case LbfTypes.Log2:
+                    s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2];
+                    break;
+                case LbfTypes.Log2LR:
+                    s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2LR];
+                    break;
+                case LbfTypes.Log2CT:
+                    s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2CT];
+                    break;
+                case LbfTypes.Log2All:
+                    s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2All];
+                    break;
+                case LbfTypes.AnovaPractice:
+                    s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.AnovaPractice];
+                    break;
             }
         }
 
