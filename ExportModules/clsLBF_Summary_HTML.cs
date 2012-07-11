@@ -177,15 +177,15 @@ namespace Cyclops.ExportModules
                 sb_Datasets.Append(WriteHtmlScripts());
                 sb_Datasets.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
                 sb_Datasets.Append(clsHTMLFileHandler.GetEndHeadStartBody());
-                sb_Datasets.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
-                //sb_Datasets.Append("\t\t<H2 class='pos_left' style='top:-40px'>Datasets used in the Analysis</H2>n");
-                sb_Datasets.Append("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:50px;'>\n");
-                sb_Datasets.Append(clsHTMLFileHandler.GetDatasetTableHtml(
-                    Path.Combine(esp.WorkDirectory, esp.DatabaseName), "", "left", 1, 1, 1));
-                //sb_Datasets.Append(WriteHtmlBody(HTMLFileType.Dataset));
-                sb_Datasets.Append("\t\t</DIV>\n");
-                sb_Datasets.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
+                sb_Datasets.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
+                //sb_Datasets.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
 
+                sb_Datasets.Append("<DIV ID='main_content'>\n");
+                sb_Datasets.Append(clsHTMLFileHandler.GetDatasetTableHtml(
+                    Path.Combine(esp.WorkDirectory, esp.DatabaseName), "", "table_header", "left", 1, 1, 1));
+                sb_Datasets.Append("</DIV>\n");
+                sb_Datasets.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
+                
                 StreamWriter sw_Datasets = new StreamWriter(Path.Combine(esp.WorkDirectory,
                     s_DatasetsFileName));
                 sw_Datasets.Write(sb_Datasets);
@@ -197,8 +197,8 @@ namespace Cyclops.ExportModules
                 /// Construct Summary Tables HTML Page
                 /// 
                 #region Summary HTML Page
-                int i_HeaderTop = -40, i_TableTop = 100,
-                    i_HeaderIncrement = 203, i_TableIncrement = 250;
+                //int i_HeaderTop = -40, i_TableTop = 100,
+                //    i_HeaderIncrement = 203, i_TableIncrement = 250;
                 StringBuilder sb_SummaryTables = new StringBuilder();
 
                 clsHtmlLinkNode ln_SummaryOriginal = new clsHtmlLinkNode("Peptide Original",
@@ -243,126 +243,81 @@ namespace Cyclops.ExportModules
                 sb_SummaryTables.Append(WriteHtmlScripts());
                 sb_SummaryTables.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
                 sb_SummaryTables.Append(clsHTMLFileHandler.GetEndHeadStartBody());
-                sb_SummaryTables.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_SummaryTables.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
+                //sb_SummaryTables.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
 
-                sb_SummaryTables.Append(string.Format("\t\t<H2 class='pos_left' style='top:{0}px'>" +
-                    "<A NAME='pepOrig' /A>" +
-                    "Summary of Original Peptide Abundances</H2>\n",
-                    i_HeaderTop));
-                sb_SummaryTables.Append(string.Format("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:{0}px;'>\n",
-                    i_TableTop));
-                i_HeaderTop = i_HeaderTop + i_HeaderIncrement;
-                i_TableTop = i_TableTop + i_TableIncrement;
-                DataTable dt_OrigTotalSummary = clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance, "Summary_T_Data$TotalSummary", "QC Params");
-                if (dt_OrigTotalSummary != null)
-                {
-                    sb_SummaryTables.Append(WriteHtmlBody(HTMLFileType.Index));
-                    sb_SummaryTables.Append(clsHTMLFileHandler.GetTableHtml(dt_OrigTotalSummary, "left", null, null, null));
-                    sb_SummaryTables.Append("\t\t</DIV>\n");
-                }
+                sb_SummaryTables.Append("<DIV ID='main_content'>\n");
+                sb_SummaryTables.Append("<A NAME='pepOrig' /A>\n");
+                
+                sb_SummaryTables.Append(
+                    clsHTMLFileHandler.GetSummaryTableHtml(
+                        clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance,
+                            "Summary_T_Data$TotalSummary", "QC_Params"),
+                        "Summary of Original Peptide Abundances", "table_header",
+                        1, 1, 1));
 
-                sb_SummaryTables.Append(string.Format("\t\t<H2 class='pos_left' style='top:{0}px'>" + 
-                    "<A NAME='peplog2' /A>Summary of Log2 Peptide Abundances</H2>\n",
-                    i_HeaderTop));                
-                sb_SummaryTables.Append(string.Format("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:{0}px;'>\n",
-                    i_TableTop));
-                i_HeaderTop = i_HeaderTop + i_HeaderIncrement;
-                i_TableTop = i_TableTop + i_TableIncrement;
-                DataTable dt_TotalSummary = clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance, "Summary_Log_T_Data$TotalSummary", "QC Params");
-                if (dt_TotalSummary != null)
-                {
-                    sb_SummaryTables.Append(WriteHtmlBody(HTMLFileType.Index));
-                    sb_SummaryTables.Append(clsHTMLFileHandler.GetTableHtml(dt_TotalSummary, "left", null, null, null));
-                    sb_SummaryTables.Append("\t\t</DIV>\n");
-                }
+                sb_SummaryTables.Append("<A NAME='peplog2' /A>\n");
+                sb_SummaryTables.Append(
+                    clsHTMLFileHandler.GetSummaryTableHtml(
+                        clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance,
+                            "Summary_Log_T_Data$TotalSummary", "QC_Params"),
+                        "Summary of Log2 Peptide Abundances", "table_header",
+                        1, 1, 1));
 
                 if (b_CT)
                 {
-                    sb_SummaryTables.Append(string.Format("\t\t<H2 class='pos_left' style='top:{0}px'>" + 
-                        "<A NAME='pepCT' /A>Summary of Central Tendency Log2 Peptide Abundances</H2>\n",
-                        i_HeaderTop));                    
-                    sb_SummaryTables.Append(string.Format("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:{0}px;'>\n",
-                        i_TableTop));
-                    i_HeaderTop = i_HeaderTop + i_HeaderIncrement;
-                    i_TableTop = i_TableTop + i_TableIncrement;
-                    DataTable dt_CTLog2Summary = clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance, "Summary_CT_Log_T_Data$TotalSummary", "QC Params");
-                    if (dt_CTLog2Summary != null)
-                    {
-                        sb_SummaryTables.Append(WriteHtmlBody(HTMLFileType.Index));
-                        sb_SummaryTables.Append(clsHTMLFileHandler.GetTableHtml(dt_CTLog2Summary, "left", null, null, null));
-                        sb_SummaryTables.Append("\t\t</DIV>\n");
-                    }
+                    sb_SummaryTables.Append("<A NAME='pepCT' /A>\n");
+                    sb_SummaryTables.Append(
+                        clsHTMLFileHandler.GetSummaryTableHtml(
+                            clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance,
+                                "Summary_CT_Log_T_Data$TotalSummary", "QC_Params"),
+                            "Summary of Central Tendency Log2 Peptide Abundances", "table_header",
+                            1, 1, 1));
                 }
 
                 if (b_LR)
                 {
-                    sb_SummaryTables.Append(string.Format("\t\t<H2 class='pos_left' style='top:{0}px'>" +
-                        "<A NAME='pepLR' /A>Summary of Linear Regression Log2 Peptide Abundances</H2>\n",
-                        i_HeaderTop));                    
-                    sb_SummaryTables.Append(string.Format("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:{0}px;'>\n",
-                        i_TableTop));
-                    i_HeaderTop = i_HeaderTop + i_HeaderIncrement;
-                    i_TableTop = i_TableTop + i_TableIncrement;
-                    DataTable dt_LRLog2Summary = clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance, "Summary_LR_Log_T_Data$TotalSummary", "QC Params");
-                    if (dt_LRLog2Summary != null)
-                    {
-                        sb_SummaryTables.Append(WriteHtmlBody(HTMLFileType.Index));
-                        sb_SummaryTables.Append(clsHTMLFileHandler.GetTableHtml(dt_LRLog2Summary, "left", null, null, null));
-                        sb_SummaryTables.Append("\t\t</DIV>\n");
-                    }
+                    sb_SummaryTables.Append("<A NAME='pepLR' /A>\n");
+                    sb_SummaryTables.Append(
+                        clsHTMLFileHandler.GetSummaryTableHtml(
+                            clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance,
+                                "Summary_LR_Log_T_Data$TotalSummary", "QC_Params"),
+                            "Summary of Linear Regression Log2 Peptide Abundances", "table_header",
+                            1, 1, 1));
                 }
 
                 // Proteins
-                sb_SummaryTables.Append(string.Format("\t\t<H2 class='pos_left' style='top:{0}px'>" +
-                    "<A NAME='protRR' /A>Summary of Protein Abundances from Log2 Peptides (RRollup)</H2>\n",
-                    i_HeaderTop));                
-                sb_SummaryTables.Append(string.Format("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:{0}px;'>\n",
-                    i_TableTop));
-                i_HeaderTop = i_HeaderTop + i_HeaderIncrement;
-                i_TableTop = i_TableTop + i_TableIncrement;
-                DataTable dt_ProteinTotalSummary = clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance, "Summary_RR_Log_T_Data$TotalSummary", "QC Params");
-                if (dt_ProteinTotalSummary != null)
-                {
-                    sb_SummaryTables.Append(WriteHtmlBody(HTMLFileType.Index));
-                    sb_SummaryTables.Append(clsHTMLFileHandler.GetTableHtml(dt_ProteinTotalSummary, "left", null, null, null));
-                    sb_SummaryTables.Append("\t\t</DIV>\n");
-                }
+                sb_SummaryTables.Append("<A NAME='protRR' /A>\n");
+                sb_SummaryTables.Append(
+                    clsHTMLFileHandler.GetSummaryTableHtml(
+                        clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance,
+                            "Summary_RR_Log_T_Data$TotalSummary", "QC_Params"),
+                        "Summary of Protein Abundances from Log2 Peptides (RRollup)", "table_header",
+                        1, 1, 1));
 
                 if (b_CT)
                 {
-                    sb_SummaryTables.Append(string.Format("\t\t<H2 class='pos_left' style='top:{0}px'>" +
-                        "<A NAME='protRRCT' /A>Summary of Protein Abundances from Central Tendency Log2 Peptides (RRollup)</H2>\n",
-                        i_HeaderTop));                    
-                    sb_SummaryTables.Append(string.Format("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:{0}px;'>\n",
-                        i_TableTop));
-                    i_HeaderTop = i_HeaderTop + i_HeaderIncrement;
-                    i_TableTop = i_TableTop + i_TableIncrement;
-                    DataTable dt_ProteinCTTotalSummary = clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance, "Summary_RR_CT_Log_T_Data$TotalSummary", "QC Params");
-                    if (dt_ProteinCTTotalSummary != null)
-                    {
-                        sb_SummaryTables.Append(WriteHtmlBody(HTMLFileType.Index));
-                        sb_SummaryTables.Append(clsHTMLFileHandler.GetTableHtml(dt_ProteinCTTotalSummary, "left", null, null, null));
-                        sb_SummaryTables.Append("\t\t</DIV>\n");
-                    }
+                    sb_SummaryTables.Append("<A NAME='protRRCT' /A>\n");
+                    sb_SummaryTables.Append(
+                        clsHTMLFileHandler.GetSummaryTableHtml(
+                            clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance,
+                                "Summary_RR_CT_Log_T_Data$TotalSummary", "QC_Params"),
+                            "Summary of Protein Abundances from Central Tendency Log2 Peptides Abundances (RRollup)", "table_header",
+                            1, 1, 1));
                 }
 
                 if (b_LR)
                 {
-                    sb_SummaryTables.Append(string.Format("\t\t<H2 class='pos_left' style='top:{0}px'>" +
-                        "<A NAME='protRRLR' /A>Summary of Protein Abundances from Linear Regression Log2 Peptides (RRollup)</H2>\n",
-                        i_HeaderTop));                    
-                    sb_SummaryTables.Append(string.Format("\t\t<DIV ID='DatasetTable' style='position: absolute; left:200px; top:{0}px;'>\n",
-                        i_TableTop));
-                    i_HeaderTop = i_HeaderTop + i_HeaderIncrement;
-                    i_TableTop = i_TableTop + i_TableIncrement;
-                    DataTable dt_ProteinLRTotalSummary = clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance, "Summary_RR_LR_Log_T_Data$TotalSummary", "QC Params");
-                    if (dt_ProteinLRTotalSummary != null)
-                    {
-                        sb_SummaryTables.Append(WriteHtmlBody(HTMLFileType.Index));
-                        sb_SummaryTables.Append(clsHTMLFileHandler.GetTableHtml(dt_ProteinLRTotalSummary, "left", null, null, null));
-                        sb_SummaryTables.Append("\t\t</DIV>\n");
-                    }
+                    sb_SummaryTables.Append("<A NAME='protRRLR' /A>\n");
+                    sb_SummaryTables.Append(
+                        clsHTMLFileHandler.GetSummaryTableHtml(
+                            clsGenericRCalls.GetDataTableIncludingRownames(s_RInstance,
+                                "Summary_RR_LR_Log_T_Data$TotalSummary", "QC_Params"),
+                            "Summary of Protein Abundances from Linear Regression Log2 Peptide Abundances (RRollup)", "table_header",
+                            1, 1, 1));
                 }
+
+                sb_SummaryTables.Append("</DIV>\n");
 
                 sb_SummaryTables.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
 
@@ -408,41 +363,45 @@ namespace Cyclops.ExportModules
                 sb_QC.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
                 sb_QC.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
                 sb_QC.Append(clsHTMLFileHandler.GetEndHeadStartBody());
-                sb_QC.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_QC.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
+                //sb_QC.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
                 sb_QC.Append(WriteHtmlBody(HTMLFileType.Index));
+
+                sb_QC.Append("<DIV ID='main_content'>\n");
                 sb_QC.Append("\t\t<A NAME='sum' />\n");
-                sb_QC.Append("\t\t<H2 class='pos_left'>Label-free Analysis Summary</H2>\n");
-                sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
-                    "LBF_Analysis_Summary.png", true, "pos_left", null, null));
-                sb_QC.Append("\t\t<DIV ID='SpectralCount' style='position: absolute; left:700px; top:100px;'>\n");
-                sb_QC.Append(clsHTMLFileHandler.GetTableHtml(
-                    clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_MassTagID_Summary",
-                    Path.Combine(esp.WorkDirectory, "Results.db3")), null, null, null, null));
-                sb_QC.Append("\t\t</DIV>\n");
+                sb_QC.Append(
+                    clsHTMLFileHandler.GetQCElement(
+                        "Label-free Analysis Summary",
+                        "table_header",
+                        "LBF_Analysis_Summary.png",
+                        clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_MassTagID_Summary",
+                            Path.Combine(esp.WorkDirectory, "Results.db3")),
+                        1, 1, 1));
 
                 sb_QC.Append("\t\t<A NAME='mc'/A>\n");
-                sb_QC.Append("\t\t<H2 class='pos_left'>Missed Cleavage Summary</H2>\n");
-                sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
-                    "MissedCleavage_Summary.png", true, "pos_left", null, null));
-                sb_QC.Append("\t\t<DIV ID='MissedCleavage' style='position: absolute; left:700px; top:560px;'>\n");
-                sb_QC.Append(clsHTMLFileHandler.GetTableHtml(
-                    clsSQLiteHandler.GetDataTable("SELECT * FROM T_MissedCleavageSummary",
-                    Path.Combine(esp.WorkDirectory, "Results.db3")), null, null, null, null));
-                sb_QC.Append("\t\t</DIV>\n");
+                sb_QC.Append(
+                    clsHTMLFileHandler.GetQCElement(
+                        "Missed Cleavage Summary",
+                        "table_header",
+                        "MissedCleavage_Summary.png",
+                        clsSQLiteHandler.GetDataTable("SELECT * FROM T_MissedCleavageSummary",
+                            Path.Combine(esp.WorkDirectory, "Results.db3")),
+                        1, 1, 1));
 
                 if (b_ContainsTrypticPeptideSummary)
                 {
                     sb_QC.Append("\t\t<A NAME='tp'/A>\n");
-                    sb_QC.Append("\t\t<H2 class='pos_left'>Tryptic Peptide Summary</H2>\n");
-                    sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Tryptic_Summary.png", true, "pos_left", null, null));
-                    sb_QC.Append("\t\t<DIV ID='TrypticCoverage' style='position: absolute; left:700px; top:1040px;'>\n");
-                    sb_QC.Append(clsHTMLFileHandler.GetTableHtml(
-                        clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_Trypticity_Summary",
-                        Path.Combine(esp.WorkDirectory, "Results.db3")), null, null, null, null));
-                    sb_QC.Append("\t\t</DIV>\n");
+                    sb_QC.Append(
+                        clsHTMLFileHandler.GetQCElement(
+                            "Tryptic Peptide Summary",
+                            "table_header",
+                            "Tryptic_Summary.png",
+                            clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_Trypticity_Summary",
+                                Path.Combine(esp.WorkDirectory, "Results.db3")),
+                            1, 1, 1));
                 }
 
+                sb_QC.Append("</DIV>\n");
                 sb_QC.Append(clsHTMLFileHandler.GetEndBodyEndHtml());                
 
                 StreamWriter sw_QC = new StreamWriter(Path.Combine(esp.WorkDirectory,
@@ -470,9 +429,16 @@ namespace Cyclops.ExportModules
                 sb_HTML.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
                 sb_HTML.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
                 sb_HTML.Append(clsHTMLFileHandler.GetEndHeadStartBody());
-                sb_HTML.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_HTML.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
+                //sb_HTML.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
                 sb_HTML.Append(WriteHtmlBody(HTMLFileType.Index));
+
+
+                sb_HTML.Append("<DIV ID='main_content'>\n");
                 
+                // Add to the index page here...
+
+                sb_HTML.Append("</DIV>\n");
 
                 sb_HTML.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
 
@@ -513,47 +479,63 @@ namespace Cyclops.ExportModules
                 sb_BoxPlots.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
                 sb_BoxPlots.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
                 sb_BoxPlots.Append(clsHTMLFileHandler.GetEndHeadStartBody());
-                sb_BoxPlots.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_BoxPlots.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
+                //sb_BoxPlots.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
                 sb_BoxPlots.Append(WriteHtmlBody(HTMLFileType.Index));
 
+                sb_BoxPlots.Append("<DIV ID='main_content'>\n");
                 sb_BoxPlots.Append("\t\t<A NAME='log2bp'/A>\n");
-                sb_BoxPlots.Append("\t\t<H2 class='pos_left'>Peptide Log2 Box Plot</H2>\n");
+                sb_BoxPlots.Append("\t\t<DIV>\n");
+                sb_BoxPlots.Append("\t\t<P ID='table_header'>Peptide Log2 Box Plot</P>\n");
                 sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                    "Boxplot_Log_T_Data.png", true, "pos_left", null, null));
+                    "Boxplot_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                sb_BoxPlots.Append("\t\t</DIV>\n");
                 if (b_LRBoxplot)
                 {
                     sb_BoxPlots.Append("\t\t<A NAME='lrlog2bp'/A>\n");
-                    sb_BoxPlots.Append("\t\t<H2 class='pos_left'>Peptide Linear Regression Log2 Box Plot</H2>\n");
+                    sb_BoxPlots.Append("\t\t<DIV>\n");
+                    sb_BoxPlots.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Box Plot</P>\n");
                     sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Boxplot_LR_Log_T_Data.png", true, "pos_left", null, null));
+                        "Boxplot_LR_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                    sb_BoxPlots.Append("\t\t</DIV>\n");
                 }
                 if (b_CTBoxplot)
                 {
                     sb_BoxPlots.Append("\t\t<A NAME='ctlog2bp'/A>\n");
-                    sb_BoxPlots.Append("\t\t<H2 class='pos_left'>Peptide Central Tendency Log2 Box Plot</H2>\n");
+                    sb_BoxPlots.Append("\t\t<DIV>\n");
+                    sb_BoxPlots.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Box Plot</P>\n");
                     sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Boxplot_CT_Log_T_Data.png", true, "pos_left", null, null));
+                        "Boxplot_CT_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                    sb_BoxPlots.Append("\t\t</DIV>\n");
                 }
 
                 sb_BoxPlots.Append("\t\t<A NAME='protbp'/A>\n");
-                sb_BoxPlots.Append("\t\t<H2 class='pos_left'>Protein Log2 Box Plot</H2>\n");
+                sb_BoxPlots.Append("\t\t<DIV>\n");
+                sb_BoxPlots.Append("\t\t<P ID='table_header'>Protein Log2 Box Plot</P>\n");
                 sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                    "Boxplot_RR_Log_T_Data.png", true, "pos_left", null, null));
+                    "Boxplot_RR_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                sb_BoxPlots.Append("\t\t</DIV>\n");
 
                 if (b_LRBoxplot)
                 {
                     sb_BoxPlots.Append("\t\t<A NAME='protlrbp'/A>\n");
-                    sb_BoxPlots.Append("\t\t<H2 class='pos_left'>Protein Linear Regression Log2 Box Plot</H2>\n");
+                    sb_BoxPlots.Append("\t\t<DIV>\n");
+                    sb_BoxPlots.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Box Plot</P>\n");
                     sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Boxplot_RR_LR_Log_T_Data.png", true, "pos_left", null, null));
+                        "Boxplot_RR_LR_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                    sb_BoxPlots.Append("\t\t</DIV>\n");
                 }
                 if (b_CTBoxplot)
                 {
                     sb_BoxPlots.Append("\t\t<A NAME='protctbp'/A>\n");
-                    sb_BoxPlots.Append("\t\t<H2 class='pos_left'>Protein Central Tendency Log2 Box Plot</H2>\n");
+                    sb_BoxPlots.Append("\t\t<DIV>\n");
+                    sb_BoxPlots.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Box Plot</P>\n");
                     sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Boxplot_RR_CT_Log_T_Data.png", true, "pos_left", null, null));
+                        "Boxplot_RR_CT_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                    sb_BoxPlots.Append("\t\t</DIV>\n");
                 }
+
+                sb_BoxPlots.Append("</DIV>\n");
 
                 sb_BoxPlots.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
 
@@ -601,49 +583,65 @@ namespace Cyclops.ExportModules
                 sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
                 sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
                 sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetEndHeadStartBody());
-                sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
+                //sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
                 sb_CorrHeatmaps.Append(WriteHtmlBody(HTMLFileType.Index));
 
+                sb_CorrHeatmaps.Append("<DIV ID='main_content'>\n");
                 sb_CorrHeatmaps.Append("\t\t<A NAME='log2ch'/A>\n");
-                sb_CorrHeatmaps.Append("\t\t<H2 class='pos_left'>Peptide Log2 Correlation Heatmap</H2>\n");
+                sb_CorrHeatmaps.Append("\t\t<DIV>\n");
+                sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Peptide Log2 Correlation Heatmap</P>\n");
                 sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                    "Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null));
+                    "Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 if (b_LRBoxplot)
                 {
                     sb_CorrHeatmaps.Append("\t\t<A NAME='lrlog2ch'/A>\n");
-                    sb_CorrHeatmaps.Append("\t\t<H2 class='pos_left'>Peptide Linear Regression Log2 Correlation Heatmap</H2>\n");
+                    sb_CorrHeatmaps.Append("\t\t<DIV>\n");
+                    sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Correlation Heatmap</P>\n");
                     sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                        "LR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null));
+                        "LR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                    sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 }
                 if (b_CTBoxplot)
                 {
                     sb_CorrHeatmaps.Append("\t\t<A NAME='ctlog2ch'/A>\n");
-                    sb_CorrHeatmaps.Append("\t\t<H2 class='pos_left'>Peptide Central Tendency Log2 Correlation Heatmap</H2>\n");
+                    sb_CorrHeatmaps.Append("\t\t<DIV>\n");
+                    sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Correlation Heatmap</P>\n");
                     sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                        "CT_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null));
+                        "CT_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                    sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 }
 
                 sb_CorrHeatmaps.Append("\t\t<A NAME='protch'/A>\n");
-                sb_CorrHeatmaps.Append("\t\t<H2 class='pos_left'>Protein Log2 Correlation Heatmap</H2>\n");
+                sb_CorrHeatmaps.Append("\t\t<DIV>\n");
+                sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Protein Log2 Correlation Heatmap</P>\n");
                 sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                    "RR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null));
+                    "RR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                sb_CorrHeatmaps.Append("\t\t</DIV>\n");
 
                 if (b_LRBoxplot)
                 {
                     sb_CorrHeatmaps.Append("\t\t<A NAME='protlrch'/A>\n");
-                    sb_CorrHeatmaps.Append("\t\t<H2 class='pos_left'>Protein Linear Regression Log2 Correlation Heatmap</H2>\n");
+                    sb_CorrHeatmaps.Append("\t\t<DIV>\n");
+                    sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Correlation Heatmap</P>\n");
                     sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                        "RR_LR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null));
+                        "RR_LR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                    sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 }
                 if (b_CTBoxplot)
                 {
                     sb_CorrHeatmaps.Append("\t\t<A NAME='protctch'/A>\n");
-                    sb_CorrHeatmaps.Append("\t\t<H2 class='pos_left'>Protein Central Tendency Log2 Correlation Heatmap</H2>\n");
+                    sb_CorrHeatmaps.Append("\t\t<DIV>\n");
+                    sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Correlation Heatmap</P>\n");
                     sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                        "RR_CT_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null));
+                        "RR_CT_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                    sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 }
 
-                sb_BoxPlots.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
+                sb_CorrHeatmaps.Append("</DIV>\n");
+
+                sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
 
                 StreamWriter sw_CorrHeatmaps = new StreamWriter(Path.Combine(esp.WorkDirectory,
                     s_CorrelationHeatmaps));
@@ -676,7 +674,7 @@ namespace Cyclops.ExportModules
                 case HTMLFileType.Dataset:
                     s_Body = clsHTMLFileHandler.GetDatasetTableHtml(
                         Path.Combine(esp.WorkDirectory, esp.DatabaseName), null,
-                            "center", 0, 2, 4);
+                            "table_header", "center", 0, 2, 4);
                     break;
                 case HTMLFileType.Index:
 

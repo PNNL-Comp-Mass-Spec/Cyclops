@@ -54,6 +54,28 @@ namespace Cyclops
         }
 
         /// <summary>
+        /// Removes an object from the R Workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="Object2Remove">Name of object you would like to remove</param>
+        /// <returns>true if successfully removed</returns>
+        public static bool RemoveObject(string InstanceOfR, string Object2Remove)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            
+            if (ContainsObject(InstanceOfR, Object2Remove))
+            {
+                string s_RStatement = string.Format(
+                    "rm({0})\n",
+                    Object2Remove);
+                engine.EagerEvaluate(s_RStatement);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Returns all the objects in the R workspace
         /// </summary>
         /// <param name="InstanceOfR">Instance of your R workspace</param>
@@ -149,7 +171,7 @@ namespace Cyclops
         {
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
 
-            string s_Command = string.Format("unique({0}${1})",
+            string s_Command = string.Format("unique(as.character({0}${1}))",
                 TableName,
                 ColumnName);
             CharacterVector cv = engine.EagerEvaluate(s_Command).AsCharacter();

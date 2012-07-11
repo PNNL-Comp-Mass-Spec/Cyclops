@@ -121,7 +121,11 @@ namespace Cyclops.DataModules
             }
             else // Load the specified files
             {
+                int i_SourceFilesLoaded = 0;
                 string[] s_Files = dsp.Source.Split(';');
+                traceLog.Info(string.Format("Preparing to load " +
+                    "{0} R scripts into workspace...",
+                    s_Files.Length));
                 foreach (string s in s_Files)
                 {
                     try
@@ -129,6 +133,7 @@ namespace Cyclops.DataModules
                         string s_Command = string.Format("source(\"{0}/{1}\")",
                             Directory.GetCurrentDirectory().Replace('\\', '/'), s.Replace('\\', '/'));
                         engine.EagerEvaluate(s_Command);
+                        i_SourceFilesLoaded++;
                     }
                     catch (ParseException pe)
                     {
@@ -136,6 +141,9 @@ namespace Cyclops.DataModules
                         traceLog.Error("ERROR LOADING R SCRIPTS: Encountered a Parse Excpetion: " 
                             + pe.ToString());
                     }
+                    traceLog.Info(string.Format("{0} files " +
+                        "successfully loaded into R workspace!",
+                        i_SourceFilesLoaded));
                 }
             }
             string s_RStatement = string.Format("objects2delete <- ls()"); // index of all objects loaded into R from source files
@@ -150,15 +158,29 @@ namespace Cyclops.DataModules
         /// <param name="RInstance">Instance of R Workspace</param>
         protected void GetDirectoriesAndLoadRSourceFiles(string MyDirectory, string RInstance)
         {
+            // Note, initial count does not include subdirectories, so if this is the case
+            // and you need the number to be accurate, best to iterate through directories
+            // first and do the count.
+            int i_SourceFilesLoaded = 0;            
+            traceLog.Info(string.Format("Preparing to load " +
+                "{0} R scripts into workspace...",
+                Directory.GetFiles(MyDirectory, "*.R").Length));
+
             foreach (string s in Directory.GetFiles(MyDirectory))
             {
                 if (Path.GetExtension(s).ToUpper().Equals(".R"))
+                {
                     LoadRSourceFile(s, RInstance);
+                    i_SourceFilesLoaded++;
+                }
             }
             foreach (string s in Directory.GetDirectories(MyDirectory))
             {
                 GetDirectoriesAndLoadRSourceFiles(s, RInstance);
             }
+            traceLog.Info(string.Format("{0} files " +
+                        "successfully loaded into R workspace!",
+                        i_SourceFilesLoaded));
         }
 
         /// <summary>

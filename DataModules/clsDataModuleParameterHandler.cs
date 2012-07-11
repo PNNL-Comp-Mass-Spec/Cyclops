@@ -43,7 +43,9 @@ namespace Cyclops.DataModules
             s_AllX = "TRUE",
             s_AllY = "TRUE",
             s_AltInputTableName = "",
+            s_AnalysisType = "",
             s_AsDataMatrix="true",
+            s_BioRep="",
             s_Center="FALSE",                           // used in RRollup, center peptide abundace to 0
             s_CommaSep_wQuotesIdentifiers = "",
             s_CommaSep_woQuotesIdentifiers = "",
@@ -51,6 +53,7 @@ namespace Cyclops.DataModules
             s_ColMetadataTable = "T_Column_Metadata",
             s_ColFactor = "",
             s_ColumnName = "",
+            s_Contrasts = "",                          // MSstats: used for making special contrasts
             s_DatabasePath = "",
             s_DecoyPrefix = "Reversed_",              // used in IDPicker
             s_FactorColumn = "",
@@ -79,7 +82,8 @@ namespace Cyclops.DataModules
             s_MinDistinctPeptides="2",                  // used in IDPicker
             s_MinPresence="10",                         // used in RRollup
             s_MinSpectraPerProtein="2",                 // used in IDPicker
-            s_Mode="median",                            // used in RRollup
+            s_Mode="median",                            // used in RRollup, ANOVA
+            s_Model="fixed",                            // used in MSstats
             s_ModsAreDistinctByDefault="true",          // used in IDPicker
             s_ModuleName = "",
             s_NewTableName = "",
@@ -176,6 +180,12 @@ namespace Cyclops.DataModules
             set { s_AltInputTableName = value; }
         }
 
+        public string AnalysisType
+        {
+            get { return s_AnalysisType; }
+            set { s_AnalysisType = value; }
+        }
+
         public string AsDataMatrix
         {
             get { return s_AsDataMatrix.ToLower(); }
@@ -191,6 +201,12 @@ namespace Cyclops.DataModules
         {
             get { return b_AutoScale; }
             set { b_AutoScale = value; }
+        }
+
+        public string BioRep
+        {
+            get { return s_BioRep; }
+            set { s_BioRep = value; }
         }
 
         public string ColumnMetadataTable
@@ -209,6 +225,12 @@ namespace Cyclops.DataModules
         {
             get { return s_ColumnName; }
             set { s_ColumnName = value; }
+        }
+
+        public string Contrasts
+        {
+            get { return s_Contrasts; }
+            set { s_Contrasts = value; }
         }
 
         public bool HasCommaSeparatedListWithQuotes
@@ -803,6 +825,12 @@ namespace Cyclops.DataModules
             set { s_Mode = value; }
         }
 
+        public string Model
+        {
+            get { return s_Model; }
+            set { s_Model = value; }
+        }
+
         /// <summary>
         /// Used in RRollup, index of protein id column in T_Row_Metadata table, default is 1
         /// </summary>
@@ -1192,12 +1220,18 @@ namespace Cyclops.DataModules
                     case "altInputTableName":
                         AltInputTableName = kvp.Value;
                         break;
+                    case "analysisType":
+                        s_AnalysisType = kvp.Value;
+                        break;
                     case "asDataMatrix":
                         AsDataMatrix = kvp.Value;
                         break;
                     case "autoScale":
                         string s_AutoScale = kvp.Value;
                         AutoScale = s_AutoScale.ToLower().Equals("true") ? true : false;
+                        break;
+                    case "bioRep":
+                        s_BioRep = kvp.Value;
                         break;
                     case "colFactor":
                         s_ColFactor = kvp.Value;
@@ -1220,6 +1254,9 @@ namespace Cyclops.DataModules
                         break;
                     case "Consolidation_Factor":
                         s_ConsolidationFactor = kvp.Value;
+                        break;
+                    case "contrasts":
+                        s_Contrasts = kvp.Value;
                         break;
                     case "decoyPrefix":
                         s_DecoyPrefix = kvp.Value;
@@ -1408,7 +1445,7 @@ namespace Cyclops.DataModules
                         s_RemoveFirstCharacters = kvp.Value;
                         break;
 
-                    case "randomEffect":
+                    case "Random_Effect":
                         s_RandomEffect = kvp.Value;
                         break;
                     // RRollup parameter names
@@ -1420,6 +1457,9 @@ namespace Cyclops.DataModules
                         break;
                     case "mode":
                         s_Mode = kvp.Value;
+                        break;
+                    case "model":
+                        s_Model = kvp.Value;
                         break;
                     case "proteinInfo_ProteinCol":
                         s_ProteinColumn = kvp.Value;

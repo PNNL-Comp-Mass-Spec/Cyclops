@@ -10,16 +10,15 @@
 # in compliance with the License.  You may obtain a copy of the License at
 # http://www.apache.org/licenses/LICENSE-2.0
 #
-# ANOVA
+# ANOVA modified by Joseph N. Brown, Ph.D.
 
-DoAnova <- function(Data, FixedEffects,
+performAnova <- function(Data, FixedEffects,
                     RandomEffects, thres=3,
                     interact=FALSE,
                     unbalanced = TRUE,
                     useREML=TRUE,
                     Factors=factors)
 {
-    require(qvalue)
     require(car)
     require(nlme)
 
@@ -32,20 +31,22 @@ DoAnova <- function(Data, FixedEffects,
       Data.bad <- rbind(Data.bad, Data.bad)
         
     #test for the length of p-value vector 
-    tmp <- anovaPvals(runif(dim(Data.good)[2]), FixedEffects, 
-	 	                    RandomEffects, Factors=factors, interact=interact, 
+    tmp <- retrievePvals(runif(dim(Data.good)[2]), FixedEffects, 
+	 	                    RandomEffects, Factors=Factors, interact=interact, 
 	 	                    unbalanced=unbalanced, test=TRUE, useREML=useREML) 
     pNames <- names(tmp) 
 	 	 
-    anovaresults <- t(apply(Data.good, 1, anovaPvals, FixedEffects,
-                    RandomEffects, Factors=factors, interact=interact,
+    anovaresults <- t(apply(Data.good, 1, retrievePvals, FixedEffects,
+                    RandomEffects, Factors=Factors, interact=interact,
                     unbalanced=unbalanced, Np=length(tmp),
                     test=FALSE, useREML=useREML))
 
+	
     if (dim(anovaresults)[1] < dim(anovaresults)[2])
         anovaresults <- t(anovaresults)
     colnames(anovaresults)<-pNames
-
+	
+	out <- c()
     if (is.matrix(anovaresults))
     {
         out <- anovaresults
@@ -53,12 +54,11 @@ DoAnova <- function(Data, FixedEffects,
         for (i in 1:length(pNames))
         {
             idx <- !is.na(anovaresults[,i])
-            qval <- rep(NA, length(idx))
-            #browser()
+            bhval <- rep(NA, length(idx))
+			
             tryCatch(
             {
-                qval.tmp <- (qvalue(anovaresults[idx,i]))$qvalues
-                qval[idx] <- qval.tmp
+				bhval <- p.adjust(anovaresults[,i], method="BH")
             },
             interrupt = function(ex)
             {
@@ -72,18 +72,18 @@ DoAnova <- function(Data, FixedEffects,
             },
             finally =
             {
-                out <- cbind(out,qval)
-                outColNames <- c(outColNames, paste(pNames[i],"(q)",sep=""))
+				out <- cbind(out, bhval)
+				outColNames <- c(outColNames, paste("AdjPval_", pNames[i], sep=""))
             }) # tryCatch()
         }
         colnames(out) <- outColNames
-    }
-
+	}
+	
     return(list(pvals=out, miss=Data.bad, allused=(dim(Data.bad)[1]==0)))
 }
 
 #--------------------------------------------------------------
-anovaPvals <- function(x, fEff, rEff,
+retrievePvals <- function(x, fEff, rEff,
                    Factors=factors,
                    interact=FALSE,
                    unbalanced=TRUE,
@@ -98,7 +98,7 @@ anovaPvals <- function(x, fEff, rEff,
     {
         names(X)[i] <- allF[i]
     }
-
+	
     lhs <- fEff[1]
     if (length(fEff) > 1)
     {
@@ -112,12 +112,12 @@ anovaPvals <- function(x, fEff, rEff,
     }
     lm.Formula <- as.formula(paste('x~', lhs))
     modelF <- lm(lm.Formula, X)
-    
+		
     if (useREML)
         Method <- "REML"
     else
         Method <- "ML"
-    
+    	
     if (!is.null(rEff))
     {
         rEffects <- paste("~1|", rEff[1], sep="")
@@ -132,9 +132,9 @@ anovaPvals <- function(x, fEff, rEff,
         else
             rEffects <- paste("random=",rEffects, sep="")
 
-        #modelR <- lme(eval(parse(text=lm.Formula)), data=X, eval(parse(text=rEffects)))
         modelR <- lme(lm.Formula, data=X, eval(parse(text=rEffects)),
                       method=Method, na.action = na.omit)
+		
 
         options(warn = -1)
         if (unbalanced)
@@ -150,7 +150,6 @@ anovaPvals <- function(x, fEff, rEff,
         }
         else
         {
-            #anova.result <- anova(modelR)
             pvals <- anova.result$"p-value"
             names(pvals)<-rownames(anova.result)
 
@@ -225,7 +224,7 @@ splitForAnova <- function(Data,Factors,thres=3)
         else
             currFac <- Factors
 
-        splitIdx <- splitmissing.factor(Data, currFac, thres=thres)
+        splitIdx <- splitmissing_factor(Data, currFac, thres=thres)
         if (k == 1)
             anovaIdx <- splitIdx$good
         else
@@ -237,7 +236,7 @@ splitForAnova <- function(Data,Factors,thres=3)
 }
 
 #--------------------------------------------------------------
-factor.values <- function(factors)
+factor_values <- function(factors)
 {
     out <- list()
     for (i in 1:dim(factors)[1])
@@ -248,7 +247,7 @@ factor.values <- function(factors)
 }
 
 #--------------------------------------------------------------
-splitmissing.factor <- function(Data, Factor, thres=3)
+splitmissing_factor <- function(Data, Factor, thres=3)
 {
     anovaIdx <- integer(0)
     anovaIdxNon <- integer(0)
@@ -260,7 +259,7 @@ splitmissing.factor <- function(Data, Factor, thres=3)
         dataset <- Data[,idx,drop=FALSE]
         if (length(idx) > 1) # multiple columns
         {
-            splitIdx <- splitmissing.fLevel(dataset, thres=thres)
+            splitIdx <- splitmissing_fLevel(dataset, thres=thres)
             if (i == 1)
                 anovaIdx <- splitIdx$good
             else
@@ -272,7 +271,7 @@ splitmissing.factor <- function(Data, Factor, thres=3)
 }
 
 #--------------------------------------------------------------
-splitmissing.fLevel <- function(Data,thres=3)
+splitmissing_fLevel <- function(Data,thres=3)
 {
     allIdx <- 1:dim(Data)[1]
     validIdx <- rowSums(!is.na(Data)) >= thres
@@ -283,5 +282,15 @@ splitmissing.fLevel <- function(Data,thres=3)
     return(list(good=goodIdx, bad=badIdx))
 }
 
-
+#--------------------------------------------------------------
+jnb_trim <- function(x) {
+	if (length(x) > 0) {
+		t <- c()
+		for (i in 1:length(x)) {
+			if (nchar(as.character(x[i])) > 0)
+				t <- c(t, x[i])
+		}	
+		return(t)
+	}
+}
 

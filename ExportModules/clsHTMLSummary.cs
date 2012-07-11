@@ -265,7 +265,7 @@ namespace Cyclops.ExportModules
                 case HTMLFileType.Dataset:
                     s_Body = clsHTMLFileHandler.GetDatasetTableHtml(
                         Path.Combine(esp.WorkDirectory, esp.DatabaseName), null,
-                            "center", 0, 2, 4);
+                            "table_header", "center", 0, 2, 4);
                     break;
                 case HTMLFileType.Index:
 

@@ -178,6 +178,12 @@ namespace Cyclops
                                                     case "AnovaPractice":
                                                         lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.AnovaPractice);
                                                         break;
+                                                    case "MainAnovaPractice":
+                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.MainAnovaPractice);
+                                                        break;
+                                                    case "HtmlPractice":
+                                                        lbfOp.SetType(Operations.clsLabelFreeMainOperation.LbfTypes.HtmlPractice);
+                                                        break;
                                                 }
                                             }
                                             catch (Exception exc)

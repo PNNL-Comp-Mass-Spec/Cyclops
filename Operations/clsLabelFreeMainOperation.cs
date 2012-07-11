@@ -41,10 +41,11 @@ namespace Cyclops.Operations
         /// Log2LR: Log2 transformation, Linear Regression, RRollup
         /// Log2CT: Log2 transformation, Central Tendency, RRollup
         /// </summary>
-        public enum LbfTypes { Log2, Log2LR, Log2CT, Log2All, AnovaPractice};
+        public enum LbfTypes { Log2, Log2LR, Log2CT, Log2All, AnovaPractice, MainAnovaPractice, HtmlPractice};
         private string[] s_LabelFreeTableNames = new string[] { "T_LabelFreeLog2PipelineOperation",
             "T_LabelFreeLog2_LR_PipelineOperation", "T_LabelFreeLog2_CT_PipelineOperation",
-            "T_LabelFreeLog2_All_PipelineOperation", "T_LabelFree_AnovaPractice"};
+            "T_LabelFreeLog2_All_PipelineOperation", "T_LabelFree_AnovaPractice", 
+            "T_LabelFree_MainAnovaPractice", "T_LabelFree_HtmlPractice"};
         private string s_LabelFreeTableName = "T_LabelFreeLog2PipelineOperation";
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         #endregion
@@ -128,6 +129,12 @@ namespace Cyclops.Operations
                     break;
                 case LbfTypes.AnovaPractice:
                     s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.AnovaPractice];
+                    break;
+                case LbfTypes.MainAnovaPractice:
+                    s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.MainAnovaPractice];
+                    break;
+                case LbfTypes.HtmlPractice:
+                    s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.HtmlPractice];
                     break;
             }
         }

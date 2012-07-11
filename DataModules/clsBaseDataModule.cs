@@ -147,7 +147,7 @@ namespace Cyclops.DataModules
                 NameOfDataTable,
                 NameOfColumnMetadataTable,
                 yMergeColumn);
-
+                        
             engine.EagerEvaluate(s_RStatement);
         }
 
