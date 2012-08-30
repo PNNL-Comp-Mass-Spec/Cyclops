@@ -39,10 +39,11 @@ namespace Cyclops.Operations
         protected string s_RInstance;
         private string s_OperationsDBPath = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3";
         private string s_SpectralCountTableName = "T_SpectralCountPipelineOperation";
-        public enum ScoTypes { Standard, Iterator };
+        public enum ScoTypes { Standard, Iterator, Practice };
         private string[] s_SpectralCountTableNames = new string[] {
             "T_SpectralCountPipelineOperation",
-            "T_SpectralCountIteratorPipelineOperation"
+            "T_SpectralCountIteratorPipelineOperation",
+            "T_PracticeOperation"
         };
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         #endregion
@@ -114,6 +115,9 @@ namespace Cyclops.Operations
                 case ScoTypes.Iterator:
                     s_SpectralCountTableName = s_SpectralCountTableNames[(int)ScoTypes.Iterator];
                     break;
+                case ScoTypes.Practice:
+                    s_SpectralCountTableName = s_SpectralCountTableNames[(int)ScoTypes.Practice];
+                    break;
             }
         }
 
@@ -180,6 +184,22 @@ namespace Cyclops.Operations
             string s_Module = Rows[0]["Module"].ToString();
             switch (s_Module)
             {
+                case "Aggregate":
+                    DataModules.clsAggregate aggregate = new DataModules.clsAggregate(Model, s_RInstance);
+                    aggregate.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = aggregate;
+                        CurrentNode = aggregate;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(aggregate);
+                        CurrentNode = aggregate;
+                        Model.NumberOfModules++;
+                    }
+                    break;
                 case "LoadRSourceFiles":
                     DataModules.clsRSourceFileModule load = new DataModules.clsRSourceFileModule(Model, s_RInstance);
                     load.Parameters = GetParameters(Rows);

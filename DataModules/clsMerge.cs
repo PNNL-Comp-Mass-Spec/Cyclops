@@ -63,6 +63,18 @@ namespace Cyclops.DataModules
             ModuleName = "Merge Module";
             s_RInstance = InstanceOfR;
         }
+
+        /// <summary>
+        /// Module to merge two tables together
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsMerge(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "Merge Module";
+            Model = TheCyclopsModel;
+            s_RInstance = InstanceOfR;
+        }
         #endregion
 
         #region Properties
@@ -81,7 +93,7 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
-                
+                MergeTables();
             }
 
             RunChildModules();
@@ -98,43 +110,43 @@ namespace Cyclops.DataModules
             // NECESSARY PARAMETERS
             if (!dsp.HasNewTableName)
             {
-                traceLog.Error("ERROR: Aggregation class: 'newTableName': \"" +
+                traceLog.Error("ERROR: Merge class: 'newTableName': \"" +
                     dsp.NewTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasXTable)
             {
-                traceLog.Error("ERROR: Aggregation class: 'xTable': \"" +
+                traceLog.Error("ERROR: Merge class: 'xTable': \"" +
                     dsp.X_Table + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasYTable)
             {
-                traceLog.Error("ERROR: Aggregation class: 'yTable': \"" +
+                traceLog.Error("ERROR: Merge class: 'yTable': \"" +
                     dsp.Y_Table + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasXLink)
             {
-                traceLog.Error("ERROR: Aggregation class: 'xLink': \"" +
+                traceLog.Error("ERROR: Merge class: 'xLink': \"" +
                     dsp.X_Link + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasYLink)
             {
-                traceLog.Error("ERROR: Aggregation class: 'yLink': \"" +
+                traceLog.Error("ERROR: Merge class: 'yLink': \"" +
                     dsp.Y_Link + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasAllX)
             {
-                traceLog.Error("ERROR: Aggregation class: 'allX': \"" +
+                traceLog.Error("ERROR: Merge class: 'allX': \"" +
                     dsp.AllX + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasAllY)
             {
-                traceLog.Error("ERROR: Aggregation class: 'allY': \"" +
+                traceLog.Error("ERROR: Merge class: 'allY': \"" +
                     dsp.AllY + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
@@ -146,23 +158,29 @@ namespace Cyclops.DataModules
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Construct the R statement
+            string s_AllX = Parameters["allX"],
+                s_AllY = Parameters["allY"];
             string s_RStatement = string.Format("{0} <- merge(x={1}," +
-                "y={2}, by.x={3}, by.y={4}, all.x={5}, all.y={6})",
+                "y={2}, by.x=\"{3}\", by.y=\"{4}\", all.x={5}, all.y={6})",
                 Parameters["newTableName"],
-                Parameters["firstTable"],
-                Parameters["secondTable"],
-                Parameters["firstTableLinkColumn"],
-                Parameters["secondTableLinkColumn"],
-                Parameters["allX"],
-                Parameters["allY"]);
+                Parameters["xTable"],
+                Parameters["yTable"],
+                Parameters["xLink"],
+                Parameters["yLink"],
+                s_AllX.ToUpper(),
+                s_AllY.ToUpper());
 
             try
             {
+                traceLog.Info("Merging tables:\n" +
+                    s_RStatement);
                 engine.EagerEvaluate(s_RStatement);
             }
-            catch (Exception)
+            catch (Exception exc)
             {
                 // TODO, evaluate the exception
+                traceLog.Error("ERROR Merging data tables:\n" +
+                    exc.ToString());
             }
         }
         #endregion

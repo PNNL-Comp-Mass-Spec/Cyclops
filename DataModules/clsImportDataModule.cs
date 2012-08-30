@@ -157,7 +157,7 @@ namespace Cyclops.DataModules
 
                             traceLog.Info("Importing Table: " + s_RStatement);
                             s_Current_R_Statement += s_RStatement + "\n";
-
+                                                        
                             engine.EagerEvaluate(s_RStatement);
                             traceLog.Info("IMPORT DATA MODULE: " + dsp.InputTableName +
                                 " was imported into the R environment as " +
@@ -168,21 +168,21 @@ namespace Cyclops.DataModules
                         }
                         catch (ParseException pe)
                         {
-                            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                            //    "Cyclops encountered a ParseException while reading from SQLite DB: " +
-                            //    pe.ToString() + ".");
+                            traceLog.Error(
+                                "Cyclops encountered a ParseException while reading from SQLite DB: \n" +
+                                pe.ToString() + ".");
                         }
                         catch (AccessViolationException ave)
                         {
-                            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                            //    "Cyclops encountered an AccessViolationException while reading from SQLite DB: " +
-                            //    ave.ToString() + ".");
+                            traceLog.Error(
+                                "Cyclops encountered an AccessViolationException while reading from SQLite DB: \n" +
+                                ave.ToString() + ".");
                         }
                         catch (Exception exc)
                         {
-                            //clsLogTools.WriteLog(clsLogTools.LoggerTypes.LogFile, clsLogTools.LogLevels.ERROR,
-                            //    "Cyclops encountered an Exception while reading from SQLite DB: " +
-                            //    exc.ToString() + ".");
+                            traceLog.Error(
+                                "Cyclops encountered an Exception while reading from SQLite DB: \n" +
+                                exc.ToString() + ".");
                         }
                         break;
                     case "csv":
@@ -309,13 +309,26 @@ namespace Cyclops.DataModules
         public void DisconnectFromDatabase()
         {            
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            
+
             string s_RStatement = "terminated <- dbDisconnect(con)";
 
             traceLog.Info("Disconnecting from Database: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            try
+            {
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (ParseException pe)
+            {
+                traceLog.Error("Disconnecting from Database, Parse Error encountered:\n" +
+                    pe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("Disconnecting from Database, Error encountered:\n" +
+                    exc.ToString());
+            }
 
+            //bool b_Disconnected = true;
             bool b_Disconnected = clsGenericRCalls.AssessBoolean(s_RInstance, "terminated");
 
             if (b_Disconnected)
@@ -432,6 +445,7 @@ namespace Cyclops.DataModules
         public void GetDataTableFromSQLiteDB()
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            
             string s_RStatement = string.Format(
                  "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                  "{1} <- fetch(rt, n = -1)\n" +
@@ -453,6 +467,7 @@ namespace Cyclops.DataModules
         public void GetColumnMetadataFromSQLiteDB()
         {
             REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            
             string s_RStatement = string.Format(
                  "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                  "{1} <- fetch(rt, n = -1)\n" +

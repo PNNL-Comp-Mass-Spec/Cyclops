@@ -48,7 +48,8 @@ namespace Cyclops.DataModules
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private string s_MSstatsLibrary = //"//gigasax/DMS_Workflows/Cyclops/MSstats.tar.gz";
             "G:/Downloads/MSstats.tar.gz";
-        private string s_MSstatsDataTablename;
+        private string s_MSstatsDataTablename,
+            s_FactorTableTmp = "";
         #endregion
 
         #region Contructors
@@ -100,7 +101,7 @@ namespace Cyclops.DataModules
         protected bool CheckPassedParameters()
         {
             bool b_2Pass = true;
-
+            
             // NECESSARY PARAMETERS
             if (!dsp.HasNewTableName)
             {
@@ -125,7 +126,8 @@ namespace Cyclops.DataModules
                 b_2Pass = false;
             }
 
-            if (string.IsNullOrEmpty(dsp.FixedEffect))
+            if (string.IsNullOrEmpty(dsp.FixedEffect) & 
+                !dsp.AnalysisType.Contains("iTRAQ"))
             {
                 traceLog.Error("ANOVA class: 'Fixed_Effect' factor was not identified, " +
                     "skipping over ANOVA");
@@ -142,6 +144,12 @@ namespace Cyclops.DataModules
         {
             dsp.GetParameters(ModuleName, Parameters);
 
+            List<string> testItems = clsGenericRCalls.ls(s_RInstance);
+            List<string> testCol = clsGenericRCalls.GetColumnNames(s_RInstance,
+                dsp.FactorTable);
+            List<int> testing = clsGenericRCalls.SearchColumnNames(
+                            s_RInstance, dsp.FactorTable, dsp.IonColumnNamePrefix);
+
             if (CheckPassedParameters())
             {
                 REngine engine = REngine.GetInstanceFromID(s_RInstance);
@@ -150,13 +158,46 @@ namespace Cyclops.DataModules
                 try
                 {
                     // Only organize the factors IF it is NOT an iTRAQ experiment!
-                    if (!dsp.AnalysisType.Contains("iTRAQ"))
+                    if (dsp.AnalysisType.Contains("iTRAQ"))
                     {
-                        GetOrganizedFactorsVector(s_RInstance,
-                            !dsp.RemovePeptideColumn ?
-                                dsp.InputTableName :
-                                dsp.InputTableName + "[,-1]",
-                            dsp.FactorTable, dsp.FixedEffect);
+                        //GetOrganizedFactorsVector(s_RInstance,
+                        //    !dsp.RemovePeptideColumn ?
+                        //        dsp.InputTableName :
+                        //        dsp.InputTableName + "[,-1]",
+                        //    dsp.FactorTable, dsp.FixedEffect);
+
+                        
+                        // Get the Isotope factors, and alter the fixed effect
+                        // variable respectively using the first row
+                        List<string> test = clsGenericRCalls.GetColumnNames(s_RInstance, dsp.FactorTable);
+
+
+
+                        List<int> l_ColumnIndices = clsGenericRCalls.SearchColumnNames(
+                            s_RInstance, dsp.FactorTable, dsp.IonColumnNamePrefix);
+
+                        //List<int> l_ColumnIndices = new List<int>();
+                        //l_ColumnIndices.Add(4);
+                        //l_ColumnIndices.Add(5);
+                        //l_ColumnIndices.Add(6);
+
+                        List<string> l_Factors = clsGenericRCalls.GetCharacterVector(
+                            s_RInstance, dsp.FactorTable +
+                            "[1,c(" + string.Join(", ", l_ColumnIndices) +
+                            ")]");
+
+                        s_FactorTableTmp = GetTemporaryTableName();
+                        dsp.FactorTable = s_FactorTableTmp;
+
+                        if (!string.IsNullOrEmpty(clsGenericRCalls.SetObject(
+                            s_RInstance, dsp.FactorTable, 
+                            "cbind(FixedEffect=c('" + string.Join("', '", l_Factors) + "'))")))
+                        {
+                            traceLog.Error("ANOVA ERROR setting temporary factor table " +
+                                "with FixedEffect column");
+                        }
+
+                        dsp.FixedEffect = "FixedEffect";
                     }
 
                     if (dsp.Mode.ToLower().Equals("msstats"))
@@ -294,26 +335,67 @@ namespace Cyclops.DataModules
 
                         s_RStatement = string.Format(
                             "options(warn=-1)\n" +
-                            "{8} <- {1}\n" +
-                            "{0} <- performAnova(Data={8}, FixedEffects=\"{2}\", " +
+                            "{9} <- {1}\n" +
+                            "{0} <- performAnova(Data={9}, FixedEffects=\"{2}\", " +
                             "RandomEffects={3}, interact={4}, " +
-                            "unbalanced={5}, useREML={6}, Factors=t({7}))\n" +
-                            "rm({8})\n",
+                            "unbalanced={5}, useREML={6}, Factors=t({7}), " +
+                            "thres={8})\n" +
+                            "rm({9})\n" +
+                            "{10}\n",
                             dsp.NewTableName,
                             dsp.RemovePeptideColumn ?
-                                dsp.InputTableName + "[1:20,-1]" :
+                                dsp.InputTableName + "[,-1]" :
                                 dsp.InputTableName,
                             dsp.FixedEffect,
                             !string.IsNullOrEmpty(dsp.RandomEffect) &&
                                 !dsp.RandomEffect.Equals("NULL") ?
-                                    dsp.RandomEffect :
+                                    "\"" + dsp.RandomEffect + "\"" :
                                     "NULL",
                             dsp.Interaction,
                             dsp.Unbalanced,
                             dsp.UseREML,
                             dsp.FactorTable,
-                            s_TmpTableName
+                            dsp.Threshold,
+                            s_TmpTableName,
+                            !string.IsNullOrEmpty(s_FactorTableTmp) ?
+                                "rm(" + s_FactorTableTmp + ")" :
+                                ""
                             );
+                    }
+                    else if (dsp.Mode.ToLower().Equals("proteinlevel"))
+                    {
+                        traceLog.Info("ANOVA: Mode set to Protein-Level");
+
+                        s_RStatement = string.Format(
+                            "options(warn=-1)\n" +
+                            "{0} <- ANOVA(" +
+                            "dataset={1}, " +
+                            "col.metadata.table={2}, " +
+                            "col.metadata.table.link=\"{3}\", " +
+                            "row.metadata.table={4}, " +
+                            "row.metadata.table.link=\"{5}\", " +
+                            "split.by.row.metadata=TRUE, " +
+                            "split.row.metadata.field=\"{6}\", " +
+                            "column.metadata.fields=\"{7}\", " +
+                            "do.interactions={8}, " +
+                            "nrow.block.min={9}, " +
+                            "nrow.block.max={10}, " +
+                            "first.level=\"{11}\", " +
+                            "formula.string=\"{12\")",
+                            dsp.NewTableName,           // 0
+                            dsp.InputTableName,         // 1
+                            dsp.FactorTable,            // 2
+                            dsp.LinkCol,                // 3
+                            dsp.RowMetadataTable,       // 4
+                            dsp.LinkRow,                // 5
+                            dsp.RowFactor,              // 6
+                            dsp.FixedEffect,            // 7
+                            dsp.Interaction,            // 8
+                            dsp.Minimum,                // 9
+                            dsp.Maximum,                // 10
+                            dsp.Reference,              // 11
+                            dsp.FixedEffect             // 12
+                            );                            
                     }
 
                     traceLog.Info("Performing ANOVA: \n\t" + s_RStatement);

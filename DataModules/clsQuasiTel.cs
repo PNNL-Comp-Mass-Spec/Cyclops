@@ -115,14 +115,14 @@ namespace Cyclops.DataModules
             // NECESSARY PARAMETERS
             if (!dsp.HasNewTableName)
             {
-                Model.SuccessRunningPipeline = false;
+                //Model.SuccessRunningPipeline = false;
                 traceLog.Error("QuasiTel class: 'newTableName': \"" +
                     dsp.NewTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasInputTableName)
             {
-                Model.SuccessRunningPipeline = false;
+                //Model.SuccessRunningPipeline = false;
                 traceLog.Error("QuasiTel class: 'inputTableName': \"" +
                 dsp.InputTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
@@ -227,86 +227,90 @@ namespace Cyclops.DataModules
                                 string s_ComparisonTableName = "QuasiTel_" +
                                     l_Factors[i] + "_v_" + l_Factors[j];
 
-                                // grab the variables
-                                s_RStatement = string.Format(
-                                    "{0} <- as.vector(unlist(subset({1}, " +
-                                    "{2} == '{3}' | {2} == '{4}', " +
-                                    "select=c('Alias'))))\n",
-                                    s_TmpFactorTable,
-                                    dsp.FactorTable,
-                                    dsp.FactorColumn,
-                                    l_Factors[i],
-                                    l_Factors[j]);
-                                // grab the relevant data
-                                s_RStatement += string.Format(
-                                    "{0} <- {1}[,which(colnames({1}) %in% {2})]\n",
-                                    s_TmpDataTable,
-                                    dsp.InputTableName,
-                                    s_TmpFactorTable);
-                                // 0 out the null values
-                                s_RStatement += string.Format(
-                                    "{0} <- data.matrix({0})\n" +
-                                    "{0}[is.na({0})] <- 0\n",
-                                    s_TmpDataTable);
-                                // get the column names to pass in as factors
-                                s_RStatement += string.Format(
-                                    "{0} <- as.vector(unlist(subset({1}, " +
-                                    "{2} == '{3}', select=c('Alias'))))\n",
-                                    s_TmpFactor1,
-                                    dsp.FactorTable,
-                                    dsp.FactorColumn,
-                                    l_Factors[i]);
-                                s_RStatement += string.Format(
-                                    "{0} <- as.vector(unlist(subset({1}, " +
-                                    "{2} == '{3}', select=c('Alias'))))\n",
-                                    s_TmpFactor2,
-                                    dsp.FactorTable,
-                                    dsp.FactorColumn,
-                                    l_Factors[j]);
-                                // run the analysis
-                                s_RStatement += string.Format(
-                                    "{0} <- quasitel({1}, {2}, {3})\n",
-                                    s_ComparisonTableName,
-                                    s_TmpDataTable,
-                                    s_TmpFactor1,
-                                    s_TmpFactor2);
-                                // remove temp tables                                
-                                s_RStatement += string.Format(
-                                    "rm({0})\nrm({1})\n" +
-                                    "rm({2})\nrm({3})\n",
-                                    s_TmpDataTable,
-                                    s_TmpFactorTable,
-                                    s_TmpFactor1,
-                                    s_TmpFactor2);
+                                if (!l_Factors[i].Equals(l_Factors[j]))
+                                {
 
-                                // Execute the R statement
-                                traceLog.Info("QuasiTel class: Running analysis:\n" +
-                                    s_RStatement);
-                                StringWriter sw = new StringWriter();
-                                Console.SetOut(sw);
-                                try
-                                {
-                                    engine.EagerEvaluate(s_RStatement);
-                                }
-                                catch (ParseException pe)
-                                {
-                                    traceLog.Error("QUASITEL PARSE EXCEPTION: " + pe.ToString() +
-                                        "\n\n" + sw.ToString());
-                                }
-                                catch (Exception exc)
-                                {
-                                    traceLog.Error("QUASITEL EXCEPTION: " + exc.ToString() +
-                                           "\n\n" + sw.ToString());
+                                    // grab the variables
+                                    s_RStatement = string.Format(
+                                        "{0} <- as.vector(unlist(subset({1}, " +
+                                        "{2} == '{3}' | {2} == '{4}', " +
+                                        "select=c('Alias'))))\n",
+                                        s_TmpFactorTable,
+                                        dsp.FactorTable,
+                                        dsp.FactorColumn,
+                                        l_Factors[i],
+                                        l_Factors[j]);
+                                    // grab the relevant data
+                                    s_RStatement += string.Format(
+                                        "{0} <- {1}[,which(colnames({1}) %in% {2})]\n",
+                                        s_TmpDataTable,
+                                        dsp.InputTableName,
+                                        s_TmpFactorTable);
+                                    // 0 out the null values
+                                    s_RStatement += string.Format(
+                                        "{0} <- data.matrix({0})\n" +
+                                        "{0}[is.na({0})] <- 0\n",
+                                        s_TmpDataTable);
+                                    // get the column names to pass in as factors
+                                    s_RStatement += string.Format(
+                                        "{0} <- as.vector(unlist(subset({1}, " +
+                                        "{2} == '{3}', select=c('Alias'))))\n",
+                                        s_TmpFactor1,
+                                        dsp.FactorTable,
+                                        dsp.FactorColumn,
+                                        l_Factors[i]);
+                                    s_RStatement += string.Format(
+                                        "{0} <- as.vector(unlist(subset({1}, " +
+                                        "{2} == '{3}', select=c('Alias'))))\n",
+                                        s_TmpFactor2,
+                                        dsp.FactorTable,
+                                        dsp.FactorColumn,
+                                        l_Factors[j]);
+                                    // run the analysis
+                                    s_RStatement += string.Format(
+                                        "{0} <- quasitel({1}, {2}, {3})\n",
+                                        s_ComparisonTableName,
+                                        s_TmpDataTable,
+                                        s_TmpFactor1,
+                                        s_TmpFactor2);
+                                    // remove temp tables                                
+                                    s_RStatement += string.Format(
+                                        "rm({0})\nrm({1})\n" +
+                                        "rm({2})\nrm({3})\n",
+                                        s_TmpDataTable,
+                                        s_TmpFactorTable,
+                                        s_TmpFactor1,
+                                        s_TmpFactor2);
+
+                                    // Execute the R statement
+                                    traceLog.Info("QuasiTel class: Running analysis:\n" +
+                                        s_RStatement);
+                                    StringWriter sw = new StringWriter();
+                                    Console.SetOut(sw);
+                                    try
+                                    {
+                                        engine.EagerEvaluate(s_RStatement);
+                                    }
+                                    catch (ParseException pe)
+                                    {
+                                        traceLog.Error("QUASITEL PARSE EXCEPTION: " + pe.ToString() +
+                                            "\n\n" + sw.ToString());
+                                    }
+                                    catch (Exception exc)
+                                    {
+                                        traceLog.Error("QUASITEL EXCEPTION: " + exc.ToString() +
+                                               "\n\n" + sw.ToString());
+                                    }
                                 }
                             }
                         }
 
-                        clsLink LinkUpWithBBM = LinkUpWithBetaBinomialModelWithQuasiTel(s_RInstance);
-                        if (LinkUpWithBBM.Run)
-                        {
-                            traceLog.Info("Preparing to Linking up with BBM Results: " + LinkUpWithBBM.Statement);
-                            engine.EagerEvaluate(LinkUpWithBBM.Statement);
-                        }
+                        //clsLink LinkUpWithBBM = LinkUpWithBetaBinomialModelWithQuasiTel(s_RInstance);
+                        //if (LinkUpWithBBM.Run)
+                        //{
+                        //    traceLog.Info("Preparing to Linking up with BBM Results: " + LinkUpWithBBM.Statement);
+                        //    engine.EagerEvaluate(LinkUpWithBBM.Statement);
+                        //}
                     }
                     else
                     {

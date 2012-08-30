@@ -34,7 +34,10 @@ namespace Cyclops.Operations
     {
         #region Members
         protected string s_RInstance;
+        public enum ItqTypes { Log2, MainAnovaPractice };
         private string s_OperationsDBPath = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3";
+        private string[] s_iTRAQTableNames = new string[] {
+            "T_iTRAQ_PipelineOperation", "T_iTRAQ_MainAnovaPractice" };
         private string s_iTRAQTableName = "T_iTRAQ_PipelineOperation";
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         #endregion
@@ -124,6 +127,23 @@ namespace Cyclops.Operations
                 {
                     traceLog.Error("ERROR ITQ-Operation Setting Module: (Module number: " + i + "):" + exc.ToString());
                 }
+            }
+        }
+
+        /// <summary>
+        /// Sets the type of general ITQ analysis to perform, defaults to Log2
+        /// </summary>
+        /// <param name="TypeOfAnalysis"></param>
+        public void SetType(ItqTypes TypeOfAnalysis)
+        {
+            switch (TypeOfAnalysis)
+            {
+                case ItqTypes.Log2:
+                    s_iTRAQTableName = s_iTRAQTableNames[(int)ItqTypes.Log2];
+                    break;
+                case ItqTypes.MainAnovaPractice:
+                    s_iTRAQTableName = s_iTRAQTableNames[(int)ItqTypes.MainAnovaPractice];
+                    break;
             }
         }
 
@@ -270,6 +290,38 @@ namespace Cyclops.Operations
                     {
                         CurrentNode.AddDataChild(load);
                         CurrentNode = load;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "LoadRWorkspace":
+                    DataModules.clsLoadRWorkspaceModule source = new DataModules.clsLoadRWorkspaceModule(Model, s_RInstance);
+                    source.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = source;
+                        CurrentNode = source;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(source);
+                        CurrentNode = source;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "Merge":
+                    DataModules.clsMerge merge = new DataModules.clsMerge(Model, s_RInstance);
+                    merge.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = merge;
+                        CurrentNode = merge;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(merge);
+                        CurrentNode = merge;
                         Model.NumberOfModules++;
                     }
                     break;

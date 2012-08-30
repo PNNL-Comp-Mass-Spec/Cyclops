@@ -62,6 +62,7 @@ namespace Cyclops.DataModules
             s_FilePath = @"\\gigasax\DMS_Workflows\Cyclops\ProteinProphet.zip",
             s_FixedEffect = "",                         // passed through the ATM
             s_FoldChangeTable = "",
+            s_FractionSetColumnName = "FractionSet",
             s_Function = "",
             s_gMinPCount="5",                           // used in RRollup
             s_gpValue="0.05",                           // used in RRollup
@@ -70,16 +71,19 @@ namespace Cyclops.DataModules
             s_InputFileName = "Results.db3",
             s_InputTableName = "",
             s_Interaction = "FALSE",
+            s_IonColumnNamePrefix = "Ion_",
             s_LinkRow = "",                             // column used to link to Row Metadata
             s_LinkCol = "Alias",                        // column used to link to Column Metadata
             s_LogBase = "2",
             s_Margin = "",
             s_MaxAmbiguousIds="2",                      // used in IDPicker
             s_MaxFDR = "0.1",                           // used in IDPicker
+            s_Maximum = "",
             s_MeanCenter="FALSE",                       // used in CentralTendency
             s_MinOverlap="3",                           // used in RRollup method
             s_MinAdditionalPeptides="2",                // used in IDPicker            
             s_MinDistinctPeptides="2",                  // used in IDPicker
+            s_Minimum="1",
             s_MinPresence="10",                         // used in RRollup
             s_MinSpectraPerProtein="2",                 // used in IDPicker
             s_Mode="median",                            // used in RRollup, ANOVA
@@ -101,6 +105,7 @@ namespace Cyclops.DataModules
             s_QuantitativeMethod="",                    // used in IDPicker
             s_RandomEffect="",
             s_RawSourcePath="",                         // used in IDPicker
+            s_Reference="",
             s_RemoveFirstCharacters = "",
             s_RemovePeptideColumn = "false",
             s_RowMetadataTable = "T_Row_Metadata",
@@ -112,6 +117,7 @@ namespace Cyclops.DataModules
             s_Semicolon_wQuotesSepIdentifiers = "",
             s_Semicolon_woQuotesSepIdentifiers = "",
             s_SetZeroToNA = "false",
+            s_SkipTheFirstColumn = "false",
             s_Source = "",
             s_SummaryTableName = "",
             s_TableType = "",
@@ -121,6 +127,7 @@ namespace Cyclops.DataModules
             s_TechRepColumn = "",
             s_TechRepComplete = "",
             s_Theta = "TRUE",
+            s_Threshold = "3",
             s_Unbalanced = "TRUE",
             s_UseREML = "TRUE",
             s_Variable = "variable",
@@ -281,6 +288,12 @@ namespace Cyclops.DataModules
             set { s_FixedEffect = value; }
         }
 
+        public string FractionSetColumnName
+        {
+            get { return s_FractionSetColumnName; }
+            set { s_FractionSetColumnName = value; }
+        }
+
         public string DatabasePath
         {
             get { return s_DatabasePath; }
@@ -330,6 +343,12 @@ namespace Cyclops.DataModules
             set { s_InputTableName = value; }
         }
 
+        public string IonColumnNamePrefix
+        {
+            get { return s_IonColumnNamePrefix; }
+            set { s_IonColumnNamePrefix = value; }
+        }
+
         public string LinkRow
         {
             get { return s_LinkRow; }
@@ -360,6 +379,12 @@ namespace Cyclops.DataModules
             set { s_MaxFDR = value; }
         }
 
+        public string Maximum
+        {
+            get { return s_Maximum; }
+            set { s_Maximum = value; }
+        }
+
         public string MinAdditionalPeptides
         {
             get { return s_MinAdditionalPeptides; }
@@ -370,6 +395,12 @@ namespace Cyclops.DataModules
         {
             get { return s_MinDistinctPeptides; }
             set { s_MinDistinctPeptides = value; }
+        }
+
+        public string Minimum
+        {
+            get { return s_Minimum; }
+            set { s_Minimum = value; }
         }
 
         public string MinSpectraPerProtein
@@ -420,6 +451,12 @@ namespace Cyclops.DataModules
             set { s_RawSourcePath = value; }
         }
 
+        public string Reference
+        {
+            get { return s_Reference; }
+            set { s_Reference = value; }
+        }
+
         public string RowMetadataTable
         {
             get { return s_RowMetadataTable; }
@@ -451,6 +488,12 @@ namespace Cyclops.DataModules
         {
             get { return s_NewTableName; }
             set { s_NewTableName = value; }
+        }
+
+        public string SkipTheFirstColumn
+        {
+            get { return s_SkipTheFirstColumn; }
+            set { s_SkipTheFirstColumn = value; }
         }
 
         public string SummaryTableName
@@ -624,6 +667,12 @@ namespace Cyclops.DataModules
         {
             get { return s_Theta; }
             set { s_Theta = value; }
+        }
+
+        public string Threshold
+        {
+            get { return s_Threshold; }
+            set { s_Threshold = value; }
         }
 
         /// <summary>
@@ -1342,6 +1391,9 @@ namespace Cyclops.DataModules
                     case "inputTableName":
                         InputTableName = kvp.Value;
                         break;
+                    case "ionColumnNamePrefix":
+                        s_IonColumnNamePrefix = kvp.Value;
+                        break;
                     case "meanCenter":
                         s_MeanCenter = kvp.Value; // default FALSE
                         break;
@@ -1363,6 +1415,12 @@ namespace Cyclops.DataModules
                     case "margin":
                         Margin = kvp.Value;
                         break;
+                    case "maximum":
+                        Maximum = kvp.Value;
+                        break;
+                    case "minimum":
+                        Minimum = kvp.Value;
+                        break;
                     case "function":
                         Function = kvp.Value;
                         break;
@@ -1370,13 +1428,19 @@ namespace Cyclops.DataModules
                         Set02NA = kvp.Value;
                         break;
                     case "theta":
-                        Theta = kvp.Value;
+                        s_Theta = kvp.Value;
+                        break;
+                    case "threshold":
+                        s_Threshold = kvp.Value;
                         break;
                     case "pValueTable":
                         P_ValueTable = kvp.Value;
                         break;
                     case "foldChangeTable":
                         FoldChangeTable = kvp.Value;
+                        break;
+                    case "fractionSetColumnName":
+                        s_FractionSetColumnName = kvp.Value;
                         break;
                     case "normalizedTable":
                         NormalizedTable = kvp.Value;
@@ -1404,6 +1468,9 @@ namespace Cyclops.DataModules
                         string s_tsnqi = SeparateListOfStrings(l_tsnqi, '\t', false);
                         TabSeparatedWithoutQuotesIdentifiers = s_tsnqi;
                         break;
+                    case "reference":
+                        Reference = kvp.Value;
+                        break;
                     case "removePeptideColumn":
                         s_RemovePeptideColumn = kvp.Value;
                         break;
@@ -1422,6 +1489,9 @@ namespace Cyclops.DataModules
                         List<string> l_ssnqi = kvp.Value;
                         string s_ssnqi = SeparateListOfStrings(l_ssnqi, ';', false);
                         SemicolonSeparatedWithQuotesIdentifiers = s_ssnqi;
+                        break;
+                    case "skipTheFirstColumn":
+                        s_SkipTheFirstColumn = kvp.Value;
                         break;
                     case "pValueThreshold":
                         PvalueThreshold = kvp.Value;

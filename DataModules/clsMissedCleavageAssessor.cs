@@ -143,7 +143,8 @@ namespace Cyclops.DataModules
                 else  // single column
                 {
                     s_Command = string.Format(
-                         "SELECT {0} FROM {1} GROUP BY {0};",
+                         "SELECT {0} FROM {1} GROUP BY {0} " +
+                         "HAVING {0} NOT LIKE '';",
                          dsp.FactorColumn,
                          dsp.InputTableName);
                 }
@@ -232,7 +233,8 @@ namespace Cyclops.DataModules
 
             // save to database
             clsSQLiteHandler.WriteDataTableToSQLiteTable(
-                Path.Combine(dsp.WorkDirectory, dsp.InputFileName), dt_MissedCleavages, "T_MissedCleavageSummary");
+                Path.Combine(dsp.WorkDirectory, dsp.InputFileName), dt_MissedCleavages, 
+                dsp.NewTableName);
             clsGenericRCalls.SetDataFrame(s_RInstance, dt_MissedCleavages, dsp.NewTableName);
         }
         #endregion

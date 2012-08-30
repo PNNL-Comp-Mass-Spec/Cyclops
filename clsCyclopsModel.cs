@@ -85,7 +85,7 @@ namespace Cyclops
             }
             else
             {
-                REngine.SetDllDirectory(@"C:\Program Files\R\R-2.13.1\bin\i386");
+                REngine.SetDllDirectory(@"C:\Program Files\R\R-2.14.2\bin\i386");
             }
         }
 
@@ -170,6 +170,27 @@ namespace Cyclops
             try
             {
                 engine = REngine.CreateInstance(s_RInstance, new[] { "-q" }); // quiet mode
+
+                // Load RSQLite
+                string s_RStatement = "require(RSQLite)";
+                traceLog.Info("Creating Instance of R Workspace\nLoading RSQLite...");
+                try
+                {
+                    engine.EagerEvaluate(s_RStatement);
+                }
+                catch (ParseException pe)
+                {
+                    traceLog.Error("ParseException ERROR connecting to " +
+                        "R Workspace and loading RSQLite:\n" +
+                        pe.ToString());
+                }
+                catch (Exception exc)
+                {
+                    traceLog.Error("Exception ERROR connecting to " +
+                        "R Workspace and loading RSQLite:\n" +
+                        exc.ToString());
+                }
+
                 return true;
             }
             catch (Exception exc)
@@ -186,6 +207,26 @@ namespace Cyclops
         {
             engine = REngine.CreateInstance(s_RInstance, new[] { "-q" }); // quiet mode
             engine.EagerEvaluate(string.Format("load({0})", Workspace));
+
+            // Load RSQLite
+            string s_RStatement = "require(RSQLite)";
+            traceLog.Info("Creating Instance of R Workspace\nLoading RSQLite...");
+            try
+            {
+                engine.EagerEvaluate(s_RStatement);
+            }
+            catch (ParseException pe)
+            {
+                traceLog.Error("ParseException ERROR connecting to " +
+                    "R Workspace and loading RSQLite:\n" +
+                    pe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("Exception ERROR connecting to " +
+                    "R Workspace and loading RSQLite:\n" +
+                    exc.ToString());
+            }
         }
 
         /// <summary>

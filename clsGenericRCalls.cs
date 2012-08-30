@@ -93,6 +93,63 @@ namespace Cyclops
         }
 
         /// <summary>
+        /// Returns the dimensions for an object in the R workspace
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="ObjectName">Object to get dimensions of</param>
+        /// <returns>List of dimensions, rows [0], columns [1]</returns>
+        public static List<int> GetDimensions(string InstanceOfR, string ObjectName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            List<int> l_Return = new List<int>();
+            IntegerVector iv = engine.EagerEvaluate("dim(" + ObjectName + ")").AsInteger();
+            foreach (int i in iv)
+            {
+                l_Return.Add(i);
+            }
+            return l_Return;
+        }
+
+        /// <summary>
+        /// Searches the column names of the specified Object for columns with the 
+        /// specified Search Term, and returns the indices.
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="ObjectName">Table to search headers for</param>
+        /// <param name="SearchTerm">Term to look for in the headers</param>
+        /// <returns>Indicies that contain the search term</returns>
+        public static List<int> SearchColumnNames(string InstanceOfR, string ObjectName, string SearchTerm)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            List<int> l_Return = new List<int>();
+            IntegerVector iv = engine.EagerEvaluate("grep('" + SearchTerm + 
+                "', colnames(" + ObjectName + "))").AsInteger();
+            foreach (int i in iv)
+            {
+                l_Return.Add(i);
+            }
+            return l_Return;
+        }
+
+        /// <summary>
+        /// Returns the factor levels for a given vector
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="ObjectName">Vector to get factor levels for</param>
+        /// <returns>factor levels</returns>
+        public static List<string> GetFactorLevels(string InstanceOfR, string ObjectName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            List<string> l_Return = new List<string>();
+            CharacterVector cv = engine.EagerEvaluate("levels(factor(" + ObjectName + "))").AsCharacter();
+            foreach (string s in cv)
+            {
+                l_Return.Add(s);
+            }
+            return l_Return;
+        }
+
+        /// <summary>
         /// Returns the minimum value of an object in the R workspace,
         /// with the exception of NA values.
         /// </summary>
@@ -138,6 +195,19 @@ namespace Cyclops
                 Vector);
             IntegerVector iv = engine.EagerEvaluate(s_Command).AsInteger();
             return iv[0];
+        }
+
+        public static List<string> GetCharacterVector(string InstanceOfR, string Vector)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            List<string> l_Return = new List<string>();
+            CharacterVector cv = engine.EagerEvaluate(Vector).AsCharacter();
+            foreach (string s in cv)
+            {
+                l_Return.Add(s);
+            }
+
+            return l_Return;
         }
 
         /// <summary>
@@ -268,28 +338,6 @@ namespace Cyclops
                         return true;
                     else
                         return false;
-
-
-                    //if (GetClassOfObject(InstanceOfR, s_Split[0]).Equals("list"))
-                    //{
-                    //    REngine engine = REngine.GetInstanceFromID(InstanceOfR);
-                    //    List<string> l_Return = new List<string>();
-                    //    CharacterVector cv = engine.EagerEvaluate(
-                    //        string.Format("attributes({0})",s_Split[0])).AsCharacter();
-                    //    foreach (string s in cv)
-                    //    {
-                    //        l_Return.Add(s);
-                    //    }
-
-                    //    if (l_Return.Contains(s_Split[1]))
-                    //    {
-                    //        return true;
-                    //    }
-                    //    else
-                    //    {
-                    //        return false;
-                    //    }
-                    //}
                 }
                 else
                 {                    
@@ -356,6 +404,7 @@ namespace Cyclops
         {
             bool b_Return = false;
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
             CharacterVector cv = engine.EagerEvaluate(RStatement).AsCharacter();
             if (cv[0].Equals("TRUE"))
                 b_Return = true;
@@ -769,6 +818,26 @@ namespace Cyclops
             catch (Exception exc)
             {
                 // TODO: Handle problems creating the data.frame
+            }
+        }
+
+        public static string SetObject(string InstanceOfR, string ObjectName,
+            string Value)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            string Command = ObjectName + " <- " + Value;
+            try
+            {
+                engine.EagerEvaluate(Command);
+                return null;
+            }
+            catch (ParseException pe)
+            {
+                return pe.ToString();
+            }
+            catch (Exception exc)
+            {
+                return exc.ToString();
             }
         }
         #endregion

@@ -133,6 +133,9 @@ namespace Cyclops
                                                     case "Iterator":
                                                         specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Iterator);
                                                         break;
+                                                    case "Practice":
+                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Practice);
+                                                        break;
                                                 }
                                             }
                                             catch (Exception exc)
@@ -210,6 +213,27 @@ namespace Cyclops
                                             break;
                                         case "iTraqOperation":
                                             Operations.clsiTRAQMainOperation itqOp = new Operations.clsiTRAQMainOperation(Model, InstanceOfR);
+                                            #region Set Type of iTRAQ Analysis
+                                            try
+                                            {
+                                                switch (reader.GetAttribute("type"))
+                                                {
+                                                    case "Log2":
+                                                        itqOp.SetType(Operations.clsiTRAQMainOperation.ItqTypes.Log2);
+                                                        break;
+                                                    case "MainAnovaPractice":
+                                                        itqOp.SetType(Operations.clsiTRAQMainOperation.ItqTypes.MainAnovaPractice);
+                                                        break;
+                                                }
+                                            }
+                                            catch (Exception exc)
+                                            {
+                                                traceLog.Error("Error Reading iTRAQ XML workflow. " +
+                                                    "A Pipeline Operation was detected, but there was a problem " +
+                                                    "processing the 'type' attribute. Check that the operation tag " +
+                                                    "contains a 'type' attribute:\n" + exc.ToString());
+                                            }
+                                            #endregion
                                             if (root == null)
                                             {
                                                 root = itqOp;
@@ -841,7 +865,7 @@ namespace Cyclops
                                             if (!d_Parameters.ContainsKey(reader.GetAttribute("key").ToString()))
                                             {
                                                 d_Parameters.Add(reader.GetAttribute("key").ToString(),
-                                                reader.GetAttribute("value"));
+                                                reader.GetAttribute("value").Trim());
                                             }
                                             else // if the key is already in the dictionary -> add the value as List<string>
                                             {

@@ -332,6 +332,22 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
+                case "Merge":
+                    DataModules.clsMerge merge = new DataModules.clsMerge(Model, s_RInstance);
+                    merge.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = merge;
+                        CurrentNode = merge;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(merge);
+                        CurrentNode = merge;
+                        Model.NumberOfModules++;
+                    }
+                    break;
                 case "Import":
                     DataModules.clsImportDataModule import = new DataModules.clsImportDataModule(Model, s_RInstance);
                     import.Parameters = GetParameters(Rows);

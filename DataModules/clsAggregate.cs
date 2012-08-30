@@ -37,7 +37,7 @@ namespace Cyclops.DataModules
         private string s_RInstance, s_Current_R_Statement = "";
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
-        private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        private static ILog traceLog = LogManager.GetLogger("TraceLog");        
         #endregion
 
         #region Constructors
@@ -162,17 +162,39 @@ namespace Cyclops.DataModules
                         GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
                             dsp.FactorTable, dsp.FactorColumn);
 
+                        List<int> l_DimData = clsGenericRCalls.GetDimensions(s_RInstance, dsp.InputTableName);
+                        int i_LengthOfFactor = clsGenericRCalls.GetLengthOfVector(s_RInstance, dsp.FactorComplete);
+                        List<string> l_LevelsOfFactor = clsGenericRCalls.GetFactorLevels(s_RInstance, dsp.FactorComplete);
 
-                        REngine engine = REngine.GetInstanceFromID(s_RInstance);
-                                                
-                        string s_RStatement = string.Format(
-                                "{0} <- jnb_Aggregate(x=data.matrix({1}), " +
-                                "myFactor={2}, MARGIN={3}, FUN={4})",
+                        string s_RStatement = "";
+
+                        if (l_DimData[1] == i_LengthOfFactor)
+                        {
+                            s_RStatement = string.Format(
+                                "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
+                                "myFactor={3}, MARGIN={4}, FUN={5})",
                                 dsp.NewTableName,
+                                dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
                                 dsp.InputTableName,
                                 dsp.FactorComplete,
                                 dsp.Margin,  // '1' indicates rows, '2' indicates columns
                                 dsp.Function);
+                        }
+                        else if (l_DimData[1] == l_LevelsOfFactor.Count)
+                        {
+                            s_RStatement = string.Format(
+                                "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
+                                "myFactor=levels({3}), MARGIN={4}, FUN={5})",
+                                dsp.NewTableName,
+                                dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
+                                dsp.InputTableName,
+                                dsp.FactorComplete,
+                                dsp.Margin,  // '1' indicates rows, '2' indicates columns
+                                dsp.Function);
+                        }
+
+                        REngine engine = REngine.GetInstanceFromID(s_RInstance);                                                
+                        
                         try
                         {
                             traceLog.Info("Aggregating datasets: " + s_RStatement);
@@ -183,6 +205,32 @@ namespace Cyclops.DataModules
                         {
                             Model.SuccessRunningPipeline = false;
                             traceLog.Error("ERROR: Aggregating data: " + exc.ToString());
+                        }
+
+                        // Now make an aggregate Column_Metadata table
+                        s_RStatement = string.Format(
+                            "Agg_{0} <- as.data.frame(unique(cbind({1}{2}{3})))",
+                            dsp.FactorTable,
+                            "Alias=" + dsp.FactorComplete,
+                            !string.IsNullOrEmpty(dsp.FixedEffect) ?
+                            ", " + dsp.FixedEffect + "=" + dsp.FactorTable +
+                            "$" + dsp.FixedEffect : "",
+                            !string.IsNullOrEmpty(dsp.RandomEffect) ?
+                            ", " + dsp.RandomEffect + "=" + dsp.FactorTable +
+                            "$" + dsp.RandomEffect : "");
+
+                        try
+                        {
+                            traceLog.Info("Constructing Aggregated Column Metadata table: " +
+                                s_RStatement);
+                            s_Current_R_Statement = s_RStatement;
+                            engine.EagerEvaluate(s_RStatement);
+                        }
+                        catch (Exception exc)
+                        {
+                            Model.SuccessRunningPipeline = false;
+                            traceLog.Error("ERROR: Constructing Aggregated Column Metadata table: " + 
+                                exc.ToString());
                         }
 
                     }

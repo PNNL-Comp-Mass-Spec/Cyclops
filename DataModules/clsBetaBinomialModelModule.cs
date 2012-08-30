@@ -121,14 +121,14 @@ namespace Cyclops.DataModules
             // NECESSARY PARAMETERS
             if (!dsp.HasNewTableName)
             {
-                Model.SuccessRunningPipeline = false;
+                //Model.SuccessRunningPipeline = false;
                 traceLog.Error("BetaBinomial class: 'newTableName': \"" +
                     dsp.NewTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
             if (!dsp.HasInputTableName)
             {
-                Model.SuccessRunningPipeline = false;
+                //Model.SuccessRunningPipeline = false;
                 traceLog.Error("BetaBinomial class: 'inputTableName': \"" +
                 dsp.InputTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
@@ -236,12 +236,12 @@ namespace Cyclops.DataModules
                         "contain the factor, {0}", dsp.FactorColumn));
                 }
 
-                clsLink LinkUpWithQuasiTel = LinkUpWithBetaBinomialModelWithQuasiTel(s_RInstance);
-                if (LinkUpWithQuasiTel.Run)
-                {
-                    traceLog.Info("Preparing to Linking up with QuasiTel Results: " + LinkUpWithQuasiTel.Statement);
-                    engine.EagerEvaluate(LinkUpWithQuasiTel.Statement);
-                }
+                //clsLink LinkUpWithQuasiTel = LinkUpWithBetaBinomialModelWithQuasiTel(s_RInstance);
+                //if (LinkUpWithQuasiTel.Run)
+                //{
+                //    traceLog.Info("Preparing to Linking up with QuasiTel Results: " + LinkUpWithQuasiTel.Statement);
+                //    engine.EagerEvaluate(LinkUpWithQuasiTel.Statement);
+                //}
 
 
             }
