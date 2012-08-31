@@ -91,18 +91,16 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            dsp.GetParameters(ModuleName, Parameters);
-
-            traceLog.Info("Cyclops Importing Data From " + dsp.Source + ".");
-            
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                switch (dsp.Source)
+                Model.IncrementStep(ModuleName);
+                dsp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
                 {
-                    case "sqlite":
-                        try
-                        {
+                    switch (dsp.Source)
+                    {
+                        case "sqlite":
                             string s_RStatement = "";
                             ConnectToSQLiteDatabase();
 
@@ -155,52 +153,32 @@ namespace Cyclops.DataModules
                                     dsp.NewTableName + "==0] <- NA";
                             }
 
-                            traceLog.Info("Importing Table: " + s_RStatement);
-                            s_Current_R_Statement += s_RStatement + "\n";
-                                                        
-                            engine.EagerEvaluate(s_RStatement);
-                            traceLog.Info("IMPORT DATA MODULE: " + dsp.InputTableName +
-                                " was imported into the R environment as " +
-                                dsp.NewTableName);
+                            if (!string.IsNullOrEmpty(s_RStatement))
+                            {
+                                if (!clsGenericRCalls.Run(s_RStatement,
+                                    s_RInstance, "Importing Table",
+                                    Model.StepNumber, Model.NumberOfModules))
+                                    Model.SuccessRunningPipeline = false;
+                            }
+
                             DisconnectFromDatabase();
-                            traceLog.Info("IMPORT DATA MODULE: Disconnected from " +
-                                "SQLite database.");
-                        }
-                        catch (ParseException pe)
-                        {
-                            traceLog.Error(
-                                "Cyclops encountered a ParseException while reading from SQLite DB: \n" +
-                                pe.ToString() + ".");
-                        }
-                        catch (AccessViolationException ave)
-                        {
-                            traceLog.Error(
-                                "Cyclops encountered an AccessViolationException while reading from SQLite DB: \n" +
-                                ave.ToString() + ".");
-                        }
-                        catch (Exception exc)
-                        {
-                            traceLog.Error(
-                                "Cyclops encountered an Exception while reading from SQLite DB: \n" +
-                                exc.ToString() + ".");
-                        }
-                        break;
-                    case "csv":
-                        ReadCSV_File();
-                        break;
-                    case "tsv":
-                        ReadTSV_File();
-                        break;
-                    case "sqlserver":
+                            break;
+                        case "csv":
+                            ReadCSV_File();
+                            break;
+                        case "tsv":
+                            ReadTSV_File();
+                            break;
+                        case "sqlserver":
 
-                        break;
-                    case "access":
+                            break;
+                        case "access":
 
-                        break;
+                            break;
+                    }
                 }
             }
 
-            traceLog.Info("IMPORT DATA MODULE: Completed successfully, progressing to next module!");
             RunChildModules();
         }
 
@@ -260,8 +238,6 @@ namespace Cyclops.DataModules
         /// <param name="RInstance">Instance of your R workspace</param>
         protected void ConnectToSQLiteDatabase()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_InputFileName = "";
             if (dsp.HasWorkDir & dsp.HasInputFileName)
                 s_InputFileName = dsp.WorkDirectory + "/" + dsp.InputFileName;
@@ -278,27 +254,10 @@ namespace Cyclops.DataModules
                                 "con <- dbConnect(m, dbname = \"{0}\")",
                                     s_InputFileName);
 
-                try
-                {
-                    traceLog.Info("Connecting to SQLite Database: " + s_RStatement);
-                    s_Current_R_Statement += s_RStatement + "\n";
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (IOException exc)
-                {
-                    traceLog.Error("Cyclops encountered an IOException while connecting to SQLite database: " +
-                        exc.ToString() + ".");
-                }
-                catch (AccessViolationException ave)
-                {
-                    traceLog.Error("Cyclops encountered an AccessViolationException while connecting to SQLite database: " +
-                        ave.ToString() + ".");
-                }
-                catch (Exception ex)
-                {
-                    traceLog.Error("Cyclops encountered an Exception while connecting to SQLite database:" +
-                        ex.ToString() + ".");
-                }
+                if (!clsGenericRCalls.Run(s_RStatement,
+                    s_RInstance, "Connecting to SQLite Database",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
             }
         }
 
@@ -307,40 +266,25 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="RInstance">Instance of the R Workspace</param>
         public void DisconnectFromDatabase()
-        {            
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
+        {
             string s_RStatement = "terminated <- dbDisconnect(con)";
 
             traceLog.Info("Disconnecting from Database: " + s_RStatement);
-            try
-            {
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (ParseException pe)
-            {
-                traceLog.Error("Disconnecting from Database, Parse Error encountered:\n" +
-                    pe.ToString());
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("Disconnecting from Database, Error encountered:\n" +
-                    exc.ToString());
-            }
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Disconnecting from Database", Model.StepNumber,
+                Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
 
             //bool b_Disconnected = true;
             bool b_Disconnected = clsGenericRCalls.AssessBoolean(s_RInstance, "terminated");
-
+            
             if (b_Disconnected)
             {
                 s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                traceLog.Info("Cleaning Database Connection: " + s_RStatement);
-                s_Current_R_Statement += s_RStatement + "\n";
-                engine.EagerEvaluate(s_RStatement);
-            }
-            else
-            {
-                traceLog.Error("Cyclops was unsuccessful at disconnecting from SQLITE database");
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Cleaning Database Connection",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
             }
         }
 
@@ -353,7 +297,6 @@ namespace Cyclops.DataModules
         /// <param name="RInstance">Instance of the R Workspace</param>
         protected void GetAssayDataFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Pull in the AssayData
             string s_RStatement = string.Format("library(\"Biobase\")\n" +
                 "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
@@ -364,9 +307,10 @@ namespace Cyclops.DataModules
                 "DataCleaning(tmpData)",                
                 Parameters["assayData"]);
 
-            traceLog.Info("Retrieving Assay Data from SQLite: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Retrieving Assay Data from SQLite",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
 
             SetDataMatrix("tmpData");
         }
@@ -378,7 +322,6 @@ namespace Cyclops.DataModules
         /// <param name="RInstance">Instance of the R Workspace</param>
         protected void GetPhenotypeDataFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Pull in the Phenotype Data
             string s_RStatement = string.Format("rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                 "tmpPheno <- fetch(rt, n=-1)\n" +
@@ -400,9 +343,10 @@ namespace Cyclops.DataModules
                 Parameters["phenoData"],
                 Parameters["phenoDataLink"]);
 
-            traceLog.Info("Retrieving Phenotype Data from SQLite: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Retrieving Phenotype Data from SQLite",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         /// <summary>
@@ -412,7 +356,6 @@ namespace Cyclops.DataModules
         /// <param name="s_RInstance">Instance of the R Workspace</param>
         public void GetFeatureDataFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Pull in the Features Data
             string s_RStatement = string.Format("rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                 "tmpFeatures <- fetch(rt, n=-1)\n" +
@@ -432,9 +375,10 @@ namespace Cyclops.DataModules
                 Parameters["rowMetaData"],
                 Parameters["rowMetaDataLink"]);
 
-            traceLog.Info("Retrieving Feature Data from SQLite: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Retrieving Feature Data from SQLite",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         /// <summary>
@@ -444,8 +388,6 @@ namespace Cyclops.DataModules
         /// <param name="RInstance">Instance of the R Workspace</param>
         public void GetDataTableFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            
             string s_RStatement = string.Format(
                  "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                  "{1} <- fetch(rt, n = -1)\n" +
@@ -454,9 +396,10 @@ namespace Cyclops.DataModules
                  dsp.InputTableName,
                  dsp.NewTableName);
 
-            traceLog.Info("Retrieving Table from SQLite: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Retrieving Table from SQLite",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         /// <summary>
@@ -465,9 +408,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="RInstance">Instance of the R Workspace</param>
         public void GetColumnMetadataFromSQLiteDB()
-        {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            
+        {            
             string s_RStatement = string.Format(
                  "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                  "{1} <- fetch(rt, n = -1)\n" +
@@ -476,9 +417,10 @@ namespace Cyclops.DataModules
                  dsp.InputTableName,
                  dsp.NewTableName);
 
-            traceLog.Info("Retrieving Column Metadata from SQLite: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Retrieving Column Metadata from SQLite",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         /// <summary>
@@ -488,7 +430,6 @@ namespace Cyclops.DataModules
         /// <param name="RInstance">Instance of the R Workspace</param>
         public void GetRowMetadataFromSQLiteDB()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = string.Format(
                                     "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                                     "{1} <- fetch(rt, n = -1)\n" +
@@ -497,9 +438,10 @@ namespace Cyclops.DataModules
                                     dsp.InputTableName,
                                     dsp.NewTableName);
 
-            traceLog.Info("Retrieving Row Metadata from SQLite: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Retrieving Row Metadata from SQLite",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         /// <summary>
@@ -510,16 +452,16 @@ namespace Cyclops.DataModules
         {
             if (Parameters.ContainsKey("rowNames"))
             {
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = string.Format(
                     "rownames({0}) <- {0}[,{1}]\n" +
                     "{0} <- {0}[,-{1}]",
                     TableName,
                     dsp.RowNames);
 
-                traceLog.Info("Setting Rownames on Table: " + s_RStatement);
-                s_Current_R_Statement += s_RStatement + "\n";
-                engine.EagerEvaluate(s_RStatement);
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Setting Rownames on Table",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
             }
         }
 
@@ -527,14 +469,14 @@ namespace Cyclops.DataModules
         {
             if (dsp.AsDataMatrix.Equals("true"))
             {
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = string.Format(
                     "{0} <- data.matrix({0})",
                     TableName);
 
-                traceLog.Info("Setting Table to data.matrix: " + s_RStatement);
-                s_Current_R_Statement += s_RStatement + "\n";
-                engine.EagerEvaluate(s_RStatement);
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Setting Table to data.matrix",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
             }
         }
 
@@ -561,27 +503,27 @@ namespace Cyclops.DataModules
 
         private void ReadCSV_File()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = string.Format("{0} <- read.csv(\"{1}\")",
                             dsp.NewTableName,
                             dsp.WorkDirectory + "/" + dsp.InputFileName);
 
-            traceLog.Info("Importing CSV: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Importing CSV",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         private void ReadTSV_File()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = string.Format("{0} <- read.table(" +
                             "file=\"{1}\", sep=\"\\t\", header=T)",
                             dsp.NewTableName,
                             dsp.WorkDirectory + "/" + dsp.InputFileName);
 
-            traceLog.Info("Importing TSV: " + s_RStatement);
-            s_Current_R_Statement += s_RStatement + "\n";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Importing TSV",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
 

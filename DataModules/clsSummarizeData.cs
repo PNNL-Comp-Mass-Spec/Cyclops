@@ -62,7 +62,7 @@ namespace Cyclops.DataModules
         public clsSummarizeData(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Data Summary Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -77,11 +77,14 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Performing Data Summary...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            SummarizeTheData();
+                SummarizeTheData();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -129,22 +132,14 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
                 s_Current_R_Statement = string.Format("{0} <- jnb_Summarize({1})",
                     dsp.NewTableName,
                     dsp.InputTableName);
 
-                try
-                {
-                    traceLog.Info("Data Summary class, performing an summary on " + dsp.InputTableName);
-                    traceLog.Info(s_Current_R_Statement);
-                    engine.EagerEvaluate(s_Current_R_Statement);
-                }
-                catch (Exception exc)
-                {
+                if (!clsGenericRCalls.Run(s_Current_R_Statement, s_RInstance,
+                    "Summarizing the Data",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                }
             }
         }
         #endregion

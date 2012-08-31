@@ -74,7 +74,7 @@ namespace Cyclops.DataModules
         public clsRMD(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "RMD Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -89,14 +89,19 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            dsp.GetParameters(ModuleName, Parameters);
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                RunRMD();                
-            }
+                Model.IncrementStep(ModuleName);
 
-            RunChildModules();
+                dsp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
+                {
+                    RunRMD();
+                }
+
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -134,9 +139,7 @@ namespace Cyclops.DataModules
         private void RunRMD()
         {
             InstallLibraries();
-
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
+            
             // Construct the R statement
             // load in the libraries
             string s_RStatement = "require(moments)\n" +
@@ -152,17 +155,10 @@ namespace Cyclops.DataModules
                 Parameters["techRep"], // the vector of technical replicates
                 Parameters["pValueThreshold"]); // p-value cutoff, default is 0.0001
 
-            try
-            {
-                traceLog.Info("RMD MODULE: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                // TODO handle problems with execution
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "RMD Module",
+                Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("RMD MODULE ERROR: " + exc.ToString());
-            }
         }
         #endregion
     }

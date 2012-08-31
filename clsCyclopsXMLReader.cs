@@ -150,13 +150,11 @@ namespace Cyclops
                                             {
                                                 root = specOp;
                                                 currentNode = specOp;
-                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(specOp);
                                                 currentNode = specOp;
-                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "LabelFreeOperation":
@@ -202,13 +200,11 @@ namespace Cyclops
                                             {
                                                 root = lbfOp;
                                                 currentNode = lbfOp;
-                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(lbfOp);
                                                 currentNode = lbfOp;
-                                                i_ModuleCounter++;
                                             }
                                             break;
                                         case "iTraqOperation":
@@ -238,13 +234,11 @@ namespace Cyclops
                                             {
                                                 root = itqOp;
                                                 currentNode = itqOp;
-                                                i_ModuleCounter++;
                                             }
                                             else
                                             {
                                                 currentNode.AddDataChild(itqOp);
                                                 currentNode = itqOp;
-                                                i_ModuleCounter++;
                                             }
                                             break;
                                     }

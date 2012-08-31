@@ -72,7 +72,7 @@ namespace Cyclops.DataModules
         public clsMerge(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Merge Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -87,16 +87,20 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Merging Datasets...");
-            dsp.GetParameters(ModuleName, Parameters);
-
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                MergeTables();
-            }
+                Model.IncrementStep(ModuleName);
 
-            RunChildModules();
+                dsp.GetParameters(ModuleName, Parameters);
+
+
+                if (CheckPassedParameters())
+                {
+                    MergeTables();
+                }
+
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -156,7 +160,6 @@ namespace Cyclops.DataModules
 
         private void MergeTables()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             // Construct the R statement
             string s_AllX = Parameters["allX"],
                 s_AllY = Parameters["allY"];
@@ -170,18 +173,10 @@ namespace Cyclops.DataModules
                 s_AllX.ToUpper(),
                 s_AllY.ToUpper());
 
-            try
-            {
-                traceLog.Info("Merging tables:\n" +
-                    s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                // TODO, evaluate the exception
-                traceLog.Error("ERROR Merging data tables:\n" +
-                    exc.ToString());
-            }
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Merging Tables",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
         #endregion
     }

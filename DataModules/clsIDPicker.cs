@@ -34,7 +34,7 @@ namespace Cyclops.DataModules
     public class clsIDPicker : clsBaseDataModule
     {
         #region Members
-        private string s_RInstance, s_Current_R_Statement = "", s_DbName = "",
+        private string s_RInstance, s_DbName = "",
             s_Directory = "", s_VersionIDPicker = "", s_FastaFileName = "";
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
@@ -69,7 +69,7 @@ namespace Cyclops.DataModules
         public clsIDPicker(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "IDPicker Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -90,18 +90,21 @@ namespace Cyclops.DataModules
 
         public override void PerformOperation()
         {
-            traceLog.Info("Performing IDPicker Analysis...");
-
-            dsp.GetParameters(ModuleName, Parameters);
-
-            if (dsp.RunAnalysis)
+            if (Model.SuccessRunningPipeline)
             {
-                traceLog.Info("IDPicker: Run analysis requested and proceeding...");
-                RunIDPicker();
-            }
-            else
-            {
-                traceLog.Info("IDPicker: Run analysis was NOT REQUESTED and will not be performed.");
+                Model.IncrementStep(ModuleName);
+
+                dsp.GetParameters(ModuleName, Parameters);
+
+                if (dsp.RunAnalysis)
+                {
+                    traceLog.Info("IDPicker: Run analysis requested and proceeding...");
+                    RunIDPicker();
+                }
+                else
+                {
+                    traceLog.Info("IDPicker: Run analysis was NOT REQUESTED and will not be performed.");
+                }
             }
         }
 

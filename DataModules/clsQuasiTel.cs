@@ -65,7 +65,7 @@ namespace Cyclops.DataModules
         public clsQuasiTel(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "QuasiTel Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -84,24 +84,29 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            string rhome = System.Environment.GetEnvironmentVariable("R_HOME");
-            if (string.IsNullOrEmpty(rhome))
-                rhome = @"C:\Program Files\R\R-2.13.1";
-
-            System.Environment.SetEnvironmentVariable("R_HOME", rhome);
-            System.Environment.SetEnvironmentVariable("PATH", System.Environment.GetEnvironmentVariable("PATH") + ";" + rhome + @"\bin\i386");
-
-            dsp.GetParameters(ModuleName, Parameters);
-
-            traceLog.Info("Cyclops performing QuasiTel Analysis");
-                        
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                PerformQuasiTelAnalysis();
-            }
+                Model.IncrementStep(ModuleName);
 
-            
-            RunChildModules();
+                string rhome = System.Environment.GetEnvironmentVariable("R_HOME");
+                if (string.IsNullOrEmpty(rhome))
+                    rhome = @"C:\Program Files\R\R-2.13.1";
+
+                System.Environment.SetEnvironmentVariable("R_HOME", rhome);
+                System.Environment.SetEnvironmentVariable("PATH", System.Environment.GetEnvironmentVariable("PATH") + ";" + rhome + @"\bin\i386");
+
+                dsp.GetParameters(ModuleName, Parameters);
+
+                traceLog.Info("Cyclops performing QuasiTel Analysis");
+
+                if (CheckPassedParameters())
+                {
+                    PerformQuasiTelAnalysis();
+                }
+
+
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -182,8 +187,6 @@ namespace Cyclops.DataModules
 
         private void PerformQuasiTelAnalysis()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_TmpDataTable = "tmpDataTable_" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
             string s_TmpFactorTable = "tmpFactorTable_" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
             string s_TmpFactor1 = "tmpFactor1_" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
@@ -202,11 +205,14 @@ namespace Cyclops.DataModules
                         dsp.InputTableName);
                 }
 
-                traceLog.Info("QuasiTel Analysis: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "QuasiTel Analysis",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
 
                 GetOrganizedFactorsVector(s_RInstance, s_TmpDataTable,
-                    dsp.FactorTable, dsp.FactorColumn);
+                    dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
+                    Model.NumberOfModules);
 
                 // Make sure that the factors table contains the field to perform the comparison
                 if (clsGenericRCalls.GetColumnNames(s_RInstance, dsp.FactorTable).Contains(dsp.FactorColumn))
@@ -282,25 +288,10 @@ namespace Cyclops.DataModules
                                         s_TmpFactor1,
                                         s_TmpFactor2);
 
-                                    // Execute the R statement
-                                    traceLog.Info("QuasiTel class: Running analysis:\n" +
-                                        s_RStatement);
-                                    StringWriter sw = new StringWriter();
-                                    Console.SetOut(sw);
-                                    try
-                                    {
-                                        engine.EagerEvaluate(s_RStatement);
-                                    }
-                                    catch (ParseException pe)
-                                    {
-                                        traceLog.Error("QUASITEL PARSE EXCEPTION: " + pe.ToString() +
-                                            "\n\n" + sw.ToString());
-                                    }
-                                    catch (Exception exc)
-                                    {
-                                        traceLog.Error("QUASITEL EXCEPTION: " + exc.ToString() +
-                                               "\n\n" + sw.ToString());
-                                    }
+                                    if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                                        "Running QuasiTel Analysis",
+                                        Model.StepNumber, Model.NumberOfModules))
+                                        Model.SuccessRunningPipeline = false;
                                 }
                             }
                         }

@@ -42,7 +42,7 @@ namespace Cyclops.DataModules
     public class clsANOVA : clsBaseDataModule
     {
         #region Members
-        private string s_RInstance, s_Current_R_Statement = "";
+        private string s_RInstance;
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
@@ -77,7 +77,7 @@ namespace Cyclops.DataModules
         public clsANOVA(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "ANOVA Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -89,9 +89,14 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            ANOVA();
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            RunChildModules();
+                ANOVA();
+
+                RunChildModules();
+            }
         }
 
         /// <summary>

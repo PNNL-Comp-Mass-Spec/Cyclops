@@ -80,11 +80,14 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Aggregating Datasets...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            AggregateData();
+                AggregateData();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -160,7 +163,8 @@ namespace Cyclops.DataModules
                         dsp.FactorColumn))
                     {
                         GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
-                            dsp.FactorTable, dsp.FactorColumn);
+                            dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
+                            Model.NumberOfModules);
 
                         List<int> l_DimData = clsGenericRCalls.GetDimensions(s_RInstance, dsp.InputTableName);
                         int i_LengthOfFactor = clsGenericRCalls.GetLengthOfVector(s_RInstance, dsp.FactorComplete);

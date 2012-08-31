@@ -32,11 +32,13 @@ namespace Cyclops.VisualizationModules
     /// </summary>
     public class clsHexbin : clsBaseVisualizationModule
     {
+        #region Members
         protected string s_RInstance;
         private VisualizationModules.clsVisualizationParameterHandler vgp =
             new VisualizationModules.clsVisualizationParameterHandler();
 
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -63,7 +65,7 @@ namespace Cyclops.VisualizationModules
         public clsHexbin(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Hexbin Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;             
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -78,43 +80,39 @@ namespace Cyclops.VisualizationModules
         /// </summary>
         public override void PerformOperation()
         {
-            vgp.GetParameters(ModuleName, Parameters);
-
-            traceLog.Info("Producing Hexbin Plot...");
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                CreatePlotsFolder();
+                Model.IncrementStep(ModuleName);
 
-                if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                vgp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
                 {
+                    CreatePlotsFolder();
 
-                    REngine engine = REngine.GetInstanceFromID(s_RInstance);
-                    // Construct the R statement
-                    string s_RStatement = "";
-
-                    if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "hexbin"))
-                        clsGenericRCalls.InstallPackage(s_RInstance, "hexbin");
-
-                    s_RStatement = "require(hexbin)";
-                    try
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
                     {
-                        traceLog.Info("Loading Hexbin libraries: " + s_RStatement);
-                        engine.EagerEvaluate(s_RStatement);
+                        // Construct the R statement
+                        string s_RStatement = "";
+
+                        if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "hexbin"))
+                            clsGenericRCalls.InstallPackage(s_RInstance, "hexbin");
+
+                        s_RStatement = "require(hexbin)";
+
+                        if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                            "Loading Libraries for Hexbin Plot",
+                            Model.StepNumber, Model.NumberOfModules))
+                            Model.SuccessRunningPipeline = false;
+
+                        BinData();
+
+                        CreatePlotFile();
                     }
-                    catch (Exception exc)
+                    else
                     {
-                        Model.SuccessRunningPipeline = false;
-                        traceLog.Error("ERROR loading Hexbin libraries: " + exc.ToString());
+                        traceLog.Error("ERROR Hexbin class: " + vgp.TableName + " does not exist in the R workspace.");
                     }
-
-                    BinData();
-
-                    CreatePlotFile();
-                }
-                else
-                {
-                    traceLog.Error("ERROR Hexbin class: " + vgp.TableName + " does not exist in the R workspace.");
                 }
             }     
         }
@@ -161,7 +159,6 @@ namespace Cyclops.VisualizationModules
 
         protected void BinData()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_TmpTable = base.GetTemporaryTableName();
             string s_RStatement = string.Format("{0} <- data.frame({1})\n" +
                 "bin <- hexbin(",
@@ -199,21 +196,14 @@ namespace Cyclops.VisualizationModules
                 vgp.Bins,
                 s_TmpTable);
 
-            try
-            {
-                traceLog.Info("Binning Data for Hexbin: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Binning Data for Hexbin: " + exc.ToString());
-            }
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Binning Data for Hexbin",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         protected void CreatePlotFile()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_RStatement = "";
             if (Parameters.ContainsKey("image"))
             {
@@ -247,15 +237,12 @@ namespace Cyclops.VisualizationModules
                         vgp.Height,
                         vgp.PointSize);
                 }
-                try
-                {
-                    traceLog.Info("Creating Hexbin Image File: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("ERROR Creating Hexbin Image File: " + exc.ToString());
-                }
+
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Creating Hexbin Image File",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
+
                 s_RStatement = "";
 
                 s_RStatement += string.Format("plot(bin, xlab=\"{0}\", ylab=\"{1}\", main=\"{2}\", style=\"{3}\")\n",
@@ -266,15 +253,10 @@ namespace Cyclops.VisualizationModules
 
                 s_RStatement += "dev.off()\nrm(bin)";
 
-                try
-                {
-                    traceLog.Info("Saving Hexbin plot: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("ERROR Saving Hexbin Plot: " + exc.ToString());
-                }
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Saving Hexbin Plot",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
             }  
         }
         #endregion

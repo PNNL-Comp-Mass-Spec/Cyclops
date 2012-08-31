@@ -83,26 +83,29 @@ namespace Cyclops.ExportModules
         /// </summary>
         public override void PerformOperation()
         {
-            esp.GetParameters(ModuleName, Parameters);
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                switch (esp.Source)
+                Model.IncrementStep(ModuleName);
+
+                esp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
                 {
-                    case "R":
-                        ExportFromR();
-                        break;
-                    case "sqlite":
-                        ExportFromSQLite();
-                        break;
-                }       
+                    switch (esp.Source)
+                    {
+                        case "R":
+                            ExportFromR();
+                            break;
+                        case "sqlite":
+                            ExportFromSQLite();
+                            break;
+                    }
+                }
             }
         }
 
         private void ExportFromR()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_Command = "";
 
             switch (esp.Target)
@@ -115,16 +118,12 @@ namespace Cyclops.ExportModules
                             "conn=con, name=\"{0}\", value=data.frame({1}))",
                             esp.NewTableName,
                             esp.TableName);
-                        try
-                        {
-                            traceLog.Info("EXPORTING to SQLite: " + s_Command);
-                            engine.EagerEvaluate(s_Command);
-                        }
-                        catch (Exception exc)
-                        {
+
+                        if (!clsGenericRCalls.Run(s_Command, s_RInstance,
+                            "Exporting Table to SQLite",
+                            Model.StepNumber, Model.NumberOfModules))
                             Model.SuccessRunningPipeline = false;
-                            traceLog.Error("ERROR ExportTable sqlite table: " + exc.ToString());
-                        }
+
                         DisconnectFromDatabase();
                     }
                     else
@@ -159,16 +158,10 @@ namespace Cyclops.ExportModules
                                     esp.SeparatingCharacter.Replace("\"", ""));
                             }
 
-                            try
-                            {
-                                traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
-                                engine.EagerEvaluate(s_Command);
-                            }
-                            catch (Exception exc)
-                            {
+                            if (!clsGenericRCalls.Run(s_Command, s_RInstance,
+                                "Exporting Table to CSV",
+                                Model.StepNumber, Model.NumberOfModules))
                                 Model.SuccessRunningPipeline = false;
-                                traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
-                            }
                         }
                     }
                     else
@@ -203,16 +196,10 @@ namespace Cyclops.ExportModules
                                     esp.SeparatingCharacter);
                             }
 
-                            try
-                            {
-                                traceLog.Info("Exporting " + esp.TableName + " : " + s_Command);
-                                engine.EagerEvaluate(s_Command);
-                            }
-                            catch (Exception exc)
-                            {
+                            if (!clsGenericRCalls.Run(s_Command, s_RInstance,
+                                "Exporting Table to TSV",
+                                Model.StepNumber, Model.NumberOfModules))
                                 Model.SuccessRunningPipeline = false;
-                                traceLog.Error("ERROR ExportTable csv file: " + exc.ToString());
-                            }
                         }
                     }
                     else
@@ -300,8 +287,6 @@ namespace Cyclops.ExportModules
         /// <param name="RInstance">Instance of your R workspace</param>
         protected void ConnectToSQLiteDatabase()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_DatabaseFileName = "";
             if (esp.HasWorkDirectory & esp.HasFileName)
                 s_DatabaseFileName = esp.WorkDirectory + "/" + esp.FileName;
@@ -318,29 +303,10 @@ namespace Cyclops.ExportModules
                                 "con <- dbConnect(m, dbname = \"{0}\")",
                                     s_DatabaseFileName);
 
-                try
-                {
-                    traceLog.Info("Connecting to SQLite Database: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (IOException exc)
-                {
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Connecting to SQLite Database",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                    traceLog.Error("Cyclops encountered an IOException while connecting to SQLite database: " +
-                        exc.ToString() + ".");
-                }
-                catch (AccessViolationException ave)
-                {
-                    Model.SuccessRunningPipeline = false;
-                    traceLog.Error("Cyclops encountered an AccessViolationException while connecting to SQLite database: " +
-                        ave.ToString() + ".");
-                }
-                catch (Exception ex)
-                {
-                    Model.SuccessRunningPipeline = false;
-                    traceLog.Error("Cyclops encountered an Exception while connecting to SQLite database:" +
-                        ex.ToString() + ".");
-                }
             }
         }
 
@@ -350,20 +316,22 @@ namespace Cyclops.ExportModules
         /// <param name="RInstance">Instance of the R Workspace</param>
         public void DisconnectFromDatabase()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_RStatement = "terminated <- dbDisconnect(con)";
 
-            traceLog.Info("Disconnecting from Database: " + s_RStatement);
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Disconnecting from Database",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
 
             bool b_Disconnected = clsGenericRCalls.AssessBoolean(s_RInstance, "terminated");
 
             if (b_Disconnected)
             {
                 s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                traceLog.Info("Cleaning Database Connection: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Cleaning Database Connection",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
             }
             else
             {

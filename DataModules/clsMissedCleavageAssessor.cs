@@ -35,12 +35,14 @@ namespace Cyclops.DataModules
     /// </summary>
     public class clsMissedCleavageAssessor : clsBaseDataModule
     {
-        private string s_RInstance, s_Current_R_Statement = "";
+        #region Members
+        private string s_RInstance;
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         private Dictionary<int, int> dict_Cleavages = new Dictionary<int, int>();
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -67,7 +69,7 @@ namespace Cyclops.DataModules
         public clsMissedCleavageAssessor(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "MissedCleavage Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -82,11 +84,14 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Running Missed Cleavage Assessor module");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            RunMissedCleavageAssessor();
+                RunMissedCleavageAssessor();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>

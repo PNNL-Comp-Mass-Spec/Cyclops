@@ -40,7 +40,7 @@ namespace Cyclops.DataModules
     public class clsLinearRegression : clsBaseDataModule
     {
         #region Members
-        private string s_RInstance, s_Current_R_Statement = "";
+        private string s_RInstance;
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
@@ -71,7 +71,7 @@ namespace Cyclops.DataModules
         public clsLinearRegression(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Linear Regression Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -83,11 +83,14 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            traceLog.Info("Performing Linear Regression on Datasets...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            RegressData();
+                RegressData();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -149,7 +152,6 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = "";
 
                 s_RStatement += string.Format("{0} <- LinReg_normalize(" +
@@ -161,26 +163,10 @@ namespace Cyclops.DataModules
                     dsp.ConsolidationFactor,
                     dsp.Variable);
 
-                try
-                {
-                    if (!dsp.ConsolidationFactor.Equals(""))
-                    {
-                        traceLog.Info("Linear Regression on Datasets: " + s_RStatement);
-                        engine.EagerEvaluate(s_RStatement);
-                    }
-                    else
-                    {
-                        traceLog.Info("Linear Regression: Consolidation Factor was not specified, " +
-                            "so no linear regression was performed.");
-                    }
-
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("Error Linear Regression on datasets: " + exc.ToString());
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Linear Regression on Datasets",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                }
-
             }
         }
 

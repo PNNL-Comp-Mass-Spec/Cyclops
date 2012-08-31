@@ -58,7 +58,7 @@ namespace Cyclops.DataModules
         public clsFilterByAnotherTable(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Filter By Another Table Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -77,19 +77,22 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            dsp.GetParameters(ModuleName, Parameters);
-
-            traceLog.Info("Filtering by another table...");
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                if (CheckTablesExist())
-                {
-                    FilterByAnotherTable();
-                }
-            }
+                Model.IncrementStep(ModuleName);
 
-            RunChildModules();
+                dsp.GetParameters(ModuleName, Parameters);
+                
+                if (CheckPassedParameters())
+                {
+                    if (CheckTablesExist())
+                    {
+                        FilterByAnotherTable();
+                    }
+                }
+
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -161,8 +164,6 @@ namespace Cyclops.DataModules
 
         private void FilterByAnotherTable()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             // Determine how to setup the link in the subset, either should be
             // "rownames" or the index of the column
             if (dsp.X_Link.Equals("rownames") & dsp.Y_Link.Equals("rownames"))
@@ -174,16 +175,10 @@ namespace Cyclops.DataModules
                     dsp.Y_Table
                     );
 
-                try
-                {
-                    traceLog.Info("Filtering Table: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Filtering Table",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                    traceLog.Error("ERROR Filtering Table: " + exc.ToString());
-                }
             }
             else if (dsp.X_Link.Equals("rownames"))
             {
@@ -195,16 +190,11 @@ namespace Cyclops.DataModules
                     dsp.Y_Link
                     );
 
-                try
-                {
-                    traceLog.Info("Filtering Table: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Filtering Table",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                    traceLog.Error("ERROR Filtering Table: " + exc.ToString());
-                }
+
             }
             else if (dsp.Y_Link.Equals("rownames"))
             {
@@ -216,16 +206,10 @@ namespace Cyclops.DataModules
                     dsp.X_Link
                     );
 
-                try
-                {
-                    traceLog.Info("Filtering Table: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Filtering Table",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                    traceLog.Error("ERROR Filtering Table: " + exc.ToString());
-                }
             }
             else
             {
@@ -238,16 +222,10 @@ namespace Cyclops.DataModules
                     dsp.Y_Link
                     );
 
-                try
-                {
-                    traceLog.Info("Filtering Table: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Filtering Table",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                    traceLog.Error("ERROR Filtering Table: " + exc.ToString());
-                }
             }
         }
         #endregion

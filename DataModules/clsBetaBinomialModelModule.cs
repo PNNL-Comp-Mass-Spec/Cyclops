@@ -86,28 +86,31 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            dsp.GetParameters(ModuleName, Parameters);
-
-            traceLog.Info("Cyclops performing Beta-Binomial Model");
-
-            string s_RStatement = "";
-
-            // Check if the package is already installed, if not install it
-            if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "BetaBinomial"))
+            if (Model.SuccessRunningPipeline)
             {
-                Model.SuccessRunningPipeline = false;
-                traceLog.Error("BetaBinomial Package not loaded into R!");
-                // TODO: INSTALL THE BETABINOMIAL PACKAGE FROM ZIP
+                Model.IncrementStep(ModuleName);
+
+                dsp.GetParameters(ModuleName, Parameters);
+                
+                string s_RStatement = "";
+
+                // Check if the package is already installed, if not install it
+                if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "BetaBinomial"))
+                {
+                    Model.SuccessRunningPipeline = false;
+                    traceLog.Error("BetaBinomial Package not loaded into R!");
+                    // TODO: INSTALL THE BETABINOMIAL PACKAGE FROM ZIP
+                }
+
+
+                if (CheckPassedParameters())
+                {
+                    PerformBetaBinomialAnalysis();
+                }
+
+
+                RunChildModules();
             }
-
-
-            if (CheckPassedParameters())
-            {
-                PerformBetaBinomialAnalysis();
-            }
-
-            
-            RunChildModules();
         }
 
         /// <summary>
@@ -167,8 +170,6 @@ namespace Cyclops.DataModules
 
         private void PerformBetaBinomialAnalysis()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_TmpFactorVariable = "tmpTable" + DateTime.Now.ToString("MM_dd_yy_hh_mm_ss_");
 
             try
@@ -182,11 +183,14 @@ namespace Cyclops.DataModules
                     dsp.InputTableName = dsp.InputTableName + "_tmpT";
                 }
 
-                traceLog.Info("BETA-BINOMIAL MODEL: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "BETA-BINOMIAL MODEL",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
 
                 GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
-                    dsp.FactorTable, dsp.FactorColumn);
+                    dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
+                    Model.NumberOfModules);
 
                 // Make sure that the factors table contains the field to perform the comparison
                 if (clsGenericRCalls.GetColumnNames(s_RInstance, dsp.FactorTable).Contains(dsp.FactorColumn))
@@ -217,10 +221,10 @@ namespace Cyclops.DataModules
                                 dsp.InputTableName);
                         }
 
-                        traceLog.Info("BETA-BINOMIAL MODEL: " + s_RStatement);
-
-                        s_Current_R_Statement = s_RStatement;
-                        engine.EagerEvaluate(s_RStatement);
+                        if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                            "BETA-BINOMIAL MODEL",
+                            Model.StepNumber, Model.NumberOfModules))
+                            Model.SuccessRunningPipeline = false;
                     }
                     else
                     {
@@ -235,15 +239,6 @@ namespace Cyclops.DataModules
                     traceLog.Error(string.Format("ERROR Betabinomial class: The factors table does not " +
                         "contain the factor, {0}", dsp.FactorColumn));
                 }
-
-                //clsLink LinkUpWithQuasiTel = LinkUpWithBetaBinomialModelWithQuasiTel(s_RInstance);
-                //if (LinkUpWithQuasiTel.Run)
-                //{
-                //    traceLog.Info("Preparing to Linking up with QuasiTel Results: " + LinkUpWithQuasiTel.Statement);
-                //    engine.EagerEvaluate(LinkUpWithQuasiTel.Statement);
-                //}
-
-
             }
             catch (Exception exc)
             {

@@ -20,10 +20,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Data;
 
 using RDotNet;
+using log4net;
 
 namespace Cyclops
 {
@@ -33,6 +35,95 @@ namespace Cyclops
     public static class clsGenericRCalls
     {
         #region Functions
+        /// <summary>
+        /// Creates a new instance of the R workspace
+        /// </summary>
+        /// <param name="engine">Engine to create instance for</param>
+        /// <param name="InstanceName">Name of Instance</param>
+        public static bool CreateInstance(REngine engine, string InstanceName)
+        {
+            ILog traceLog = LogManager.GetLogger("TraceLog");
+
+            traceLog.Info("Creating Instance of R Workspace...");
+            try
+            {
+                engine = REngine.CreateInstance(InstanceName, new[] { "-q" }); // quiet mode
+                return true;
+            }
+            catch (ParseException pe)
+            {
+                traceLog.Error("ERROR Parse Exception Creating Instance " +
+                    "\n" + pe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Exception Creating Instance " +
+                    "\n" + exc.ToString());
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Main call method to run a command in the R environment
+        /// </summary>
+        /// <param name="Command">R Command to pass to the environment</param>
+        /// <param name="Instance">Instance of the R workspace</param>
+        /// <param name="SummaryStatement">Summary of the Command being issued, e.g. Name of Module</param>
+        public static bool Run(string Command, 
+            string Instance, string SummaryStatement,
+            int? Step, int? TotalSteps)
+        {
+            REngine engine = REngine.GetInstanceFromID(Instance);
+            ILog traceLog = LogManager.GetLogger("TraceLog");
+            StringWriter sw = new StringWriter();
+            Console.SetOut(sw);
+
+            traceLog.Info(string.Format(
+                "{0}{1}\n{2}\n{3}\n\n",
+                Step == null ? "" : "Step " + Step + " of ",
+                TotalSteps == null ? "" : TotalSteps + ": ",
+                SummaryStatement,
+                Command));
+            try
+            {
+                engine.EagerEvaluate(Command);
+
+                return true;
+            }
+            catch (ParseException pe)
+            {
+                traceLog.Error("ERROR ParseException Running " +
+                    SummaryStatement + "\n" + pe.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n");                
+            }
+            catch (IOException ioe)
+            {
+                traceLog.Error("ERROR IOException Running " +
+                    SummaryStatement + "\n" + ioe.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n");
+            }
+            catch (AccessViolationException ave)
+            {
+                traceLog.Error("ERROR AccessViolationException Running " +
+                    SummaryStatement + "\n" + ave.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n");
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Exception Running " +
+                    SummaryStatement + "\n" + exc.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n");
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the version of R being run
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        /// <returns></returns>
         public static Dictionary<string, string> Version(string InstanceOfR)
         {
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);

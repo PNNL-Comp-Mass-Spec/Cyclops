@@ -73,7 +73,7 @@ namespace Cyclops.DataModules
         public clsSQLiteSummaryTableGenerator(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "SQLite Summary Table Generator Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -85,12 +85,15 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            traceLog.Info("Building Summary Table...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            int i_Count = GetCount();
-            UpdateSummaryTable(i_Count);
+                int i_Count = GetCount();
+                UpdateSummaryTable(i_Count);
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>

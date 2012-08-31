@@ -62,7 +62,7 @@ namespace Cyclops.DataModules
         public clsDataTableManipulation(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "DataTable Manipulation Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -77,26 +77,26 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            dsp.GetParameters(ModuleName, Parameters);
-
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            if (!dsp.HasInputTableName)
+            if (Model.SuccessRunningPipeline)
             {
-                // TODO: create an error message
-                Model.SuccessRunningPipeline = false;
-                return;
+                Model.IncrementStep(ModuleName);
+
+                dsp.GetParameters(ModuleName, Parameters);
+
+                if (!dsp.HasInputTableName)
+                {
+                    // TODO: create an error message
+                    Model.SuccessRunningPipeline = false;
+                    return;
+                }
+
+                DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.InputTableName);
+
+                Console.WriteLine(dt.Rows.Count + " rows!");
+                Console.WriteLine(dt.Columns.Count + " columns!");
+                
+                RunChildModules();
             }
-
-            DataTable dt = clsGenericRCalls.GetDataTable(s_RInstance, dsp.InputTableName);
-
-            Console.WriteLine(dt.Rows.Count + " rows!");
-            Console.WriteLine(dt.Columns.Count + " columns!");
-
-            string s = dsp.InputTableName;
-            DataFrame df = engine.EagerEvaluate(s).AsDataFrame();
-
-
-            RunChildModules();
         }
         #endregion
     }

@@ -43,7 +43,7 @@ namespace Cyclops.VisualizationModules
     /// </summary>
     public class clsQCFractionHeatmap : clsBaseVisualizationModule
     {
-        #region Variables
+        #region Members
         protected string s_RInstance;
         VisualizationModules.clsVisualizationParameterHandler vgp = 
             new VisualizationModules.clsVisualizationParameterHandler();
@@ -75,7 +75,7 @@ namespace Cyclops.VisualizationModules
         public clsQCFractionHeatmap(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "QC Fraction Heatmap Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -89,21 +89,26 @@ namespace Cyclops.VisualizationModules
         ///  Runs module
         /// </summary>
         public override void PerformOperation()
-        {            
-            vgp.GetParameters(ModuleName, Parameters);
-
-            if (CheckPassedParameters())
+        {
+            if (Model.SuccessRunningPipeline)
             {
-                vgp.PlotDirectory = CreatePlotsFolder();
-                vgp.ResetPlotFileName();
+                Model.IncrementStep(ModuleName);
 
-                if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                vgp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
                 {
-                    RunHeatmap();
-                }
-                else
-                {
-                    traceLog.Error("ERROR Boxplot class: " + vgp.TableName + " not found in the R workspace.");
+                    vgp.PlotDirectory = CreatePlotsFolder();
+                    vgp.ResetPlotFileName();
+
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                    {
+                        RunHeatmap();
+                    }
+                    else
+                    {
+                        traceLog.Error("ERROR Boxplot class: " + vgp.TableName + " not found in the R workspace.");
+                    }
                 }
             }
         }
@@ -135,7 +140,6 @@ namespace Cyclops.VisualizationModules
 
         private void RunHeatmap()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = string.Format("ja_QCFractionsHeat(zz={0}$myMatrix1, " +
                 "file=\"{1}\", bkground=\"{2}\", IMGwidth={3}, IMGheight={4}, " +
                 "FNTsize={5}, res={6})",
@@ -147,16 +151,10 @@ namespace Cyclops.VisualizationModules
                 vgp.FontSize,
                 vgp.Resolution);
 
-            try
-            {
-                traceLog.Info("Performing QC Fraction Heatmap: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Performing QC Fraction Heatmap: " + exc.ToString());
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Performing QC Fraction Heatmap",
+                Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
-            }
         }
         #endregion
     }

@@ -25,8 +25,6 @@ using System.Data;
 using System.Data.SQLite;
 using System.IO;
 
-using System.Data.SQLite;
-
 using log4net;
 
 namespace Cyclops

@@ -71,7 +71,7 @@ namespace Cyclops.DataModules
         public clsTransformModule(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Transform Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -83,11 +83,14 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            traceLog.Info("Transforming Datasets...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            TransformData();
+                TransformData();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -123,9 +126,8 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = "";
-                
+
                 if (dsp.HasLogBase)
                 {
                     s_RStatement = string.Format(
@@ -146,37 +148,31 @@ namespace Cyclops.DataModules
                         dsp.Scale);
                 }
 
-                try
+                if (dsp.Set_0_to_NA)
                 {
-                    traceLog.Info("Transforming Datasets: " + s_RStatement);
-
-                    if (dsp.Set_0_to_NA)
-                    {
-                        s_RStatement += string.Format("\n{0}[{0}==-Inf] <- NA",
-                            dsp.NewTableName);
-                    }
-
-                    s_Current_R_Statement = s_RStatement;
-                    engine.EagerEvaluate(s_RStatement);
-
-                    if (dsp.AutoScale)
-                    {
-                        double? d_Min = clsGenericRCalls.GetMinimumValue(s_RInstance,
-                            dsp.NewTableName);
-                        if (d_Min < 0 | d_Min == null)
-                        {
-                            // Autoscale the data.
-                            s_RStatement = "{0} <- jnb_AutoScale({0})";
-                            traceLog.Info("Autoscaling Transformed Datasets: " +
-                                s_RStatement);
-                            engine.EagerEvaluate(s_RStatement);
-                        }
-                    }
+                    s_RStatement += string.Format("\n{0}[{0}==-Inf] <- NA",
+                        dsp.NewTableName);
                 }
-                catch (Exception exc)
-                {
-                    traceLog.Error("Error transforming datasets: " + exc.ToString());
+
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Transforming Datasets",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
+
+                if (dsp.AutoScale)
+                {
+                    double? d_Min = clsGenericRCalls.GetMinimumValue(s_RInstance,
+                        dsp.NewTableName);
+                    if (d_Min < 0 | d_Min == null)
+                    {
+                        // Autoscale the data.
+                        s_RStatement = "{0} <- jnb_AutoScale({0})";
+
+                        if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                            "Autoscaling Transformed Datasets",
+                            Model.StepNumber, Model.NumberOfModules))
+                            Model.SuccessRunningPipeline = false;
+                    }
                 }
             }
         }

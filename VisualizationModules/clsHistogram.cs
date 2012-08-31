@@ -32,10 +32,12 @@ namespace Cyclops.VisualizationModules
     /// </summary>
     public class clsHistogram : clsBaseVisualizationModule
     {
+        #region Members
         protected string s_RInstance;
         VisualizationModules.clsVisualizationParameterHandler vgp = 
             new VisualizationModules.clsVisualizationParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -54,6 +56,17 @@ namespace Cyclops.VisualizationModules
             ModuleName = "Histogram Module";
             s_RInstance = InstanceOfR;            
         }
+        /// <summary>
+        /// Module plots a histogram graph to the Plots directory
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsHistogram(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            ModuleName = "Histogram Module";
+            Model = TheCyclopsModel;            
+            s_RInstance = InstanceOfR;
+        }
         #endregion
 
         #region Properties
@@ -66,19 +79,24 @@ namespace Cyclops.VisualizationModules
         /// </summary>
         public override void PerformOperation()
         {
-            vgp.GetParameters(ModuleName, Parameters);
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                CreatePlotsFolder();
+                Model.IncrementStep(ModuleName);
 
-                if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                vgp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
                 {
-                    CreateHistogram();
-                }
-                else
-                {
-                    traceLog.Error("ERROR Histogram class: " + vgp.TableName + " not found in the R workspace.");
+                    CreatePlotsFolder();
+
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                    {
+                        CreateHistogram();
+                    }
+                    else
+                    {
+                        traceLog.Error("ERROR Histogram class: " + vgp.TableName + " not found in the R workspace.");
+                    }
                 }
             }
         }
@@ -109,7 +127,6 @@ namespace Cyclops.VisualizationModules
 
         private void CreateHistogram()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "";
 
             switch (vgp.HistogramType)
@@ -129,16 +146,11 @@ namespace Cyclops.VisualizationModules
                          vgp.BackgroundColor);
                     break;
             }
-            try
-            {
-                traceLog.Info("Histogram type: " + vgp.HistogramType);
-                traceLog.Info("Performing Histogram: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Performing Histogram: " + exc.ToString());
-            }
+
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Performing Histogram",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
         #endregion
     }

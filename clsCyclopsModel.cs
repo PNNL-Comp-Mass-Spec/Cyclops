@@ -19,6 +19,7 @@
  * -----------------------------------------------------*/
 
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,11 +41,13 @@ namespace Cyclops
     {
         #region Members
         private DataModules.clsBaseDataModule root = null, currentNode = null;
-        private REngine engine;
         private string s_RInstance;
+        private REngine engine;
         private Dictionary<string, string> d_CyclopsParameters = new Dictionary<string, string>();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private bool b_SuccessRunningPipeline = true;
+        private int m_StepNumber = 0, m_TotalNumberOfModules = 0;
+        private BackgroundWorker m_bgw = new BackgroundWorker();
         #endregion
 
         #region Constructors
@@ -90,6 +93,42 @@ namespace Cyclops
         }
 
         /// <summary>
+        /// Constructor that requires the parameters for running cyclops
+        /// </summary>
+        /// <param name="ParametersForCyclops">Parameters for running cyclops</param>
+        /// <param name="worker">Worker for running Cyclops</param>
+        public clsCyclopsModel(Dictionary<string, string> ParametersForCyclops,
+            BackgroundWorker worker)
+        {
+            Set_R_Home_Variable("2.14.2", true);
+            string value = "";
+            d_CyclopsParameters = ParametersForCyclops;
+            CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("PipelineID"),
+                out value);
+            if (value != null && value.Length > 0)
+            {
+                s_RInstance = value;
+            }
+            else
+            {
+                s_RInstance = "rCore";
+            }
+
+            CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("RDLL"),
+                out value);
+            if (value != null && value.Length > 0)
+            {
+                REngine.SetDllDirectory(value);
+            }
+            else
+            {
+                REngine.SetDllDirectory(@"C:\Program Files\R\R-2.14.2\bin\i386");
+            }
+
+            m_bgw = worker;
+        }
+
+        /// <summary>
         /// Constructor that requires the path to R DLL
         /// </summary>
         /// <param name="RDLL">Path to R DLL</param>
@@ -107,8 +146,23 @@ namespace Cyclops
         /// </summary>
         public int NumberOfModules
         {
-            get;
-            set;
+            get { return m_TotalNumberOfModules; }
+            set
+            {
+                m_TotalNumberOfModules = value;
+            }
+        }
+
+        /// <summary>
+        /// Number of the current step being performed
+        /// </summary>
+        public int StepNumber
+        {
+            get { return m_StepNumber; }
+            set
+            {
+                m_StepNumber = value;
+            }
         }
 
         /// <summary>
@@ -167,36 +221,7 @@ namespace Cyclops
         /// </summary>
         public bool CreateInstanceOfR()
         {
-            try
-            {
-                engine = REngine.CreateInstance(s_RInstance, new[] { "-q" }); // quiet mode
-
-                // Load RSQLite
-                string s_RStatement = "require(RSQLite)";
-                traceLog.Info("Creating Instance of R Workspace\nLoading RSQLite...");
-                try
-                {
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (ParseException pe)
-                {
-                    traceLog.Error("ParseException ERROR connecting to " +
-                        "R Workspace and loading RSQLite:\n" +
-                        pe.ToString());
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("Exception ERROR connecting to " +
-                        "R Workspace and loading RSQLite:\n" +
-                        exc.ToString());
-                }
-
-                return true;
-            }
-            catch (Exception exc)
-            {
-                return false;
-            }
+            return clsGenericRCalls.CreateInstance(engine, s_RInstance);
         }
 
         /// <summary>
@@ -205,28 +230,7 @@ namespace Cyclops
         /// <param name="Workspace"></param>
         public void CreateInstanceOfR_AndLoadWorkspace(string Workspace)
         {
-            engine = REngine.CreateInstance(s_RInstance, new[] { "-q" }); // quiet mode
-            engine.EagerEvaluate(string.Format("load({0})", Workspace));
-
-            // Load RSQLite
-            string s_RStatement = "require(RSQLite)";
-            traceLog.Info("Creating Instance of R Workspace\nLoading RSQLite...");
-            try
-            {
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (ParseException pe)
-            {
-                traceLog.Error("ParseException ERROR connecting to " +
-                    "R Workspace and loading RSQLite:\n" +
-                    pe.ToString());
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("Exception ERROR connecting to " +
-                    "R Workspace and loading RSQLite:\n" +
-                    exc.ToString());
-            }
+            clsGenericRCalls.CreateInstance(engine, Workspace);
         }
 
         /// <summary>
@@ -237,16 +241,14 @@ namespace Cyclops
         {            
             traceLog.Info("Establishing connection to R...");
 
-            try
-            {
-                CreateInstanceOfR();
+            if (CreateInstanceOfR())
                 traceLog.Info("Connection with R established successfully!");
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR establishing connection with R: " + exc.ToString());
-            }
-            
+
+            string s_Command = "require(RSQLite)";
+            clsGenericRCalls.Run( 
+                s_Command, s_RInstance, "Loading RSQLite",
+                null, null);
+                        
             clsCyclopsXMLReader reader = new clsCyclopsXMLReader(this, CyclopsParameters);
             
             string value = "";
@@ -279,15 +281,12 @@ namespace Cyclops
         {
             traceLog.Info("Establishing connection to R...");
 
-            try
-            {
-                CreateInstanceOfR();
+            if (CreateInstanceOfR())
                 traceLog.Info("Connection with R established successfully!");
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR establishing connection with R: " + exc.ToString());
-            }
+
+            string s_Command = "require(RSQLite)";
+            clsGenericRCalls.Run(s_Command, s_RInstance, "Loading RSQLite",
+                null, null);
 
             traceLog.Info("Assembing Modules from XML: " + WorkFlowFile + ".");
 
@@ -306,7 +305,13 @@ namespace Cyclops
             traceLog.Info("Establishing connection to R...");
             try
             {
-                CreateInstanceOfR();
+                if (CreateInstanceOfR())
+                    traceLog.Info("Connection with R established successfully!");
+
+                string s_Command = "require(RSQLite)";
+                clsGenericRCalls.Run(s_Command, s_RInstance, "Loading RSQLite",
+                    null, null);
+
                 traceLog.Info("Connection with R established successfully!");
                 traceLog.Info("Setting RDLL: " + RDLL);
                 SetREngineDLL(RDLL);
@@ -360,29 +365,6 @@ namespace Cyclops
             else
             {
                 Console.WriteLine("There were no modules in the pipeline!");
-            }
-        }
-
-        private bool CreateLogTableInR()
-        {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            string s_Command = "t_log <- data.frame(" +
-                "\"DateTime\"=Sys.time()" +             // record time of call
-                ",\"Module\"=\"CyclopsModel\"" +        // Module that ran function
-                ",\"Target\"=\"\"" +                    // Target table
-                ",\"Function\"=\"Create R Session\"" +  // Type of function called
-                ", \"Statement\"=\"\")";                // R statement passed
-            try
-            {
-                engine.EagerEvaluate(s_Command);
-
-                return true;
-            }
-            catch (Exception exc)
-            {
-                // TODO : Handle exception
-
-                return false;
             }
         }
 
@@ -456,6 +438,23 @@ namespace Cyclops
 
             traceLog.Info("Setting \"R_HOME\":\n\t" +
                 rHome + s_BitFolderPath);
+        }
+
+        /// <summary>
+        /// Updates the model to let it know that a new step is 
+        /// running, the model then updates any progress reporters
+        /// </summary>
+        /// <param name="ModuleName"></param>
+        public void IncrementStep(string ModuleName)
+        {
+            StepNumber++;
+
+            clsCyclopsProgressReporter reporter = new clsCyclopsProgressReporter();
+            reporter.ModuleName = ModuleName;
+            reporter.Step = StepNumber;
+            reporter.TotalNumberOfSteps = m_TotalNumberOfModules;
+            if (m_bgw.WorkerReportsProgress)
+                m_bgw.ReportProgress(reporter.Progress, reporter);
         }
         #endregion
     }

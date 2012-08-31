@@ -74,7 +74,7 @@ namespace Cyclops.ExportModules
         public clsHTMLSummary(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "HTML Summary Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -114,9 +114,13 @@ namespace Cyclops.ExportModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Preparing HTML summary file...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
+                traceLog.Info("Preparing HTML summary file...");
 
-            BuildHtmlFile();
+                BuildHtmlFile();
+            }
         }
 
         /// <summary>

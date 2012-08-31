@@ -62,7 +62,7 @@ namespace Cyclops.DataModules
         public clsCombineSpectralCountResultFiles(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Combine Spectral Count Result Tables Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -77,14 +77,19 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            dsp.GetParameters(ModuleName, Parameters);
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                CombineSpectralCounts();
-            }
+                Model.IncrementStep(ModuleName);
 
-            RunChildModules();
+                dsp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
+                {
+                    CombineSpectralCounts();
+                }
+
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -123,8 +128,6 @@ namespace Cyclops.DataModules
 
         private void CombineSpectralCounts()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_RStatement = "";
 
             if (!dsp.HasNormalizedTable)
@@ -145,16 +148,10 @@ namespace Cyclops.DataModules
                     dsp.NormalizedTable);
             }
 
-            try
-            {
-                traceLog.Info("COMBINING SPECTRAL COUNT TABLES: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "COMBINING SPECTRAL COUNT TABLES",
+                Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR COMBINING SPECTRAL COUNT TABLES: " + exc.ToString());
-            }
         }
 
         #endregion

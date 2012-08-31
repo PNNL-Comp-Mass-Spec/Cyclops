@@ -77,7 +77,7 @@ namespace Cyclops.VisualizationModules
         public clsBoxPlot(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Boxplot Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -91,22 +91,27 @@ namespace Cyclops.VisualizationModules
         ///  Runs module
         /// </summary>
         public override void PerformOperation()
-        {            
-            vgp.GetParameters(ModuleName, Parameters);
-
-            if (CheckPassedParameters())
+        {
+            if (Model.SuccessRunningPipeline)
             {
-                vgp.PlotDirectory = CreatePlotsFolder();
-                vgp.ResetPlotFileName();
+                Model.IncrementStep(ModuleName);
 
-                if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                vgp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
                 {
-                    // Perform Boxplot
-                    CreateBoxPlot();
-                }
-                else
-                {
-                    traceLog.Error("ERROR Boxplot class: " + vgp.TableName + " not found in the R workspace.");
+                    vgp.PlotDirectory = CreatePlotsFolder();
+                    vgp.ResetPlotFileName();
+
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                    {
+                        // Perform Boxplot
+                        CreateBoxPlot();
+                    }
+                    else
+                    {
+                        traceLog.Error("ERROR Boxplot class: " + vgp.TableName + " not found in the R workspace.");
+                    }
                 }
             }
         }
@@ -149,7 +154,6 @@ namespace Cyclops.VisualizationModules
 
         private void CreateBoxPlot()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "";
 
             // If a Factor to color by has been chosen, make sure that the
@@ -210,32 +214,17 @@ namespace Cyclops.VisualizationModules
                 vgp.Height,                                             // 19
                 vgp.FontSize,                                           // 20
                 vgp.Resolution);                                        // 21
-                        
-            try
-            {
-                traceLog.Info("Performing Boxplot: " + s_RStatement);
-                if (Directory.Exists(Path.GetDirectoryName(vgp.PlotFileName)))
-                    traceLog.Info(Path.GetDirectoryName(vgp.PlotFileName) + " exists, and available to be written to...");
-                else
-                    traceLog.Error(Path.GetDirectoryName(vgp.PlotFileName) + " DOES NOT exist!");
-                                
-                engine.EagerEvaluate(s_RStatement);
 
-                if (File.Exists(vgp.PlotFileName))
-                    traceLog.Info("Boxplot was written out to: " + vgp.PlotFileName);
-                else
-                    traceLog.Error("Unable to find the plot file: " + vgp.PlotFileName);
-                FileInfo fi = new FileInfo(vgp.PlotFileName);
-                if (fi.Length > 0)
-                    traceLog.Info(vgp.PlotDirectory + " contains data: " + fi.Length);
-                else
-                    traceLog.Error(vgp.PlotDirectory + " is empty!");
-            }
-            catch (Exception exc)
-            {
+
+            if (Directory.Exists(Path.GetDirectoryName(vgp.PlotFileName)))
+                traceLog.Info(Path.GetDirectoryName(vgp.PlotFileName) + " exists, and available to be written to...");
+            else
+                traceLog.Error(Path.GetDirectoryName(vgp.PlotFileName) + " DOES NOT exist!");
+
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Performing Boxplot",
+                Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR Performing Boxplot: " + exc.ToString());
-            }
         }
         #endregion
     }

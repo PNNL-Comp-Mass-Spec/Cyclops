@@ -73,12 +73,15 @@ namespace Cyclops.ExportModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Saving R Environment...");
-            esp.GetParameters(ModuleName, Parameters);
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                SaveToDefaultDirectory();
+                Model.IncrementStep(ModuleName);
+                esp.GetParameters(ModuleName, Parameters);
+
+                if (CheckPassedParameters())
+                {
+                    SaveToDefaultDirectory();
+                }
             }
         }
 
@@ -87,8 +90,6 @@ namespace Cyclops.ExportModules
         /// </summary>
         public void SaveToDefaultDirectory()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             string s_OutputFileName = "Results.RData", s_Command = "";
             
             if (esp.HasWorkDirectory & esp.HasFileName)
@@ -106,17 +107,11 @@ namespace Cyclops.ExportModules
                 s_Command = string.Format("save.image(\"{0}\")",
                      s_OutputFileName);
             }
-            try
-            {
-                traceLog.Info("Saving R environment: " + s_Command);
-                s_Current_R_Statement = s_Command;
-                engine.EagerEvaluate(s_Command);
-            }
-            catch (Exception exc)
-            {
+
+            if (!clsGenericRCalls.Run(s_Command, s_RInstance,
+                "Saving R Environment",
+                Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR SaveEnvironment: " + exc.ToString());
-            }
         }
 
         /// <summary>

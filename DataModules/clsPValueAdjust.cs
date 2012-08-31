@@ -67,7 +67,7 @@ namespace Cyclops.DataModules
         public clsPValueAdjust(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "P-value adjustment Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -79,11 +79,14 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            traceLog.Info("Adjusting p-values for multiple comparisons...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            AdjustPvalues();
+                AdjustPvalues();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -119,21 +122,14 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = "";
 
                 // TODO : make R statement to adjust p-values
 
-                try
-                {
-                    traceLog.Info("Performing p-value adjustment: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("Error performing p-value adjustment: " + exc.ToString());
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Adjusting P-values",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                }
             }
         }
 

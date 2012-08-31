@@ -59,7 +59,7 @@ namespace Cyclops.DataModules
         public clsFoldChange(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Fold-Change Model Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -78,12 +78,17 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                CalculateFoldChange();
+                Model.IncrementStep(ModuleName);
+
+                if (CheckPassedParameters())
+                {
+                    CalculateFoldChange();
+                }
+
+                RunChildModules();
             }
-            
-            RunChildModules();
         }
 
         /// <summary>
@@ -115,24 +120,16 @@ namespace Cyclops.DataModules
 
         private void CalculateFoldChange()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-            
             string s_RStatement = string.Format(
                 "{0} <- jnb_FoldChangeSpectralCountAndPackage({1}, {2})",
                 dsp.NewTableName,
                 dsp.InputTableName,
                 "0");   // column(s) to exclude (e.g. p-values)
 
-            try
-            {
-                traceLog.Info("Calculating Fold Change: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Calculating Fold Change",
+                Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR calculating fold-change: " + exc.ToString());
-            }
         }
 
         /// <summary>

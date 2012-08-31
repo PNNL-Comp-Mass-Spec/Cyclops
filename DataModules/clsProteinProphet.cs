@@ -33,7 +33,7 @@ namespace Cyclops.DataModules
     public class clsProteinProphet : clsBaseDataModule
     {
         #region Members
-        private string s_RInstance, s_Current_R_Statement = "", s_DbName = "",
+        private string s_RInstance, s_DbName = "",
             s_Directory = "";
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
@@ -68,7 +68,7 @@ namespace Cyclops.DataModules
         public clsProteinProphet(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "ProteinProphet Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -98,23 +98,28 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Peforming ProteinProphet Analysis...");
-            
-            dsp.GetParameters(ModuleName, Parameters);
-
-            traceLog.Info("Fasta file to be used in analysis: " + dsp.DatabasePath);
-
-            if (dsp.RunAnalysis)
+            if (Model.SuccessRunningPipeline)
             {
-                traceLog.Info("ProteinProphet: Run analysis requested and proceeding...");
-                RunProteinProphet();
+                Model.IncrementStep(ModuleName);
+
+                traceLog.Info("Peforming ProteinProphet Analysis...");
+
+                dsp.GetParameters(ModuleName, Parameters);
+
+                traceLog.Info("Fasta file to be used in analysis: " + dsp.DatabasePath);
+
+                if (dsp.RunAnalysis)
+                {
+                    traceLog.Info("ProteinProphet: Run analysis requested and proceeding...");
+                    RunProteinProphet();
+                }
+                else
+                {
+                    traceLog.Info("ProteinProphet: Run analysis was NOT REQUESTED and will not be performed.");
+                }
+
+                RunChildModules();
             }
-            else
-            {
-                traceLog.Info("ProteinProphet: Run analysis was NOT REQUESTED and will not be performed.");
-            }
-            
-            RunChildModules();
         }
 
         private void RunProteinProphet()

@@ -63,7 +63,7 @@ namespace Cyclops.DataModules
         public clsRSourceFileModule(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "R Source File Module - Loading R Functions";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -74,9 +74,13 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            Run_LoadRSourceFiles();
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
+                Run_LoadRSourceFiles();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -96,8 +100,7 @@ namespace Cyclops.DataModules
         public void Run_LoadRSourceFiles()
         {
             dsp.GetParameters(ModuleName, Parameters);
-
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+            string s_RStatement = "";
 
             // Load ALL the files in the directory
             if (!dsp.HasSource)
@@ -123,31 +126,25 @@ namespace Cyclops.DataModules
             {
                 int i_SourceFilesLoaded = 0;
                 string[] s_Files = dsp.Source.Split(';');
+                
                 traceLog.Info(string.Format("Preparing to load " +
                     "{0} R scripts into workspace...",
                     s_Files.Length));
                 foreach (string s in s_Files)
                 {
-                    try
-                    {
-                        string s_Command = string.Format("source(\"{0}/{1}\")",
+                    s_RStatement += string.Format("source(\"{0}/{1}\")\n",
                             Directory.GetCurrentDirectory().Replace('\\', '/'), s.Replace('\\', '/'));
-                        engine.EagerEvaluate(s_Command);
-                        i_SourceFilesLoaded++;
-                    }
-                    catch (ParseException pe)
-                    {
-                        Model.SuccessRunningPipeline = false;
-                        traceLog.Error("ERROR LOADING R SCRIPTS: Encountered a Parse Excpetion: " 
-                            + pe.ToString());
-                    }
-                    traceLog.Info(string.Format("{0} files " +
-                        "successfully loaded into R workspace!",
-                        i_SourceFilesLoaded));
+                    
+                    i_SourceFilesLoaded++;
                 }
             }
-            string s_RStatement = string.Format("objects2delete <- ls()"); // index of all objects loaded into R from source files
-            engine.EagerEvaluate(s_RStatement);
+            clsGenericRCalls.Run(s_RStatement,
+                        s_RInstance, "Load Source File",
+                        Model.StepNumber, Model.NumberOfModules);
+
+            s_RStatement = string.Format("objects2delete <- ls()"); // index of all objects loaded into R from source files
+            clsGenericRCalls.Run(s_RStatement, s_RInstance, "Defining Objects to delete",
+                Model.StepNumber, Model.NumberOfModules);
         }
 
         /// <summary>
@@ -166,14 +163,19 @@ namespace Cyclops.DataModules
                 "{0} R scripts into workspace...",
                 Directory.GetFiles(MyDirectory, "*.R").Length));
 
+            string s_RStatement = "";
             foreach (string s in Directory.GetFiles(MyDirectory))
             {
                 if (Path.GetExtension(s).ToUpper().Equals(".R"))
                 {
-                    LoadRSourceFile(s, RInstance);
+                    s_RStatement += LoadRSourceFile(s, RInstance);
                     i_SourceFilesLoaded++;
                 }
             }
+
+            clsGenericRCalls.Run(s_RStatement, s_RInstance, "Loading R Source files",
+                Model.StepNumber, Model.NumberOfModules);
+
             foreach (string s in Directory.GetDirectories(MyDirectory))
             {
                 GetDirectoriesAndLoadRSourceFiles(s, RInstance);
@@ -188,40 +190,28 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="MyFile">Name of the source file to load</param>
         /// <param name="RInstance">Instance of R Workspace</param>
-        protected void LoadRSourceFile(string MyFile, string RInstance)
+        protected string LoadRSourceFile(string MyFile, string RInstance)
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
-            try
+            /// Visual Studios adds a 3 character format to the
+            /// beginning of each ".R" file, so just need to
+            /// clean it up before reading it.
+            if (Parameters.ContainsKey("removeFirstCharacters"))
             {
-                /// Visual Studios adds a 3 character format to the
-                /// beginning of each ".R" file, so just need to
-                /// clean it up before reading it.
-                if (Parameters.ContainsKey("removeFirstCharacters"))
+                if (Parameters["removeFirstCharacters"].ToString().Equals("true"))
                 {
-                    if (Parameters["removeFirstCharacters"].ToString().Equals("true"))
-                    {
-                        StreamReader sr = new StreamReader(MyFile);
-                        string s_Content = sr.ReadToEnd();
-                        sr.Close();
-                        //s_Content = s_Content.Remove(0, 2);
-                        s_Content.Replace("ï»¿", "");
-                        StreamWriter sw = new StreamWriter(MyFile);
-                        sw.Write(s_Content);
-                        sw.Close();
-                    }
+                    StreamReader sr = new StreamReader(MyFile);
+                    string s_Content = sr.ReadToEnd();
+                    sr.Close();
+                    //s_Content = s_Content.Remove(0, 2);
+                    s_Content.Replace("ï»¿", "");
+                    StreamWriter sw = new StreamWriter(MyFile);
+                    sw.Write(s_Content);
+                    sw.Close();
                 }
+            }
 
-                string s_Command = string.Format("source(\"{0}\")",
-                    MyFile.Replace("\\", "/"));
-                engine.EagerEvaluate(s_Command);
-            }
-            catch (ParseException pe)
-            {
-                Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR LOADING R SCRIPTS: Encountered a Parse Excpetion: "
-                    + pe.ToString());
-            }
+            return string.Format("source(\"{0}\")\n",
+                MyFile.Replace("\\", "/"));
         }
 
         /// <summary>

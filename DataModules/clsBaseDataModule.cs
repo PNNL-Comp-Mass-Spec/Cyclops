@@ -133,12 +133,11 @@ namespace Cyclops.DataModules
         /// <param name="NameOfColumnMetadataTable">The Column Metadata Table</param>
         /// <param name="FactorColumn">Name of the column that contains the factor of interest</param>
         public void GetOrganizedFactorsVector(string InstanceOfR, string NameOfDataTable,
-            string NameOfColumnMetadataTable, string FactorColumn)
+            string NameOfColumnMetadataTable, string FactorColumn, int? Step, int? Total)
         {
             string yMergeColumn = "Alias";
             string s_TmpTable = GetTemporaryTableName();
 
-            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
             string s_RStatement = string.Format(
                 "{0} <- cbind(\"{3}\"=colnames({1}))\n" +
                 "{2} <- merge(x={0}, y={2}, by.x=\"{3}\", by.y=\"{3}\", , all.x=T, all.y=F, sort=F)\n" +
@@ -147,8 +146,10 @@ namespace Cyclops.DataModules
                 NameOfDataTable,
                 NameOfColumnMetadataTable,
                 yMergeColumn);
-                        
-            engine.EagerEvaluate(s_RStatement);
+
+            clsGenericRCalls.Run(s_RStatement, InstanceOfR,
+                "Organizing Factors Vector",
+                Step, Total);
         }
 
 

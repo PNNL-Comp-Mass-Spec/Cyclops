@@ -27,11 +27,13 @@ namespace Cyclops.VisualizationModules
 {
     public class clsHeatmap : clsBaseVisualizationModule
     {
+        #region Members
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         protected string s_RInstance;
         private VisualizationModules.clsVisualizationParameterHandler vgp =
             new VisualizationModules.clsVisualizationParameterHandler();
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -44,10 +46,21 @@ namespace Cyclops.VisualizationModules
         /// <summary>
         /// Basic constructor that passes in the R workspace
         /// </summary>
-        /// <param name="InstanceOfR"></param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsHeatmap(string InstanceOfR)
         {
             ModuleName = "Heatmap Module";
+            s_RInstance = InstanceOfR;
+        }
+        /// <summary>
+        /// Modules that builds a heatmap
+        /// </summary>
+        /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
+        /// <param name="InstanceOfR">Instance of R workspace to call</param>
+        public clsHeatmap(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        {
+            Model = TheCyclopsModel;            
+            ModuleName = "Heatmap Module";            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -62,27 +75,30 @@ namespace Cyclops.VisualizationModules
         /// </summary>
         public override void PerformOperation()
         {
-            vgp.Parameters = Parameters;
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                CreatePlotsFolder();
+                Model.IncrementStep(ModuleName);
+                vgp.Parameters = Parameters;
 
-                if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                if (CheckPassedParameters())
                 {
-                    if (vgp.HasImageType)
+                    CreatePlotsFolder();
+
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
                     {
-                        PrepareImageFile();
-                    }
-                    BuildHeatmapPlot();
-                    if (vgp.HasImageType)
-                    {
-                        CleanUpImageFile();
+                        if (vgp.HasImageType)
+                        {
+                            PrepareImageFile();
+                        }
+                        BuildHeatmapPlot();
+                        if (vgp.HasImageType)
+                        {
+                            CleanUpImageFile();
+                        }
                     }
                 }
-            }
 
-                
+            }
             
         }
 
@@ -105,31 +121,21 @@ namespace Cyclops.VisualizationModules
 
         private void LoadLibraries()
         {
-            traceLog.Info("Heatmap Module: Loading Required Libraries...");
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
             // load the necessary packages
             if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "grDevices"))
                 clsGenericRCalls.InstallPackage(s_RInstance, "grDevices");
             if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "gplots"))
                 clsGenericRCalls.InstallPackage(s_RInstance, "gplots");
 
-            try
-            {
-                string s_RStatement = "require(gplots)\nrequire(grDevices)\n";
-                                
-                traceLog.Info(s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Heatmap Module while loading libraries: " + exc.ToString());
-            }
+            string s_RStatement = "require(gplots)\nrequire(grDevices)\n";
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Loading Libraries for Constructing Heatmap",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         private void PrepareImageFile()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "";
             if (vgp.HasImageType)
             {
@@ -164,21 +170,15 @@ namespace Cyclops.VisualizationModules
                         vgp.PointSize);
                 }
 
-                try
-                {
-                    traceLog.Info("Heatmap Module: Preparing image file: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("ERROR Heatmap Module while preparing image file: " + exc.ToString());
-                }
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Saving Heatmap",
+                    Model.StepNumber, Model.NumberOfModules))
+                    Model.SuccessRunningPipeline = false;
             }
         }
 
         private void BuildHeatmapPlot()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = string.Format(
                 "myColorRamp <- colorRampPalette({0})\n",
                 vgp.HeatmapColors);
@@ -208,31 +208,20 @@ namespace Cyclops.VisualizationModules
 
             s_RStatement += "rm(myColorRamp)\nrm(cmap)";
 
-            try
-            {
-                traceLog.Info("Heatmap Module building heatmap plot: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Heatmap Module building heatmap plot: " + exc.ToString());
-            }
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Constructing Heatmap",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         private void CleanUpImageFile()
-        {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
+        {            
             string s_RStatement = "dev.off()";
 
-            try
-            {
-                traceLog.Info("Heatmap Module: Cleaning up Image File: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Heatmap Module during cleaning up image file: " + exc.ToString());
-            }
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Cleaning up Heatmap Analysis",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
         #endregion
     }

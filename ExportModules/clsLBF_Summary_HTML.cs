@@ -73,7 +73,7 @@ namespace Cyclops.ExportModules
         public clsLBF_Summary_HTML(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "LBF Quality Control Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -122,11 +122,15 @@ namespace Cyclops.ExportModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Preparing to write LBF Summary HTML File...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
+                traceLog.Info("Preparing to write LBF Summary HTML File...");
 
-            SetLRandCTflags();
+                SetLRandCTflags();
 
-            BuildHtmlFile();
+                BuildHtmlFile();
+            }
         }
 
 

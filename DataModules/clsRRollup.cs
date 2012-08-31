@@ -62,7 +62,7 @@ namespace Cyclops.DataModules
         public clsRRollup(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "RRollup Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -77,11 +77,14 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Performing RRollup...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            RRollupThePeptides();
+                RRollupThePeptides();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -138,8 +141,6 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
-
                 // check to see if the outliers package is installed
                 if (!clsGenericRCalls.IsPackageInstalled(s_RInstance, "outliers"))
                 {
@@ -181,16 +182,10 @@ namespace Cyclops.DataModules
                     dsp.GminPCount,                 // 10
                     dsp.Center);                    // 11
 
-                try
-                {
-                    traceLog.Info("RRollup class, performing an RRollup on " + dsp.InputTableName);
-                    traceLog.Info(s_Current_R_Statement);
-                    engine.EagerEvaluate(s_Current_R_Statement);
-                }
-                catch (Exception exc)
-                {
+                if (!clsGenericRCalls.Run(s_Current_R_Statement, s_RInstance,
+                    "Performing RRollup",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                }
             }
         }
         #endregion

@@ -68,7 +68,7 @@ namespace Cyclops.VisualizationModules
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
         public clsCorrelationHeatmap(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             ModuleName = "Correlation Heatmap Module";            
             s_RInstance = InstanceOfR;
         }
@@ -84,26 +84,30 @@ namespace Cyclops.VisualizationModules
         /// </summary>
         public override void PerformOperation()
         {
-            vgp.GetParameters(ModuleName, Parameters);
-
-            traceLog.Info("Producing Correlation Heatmap...");
-
-            if (CheckPassedParameters())
+            if (Model.SuccessRunningPipeline)
             {
-                CreatePlotsFolder();
+                Model.IncrementStep(ModuleName);
+                vgp.GetParameters(ModuleName, Parameters);
 
-                if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                traceLog.Info("Producing Correlation Heatmap...");
+
+                if (CheckPassedParameters())
                 {
-                    LoadLibraries();
-                    RunCorrelationAnalysis();
-                    CreatePlotFile();
-                }
-                else
-                {
-                    traceLog.Error("ERROR Correlation Heatmap module: " +
-                        vgp.TableName + " table was not found in the R workspace.\n" +
-                        "The Correlation Plot analysis can not continue without this " +
-                        "table present.");
+                    CreatePlotsFolder();
+
+                    if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                    {
+                        LoadLibraries();
+                        RunCorrelationAnalysis();
+                        CreatePlotFile();
+                    }
+                    else
+                    {
+                        traceLog.Error("ERROR Correlation Heatmap module: " +
+                            vgp.TableName + " table was not found in the R workspace.\n" +
+                            "The Correlation Plot analysis can not continue without this " +
+                            "table present.");
+                    }
                 }
             }
         }
@@ -146,29 +150,17 @@ namespace Cyclops.VisualizationModules
 
         private void LoadLibraries()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "require(Hmisc)\n" +
                 "require(gplots)\nrequire(grDevices)\n";
 
-            try
-            {
-                traceLog.Info("Correlation Heatmap class, loading libraries: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);
-            }
-            catch (ParseException pe)
-            {
-                traceLog.Error("PARSE ERROR Correlation Heatmap class: " + pe.ToString());
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Loading Libraries for Correlation Heatmap",
+                Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Correlation Heatmap class: " + exc.ToString());
-            }
         }
 
         private void RunCorrelationAnalysis()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_TemporaryTableName = GetTemporaryTableName();
 
             string s_RStatement = string.Format(
@@ -182,22 +174,10 @@ namespace Cyclops.VisualizationModules
                 !string.IsNullOrEmpty(vgp.Type) ? ", type=c(\"" + vgp.Type + "\")" : "",
                 vgp.CorrelationListName);
 
-
-            try
-            {
-                traceLog.Info("Preparing to run Correlation Heatmap: " + s_RStatement);
-                engine.EagerEvaluate(s_RStatement);              
-            }
-            catch (ParseException pe)
-            {
-                traceLog.Error("PARSE EXCEPTION Correlation Heatmap class: " + pe.ToString());
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Performing Correlation Analysis",
+                Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
-            }
-            catch (Exception exc)
-            {
-                Model.SuccessRunningPipeline = false;
-                traceLog.Error("ERROR Correlation Heatmap class: " + exc.ToString());
-            }
         }
 
         /// <summary>
@@ -205,7 +185,6 @@ namespace Cyclops.VisualizationModules
         /// </summary>
         private void CreatePlotFile()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "";
 
             string s_TmpPath = Path.Combine(vgp.WorkDir, "Plots", Path.GetFileName(vgp.PlotFileName));
@@ -247,20 +226,15 @@ namespace Cyclops.VisualizationModules
                 s_RStatement += "dev.off()\n";
                 s_RStatement = s_RStatement.Replace("\\", "/");
 
-                try
-                {
-                    traceLog.Info("Saving Correlation Heatmap: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (ParseException pe)
-                {
-                    traceLog.Error("PARSE EXCEPTION Correlation Heatmap class: " + pe.ToString());
+                if (Directory.Exists(Path.GetDirectoryName(vgp.PlotFileName)))
+                    traceLog.Info(Path.GetDirectoryName(vgp.PlotFileName) + " exists, and available to be written to...");
+                else
+                    traceLog.Error(Path.GetDirectoryName(vgp.PlotFileName) + " DOES NOT exist!");
+
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Saving Correlation Heatmap",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("ERROR Saving Correlation Heatmap: " + exc.ToString());
-                }
             }
         }
 

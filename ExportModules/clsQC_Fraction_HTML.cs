@@ -82,7 +82,7 @@ namespace Cyclops.ExportModules
         public clsQC_Fraction_HTML(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Quality Control Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -123,9 +123,13 @@ namespace Cyclops.ExportModules
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Preparing HTML file for 2D-LC Fraction QC...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
+                traceLog.Info("Preparing HTML file for 2D-LC Fraction QC...");
 
-            BuildHtmlFile();            
+                BuildHtmlFile();
+            }
         }        
 
         /// <summary>

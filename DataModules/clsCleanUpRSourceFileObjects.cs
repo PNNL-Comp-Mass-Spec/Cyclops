@@ -67,16 +67,22 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
-            CleanRSource();
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
+                CleanRSource();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         public void CleanRSource()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             string s_RStatement = "rm(list=objects2delete)\nrm(objects2delete)";
-            engine.EagerEvaluate(s_RStatement);
+            if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                "Cleaning R Workspace",
+                Model.StepNumber, Model.NumberOfModules))
+                Model.SuccessRunningPipeline = false;
         }
 
         /// <summary>

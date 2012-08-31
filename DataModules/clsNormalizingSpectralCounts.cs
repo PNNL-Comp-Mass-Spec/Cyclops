@@ -58,7 +58,7 @@ namespace Cyclops.DataModules
         public clsNormalizingSpectralCounts(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Normalizing Spectral Count Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -73,11 +73,12 @@ namespace Cyclops.DataModules
         /// </summary>
         public override void PerformOperation()
         {
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            traceLog.Info(ModuleName);          
-            
-
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -121,7 +122,6 @@ namespace Cyclops.DataModules
                 // Z-normalization (type = 2)
                 // Natural Log Preprocessing (type = 3)
                 // Hybrid (TS followed by Z) (type = 4)
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
 
                 string s_RStatement = string.Format(
                     "{0} <- jnb_NormalizeSpectralCounts({1}, type={2})",
@@ -129,16 +129,10 @@ namespace Cyclops.DataModules
                     dsp.InputTableName,
                     dsp.TableType);
 
-                try
-                {
-                    traceLog.Info("Normalizing Spectral Count Datasets: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Normalizing Spectral Count Datasets",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                    traceLog.Error("ERROR: Normalizing Spectral Count datasets: " + exc.ToString());
-                }
             }
         }
         #endregion

@@ -39,7 +39,7 @@ namespace Cyclops.DataModules
     public class clsQCPeptideOverlap : clsBaseDataModule
     {
         #region Variables
-        private string s_RInstance, s_Current_R_Statement = "";
+        private string s_RInstance;
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
@@ -70,7 +70,7 @@ namespace Cyclops.DataModules
         public clsQCPeptideOverlap(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "QC Peptide Overlap Module";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -82,11 +82,14 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            traceLog.Info("Performing QC Peptide Overlap on Datasets...");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            RunQC_on_Fractions();
+                RunQC_on_Fractions();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -118,7 +121,6 @@ namespace Cyclops.DataModules
 
         private void RunQC_on_Fractions()
         {
-            REngine engine = REngine.GetInstanceFromID(s_RInstance);
             dsp.GetParameters(ModuleName, Parameters);
 
             if (CheckPassedParameters())
@@ -128,18 +130,10 @@ namespace Cyclops.DataModules
                     dsp.NewTableName,
                     dsp.InputTableName);
 
-                try
-                {
-                    traceLog.Info("Executing QC Fraction Overlap Call in R: " +
-                        s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("ERROR Executing QC Fraction Overlap Call in R: " +
-                        exc.ToString());
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Executing QC Fraction Overlap Call in R",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                }
             }
         }
         #endregion

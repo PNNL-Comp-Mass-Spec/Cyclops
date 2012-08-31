@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsCyclopsModel.cs" />
+    <Compile Include="clsCyclopsProgressReporter.cs" />
     <Compile Include="DataModules\clsIDPicker.cs" />
     <Compile Include="clsMageDataTableSource.cs" />
     <Compile Include="clsMiscFunctions.cs" />

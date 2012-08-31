@@ -39,8 +39,8 @@ namespace Cyclops.DataModules
 
     public class clsCentralTendency : clsBaseDataModule
     {
-        #region Variables
-        private string s_RInstance, s_Current_R_Statement = "";
+        #region Members
+        private string s_RInstance;
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
@@ -71,7 +71,7 @@ namespace Cyclops.DataModules
         public clsCentralTendency(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             ModuleName = "Central Tendency";
-            Model = TheCyclopsModel;
+            Model = TheCyclopsModel;            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -83,11 +83,14 @@ namespace Cyclops.DataModules
         #region Methods
         public override void PerformOperation()
         {
-            traceLog.Info("Performing Central Tendency");
+            if (Model.SuccessRunningPipeline)
+            {
+                Model.IncrementStep(ModuleName);
 
-            NormalizeTheData();
+                NormalizeTheData();
 
-            RunChildModules();
+                RunChildModules();
+            }
         }
 
         /// <summary>
@@ -123,27 +126,19 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
-                REngine engine = REngine.GetInstanceFromID(s_RInstance);
                 string s_RStatement = "";
 
-                try
-                {
-                    s_RStatement = string.Format("{0} <- MeanCenter.Div(" +
-                        "Data={1}, Mean={2}, centerZero={3})",
-                        dsp.NewTableName,
-                        dsp.InputTableName,
-                        dsp.MeanCenter,
-                        dsp.Center);
-                        
+                s_RStatement = string.Format("{0} <- MeanCenter.Div(" +
+                    "Data={1}, Mean={2}, centerZero={3})",
+                    dsp.NewTableName,
+                    dsp.InputTableName,
+                    dsp.MeanCenter,
+                    dsp.Center);
 
-                    traceLog.Info("Central Tendency Statement: " + s_RStatement);
-                    engine.EagerEvaluate(s_RStatement);
-                }
-                catch (Exception exc)
-                {
-                    traceLog.Error("Error performing Central Tendency: " + exc.ToString());
+                if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
+                    "Central Tendency Statement",
+                    Model.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
-                }
             }
         }
         #endregion
