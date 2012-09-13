@@ -200,6 +200,18 @@ namespace Cyclops.DataModules
 
             return link;
         }
+
+        public bool AreDatasetAndColumnMetadataReady(
+            string InstanceOfR, string DataTableName,
+            string ColumnMetadataTableName, 
+            string ColumnMetadataFactor)
+        {
+            bool b_Return = true;
+
+
+
+            return b_Return;
+        }
         #endregion
     }
 

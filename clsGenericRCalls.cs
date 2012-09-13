@@ -34,6 +34,11 @@ namespace Cyclops
     /// </summary>
     public static class clsGenericRCalls
     {
+        #region Enums
+        public enum ReturnTypes { TablesAndVectors, Tables,
+            Vectors, Functions, Lists, TablesVectorsAndLists };
+        #endregion
+
         #region Functions
         /// <summary>
         /// Creates a new instance of the R workspace
@@ -48,6 +53,35 @@ namespace Cyclops
             try
             {
                 engine = REngine.CreateInstance(InstanceName, new[] { "-q" }); // quiet mode
+                return true;
+            }
+            catch (ParseException pe)
+            {
+                traceLog.Error("ERROR Parse Exception Creating Instance " +
+                    "\n" + pe.ToString());
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Exception Creating Instance " +
+                    "\n" + exc.ToString());
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Creates a new instance of the R workspace
+        /// </summary>
+        /// <param name="InstanceName">Name of Instance</param>
+        /// <returns></returns>
+        public static bool CreateInstance(string InstanceName)
+        {
+            ILog traceLog = LogManager.GetLogger("TraceLog");
+
+            traceLog.Info("Creating Instance of R Workspace...");
+            try
+            {
+                REngine engine = REngine.CreateInstance(InstanceName, new[] { "-q" }); // quiet mode
                 return true;
             }
             catch (ParseException pe)
@@ -120,6 +154,74 @@ namespace Cyclops
         }
 
         /// <summary>
+        /// Runs a call in the R environment without logging
+        /// </summary>
+        /// <param name="Command">R Command to pass to the environment</param>
+        /// <param name="Instance">Instance of the R workspace</param>
+        /// <returns>null if completed successfully, otherwise error message</returns>
+        public static string RunWithoutLogging(string Command,
+            string Instance, string SummaryStatement)
+        {
+            string s_Return = null;
+
+            REngine engine = REngine.GetInstanceFromID(Instance);
+            StringWriter sw = new StringWriter();
+            Console.SetOut(sw);
+
+            try
+            {
+                engine.EagerEvaluate(Command);
+            }
+            catch (ParseException pe)
+            {
+                s_Return = "ERROR ParseException Running " +
+                    SummaryStatement + "\n" + pe.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n";
+            }
+            catch (IOException ioe)
+            {
+                s_Return = "ERROR IOException Running " +
+                    SummaryStatement + "\n" + ioe.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n";
+            }
+            catch (AccessViolationException ave)
+            {
+                s_Return = "ERROR AccessViolationException Running " +
+                    SummaryStatement + "\n" + ave.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n";
+            }
+            catch (Exception exc)
+            {
+                s_Return = "ERROR Exception Running " +
+                    SummaryStatement + "\n" + exc.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n";
+            }
+
+            return s_Return;
+        }
+
+        /// <summary>
+        /// Loads an R Workspace into the environment
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of the R workspace</param>
+        /// <param name="FilePath">Full path to the RData file</param>
+        /// <returns>True if loaded successfully</returns>
+        public static bool LoadRWorkspace(string InstanceOfR,
+            string FilePath)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+
+            FilePath = FilePath.Replace('\\', '/');
+            string s_Command = string.Format(
+                        "load(\"{0}\")",
+                        FilePath);
+
+            return Run(s_Command, InstanceOfR,
+                "Loading R Workspace",
+                null, null);
+        }
+
+        /// <summary>
         /// Returns the version of R being run
         /// </summary>
         /// <param name="InstanceOfR">Instance of the R workspace</param>
@@ -181,6 +283,159 @@ namespace Cyclops
                 l_Return.Add(s);
             }
             return l_Return;
+        }
+
+        /// <summary>
+        /// Return objects in the R workspace that meet the
+        /// acceptable criteria
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="TypeOfObjects">Criteria for acceptable</param>
+        /// <returns></returns>
+        public static List<string> GetObjects(string InstanceOfR,
+            ReturnTypes TypeOfObjects)
+        {
+            List<string> l_All = ls(InstanceOfR);
+
+            foreach (string l in l_All)
+            {
+                string s = GetClassOfObject(InstanceOfR, l);
+                if (!AcceptableType(s, TypeOfObjects))
+                    l_All.Remove(s);
+            }
+
+            return l_All;
+        }
+
+        /// <summary>
+        /// Indicates if the given type meets the 
+        /// specified criteria
+        /// </summary>
+        /// <param name="Type">R type</param>
+        /// <param name="AcceptableType">Criteria</param>
+        /// <returns></returns>
+        public static bool AcceptableType(string Type,
+            ReturnTypes AcceptableType)
+        {
+            switch (AcceptableType)
+            {
+                case ReturnTypes.TablesVectorsAndLists:
+                    switch (Type)
+                    {
+                        case "data.frame":
+                            return true;
+                        case "matrix":
+                            return true;
+                        case "list":
+                            return true;
+                        case "character":
+                            return true;
+                        case "numeric":
+                            return true;
+                    }
+                    break;
+                case ReturnTypes.Functions:
+                    switch (Type)
+                    {
+                        case "function":
+                            return true;
+                    }
+                    break;
+                case ReturnTypes.Lists:
+                    switch (Type)
+                    {
+                        case "list":
+                            return true;
+                    }
+                    break;
+                case ReturnTypes.Tables:
+                    switch (Type)
+                    {
+                        case "data.frame":
+                            return true;
+                        case "matrix":
+                            return true;
+                    }
+                    break;
+                case ReturnTypes.Vectors:
+                    switch (Type)
+                    {
+                        case "character":
+                            return true;
+                        case "numeric":
+                            return true;
+                    }
+                    break;
+                case ReturnTypes.TablesAndVectors:
+                    switch (Type)
+                    {
+                        case "data.frame":
+                            return true;
+                        case "matrix":
+                            return true;
+                        case "character":
+                            return true;
+                        case "numeric":
+                            return true;
+                    }
+                    break;
+            }
+            return false;
+        }
+
+        public static List<string> ConnectLoadAndGetObjects(string InstanceOfR, 
+            string FilePath, ReturnTypes TypeOfObjects)
+        {
+            List<string> l_Return = new List<string>();
+
+            StringWriter sw = new StringWriter();
+            ILog traceLog = LogManager.GetLogger("TraceLog");
+            string SummaryStatement = "Connecting, Loading, and Retrieving Objects";
+
+            traceLog.Info("Creating Instance of R Workspace...");
+            try
+            {
+                REngine engine = REngine.CreateInstance(InstanceOfR, new[] { "-q" }); // quiet mode
+                FilePath = FilePath.Replace('\\', '/');
+                string s_Command = string.Format(
+                            "load(\"{0}\")\n",
+                            FilePath);
+                s_Command += "ls()";
+                CharacterVector cv = engine.EagerEvaluate(s_Command).AsCharacter();
+                foreach (string s in cv)
+                {
+                    string s_Class = GetClassOfObject(InstanceOfR, s);
+                    if (AcceptableType(s_Class, TypeOfObjects))
+                        l_Return.Add(s);
+                }
+            }
+            catch (ParseException pe)
+            {
+                traceLog.Error("ERROR ParseException Running " +
+                    SummaryStatement + "\n" + pe.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n");  
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Exception Running " +
+                    SummaryStatement + "\n" + exc.ToString() + "\n\n" +
+                    "R ERROR MESSAGE: " + sw.ToString() + "\n\n");
+            }
+
+            return l_Return;
+        }
+
+        public static string GetStatement(string InstanceOfR,
+            string Command)
+        {
+            string s_Return = null;
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            CharacterVector cv = engine.EagerEvaluate(Command).AsCharacter();
+            foreach (string s in cv)
+            {
+                s_Return += s + ";";
+            }
+            return s_Return.Trim();
         }
 
         /// <summary>
@@ -930,6 +1185,79 @@ namespace Cyclops
             {
                 return exc.ToString();
             }
+        }
+
+        /// <summary>
+        /// Sets the System Environment Variable R_HOME
+        /// </summary>
+        /// <param name="rHome">Version of R being run, 
+        /// if you don't know pass Null or empty string and 
+        /// the function will search for it</param>
+        /// <param name="ThirtyTwoBit">True if using 32-bit
+        /// RdotNet dll, False if 64-bit</param>
+        public static void Set_R_Home_Variable(string rVersion, bool IsThirtyTwoBit)
+        {
+            ILog traceLog = LogManager.GetLogger("TraceLog");
+
+            string rHome = System.Environment.GetEnvironmentVariable("R_HOME"),
+                s_ProgramFilesPath = @"C:\Program Files",
+                s_BitFolderPath = IsThirtyTwoBit ? @"\bin\i386" : @"\bin\x64",
+                s_FinalPath = "";
+            try
+            {
+                if (!string.IsNullOrEmpty(rVersion))
+                {
+                    if (!rVersion.StartsWith("R-"))
+                        rVersion = "R-" + rVersion;
+
+                    rVersion = Path.Combine(s_ProgramFilesPath,
+                        "R", rVersion);
+                }
+
+                if (string.IsNullOrEmpty(rHome))
+                {
+                    // if nothing is passed in or the version
+                    // does not exist,
+                    // grab the latest version on the 
+                    // local machine
+                    if (string.IsNullOrEmpty(rVersion) ||
+                        !Directory.Exists(rVersion))
+                    {
+                        string s = @"C:\Program Files\R";
+                        string[] d = Directory.GetDirectories(s);
+
+                        for (int i = 0; i < d.Length; i++)
+                        {
+                            if (i == 0)
+                                rVersion = d[i];
+                            else
+                            {
+                                int c = string.Compare(rVersion, d[i]);
+                                if (c < 0)
+                                    rVersion = d[i];
+                            }
+                        }
+                    }
+
+                    rHome = rVersion;
+
+                }
+
+                System.Environment.SetEnvironmentVariable("R_HOME", rHome);
+                s_FinalPath = System.Environment.GetEnvironmentVariable("PATH") +
+                    ";" + rHome + s_BitFolderPath;
+                System.Environment.SetEnvironmentVariable("PATH",
+                    s_FinalPath);
+            }
+            catch (Exception exc)
+            {
+                traceLog.Error("ERROR Setting R_HOME to " +
+                    Path.Combine(rHome, s_BitFolderPath) +
+                    "\nERROR: " + exc.ToString());
+            }
+
+            traceLog.Info("Setting \"R_HOME\":\n\t" +
+                rHome + s_BitFolderPath);
         }
         #endregion
 

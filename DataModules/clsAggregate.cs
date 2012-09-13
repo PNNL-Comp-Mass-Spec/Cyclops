@@ -24,7 +24,7 @@ using System.Linq;
 using System.Text;
 
 using log4net;
-using RDotNet;
+//using RDotNet;
 
 namespace Cyclops.DataModules
 {
@@ -197,20 +197,12 @@ namespace Cyclops.DataModules
                                 dsp.Function);
                         }
 
-                        REngine engine = REngine.GetInstanceFromID(s_RInstance);                                                
+                        Model.SuccessRunningPipeline = clsGenericRCalls.Run(
+                            s_RStatement, s_RInstance,
+                            "Aggregating Datasets",
+                            Model.StepNumber,
+                            Model.NumberOfModules);
                         
-                        try
-                        {
-                            traceLog.Info("Aggregating datasets: " + s_RStatement);
-                            s_Current_R_Statement = s_RStatement;
-                            engine.EagerEvaluate(s_RStatement);
-                        }
-                        catch (Exception exc)
-                        {
-                            Model.SuccessRunningPipeline = false;
-                            traceLog.Error("ERROR: Aggregating data: " + exc.ToString());
-                        }
-
                         // Now make an aggregate Column_Metadata table
                         s_RStatement = string.Format(
                             "Agg_{0} <- as.data.frame(unique(cbind({1}{2}{3})))",
@@ -222,21 +214,11 @@ namespace Cyclops.DataModules
                             !string.IsNullOrEmpty(dsp.RandomEffect) ?
                             ", " + dsp.RandomEffect + "=" + dsp.FactorTable +
                             "$" + dsp.RandomEffect : "");
-
-                        try
-                        {
-                            traceLog.Info("Constructing Aggregated Column Metadata table: " +
-                                s_RStatement);
-                            s_Current_R_Statement = s_RStatement;
-                            engine.EagerEvaluate(s_RStatement);
-                        }
-                        catch (Exception exc)
-                        {
-                            Model.SuccessRunningPipeline = false;
-                            traceLog.Error("ERROR: Constructing Aggregated Column Metadata table: " + 
-                                exc.ToString());
-                        }
-
+                        
+                        Model.SuccessRunningPipeline = clsGenericRCalls.Run(
+                            s_RStatement, s_RInstance,
+                            "Constructing Aggregated Column Metadata table",
+                            Model.StepNumber, Model.NumberOfModules);
                     }
                     else
                     {

@@ -200,6 +200,22 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
+                case "CleanDataAndColumnFactors":
+                    DataModules.clsCleanDataAndColumnFactors cleanUp = new DataModules.clsCleanDataAndColumnFactors(Model, s_RInstance);
+                    cleanUp.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = cleanUp;
+                        CurrentNode = cleanUp;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(cleanUp);
+                        CurrentNode = cleanUp;
+                        Model.NumberOfModules++;
+                    }
+                    break;
                 case "LoadRSourceFiles":
                     DataModules.clsRSourceFileModule load = new DataModules.clsRSourceFileModule(Model, s_RInstance);
                     load.Parameters = GetParameters(Rows);

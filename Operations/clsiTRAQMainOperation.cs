@@ -229,6 +229,22 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
+                case "CleanDataAndColumnFactors":
+                    DataModules.clsCleanDataAndColumnFactors cleanUp = new DataModules.clsCleanDataAndColumnFactors(Model, s_RInstance);
+                    cleanUp.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = cleanUp;
+                        CurrentNode = cleanUp;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(cleanUp);
+                        CurrentNode = cleanUp;
+                        Model.NumberOfModules++;
+                    }
+                    break;
                 case "FilterByTable":
                     DataModules.clsFilterByAnotherTable filterByTable = new DataModules.clsFilterByAnotherTable(Model, s_RInstance);
                     filterByTable.Parameters = GetParameters(Rows);

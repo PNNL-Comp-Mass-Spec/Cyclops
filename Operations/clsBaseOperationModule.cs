@@ -77,7 +77,7 @@ namespace Cyclops.Operations
 
             foreach (KeyValuePair<string, string> kvp in Model.CyclopsParameters)
             {
-                d_Params.Add(kvp.Key, kvp.Value);
+                d_Params.Add(kvp.Key, kvp.Value.Trim());
             }
 
             // initialize the Parameters with 'workDir'
@@ -85,7 +85,7 @@ namespace Cyclops.Operations
 
             foreach (DataRow dr in Parameters)
             {
-                d_Params.Add(dr["Parameter"].ToString(), dr["Value"].ToString());
+                d_Params.Add(dr["Parameter"].ToString(), dr["Value"].ToString().Trim());
             }
             return d_Params;
         }

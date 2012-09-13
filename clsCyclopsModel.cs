@@ -50,6 +50,14 @@ namespace Cyclops
         private BackgroundWorker m_bgw = new BackgroundWorker();
         #endregion
 
+        #region Properties
+        public string InstanceOfR
+        {
+            get { return s_RInstance; }
+            set { s_RInstance = value; }
+        }
+        #endregion
+
         #region Constructors
         /// <summary>
         /// Basic constructor for the Model class
@@ -57,7 +65,9 @@ namespace Cyclops
         public clsCyclopsModel()
         {
             s_RInstance = "rCore";
-            Set_R_Home_Variable("2.14.2", true);
+
+            REngine.SetDllDirectory(@"C:\Program Files\R\R-2.14.2\bin\i386");
+            clsGenericRCalls.Set_R_Home_Variable("2.14.2", true);            
         }
 
         /// <summary>
@@ -66,7 +76,7 @@ namespace Cyclops
         /// <param name="ParametersForCyclops">Parameters for running cyclops</param>
         public clsCyclopsModel(Dictionary<string, string> ParametersForCyclops)
         {
-            Set_R_Home_Variable("2.14.2", true);
+            clsGenericRCalls.Set_R_Home_Variable("2.14.2", true);
             string value = "";
             d_CyclopsParameters = ParametersForCyclops;
             CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("PipelineID"),
@@ -100,7 +110,7 @@ namespace Cyclops
         public clsCyclopsModel(Dictionary<string, string> ParametersForCyclops,
             BackgroundWorker worker)
         {
-            Set_R_Home_Variable("2.14.2", true);
+            clsGenericRCalls.Set_R_Home_Variable("2.14.2", true);
             string value = "";
             d_CyclopsParameters = ParametersForCyclops;
             CyclopsParameters.TryGetValue(clsCyclopsParametersKey.GetParameterName("PipelineID"),
@@ -134,7 +144,7 @@ namespace Cyclops
         /// <param name="RDLL">Path to R DLL</param>
         public clsCyclopsModel(string RDLL)
         {
-            Set_R_Home_Variable("2.14.2", true);
+            clsGenericRCalls.Set_R_Home_Variable("2.14.2", true);
             REngine.SetDllDirectory(RDLL);
             s_RInstance = "rCore";
         }
@@ -368,77 +378,7 @@ namespace Cyclops
             }
         }
 
-        /// <summary>
-        /// Sets the System Environment Variable R_HOME
-        /// </summary>
-        /// <param name="rHome">Version of R being run, 
-        /// if you don't know pass Null or empty string and 
-        /// the function will search for it</param>
-        /// <param name="ThirtyTwoBit">True if using 32-bit
-        /// RdotNet dll, False if 64-bit</param>
-        private void Set_R_Home_Variable(string rVersion, bool ThirtyTwoBit)
-        {
-            
-            string rHome = System.Environment.GetEnvironmentVariable("R_HOME"),
-                s_ProgramFilesPath = @"C:\Program Files",
-                s_BitFolderPath = ThirtyTwoBit ? @"\bin\i386" : @"\bin\x64",
-                s_FinalPath = "";
-            try
-            {
-                if (!string.IsNullOrEmpty(rVersion))
-                {
-                    if (!rVersion.StartsWith("R-"))
-                        rVersion = "R-" + rVersion;
-
-                    rVersion = Path.Combine(s_ProgramFilesPath,
-                        "R", rVersion);
-                }
-
-                if (string.IsNullOrEmpty(rHome))
-                {
-                    // if nothing is passed in or the version
-                    // does not exist,
-                    // grab the latest version on the 
-                    // local machine
-                    if (string.IsNullOrEmpty(rVersion) ||
-                        !Directory.Exists(rVersion))
-                    {
-                        string s = @"C:\Program Files\R";
-                        string[] d = Directory.GetDirectories(s);
-
-                        for (int i = 0; i < d.Length; i++)
-                        {
-                            if (i == 0)
-                                rVersion = d[i];
-                            else
-                            {
-                                int c = string.Compare(rVersion, d[i]);
-                                if (c < 0)
-                                    rVersion = d[i];
-                            }
-                        }
-                    }
-
-                    rHome = rVersion;
-
-                }
-
-                System.Environment.SetEnvironmentVariable("R_HOME", rHome);
-                s_FinalPath = System.Environment.GetEnvironmentVariable("PATH") +
-                    ";" + rHome + s_BitFolderPath;
-                System.Environment.SetEnvironmentVariable("PATH", 
-                    s_FinalPath);
-            }
-            catch (Exception exc)
-            {
-                traceLog.Error("ERROR Setting R_HOME to " + 
-                    Path.Combine(rHome, s_BitFolderPath) + 
-                    "\nERROR: " + exc.ToString());
-            }
-
-            traceLog.Info("Setting \"R_HOME\":\n\t" +
-                rHome + s_BitFolderPath);
-        }
+        
 
         /// <summary>
         /// Updates the model to let it know that a new step is 
