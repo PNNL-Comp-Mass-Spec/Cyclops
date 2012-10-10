@@ -245,6 +245,22 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
+                case "FilterByPeptideProteinCount":
+                    DataModules.clsFilterByPeptideProteinCount filterByPepProtCnt = new DataModules.clsFilterByPeptideProteinCount(Model, s_RInstance);
+                    filterByPepProtCnt.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = filterByPepProtCnt;
+                        CurrentNode = filterByPepProtCnt;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(filterByPepProtCnt);
+                        CurrentNode = filterByPepProtCnt;
+                        Model.NumberOfModules++;
+                    }
+                    break; 
                 case "FilterByTable":
                     DataModules.clsFilterByAnotherTable filterByTable = new DataModules.clsFilterByAnotherTable(Model, s_RInstance);
                     filterByTable.Parameters = GetParameters(Rows);
@@ -274,6 +290,22 @@ namespace Cyclops.Operations
                     {
                         CurrentNode.AddDataChild(fc);
                         CurrentNode = fc;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "Kbase":
+                    DataModules.clsKBaseFormat kbase = new DataModules.clsKBaseFormat(Model, s_RInstance);
+                    kbase.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = kbase;
+                        CurrentNode = kbase;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(kbase);
+                        CurrentNode = kbase;
                         Model.NumberOfModules++;
                     }
                     break;

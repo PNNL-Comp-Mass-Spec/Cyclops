@@ -137,6 +137,17 @@ namespace Cyclops.VisualizationModules
                 b_2Param = false;
                 Model.SuccessRunningPipeline = false;
             }
+            if (!string.IsNullOrEmpty(vgp.ColumnFactorTable))
+            {
+                List<string> l_FactorTableColNames = clsGenericRCalls.GetColumnNames(
+                s_RInstance,
+                vgp.ColumnFactorTable);
+
+                if (l_FactorTableColNames.Count == 1)
+                    if (!l_FactorTableColNames[0].Equals(
+                        vgp.ConsolidationFactor))
+                        vgp.ConsolidationFactor = l_FactorTableColNames[0];
+            }
 
             // if the table does not exist, do not throw an cyclops error, but do not plot boxplots
             // this is because Linear Regression only runs if there is a consolidation factor
@@ -148,6 +159,8 @@ namespace Cyclops.VisualizationModules
                     "' was not found in the R workspace!");
                 b_2Param = false;
             }
+                        
+            
 
             return b_2Param;
         }

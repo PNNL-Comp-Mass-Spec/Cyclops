@@ -370,6 +370,21 @@ namespace Cyclops
                                                 i_ModuleCounter++;
                                             }
                                             break;
+                                        case "FilterByPeptideProteinCount":
+                                            DataModules.clsFilterByPeptideProteinCount filterByPepProtCnt = new DataModules.clsFilterByPeptideProteinCount(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = filterByPepProtCnt;
+                                                currentNode = filterByPepProtCnt;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(filterByPepProtCnt);
+                                                currentNode = filterByPepProtCnt;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
                                         case "FoldChange":
                                             DataModules.clsFoldChange fc = new DataModules.clsFoldChange(Model, InstanceOfR);
                                             if (root == null)
@@ -397,6 +412,21 @@ namespace Cyclops
                                             {
                                                 currentNode.AddDataChild(import);
                                                 currentNode = import;
+                                                i_ModuleCounter++;
+                                            }
+                                            break;
+                                        case "Kbase":
+                                            DataModules.clsKBaseFormat kbase = new DataModules.clsKBaseFormat(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = kbase;
+                                                currentNode = kbase;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(kbase);
+                                                currentNode = kbase;
                                                 i_ModuleCounter++;
                                             }
                                             break;
@@ -660,7 +690,6 @@ namespace Cyclops
                                             }
                                             else
                                             {
-                                                traceLog.Info("Adding Barplot module from XML...");
                                                 currentNode.AddVisualChild(bar);
                                                 i_ModuleCounter++;
                                             }
@@ -673,7 +702,6 @@ namespace Cyclops
                                             }
                                             else
                                             {
-                                                traceLog.Info("Adding Boxplot module from XML...");
                                                 currentNode.AddVisualChild(box);
                                                 i_ModuleCounter++;
                                             }
@@ -688,7 +716,6 @@ namespace Cyclops
                                             }
                                             else
                                             {
-                                                traceLog.Info("Adding Correlation Heatmap module from XML...");
                                                 currentNode.AddVisualChild(corrHeat);
                                                 i_ModuleCounter++;
                                             }
@@ -702,7 +729,6 @@ namespace Cyclops
                                             }
                                             else
                                             {
-                                                traceLog.Info("Adding Heatmap module from XML...");
                                                 currentNode.AddVisualChild(heat);
                                                 i_ModuleCounter++;
                                             }
@@ -716,7 +742,6 @@ namespace Cyclops
                                             }
                                             else
                                             {
-                                                traceLog.Info("Adding Hexbin module from XML...");
                                                 currentNode.AddVisualChild(hexbin);
                                                 i_ModuleCounter++;
                                             }
@@ -730,7 +755,6 @@ namespace Cyclops
                                             }
                                             else
                                             {
-                                                traceLog.Info("Adding Histogram module from XML...");
                                                 currentNode.AddVisualChild(hist);
                                                 i_ModuleCounter++;
                                             }
@@ -744,7 +768,6 @@ namespace Cyclops
                                             }
                                             else
                                             {
-                                                traceLog.Info("Adding QC Fraction Heatmap module from XML...");
                                                 currentNode.AddVisualChild(fractionHeat);
                                                 i_ModuleCounter++;
                                             }

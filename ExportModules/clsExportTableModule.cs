@@ -91,12 +91,12 @@ namespace Cyclops.ExportModules
 
                 if (CheckPassedParameters())
                 {
-                    switch (esp.Source)
+                    switch (esp.Source.ToUpper())
                     {
                         case "R":
                             ExportFromR();
                             break;
-                        case "sqlite":
+                        case "SQLITE":
                             ExportFromSQLite();
                             break;
                     }
@@ -108,9 +108,9 @@ namespace Cyclops.ExportModules
         {
             string s_Command = "";
 
-            switch (esp.Target)
+            switch (esp.Target.ToUpper())
             {
-                case "sqlite":
+                case "SQLITE":
                     if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
                     {
                         ConnectToSQLiteDatabase();
@@ -133,7 +133,7 @@ namespace Cyclops.ExportModules
                             "and therefore was not exported to the sqlite database.");
                     }
                     break;
-                case "csv":
+                case "CSV":
                     if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
                     {
                         if (esp.HasFileName)
@@ -171,7 +171,7 @@ namespace Cyclops.ExportModules
                                "and therefore was not exported to csv file.");
                     }
                     break;
-                case "tsv":
+                case "TSV":
                     if (clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
                     {
                         if (esp.HasFileName)
@@ -209,10 +209,10 @@ namespace Cyclops.ExportModules
                                "and therefore was not exported to tsv file.");
                     }
                     break;
-                case "access":
+                case "ACCESS":
 
                     break;
-                case "sqlserver":
+                case "SQLSERVER":
 
                     break;
             }
@@ -220,9 +220,9 @@ namespace Cyclops.ExportModules
 
         private void ExportFromSQLite()
         {
-            if (esp.Target.Equals("tsv") ||
-                esp.Target.Equals("txt") ||
-                esp.Target.Equals("csv"))
+            if (esp.Target.ToLower().Equals("tsv") ||
+                esp.Target.ToLower().Equals("txt") ||
+                esp.Target.ToLower().Equals("csv"))
             {
                 SQLiteReader reader = new SQLiteReader();
                 reader.Database = Path.Combine(esp.WorkDirectory, esp.InputFileName);

@@ -117,24 +117,31 @@ namespace Cyclops.Operations
             {
                 case LbfTypes.Log2:
                     s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2];
+                    traceLog.Info("Running LabelFree Operation, table: " + s_LabelFreeTableName);
                     break;
                 case LbfTypes.Log2LR:
                     s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2LR];
+                    traceLog.Info("Running LabelFree Operation, table: " + s_LabelFreeTableName);
                     break;
                 case LbfTypes.Log2CT:
                     s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2CT];
+                    traceLog.Info("Running LabelFree Operation, table: " + s_LabelFreeTableName);
                     break;
                 case LbfTypes.Log2All:
                     s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.Log2All];
+                    traceLog.Info("Running LabelFree Operation, table: " + s_LabelFreeTableName);
                     break;
                 case LbfTypes.AnovaPractice:
                     s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.AnovaPractice];
+                    traceLog.Info("Running LabelFree Operation, table: " + s_LabelFreeTableName);
                     break;
                 case LbfTypes.MainAnovaPractice:
                     s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.MainAnovaPractice];
+                    traceLog.Info("Running LabelFree Operation, table: " + s_LabelFreeTableName);
                     break;
                 case LbfTypes.HtmlPractice:
                     s_LabelFreeTableName = s_LabelFreeTableNames[(int)LbfTypes.HtmlPractice];
+                    traceLog.Info("Running LabelFree Operation, table: " + s_LabelFreeTableName);
                     break;
             }
         }
@@ -268,6 +275,22 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
+                case "FilterByPeptideProteinCount":
+                    DataModules.clsFilterByPeptideProteinCount filterByPepProtCnt = new DataModules.clsFilterByPeptideProteinCount(Model, s_RInstance);
+                    filterByPepProtCnt.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = filterByPepProtCnt;
+                        CurrentNode = filterByPepProtCnt;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(filterByPepProtCnt);
+                        CurrentNode = filterByPepProtCnt;
+                        Model.NumberOfModules++;
+                    }
+                    break; 
                 case "FilterByTable":
                     DataModules.clsFilterByAnotherTable filterByTable = new DataModules.clsFilterByAnotherTable(Model, s_RInstance);
                     filterByTable.Parameters = GetParameters(Rows);
@@ -297,6 +320,22 @@ namespace Cyclops.Operations
                     {
                         CurrentNode.AddDataChild(fc);
                         CurrentNode = fc;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "Kbase":
+                    DataModules.clsKBaseFormat kbase = new DataModules.clsKBaseFormat(Model, s_RInstance);
+                    kbase.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = kbase;
+                        CurrentNode = kbase;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(kbase);
+                        CurrentNode = kbase;
                         Model.NumberOfModules++;
                     }
                     break;

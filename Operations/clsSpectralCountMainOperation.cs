@@ -200,6 +200,38 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
+                case "BetaBinomial":
+                    DataModules.clsBetaBinomialModelModule betaB = new DataModules.clsBetaBinomialModelModule(Model, s_RInstance);
+                    betaB.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = betaB;
+                        CurrentNode = Root;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(betaB);
+                        CurrentNode = betaB;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "Clean":
+                    DataModules.clsCleanUpRSourceFileObjects clean = new DataModules.clsCleanUpRSourceFileObjects(Model, s_RInstance);
+                    clean.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = clean;
+                        CurrentNode = Root;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(clean);
+                        CurrentNode = clean;
+                        Model.NumberOfModules++;
+                    }
+                    break;
                 case "CleanDataAndColumnFactors":
                     DataModules.clsCleanDataAndColumnFactors cleanUp = new DataModules.clsCleanDataAndColumnFactors(Model, s_RInstance);
                     cleanUp.Parameters = GetParameters(Rows);
@@ -216,22 +248,22 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
-                case "LoadRSourceFiles":
-                    DataModules.clsRSourceFileModule load = new DataModules.clsRSourceFileModule(Model, s_RInstance);
-                    load.Parameters = GetParameters(Rows);
+                case "FilterByPeptideProteinCount":
+                    DataModules.clsFilterByPeptideProteinCount filterByPepProtCnt = new DataModules.clsFilterByPeptideProteinCount(Model, s_RInstance);
+                    filterByPepProtCnt.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
-                        Root = load;
-                        CurrentNode = Root;
+                        Root = filterByPepProtCnt;
+                        CurrentNode = filterByPepProtCnt;
                         Model.NumberOfModules++;
                     }
                     else
                     {
-                        CurrentNode.AddDataChild(load);
-                        CurrentNode = load;
+                        CurrentNode.AddDataChild(filterByPepProtCnt);
+                        CurrentNode = filterByPepProtCnt;
                         Model.NumberOfModules++;
                     }
-                    break;
+                    break;                
                 case "Import":
                     DataModules.clsImportDataModule import = new DataModules.clsImportDataModule(Model, s_RInstance);
                     import.Parameters = GetParameters(Rows);
@@ -245,6 +277,38 @@ namespace Cyclops.Operations
                     {
                         CurrentNode.AddDataChild(import);
                         CurrentNode = import;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "Kbase":
+                    DataModules.clsKBaseFormat kbase = new DataModules.clsKBaseFormat(Model, s_RInstance);
+                    kbase.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = kbase;
+                        CurrentNode = kbase;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(kbase);
+                        CurrentNode = kbase;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "LoadRSourceFiles":
+                    DataModules.clsRSourceFileModule load = new DataModules.clsRSourceFileModule(Model, s_RInstance);
+                    load.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = load;
+                        CurrentNode = Root;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(load);
+                        CurrentNode = load;
                         Model.NumberOfModules++;
                     }
                     break;
@@ -279,23 +343,7 @@ namespace Cyclops.Operations
                         CurrentNode = protProph;
                         Model.NumberOfModules++;
                     }
-                    break;
-                case "BetaBinomial":
-                    DataModules.clsBetaBinomialModelModule betaB = new DataModules.clsBetaBinomialModelModule(Model, s_RInstance);
-                    betaB.Parameters = GetParameters(Rows);
-                    if (Root == null)
-                    {
-                        Root = betaB;
-                        CurrentNode = Root;
-                        Model.NumberOfModules++;
-                    }
-                    else
-                    {
-                        CurrentNode.AddDataChild(betaB);
-                        CurrentNode = betaB;
-                        Model.NumberOfModules++;
-                    }
-                    break;
+                    break;                
                 case "QuasiTel":
                     DataModules.clsQuasiTel quasi = new DataModules.clsQuasiTel(Model, s_RInstance);
                     quasi.Parameters = GetParameters(Rows);
@@ -311,23 +359,7 @@ namespace Cyclops.Operations
                         CurrentNode = quasi;
                         Model.NumberOfModules++;
                     }
-                    break;
-                case "Clean":
-                    DataModules.clsCleanUpRSourceFileObjects clean = new DataModules.clsCleanUpRSourceFileObjects(Model, s_RInstance);
-                    clean.Parameters = GetParameters(Rows);
-                    if (Root == null)
-                    {
-                        Root = clean;
-                        CurrentNode = Root;
-                        Model.NumberOfModules++;
-                    }
-                    else
-                    {
-                        CurrentNode.AddDataChild(clean);
-                        CurrentNode = clean;
-                        Model.NumberOfModules++;
-                    }
-                    break;
+                    break;                
                 case "SummarizeData":
                     DataModules.clsSummarizeData summarizeData = new DataModules.clsSummarizeData(Model, s_RInstance);
                     summarizeData.Parameters = GetParameters(Rows);
@@ -412,7 +444,7 @@ namespace Cyclops.Operations
             switch (s_Module)
             {
                 case "Histogram":
-                    VisualizationModules.clsHistogram histogram = new VisualizationModules.clsHistogram(s_RInstance);
+                    VisualizationModules.clsHistogram histogram = new VisualizationModules.clsHistogram(Model, s_RInstance);
                     histogram.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {

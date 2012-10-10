@@ -140,7 +140,7 @@ namespace Cyclops.DataModules
 
             string s_RStatement = string.Format(
                 "{0} <- cbind(\"{3}\"=colnames({1}))\n" +
-                "{2} <- merge(x={0}, y={2}, by.x=\"{3}\", by.y=\"{3}\", , all.x=T, all.y=F, sort=F)\n" +
+                "{2} <- merge(x={0}, y={2}, by.x=\"{3}\", by.y=\"{3}\", all.x=T, all.y=F, sort=F)\n" +
                 "rm({0})",
                 s_TmpTable,
                 NameOfDataTable,

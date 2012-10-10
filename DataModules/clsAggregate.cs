@@ -113,18 +113,21 @@ namespace Cyclops.DataModules
                     dsp.InputTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
-            if (!string.IsNullOrEmpty(dsp.FactorTable) &&
+            if (!string.IsNullOrEmpty(dsp.FactorColumn))
+            {
+                if (!dsp.FactorComplete.EndsWith(dsp.FactorColumn))
+                    dsp.FactorComplete = dsp.FactorColumn;
+            }
+            else if (!string.IsNullOrEmpty(dsp.FactorTable) &&
                 !string.IsNullOrEmpty(dsp.ConsolidationFactor))
             {
                 dsp.FactorComplete = dsp.FactorTable + "$" + dsp.ConsolidationFactor;                
-            }
-            else if (!string.IsNullOrEmpty(dsp.FactorColumn))
-            {
-                dsp.FactorComplete = dsp.FactorColumn;
-            }
+            }             
             else
             {
                 /// Unable to set FactorComplete -> Fail
+                traceLog.Error("ERROR: Aggregation class: both Consolidation Factor " +
+                    "and FactorColumn were null or empty!");
                 b_2Pass = false;
             }
             if (!dsp.HasMargin)
@@ -162,39 +165,67 @@ namespace Cyclops.DataModules
                     if (clsGenericRCalls.TableContainsColumn(s_RInstance, dsp.FactorTable,
                         dsp.FactorColumn))
                     {
-                        GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
-                            dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
-                            Model.NumberOfModules);
-
                         List<int> l_DimData = clsGenericRCalls.GetDimensions(s_RInstance, dsp.InputTableName);
                         int i_LengthOfFactor = clsGenericRCalls.GetLengthOfVector(s_RInstance, dsp.FactorComplete);
                         List<string> l_LevelsOfFactor = clsGenericRCalls.GetFactorLevels(s_RInstance, dsp.FactorComplete);
 
                         string s_RStatement = "";
 
-                        if (l_DimData[1] == i_LengthOfFactor)
+                        if (Convert.ToInt16(dsp.Margin) == 1)
                         {
-                            s_RStatement = string.Format(
-                                "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
-                                "myFactor={3}, MARGIN={4}, FUN={5})",
-                                dsp.NewTableName,
-                                dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
-                                dsp.InputTableName,
-                                dsp.FactorComplete,
-                                dsp.Margin,  // '1' indicates rows, '2' indicates columns
-                                dsp.Function);
+                            if (string.IsNullOrEmpty(dsp.X_Link))
+                            {
+                                traceLog.Error("ERROR: Aggregate class: " +
+                                    "Aggregating by rows, and 'xLink' was not " +
+                                    "passed in with parameters");
+                                Model.SuccessRunningPipeline = false;
+                                return;
+                            }
+
+                            if (l_DimData[0] == i_LengthOfFactor)
+                            {
+                                s_RStatement = string.Format(
+                                    "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
+                                    "myFactor={3}, MARGIN={4}, FUN={5}, MergeLink='{6}')",
+                                    dsp.NewTableName,
+                                    dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
+                                    dsp.InputTableName,
+                                    dsp.FactorComplete,
+                                    dsp.Margin,  // '1' indicates rows, '2' indicates columns
+                                    dsp.Function,
+                                    dsp.X_Link);
+                            }
                         }
-                        else if (l_DimData[1] == l_LevelsOfFactor.Count)
+                        else if (Convert.ToInt16(dsp.Margin) == 2)
                         {
-                            s_RStatement = string.Format(
-                                "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
-                                "myFactor=levels({3}), MARGIN={4}, FUN={5})",
-                                dsp.NewTableName,
-                                dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
-                                dsp.InputTableName,
-                                dsp.FactorComplete,
-                                dsp.Margin,  // '1' indicates rows, '2' indicates columns
-                                dsp.Function);
+                            GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
+                            dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
+                            Model.NumberOfModules);
+
+                            if (l_DimData[1] == i_LengthOfFactor)
+                            {
+                                s_RStatement = string.Format(
+                                    "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
+                                    "myFactor={3}, MARGIN={4}, FUN={5})",
+                                    dsp.NewTableName,
+                                    dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
+                                    dsp.InputTableName,
+                                    dsp.FactorComplete,
+                                    dsp.Margin,  // '1' indicates rows, '2' indicates columns
+                                    dsp.Function);
+                            }
+                            else if (l_DimData[1] == l_LevelsOfFactor.Count)
+                            {
+                                s_RStatement = string.Format(
+                                    "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
+                                    "myFactor=levels({3}), MARGIN={4}, FUN={5})",
+                                    dsp.NewTableName,
+                                    dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
+                                    dsp.InputTableName,
+                                    dsp.FactorComplete,
+                                    dsp.Margin,  // '1' indicates rows, '2' indicates columns
+                                    dsp.Function);
+                            }
                         }
 
                         Model.SuccessRunningPipeline = clsGenericRCalls.Run(

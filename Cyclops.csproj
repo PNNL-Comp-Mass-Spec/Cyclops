@@ -61,6 +61,7 @@
     <Compile Include="clsCyclopsModel.cs" />
     <Compile Include="clsCyclopsProgressReporter.cs" />
     <Compile Include="DataModules\clsCleanDataAndColumnFactors.cs" />
+    <Compile Include="DataModules\clsFilterByPeptideProteinCount.cs" />
     <Compile Include="DataModules\clsIDPicker.cs" />
     <Compile Include="clsMageDataTableSource.cs" />
     <Compile Include="clsMiscFunctions.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="DataModules\clsCast.cs" />
     <Compile Include="DataModules\clsCleanUpRSourceFileObjects.cs" />
     <Compile Include="DataModules\clsFoldChange.cs" />
+    <Compile Include="DataModules\clsKBaseFormat.cs" />
     <Compile Include="DataModules\clsLinearRegression.cs" />
     <Compile Include="DataModules\clsMelt.cs" />
     <Compile Include="DataModules\clsMerge.cs" />

@@ -28,10 +28,12 @@ namespace Cyclops.DataModules
 {
     public class clsFilterByAnotherTable : clsBaseDataModule
     {
+        #region Members
         private string s_RInstance;
         private DataModules.clsDataModuleParameterHandler dsp =
             new DataModules.clsDataModuleParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
+        #endregion 
 
         #region Constructors
         /// <summary>

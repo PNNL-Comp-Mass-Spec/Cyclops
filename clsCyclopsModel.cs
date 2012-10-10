@@ -51,10 +51,24 @@ namespace Cyclops
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Instance of R Workspace
+        /// </summary>
         public string InstanceOfR
         {
             get { return s_RInstance; }
             set { s_RInstance = value; }
+        }
+
+        /// <summary>
+        /// The executing version of Cyclops
+        /// </summary>
+        public string CyclopsVersion
+        {
+            get 
+            {
+                return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); 
+            }
         }
         #endregion
 
@@ -64,6 +78,7 @@ namespace Cyclops
         /// </summary>
         public clsCyclopsModel()
         {
+            traceLog.Info("CYCLOPS VERSION: " + CyclopsVersion);
             s_RInstance = "rCore";
 
             REngine.SetDllDirectory(@"C:\Program Files\R\R-2.14.2\bin\i386");
@@ -76,6 +91,8 @@ namespace Cyclops
         /// <param name="ParametersForCyclops">Parameters for running cyclops</param>
         public clsCyclopsModel(Dictionary<string, string> ParametersForCyclops)
         {
+            traceLog.Info("CYCLOPS VERSION: " + CyclopsVersion);
+
             clsGenericRCalls.Set_R_Home_Variable("2.14.2", true);
             string value = "";
             d_CyclopsParameters = ParametersForCyclops;
@@ -110,6 +127,8 @@ namespace Cyclops
         public clsCyclopsModel(Dictionary<string, string> ParametersForCyclops,
             BackgroundWorker worker)
         {
+            traceLog.Info("CYCLOPS VERSION: " + CyclopsVersion);
+
             clsGenericRCalls.Set_R_Home_Variable("2.14.2", true);
             string value = "";
             d_CyclopsParameters = ParametersForCyclops;
@@ -144,6 +163,8 @@ namespace Cyclops
         /// <param name="RDLL">Path to R DLL</param>
         public clsCyclopsModel(string RDLL)
         {
+            traceLog.Info("CYCLOPS VERSION: " + CyclopsVersion);
+
             clsGenericRCalls.Set_R_Home_Variable("2.14.2", true);
             REngine.SetDllDirectory(RDLL);
             s_RInstance = "rCore";

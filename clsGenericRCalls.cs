@@ -307,6 +307,33 @@ namespace Cyclops
             return l_All;
         }
 
+        public static bool IsNull(string InstanceOfR,
+            string ObjectName)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            bool b_Return = false;
+
+            if (!Exists(InstanceOfR, ObjectName))
+                return true;
+       
+            CharacterVector cv = engine.EagerEvaluate(
+                string.Format("is.null({0})",
+                ObjectName)).AsCharacter();
+
+            List<string> l_Return = new List<string>();
+            foreach (string s in cv)
+            {
+                l_Return.Add(s);
+            }
+
+            if (l_Return[0].Equals("TRUE"))
+                b_Return = true;
+            else
+                b_Return = false;
+
+            return b_Return;
+        }
+
         /// <summary>
         /// Indicates if the given type meets the 
         /// specified criteria
@@ -1257,7 +1284,7 @@ namespace Cyclops
             }
 
             traceLog.Info("Setting \"R_HOME\":\n\t" +
-                rHome + s_BitFolderPath);
+                rHome + s_BitFolderPath + "\n\n");
         }
         #endregion
 

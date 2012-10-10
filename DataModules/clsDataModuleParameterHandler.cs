@@ -79,17 +79,22 @@ namespace Cyclops.DataModules
             s_MaxAmbiguousIds="2",                      // used in IDPicker
             s_MaxFDR = "0.1",                           // used in IDPicker
             s_Maximum = "",
+            s_MaxProtValue = "",
+            s_MaxPepValue = "",
             s_MeanCenter="FALSE",                       // used in CentralTendency
             s_MinOverlap="3",                           // used in RRollup method
             s_MinAdditionalPeptides="2",                // used in IDPicker            
             s_MinDistinctPeptides="2",                  // used in IDPicker
             s_Minimum="1",
             s_MinPresence="10",                         // used in RRollup
+            s_MinProtValue= "",
+            s_MinPepValue = "",
             s_MinSpectraPerProtein="2",                 // used in IDPicker
             s_Mode="median",                            // used in RRollup, ANOVA
             s_Model="fixed",                            // used in MSstats
             s_ModsAreDistinctByDefault="true",          // used in IDPicker
             s_ModuleName = "",
+            s_NewRowMetadataTableName="",
             s_NewTableName = "",
             s_NormalizedTable = "",
             s_NormalizedSearchScores = "msgfspecprob",  // used in IDPicker
@@ -838,7 +843,38 @@ namespace Cyclops.DataModules
             get { return s_Rowname; }
             set { s_Rowname = value; }
         }
-        
+
+        public string MaxProtValue
+        {
+            get { return s_MaxProtValue; }
+            set { s_MaxProtValue = value; }
+        }
+
+        public string MaxPepValue
+        {
+            get { return s_MaxPepValue; }
+            set { s_MaxPepValue = value; }
+        }
+
+
+        public string MinProtValue
+        {
+            get { return s_MinProtValue; }
+            set { s_MinProtValue = value; }
+        }
+
+        public string MinPepValue
+        {
+            get { return s_MinPepValue; }
+            set { s_MinPepValue = value; }
+        }
+
+        public string NewRowMetadataTableName
+        {
+            get { return s_NewRowMetadataTableName; }
+            set { s_NewRowMetadataTableName = value; }
+        }
+
         /// <summary>
         /// Used in RRollup method, points to the T_Row_Metadata table
         /// </summary>
@@ -1219,8 +1255,7 @@ namespace Cyclops.DataModules
             {
                 return s_RemoveFirstCharacters.Length > 0 ? true : false;
             }
-        }
-
+        }                
         #endregion
 
         #region Methods
@@ -1270,7 +1305,7 @@ namespace Cyclops.DataModules
                         AltInputTableName = kvp.Value;
                         break;
                     case "analysisType":
-                        s_AnalysisType = kvp.Value;
+                        AnalysisType = kvp.Value;
                         break;
                     case "asDataMatrix":
                         AsDataMatrix = kvp.Value;
@@ -1280,16 +1315,16 @@ namespace Cyclops.DataModules
                         AutoScale = s_AutoScale.ToLower().Equals("true") ? true : false;
                         break;
                     case "bioRep":
-                        s_BioRep = kvp.Value;
+                        BioRep = kvp.Value;
                         break;
                     case "colFactor":
-                        s_ColFactor = kvp.Value;
+                        ColumnFactor = kvp.Value;
                         break;
                     case "colMetadataTable":
-                        s_ColMetadataTable = kvp.Value;
+                        ColumnMetadataTable = kvp.Value;
                         break;
                     case "columnName":
-                        s_ColumnName = kvp.Value;
+                        ColumnName = kvp.Value;
                         break;
                     case "commaSepWithQuotesIdentifiers":
                         List<string> l_csqi = kvp.Value;
@@ -1302,61 +1337,76 @@ namespace Cyclops.DataModules
                         CommaSeparatedWithoutQuotesIdentifiers = s_csnqi;
                         break;
                     case "Consolidation_Factor":
-                        s_ConsolidationFactor = kvp.Value;
+                        ConsolidationFactor = kvp.Value;
                         break;
                     case "contrasts":
-                        s_Contrasts = kvp.Value;
+                        Contrasts = kvp.Value;
                         break;
                     case "decoyPrefix":
-                        s_DecoyPrefix = kvp.Value;
+                        DecoyPrefix = kvp.Value;
                         break;
                     case "Fixed_Effect":
-                        s_FixedEffect = kvp.Value;
+                        FixedEffect = kvp.Value;
                         break;
                     case "interaction":
-                        s_Interaction = kvp.Value;
+                        Interaction = kvp.Value;
                         break;
                     case "linkRow":
-                        s_LinkRow = kvp.Value;
+                        LinkRow = kvp.Value;
                         break;
                     case "linkCol":
-                        s_LinkCol = kvp.Value;
+                        LinkCol = kvp.Value;
                         break;
                     case "maxAmbiguousIds":
-                        s_MaxAmbiguousIds = kvp.Value;
+                        MaxAmbiguousIds = kvp.Value;
                         break;
                     case "maxFDR":
-                        s_MaxFDR = kvp.Value;
+                        MaxFDR = kvp.Value;
                         break;
+                    case "maxPepValue":
+                        MaxPepValue = kvp.Value;
+                        break;
+                    case "maxProtValue":
+                        MaxProtValue = kvp.Value;
+                        break;                        
                     case "minAdditionalPeptides":
-                        s_MinAdditionalPeptides = kvp.Value;
+                        MinAdditionalPeptides = kvp.Value;
                         break;
                     case "minDistinctPeptides":
-                        s_MinDistinctPeptides = kvp.Value;
+                        MinDistinctPeptides = kvp.Value;
+                        break;
+                    case "minPepValue":
+                        MinPepValue = kvp.Value;
+                        break;
+                    case "minProtValue":
+                        MinProtValue = kvp.Value;
                         break;
                     case "minSpectraPerProtein":
-                        s_MinSpectraPerProtein = kvp.Value;
+                        MinSpectraPerProtein = kvp.Value;
+                        break;
+                    case "newRowMetadataTableName":
+                        NewRowMetadataTableName = kvp.Value;
                         break;
                     case "normalizedSearchScore":
-                        s_NormalizedSearchScores = kvp.Value;
+                        NormalizedSearchScores = kvp.Value;
                         break;
                     case "optimizedSearchScore":
-                        s_OptimizeScoreWeights = kvp.Value;
+                        OptimizeScoreWeights = kvp.Value;
                         break;
                     case "outputTextReport":
-                        s_OutputTextReport = kvp.Value;
+                        OutputTextReport = kvp.Value;
                         break;
                     case "quantitativeMethod":
-                        s_QuantitativeMethod = kvp.Value;
+                        QuantitativeMethod = kvp.Value;
                         break;
                     case "rawSourcePath":
-                        s_RawSourcePath = kvp.Value;
+                        RawSourcePath = kvp.Value;
                         break;
                     case "rowFactor":
-                        s_RowFactor = kvp.Value;
+                        RowFactor = kvp.Value;
                         break;
                     case "rowMetadataTable":
-                        s_RowMetadataTable = kvp.Value;
+                        RowMetadataTable = kvp.Value;
                         break;
                     case "orgdbdir":
                         DatabasePath = kvp.Value;
@@ -1374,10 +1424,10 @@ namespace Cyclops.DataModules
                         Target = kvp.Value;
                         break;
                     case "unbalanced":
-                        s_Unbalanced = kvp.Value;
+                        Unbalanced = kvp.Value;
                         break;
                     case "useREML":
-                        s_UseREML = kvp.Value;
+                        UseREML = kvp.Value;
                         break;
                     case "importDatasetType":
                         ImportDatasetType = kvp.Value;
@@ -1392,10 +1442,10 @@ namespace Cyclops.DataModules
                         InputTableName = kvp.Value;
                         break;
                     case "ionColumnNamePrefix":
-                        s_IonColumnNamePrefix = kvp.Value;
+                        IonColumnNamePrefix = kvp.Value;
                         break;
                     case "meanCenter":
-                        s_MeanCenter = kvp.Value; // default FALSE
+                        MeanCenter = kvp.Value; // default FALSE
                         break;
                     case "newTableName":
                         NewTableName = kvp.Value;
@@ -1428,10 +1478,10 @@ namespace Cyclops.DataModules
                         Set02NA = kvp.Value;
                         break;
                     case "theta":
-                        s_Theta = kvp.Value;
+                        Theta = kvp.Value;
                         break;
                     case "threshold":
-                        s_Threshold = kvp.Value;
+                        Threshold = kvp.Value;
                         break;
                     case "pValueTable":
                         P_ValueTable = kvp.Value;
@@ -1491,7 +1541,7 @@ namespace Cyclops.DataModules
                         SemicolonSeparatedWithQuotesIdentifiers = s_ssnqi;
                         break;
                     case "skipTheFirstColumn":
-                        s_SkipTheFirstColumn = kvp.Value;
+                        SkipTheFirstColumn = kvp.Value;
                         break;
                     case "pValueThreshold":
                         PvalueThreshold = kvp.Value;
@@ -1506,54 +1556,54 @@ namespace Cyclops.DataModules
                         RowNames = kvp.Value;
                         break;                    
                     case "id":
-                        s_ID = kvp.Value;
+                        ID = kvp.Value;
                         break;
                     case "variable":
-                        s_Variable = kvp.Value;
+                        Variable = kvp.Value;
                         break;
                     case "removeFirstCharacters":
-                        s_RemoveFirstCharacters = kvp.Value;
+                        RemoveFirstCharacters = kvp.Value;
                         break;
 
                     case "Random_Effect":
-                        s_RandomEffect = kvp.Value;
+                        RandomEffect = kvp.Value;
                         break;
                     // RRollup parameter names
                     case "proteinInfoTable":
-                        s_ProteinInfo = kvp.Value;
+                        ProteinInformationTable = kvp.Value;
                         break;
                     case "minPresence":
-                        s_MinPresence = kvp.Value;
+                        MinimumPresence = kvp.Value;
                         break;
                     case "mode":
-                        s_Mode = kvp.Value;
+                        Mode = kvp.Value;
                         break;
                     case "model":
-                        s_Model = kvp.Value;
+                        Model = kvp.Value;
                         break;
                     case "proteinInfo_ProteinCol":
-                        s_ProteinColumn = kvp.Value;
+                        ProteinInfo_ProteinColumn = kvp.Value;
                         break;
                     case "proteinInfo_PeptideCol":
-                        s_PeptideColumn = kvp.Value;
+                        ProteinInfo_PeptideColumn = kvp.Value;
                         break;
                     case "minOverlap":
-                        s_MinOverlap = kvp.Value;
+                        MinimumOverlap = kvp.Value;
                         break;
                     case "oneHitWonders":
-                        s_OneHitWonders = kvp.Value;
+                        OneHitWonders = kvp.Value;
                         break;
                     case "gpvalue":
-                        s_gpValue = kvp.Value;
+                        GpValue = kvp.Value;
                         break;
                     case "gminPCount":
-                        s_gMinPCount = kvp.Value;
+                        GminPCount = kvp.Value;
                         break;
                     case "center":
-                        s_Center = kvp.Value;
+                        Center = kvp.Value;
                         break;
                     case "summaryTableName":
-                        s_SummaryTableName = kvp.Value;
+                        SummaryTableName = kvp.Value;
                         break;
                 }
             }
