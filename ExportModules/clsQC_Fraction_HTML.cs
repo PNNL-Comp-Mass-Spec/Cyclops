@@ -328,10 +328,12 @@ namespace Cyclops.ExportModules
             s_Body += WriteTable(dt_Fractions, "left", 0, 2, 4);
 
             s_Body += s_Tab + s_Tab + "</TD></TR> <TR><TD>" + s_LineDelimiter;
-            s_Body += string.Format(s_Tab + s_Tab + "<IMG src='Plots/{0}' width='400' height='400' />",
+            s_Body += string.Format(s_Tab + s_Tab + 
+                "<A HREF='Plots/{0}'><IMG src='Plots/{0}' width='400' height='400' /></A>",
                 "qc_Summary.png");
             s_Body += s_Tab + s_Tab + "</TD><TD>" + s_LineDelimiter;
-            s_Body += string.Format(s_Tab + s_Tab + "<IMG src='Plots/{0}' width='400' height='400' />",
+            s_Body += string.Format(s_Tab + s_Tab +
+                "<A HREF='Plots/{0}'><IMG src='Plots/{0}' width='400' height='400' /></A>",
                 "log_qc_Summary.png");
             s_Body += s_Tab + s_Tab + "</TD></TR> </TABLE>" + s_LineDelimiter;
             s_Body += "<BR>" + s_LineDelimiter + s_LineDelimiter;
@@ -347,8 +349,22 @@ namespace Cyclops.ExportModules
             // INCLUDE HEATMAP IF REQUESTED
             if (esp.IncludeHeatmap)
             {
+                s_Body += s_Tab + s_Tab +
+                    "<H1>Percent Unique Peptide Overlap between Fractions</H1><BR>" +
+                    s_LineDelimiter;
                 s_Body += string.Format(
-                    s_Tab + s_Tab + "<IMG src='Plots/{0}' alt=Fraction intersection heatmap' width='{1}' height='{2}' />",
+                    s_Tab + s_Tab +
+                    "<A HREF='Plots/{0}'><IMG src='Plots/{0}' alt=Fraction intersection heatmap' width='{1}' height='{2}' /></A>",
+                    esp.PercentHeatmapFileName,
+                    esp.Width,
+                    esp.Height) + "<BR><BR>";
+
+                s_Body += s_Tab + s_Tab +
+                    "<H1>Overall Unique Peptide Overlap between Fractions</H1><BR>" +
+                    s_LineDelimiter;
+                s_Body += string.Format(
+                    s_Tab + s_Tab +
+                    "<A HREF='Plots/{0}'><IMG src='Plots/{0}' alt=Fraction intersection heatmap' width='{1}' height='{2}' /></A>",
                     esp.HeatmapFileName,
                     esp.Width,
                     esp.Height);
@@ -449,7 +465,9 @@ namespace Cyclops.ExportModules
                     }
                     else if (c > r) // the upper right of the table will display percentages
                     {
-                        int i_PepCnt = Int32.Parse(dt_Overlap.Rows[r][r].ToString());
+                        int i_PepCnt = Math.Min(
+                            Int32.Parse(dt_Overlap.Rows[r][r].ToString()),
+                            Int32.Parse(dt_Overlap.Rows[c][c].ToString()));
                         int i_Pep = Int32.Parse(dt_Overlap.Rows[r][c].ToString());
                         double d_Percent = (double)i_Pep / (double)i_PepCnt * 100;
                         if (c - 1 == r)

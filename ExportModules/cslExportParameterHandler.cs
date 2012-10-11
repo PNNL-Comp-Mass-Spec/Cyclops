@@ -51,6 +51,7 @@ namespace Cyclops.ExportModules
             s_ModuleName = "", 
             s_NewTableName = "",
             s_OverlapHeight="50",
+            s_PercentHeatmapFileName="",
             s_RectHeight="50",
             s_RownamesColumnHeader = "", 
             s_SeparatingCharacter = "",
@@ -187,6 +188,11 @@ namespace Cyclops.ExportModules
         {
             get { return s_OverlapHeight; }
             set { s_OverlapHeight = value; }
+        }
+        public string PercentHeatmapFileName
+        {
+            get { return s_PercentHeatmapFileName; }
+            set { s_PercentHeatmapFileName = value; }
         }
         public string RectangleHeight
         {
@@ -326,6 +332,9 @@ namespace Cyclops.ExportModules
                         break;
                     case "overlapHeight":
                         OverlapHeight = kvp.Value;
+                        break;
+                    case "percentHeatmapFileName":
+                        PercentHeatmapFileName = kvp.Value;
                         break;
                     case "rectHeight":
                         RectangleHeight = kvp.Value;

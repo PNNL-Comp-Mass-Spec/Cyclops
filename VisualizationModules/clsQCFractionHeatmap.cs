@@ -140,7 +140,7 @@ namespace Cyclops.VisualizationModules
 
         private void RunHeatmap()
         {
-            string s_RStatement = string.Format("ja_QCFractionsHeat(zz={0}$myMatrix1, " +
+            string s_RStatement = string.Format("ja_QCFractionsHeat(zz={0}, " +
                 "file=\"{1}\", bkground=\"{2}\", IMGwidth={3}, IMGheight={4}, " +
                 "FNTsize={5}, res={6})",
                 vgp.TableName,
