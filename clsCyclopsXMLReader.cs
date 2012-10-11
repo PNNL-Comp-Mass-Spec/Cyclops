@@ -120,27 +120,24 @@ namespace Cyclops
                                     traceLog.Info("READING XML OPERATION: " + opid);
                                     switch (opid)
                                     {
-                                        case "SpectralCountOperation":
-                                            Operations.clsSpectralCountMainOperation specOp = new Operations.clsSpectralCountMainOperation(Model, InstanceOfR);
-                                            #region Set Type of Label-free Analysis
+                                        case "iTraqOperation":
+                                            Operations.clsiTRAQMainOperation itqOp = new Operations.clsiTRAQMainOperation(Model, InstanceOfR);
+                                            #region Set Type of iTRAQ Analysis
                                             try
                                             {
                                                 switch (reader.GetAttribute("type"))
                                                 {
-                                                    case "Standard":
-                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Standard);
+                                                    case "Log2":
+                                                        itqOp.SetType(Operations.clsiTRAQMainOperation.ItqTypes.Log2);
                                                         break;
-                                                    case "Iterator":
-                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Iterator);
-                                                        break;
-                                                    case "Practice":
-                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Practice);
+                                                    case "MainAnovaPractice":
+                                                        itqOp.SetType(Operations.clsiTRAQMainOperation.ItqTypes.MainAnovaPractice);
                                                         break;
                                                 }
                                             }
                                             catch (Exception exc)
                                             {
-                                                traceLog.Error("Error Reading Spectral Count XML workflow. " +
+                                                traceLog.Error("Error Reading iTRAQ XML workflow. " +
                                                     "A Pipeline Operation was detected, but there was a problem " +
                                                     "processing the 'type' attribute. Check that the operation tag " +
                                                     "contains a 'type' attribute:\n" + exc.ToString());
@@ -148,13 +145,13 @@ namespace Cyclops
                                             #endregion
                                             if (root == null)
                                             {
-                                                root = specOp;
-                                                currentNode = specOp;
+                                                root = itqOp;
+                                                currentNode = itqOp;
                                             }
                                             else
                                             {
-                                                currentNode.AddDataChild(specOp);
-                                                currentNode = specOp;
+                                                currentNode.AddDataChild(itqOp);
+                                                currentNode = itqOp;
                                             }
                                             break;
                                         case "LabelFreeOperation":
@@ -207,24 +204,62 @@ namespace Cyclops
                                                 currentNode = lbfOp;
                                             }
                                             break;
-                                        case "iTraqOperation":
-                                            Operations.clsiTRAQMainOperation itqOp = new Operations.clsiTRAQMainOperation(Model, InstanceOfR);
-                                            #region Set Type of iTRAQ Analysis
+                                        case "Online2DLCOperation":
+                                            Operations.clsOnline2DLCOperation online2D = new Operations.clsOnline2DLCOperation(Model, InstanceOfR);
+                                            #region Set Type of Online 2D LC Analysis
                                             try
                                             {
                                                 switch (reader.GetAttribute("type"))
                                                 {
-                                                    case "Log2":
-                                                        itqOp.SetType(Operations.clsiTRAQMainOperation.ItqTypes.Log2);
+                                                    case "Standard":
+                                                        online2D.SetTypes(Operations.clsOnline2DLCOperation.Online2DTypes.Standard);
                                                         break;
-                                                    case "MainAnovaPractice":
-                                                        itqOp.SetType(Operations.clsiTRAQMainOperation.ItqTypes.MainAnovaPractice);
+                                                    case "Practice":
+                                                        online2D.SetTypes(Operations.clsOnline2DLCOperation.Online2DTypes.Practice);
                                                         break;
                                                 }
                                             }
                                             catch (Exception exc)
                                             {
-                                                traceLog.Error("Error Reading iTRAQ XML workflow. " +
+                                                traceLog.Error("Error Reading Online 2D LC XML workflow. " +
+                                                    "A Pipeline Operation was detected, but there was a problem " +
+                                                    "processing the 'type' attribute. Check that the operation tag " +
+                                                    "contains a 'type' attribute:\n" + exc.ToString());
+                                            }
+                                            #endregion
+
+                                            if (root == null)
+                                            {
+                                                root = online2D;
+                                                currentNode = online2D;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(online2D);
+                                                currentNode = online2D;
+                                            }
+                                            break;
+                                        case "SpectralCountOperation":
+                                            Operations.clsSpectralCountMainOperation specOp = new Operations.clsSpectralCountMainOperation(Model, InstanceOfR);
+                                            #region Set Type of Spectral Count Analysis
+                                            try
+                                            {
+                                                switch (reader.GetAttribute("type"))
+                                                {
+                                                    case "Standard":
+                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Standard);
+                                                        break;
+                                                    case "Iterator":
+                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Iterator);
+                                                        break;
+                                                    case "Practice":
+                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Practice);
+                                                        break;
+                                                }
+                                            }
+                                            catch (Exception exc)
+                                            {
+                                                traceLog.Error("Error Reading Spectral Count XML workflow. " +
                                                     "A Pipeline Operation was detected, but there was a problem " +
                                                     "processing the 'type' attribute. Check that the operation tag " +
                                                     "contains a 'type' attribute:\n" + exc.ToString());
@@ -232,13 +267,13 @@ namespace Cyclops
                                             #endregion
                                             if (root == null)
                                             {
-                                                root = itqOp;
-                                                currentNode = itqOp;
+                                                root = specOp;
+                                                currentNode = specOp;
                                             }
                                             else
                                             {
-                                                currentNode.AddDataChild(itqOp);
-                                                currentNode = itqOp;
+                                                currentNode.AddDataChild(specOp);
+                                                currentNode = specOp;
                                             }
                                             break;
                                     }

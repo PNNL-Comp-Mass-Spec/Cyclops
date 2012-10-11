@@ -247,7 +247,7 @@ namespace Cyclops.ExportModules
                 s_Tab + s_Tab + s_Tab + "ctx.font = 'rgb(0,0,0)';" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + "ctx.font = headerFontSize + 'px Arial';" + s_LineDelimiter +                          
                 s_Tab + s_Tab + s_Tab + "ctx.textAlign='center';" + s_LineDelimiter +
-                s_Tab + s_Tab + s_Tab + "ctx.fillText('Fractions', ctx.canvas.width / 2, Margin);" + s_LineDelimiter +
+                s_Tab + s_Tab + s_Tab + "ctx.fillText('Number of Unique Peptides/Fractions at 1% FDR', ctx.canvas.width / 2, Margin);" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + "ctx.font = fontSize + 'px Arial';" + s_LineDelimiter + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + "for (i in Rects)" + s_LineDelimiter +
                 s_Tab + s_Tab + s_Tab + "{" + s_LineDelimiter +
@@ -333,7 +333,8 @@ namespace Cyclops.ExportModules
             s_Body += s_Tab + s_Tab + "</TD><TD>" + s_LineDelimiter;
             s_Body += string.Format(s_Tab + s_Tab + "<IMG src='Plots/{0}' width='400' height='400' />",
                 "log_qc_Summary.png");
-            s_Body += s_Tab + s_Tab + "</TD></TR> </TABLE>" + s_LineDelimiter + s_LineDelimiter;
+            s_Body += s_Tab + s_Tab + "</TD></TR> </TABLE>" + s_LineDelimiter;
+            s_Body += "<BR>" + s_LineDelimiter + s_LineDelimiter;
 
 
             // Write CANVAS ELEMENT

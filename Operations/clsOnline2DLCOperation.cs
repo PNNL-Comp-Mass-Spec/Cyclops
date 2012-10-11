@@ -30,19 +30,15 @@ using log4net;
 
 namespace Cyclops.Operations
 {
-    /// <summary>
-    /// Provides an operation pipeline for conducting a general spectral count analysis
-    /// </summary>
-    public class clsSpectralCountMainOperation : clsBaseOperationModule
+    public class clsOnline2DLCOperation : clsBaseOperationModule
     {
         #region Members
         protected string s_RInstance;
         private string s_OperationsDBPath = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3";
-        private string s_SpectralCountTableName = "T_SpectralCountPipelineOperation";
-        public enum ScoTypes { Standard, Iterator, Practice };
-        private string[] s_SpectralCountTableNames = new string[] {
-            "T_SpectralCountPipelineOperation",
-            "T_SpectralCountIteratorPipelineOperation",
+        private string s_Online2DLC_TableName = "T_Online2DLC_PipelineOperation";
+        public enum Online2DTypes { Standard, Practice };
+        private string[] s_Online2DLC_TableNames = new string[] {
+            "T_Online2DLC_PipelineOperation",
             "T_PracticeOperation"
         };
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
@@ -50,32 +46,32 @@ namespace Cyclops.Operations
 
         #region Constructors
         /// <summary>
-        /// Operation performs a general spectral count analysis
+        /// Operation performs an Online 2D LC analysis
         /// </summary>
-        public clsSpectralCountMainOperation()
+        public clsOnline2DLCOperation()
         {
-            ModuleName = "Spectral Count Pipeline Operation";
+            ModuleName = "Online 2D LC Pipeline Operation";
         }
 
         /// <summary>
-        /// Operation performs a general spectral count analysis
+        /// Operation performs an Online 2D LC analysis
         /// </summary>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
-        public clsSpectralCountMainOperation(string InstanceOfR)
+        public clsOnline2DLCOperation(string InstanceOfR)
         {
-            ModuleName = "Spectral Count Pipeline Operation";
+            ModuleName = "Online 2D LC Pipeline Operation";
             s_RInstance = InstanceOfR;
         }
 
         /// <summary>
-        /// Operation performs a general spectral count analysis
+        /// Operation performs an Online 2D LC analysis
         /// </summary>
         /// <param name="TheCyclopsModel">Instance of the CyclopsModel to report to</param>
         /// <param name="InstanceOfR">Instance of R workspace to call</param>
-        public clsSpectralCountMainOperation(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
+        public clsOnline2DLCOperation(clsCyclopsModel TheCyclopsModel, string InstanceOfR)
         {
             Model = TheCyclopsModel;
-            ModuleName = "Spectral Count Pipeline Operation";            
+            ModuleName = "Online 2D LC Pipeline Operation";            
             s_RInstance = InstanceOfR;
         }
         #endregion
@@ -98,25 +94,22 @@ namespace Cyclops.Operations
         /// </summary>
         public override void PerformOperation()
         {
-            traceLog.Info("Running Spectral Count Operation...");
+            traceLog.Info("Running Online 2D LC Operation...");
 
             ConstructModules();
 
             RunModules();
         }
 
-        public void SetTypes(ScoTypes TypeOfAnalysis)
+        public void SetTypes(Online2DTypes TypeOfAnalysis)
         {
             switch (TypeOfAnalysis)
             {
-                case ScoTypes.Standard:
-                    s_SpectralCountTableName = s_SpectralCountTableNames[(int)ScoTypes.Standard];
+                case Online2DTypes.Standard:
+                    s_Online2DLC_TableName = s_Online2DLC_TableNames[(int)Online2DTypes.Standard];
                     break;
-                case ScoTypes.Iterator:
-                    s_SpectralCountTableName = s_SpectralCountTableNames[(int)ScoTypes.Iterator];
-                    break;
-                case ScoTypes.Practice:
-                    s_SpectralCountTableName = s_SpectralCountTableNames[(int)ScoTypes.Practice];
+                case Online2DTypes.Practice:
+                    s_Online2DLC_TableName = s_Online2DLC_TableNames[(int)Online2DTypes.Practice];
                     break;
             }
         }
@@ -131,7 +124,7 @@ namespace Cyclops.Operations
                 s_OperationsDBPath = Parameters["OperationsDatabaseDirectory"];
 
             DataTable dt_Modules = clsSQLiteHandler.GetDataTable(
-                string.Format("SELECT * FROM {0}", s_SpectralCountTableName),
+                string.Format("SELECT * FROM {0}", s_Online2DLC_TableName),
                 s_OperationsDBPath);
                         
             StepValueNode svn = GetMaximumStepValueInOperationsTable(dt_Modules);
@@ -155,7 +148,7 @@ namespace Cyclops.Operations
             if (Rows.Length < 1)
             {
                 // There is an error
-                traceLog.Error("ERROR Spectral Count Main Operation: Received empty Rows #SetModule!");
+                traceLog.Error("ERROR Online 2D LC Main Operation: Received empty Rows #SetModule!");
                 return;
             }
 
@@ -343,7 +336,23 @@ namespace Cyclops.Operations
                         CurrentNode = protProph;
                         Model.NumberOfModules++;
                     }
-                    break;                
+                    break;        
+                case "QC_Peptide_Overlap":
+                    DataModules.clsQCPeptideOverlap pepOverlap = new DataModules.clsQCPeptideOverlap(Model, s_RInstance);
+                    pepOverlap.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = pepOverlap;
+                        CurrentNode = pepOverlap;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(pepOverlap);
+                        CurrentNode = pepOverlap;
+                        Model.NumberOfModules++;
+                    }
+                    break;
                 case "QuasiTel":
                     DataModules.clsQuasiTel quasi = new DataModules.clsQuasiTel(Model, s_RInstance);
                     quasi.Parameters = GetParameters(Rows);
@@ -418,19 +427,19 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
-                case "Sco_HTML_Summary":
-                    ExportModules.clsSCO_Summary_HTML sco_HTML = new ExportModules.clsSCO_Summary_HTML(Model, s_RInstance);
-                    sco_HTML.Parameters = GetParameters(Rows);
+                case "QC_Fractions":
+                    ExportModules.clsQC_Fraction_HTML qcFractions = new ExportModules.clsQC_Fraction_HTML(Model, s_RInstance);
+                    qcFractions.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
-                        traceLog.Error("ERROR: Trying to add Spectral Count HTML Summary node to Root. This operation can not be performed!");
+                        traceLog.Error("ERROR: Trying to add QC_Fractions node to Root. This operation can not be performed!");
                     }
                     else
                     {
-                        CurrentNode.AddExportChild(sco_HTML);
+                        CurrentNode.AddExportChild(qcFractions);
                         Model.NumberOfModules++;
                     }
-                    break;                    
+                    break;
             }
         }
 
@@ -492,6 +501,19 @@ namespace Cyclops.Operations
                     else
                     {
                         CurrentNode.AddVisualChild(histogram);
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "QC_Fraction_Heatmap":
+                    VisualizationModules.clsQCFractionHeatmap qcFracHeat = new VisualizationModules.clsQCFractionHeatmap(Model, s_RInstance);
+                    qcFracHeat.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        traceLog.Error("ERROR: Trying to add QC Fraction Heatmap node to Root. This operation can not be performed!");
+                    }
+                    else
+                    {
+                        CurrentNode.AddVisualChild(qcFracHeat);
                         Model.NumberOfModules++;
                     }
                     break;
