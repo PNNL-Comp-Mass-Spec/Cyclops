@@ -39,11 +39,12 @@ namespace Cyclops.Operations
         protected string s_RInstance;
         private string s_OperationsDBPath = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3";
         private string s_SpectralCountTableName = "T_SpectralCountPipelineOperation";
-        public enum ScoTypes { Standard, Iterator, Practice };
+        public enum ScoTypes { Standard, Iterator, Practice, ScoHtmlPractice };
         private string[] s_SpectralCountTableNames = new string[] {
             "T_SpectralCountPipelineOperation",
             "T_SpectralCountIteratorPipelineOperation",
-            "T_PracticeOperation"
+            "T_PracticeOperation",
+            "T_Sco_HTML_Practice"
         };
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         #endregion
@@ -118,7 +119,14 @@ namespace Cyclops.Operations
                 case ScoTypes.Practice:
                     s_SpectralCountTableName = s_SpectralCountTableNames[(int)ScoTypes.Practice];
                     break;
+                case ScoTypes.ScoHtmlPractice:
+                    s_SpectralCountTableName = s_SpectralCountTableNames[(int)ScoTypes.ScoHtmlPractice];
+                    break;
             }
+
+            traceLog.Info(string.Format("Reading {0} table in " +
+                "Cyclops Operations Database",
+                s_SpectralCountTableName));
         }
 
         /// <summary>
@@ -197,6 +205,22 @@ namespace Cyclops.Operations
                     {
                         CurrentNode.AddDataChild(aggregate);
                         CurrentNode = aggregate;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "BBM_QuasiTel":
+                    DataModules.clsBBM_and_QuasiTel bbmquasi = new DataModules.clsBBM_and_QuasiTel(Model, s_RInstance);
+                    bbmquasi.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = bbmquasi;
+                        CurrentNode = Root;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(bbmquasi);
+                        CurrentNode = bbmquasi;
                         Model.NumberOfModules++;
                     }
                     break;
@@ -309,6 +333,22 @@ namespace Cyclops.Operations
                     {
                         CurrentNode.AddDataChild(load);
                         CurrentNode = load;
+                        Model.NumberOfModules++;
+                    }
+                    break;
+                case "LoadRWorkspace":
+                    DataModules.clsLoadRWorkspaceModule loadRenv = new DataModules.clsLoadRWorkspaceModule(Model, s_RInstance);
+                    loadRenv.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        Root = loadRenv;
+                        CurrentNode = loadRenv;
+                        Model.NumberOfModules++;
+                    }
+                    else
+                    {
+                        CurrentNode.AddDataChild(loadRenv);
+                        CurrentNode = loadRenv;
                         Model.NumberOfModules++;
                     }
                     break;

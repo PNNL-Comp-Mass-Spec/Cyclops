@@ -82,19 +82,22 @@ namespace Cyclops.VisualizationModules
 
                 if (CheckPassedParameters())
                 {
-                    CreatePlotsFolder();
-
-                    if (clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+                    if (vgp.Mode.ToLower().Equals("filterpvals"))
                     {
-                        if (vgp.HasImageType)
-                        {
-                            PrepareImageFile();
-                        }
-                        BuildHeatmapPlot();
-                        if (vgp.HasImageType)
-                        {
-                            CleanUpImageFile();
-                        }
+                        FilterPvals();
+                    }
+
+                    CreatePlotsFolder();
+                    
+                    if (vgp.HasImageType)
+                    {
+                        PrepareImageFile();
+                    }                    
+
+                    BuildHeatmapPlot();
+                    if (vgp.HasImageType)
+                    {
+                        CleanUpImageFile();
                     }
                 }
 
@@ -115,6 +118,39 @@ namespace Cyclops.VisualizationModules
                 traceLog.Error("Heatmap class: 'tableName' was not found in the passed parameters");
                 b_2Param = false;
             }
+            if (!clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+            {
+                traceLog.Error("Heatmap class: 'tableName' was not found in the R environment");
+                b_2Param = false;
+            }
+
+            return b_2Param;
+        }
+
+        private bool CheckForFilterParameters()
+        {
+            bool b_2Param = true;
+            if (string.IsNullOrEmpty(vgp.SignificanceTable))
+            {
+                traceLog.Error("Heatmap class: 'significanceTable' was not found in the passed parameters");
+                b_2Param = false;
+            }
+            if (!clsGenericRCalls.ContainsObject(s_RInstance, vgp.SignificanceTable))
+            {
+                traceLog.Error("Heatmap class: 'significanceTable' was not found in the R environment");
+                b_2Param = false;
+            }
+            if (string.IsNullOrEmpty(vgp.PValueColumn))
+            {
+                traceLog.Error("Heatmap class: 'pValueColumn' was not found in the passed parameters");
+                b_2Param = false;
+            }
+            if (!clsGenericRCalls.TableContainsColumn(s_RInstance, vgp.SignificanceTable, vgp.PValueColumn))
+            {
+                traceLog.Error("Heatmap class: 'significanceTable' does not contain the column: " + 
+                    vgp.PValueColumn);
+                b_2Param = false;
+            }
 
             return b_2Param;
         }
@@ -132,6 +168,19 @@ namespace Cyclops.VisualizationModules
                 "Loading Libraries for Constructing Heatmap",
                 Model.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
+        }
+
+        /// <summary>
+        /// Filters the input table based on p-values from a significance table
+        /// based on a threshold p-value, so only significant features are plotted
+        /// The'TableName' parameter becomes the new 'significant' table of proteins  
+        /// </summary>
+        private void FilterPvals()
+        {
+            if (CheckForFilterParameters())
+            {
+
+            }
         }
 
         private void PrepareImageFile()

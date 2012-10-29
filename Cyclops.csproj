@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="clsCyclopsModel.cs" />
     <Compile Include="clsCyclopsProgressReporter.cs" />
+    <Compile Include="DataModules\clsBBM_and_QuasiTel.cs" />
     <Compile Include="DataModules\clsCleanDataAndColumnFactors.cs" />
     <Compile Include="DataModules\clsFilterByPeptideProteinCount.cs" />
     <Compile Include="DataModules\clsIDPicker.cs" />

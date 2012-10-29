@@ -255,6 +255,9 @@ namespace Cyclops
                                                     case "Practice":
                                                         specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.Practice);
                                                         break;
+                                                    case "ScoHtmlPractice":
+                                                        specOp.SetTypes(Operations.clsSpectralCountMainOperation.ScoTypes.ScoHtmlPractice);
+                                                        break;
                                                 }
                                             }
                                             catch (Exception exc)
@@ -314,6 +317,21 @@ namespace Cyclops
                                                 i_ModuleCounter++;
                                             }
                                             break;
+                                        case "BBM_QuasiTel":
+                                            DataModules.clsBBM_and_QuasiTel bbmquasi = new DataModules.clsBBM_and_QuasiTel(Model, InstanceOfR);
+                                            if (root == null)
+                                            {
+                                                root = bbmquasi;
+                                                currentNode = bbmquasi;
+                                                i_ModuleCounter++;
+                                            }
+                                            else
+                                            {
+                                                currentNode.AddDataChild(bbmquasi);
+                                                currentNode = bbmquasi;
+                                                i_ModuleCounter++;
+                                            }
+                                            break; 
                                         case "BetaBinomial":
                                             DataModules.clsBetaBinomialModelModule bbm = new DataModules.clsBetaBinomialModelModule(Model, InstanceOfR);
                                             if (root == null)
@@ -328,7 +346,7 @@ namespace Cyclops
                                                 currentNode = bbm;
                                                 i_ModuleCounter++;
                                             }
-                                            break;
+                                            break;                                            
                                         case "CentralTendency":
                                             DataModules.clsCentralTendency centralTend = new DataModules.clsCentralTendency(Model, InstanceOfR);
                                             if (root == null)

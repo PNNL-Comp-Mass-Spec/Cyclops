@@ -20,12 +20,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Text;
-using System.Data;
+using System.Threading;
 
-using RDotNet;
 using log4net;
+using RDotNet;
 
 namespace Cyclops
 {
@@ -823,11 +824,19 @@ namespace Cyclops
         {
             DataTable dt_Return = new DataTable();
             REngine engine = REngine.GetInstanceFromID(InstanceOfR);
-
+                        
             if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("data.frame"))
             {
-                DataFrame dataset = engine.EagerEvaluate(TheDataFrame).AsDataFrame();
+                string s_TempTableName = GetTemporaryTableName();
+                string s_Cmd = string.Format(
+                    "{0} <- data.frame(sapply({1}, function(x) " +
+                    "as.character(unlist(x))), stringsAsFactors=F)\n",
+                    s_TempTableName,
+                    TheDataFrame);
+                engine.EagerEvaluate(s_Cmd);
 
+                DataFrame dataset = engine.EagerEvaluate(s_TempTableName).AsDataFrame();
+                
                 for (int i = 0; i < dataset.ColumnCount; i++)
                 {
                     DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
@@ -838,7 +847,6 @@ namespace Cyclops
                     }
                     dt_Return.Columns.Add(dc);
                 }
-
                 for (int r = 0; r < dataset.RowCount; r++)
                 {
                     DataFrameRow df_Row = dataset.GetRow(r);
@@ -850,6 +858,9 @@ namespace Cyclops
                     }
                     dt_Return.Rows.Add(s_Row);
                 }
+
+                engine.EagerEvaluate(string.Format("rm({0})\n",
+                    s_TempTableName));
             }
             else if (GetClassOfObject(InstanceOfR, TheDataFrame).Equals("matrix"))
             {
@@ -878,6 +889,8 @@ namespace Cyclops
                     dt_Return.Rows.Add(s_Row);
                 }
             }
+
+
 
             return dt_Return;
         }
@@ -1285,6 +1298,21 @@ namespace Cyclops
 
             traceLog.Info("Setting \"R_HOME\":\n\t" +
                 rHome + s_BitFolderPath + "\n\n");
+        }
+
+        private static string GetTemporaryTableName()
+        {
+            string s_Suffix = "";
+            Thread.Sleep(2);
+            Random rnd = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
+            string chars = "2346789ABCDEFGHJKLMNPQRTUVWXYZabcdefghjkmnpqrtuvwxyz";
+
+            for (int i = 0; i < 20; i++)
+            {
+                s_Suffix += chars.Substring(rnd.Next(chars.Length), 1);
+            }
+
+            return "tmpTable_" + s_Suffix;
         }
         #endregion
 

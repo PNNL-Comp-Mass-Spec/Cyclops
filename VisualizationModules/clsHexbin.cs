@@ -126,29 +126,51 @@ namespace Cyclops.VisualizationModules
             bool b_2Param = true;
 
             // NECESSARY PARAMETERS
-            if (!vgp.HasTableName)
+            if (string.IsNullOrEmpty(vgp.TableName))
             {
                 traceLog.Error("Hexbin class: 'tableName' was not found in the passed parameters");
                 b_2Param = false;
             }
-            if (!vgp.HasXcolumn)
+            if (!clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+            {
+                traceLog.Error("Hexbin class: " + vgp.TableName + " was not found in the R workspace");
+                b_2Param = false;
+            }
+            if (string.IsNullOrEmpty(vgp.xColumn))
             {
                 traceLog.Error("Hexbin class: 'xColumn' was not found in the passed parameters");
                 b_2Param = false;
             }
-            if (!vgp.HasYcolumn)
+            if (!clsGenericRCalls.TableContainsColumn(s_RInstance, vgp.TableName,
+                vgp.xColumn))
+            {
+                traceLog.Error(string.Format("Hexbin class: " +
+                    "xColumn: '{0}' was not found in the table: '{1}'",
+                    vgp.xColumn,
+                    vgp.TableName));
+                b_2Param = false;
+            }
+            if (string.IsNullOrEmpty(vgp.yColumn))
             {
                 traceLog.Error("Hexbin class: 'yColumn' was not found in the passed parameters");
                 b_2Param = false;
             }
-            
-            if (!vgp.HasImageType)
+            if (!clsGenericRCalls.TableContainsColumn(s_RInstance, vgp.TableName,
+                vgp.yColumn))
+            {
+                traceLog.Error(string.Format("Hexbin class: " +
+                    "yColumn: '{0}' was not found in the table: '{1}'",
+                    vgp.yColumn,
+                    vgp.TableName));
+                b_2Param = false;
+            }
+            if (string.IsNullOrEmpty(vgp.ImageType))
             {
                 traceLog.Error("Hexbin class: 'image' was not found in the passed parameters");
                 b_2Param = false;
             }
 
-            if (!vgp.HasPlotFileName)
+            if (string.IsNullOrEmpty(vgp.PlotFileName))
             {
                 traceLog.Error("Hexbin class: 'plotFileName' was not found in the passed parameters");
                 b_2Param = false;

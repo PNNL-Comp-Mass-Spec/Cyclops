@@ -84,13 +84,16 @@ namespace Cyclops.VisualizationModules
             s_Outliers = "TRUE",
             s_PlotFileName = "",
             s_PointSize = "12",
+            s_PvalueColumn = "",
             s_Resolution = "600",
             s_RowFactorTable = "",
             s_ShowCount = "TRUE",
             s_ShowLegend = "TRUE",
+            s_SignificanceTable = "",
             s_SkipTheFirstColumn = "false",            // for correlation heatmap of spectral count data where PeptideCount is present
             s_Stamp = "NULL",
             s_TableName = "",
+            s_Threshold = "0.05",
             s_Type = "",
             s_Width = "1200",
             s_WorkDir = "",
@@ -312,6 +315,15 @@ namespace Cyclops.VisualizationModules
         }
 
         /// <summary>
+        /// Name of significance table
+        /// </summary>
+        public string SignificanceTable
+        {
+            get { return s_SignificanceTable; }
+            set { s_SignificanceTable = value; }
+        }
+
+        /// <summary>
         /// true/false indicating whether or not to skip the first column (in cases where PeptideCount is present)
         /// </summary>
         public string SkipTheFirstColumn
@@ -498,6 +510,12 @@ namespace Cyclops.VisualizationModules
             get { return b_AbsLogY; }
             set { b_AbsLogY = value; }
         }
+
+        public string PValueColumn
+        {
+            get { return s_PvalueColumn; }
+            set { s_PvalueColumn = value; }
+        }
         /// <summary>
         /// Defaults to NULL
         /// </summary>
@@ -522,6 +540,13 @@ namespace Cyclops.VisualizationModules
             get { return s_RowFactorTable; }
             set { s_RowFactorTable = value; }
         }
+
+        public string Threshold
+        {
+            get { return s_Threshold; }
+            set { s_Threshold = value; }
+        }
+
         /// <summary>
         /// Y minimum
         /// </summary>
@@ -751,6 +776,9 @@ namespace Cyclops.VisualizationModules
                         string spd = kvp.Value;
                         PlotDirectory = true ? spd.ToLower().Equals("true") : false;
                         break;
+                    case "pValueColumn":
+                        s_PvalueColumn = kvp.Value;
+                        break;
                     case "absLogX":
                         string salx = kvp.Value;
                         b_AbsLogX = true ? salx.ToLower().Equals("true") : false;
@@ -771,11 +799,17 @@ namespace Cyclops.VisualizationModules
                     case "stamp": // defaults to NULL
                         Stamp = kvp.Value;
                         break;
+                    case "significanceTable":
+                        SignificanceTable = kvp.Value;
+                        break;
                     case "resolution":
                         Resolution = kvp.Value;
                         break;
                     case "rowFactorTable":
                         RowFactorTable = kvp.Value;
+                        break;
+                    case "threshold":
+                        Threshold = kvp.Value;
                         break;
                     case "type":
                         s_Type = kvp.Value;

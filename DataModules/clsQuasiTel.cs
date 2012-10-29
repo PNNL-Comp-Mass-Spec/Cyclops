@@ -212,7 +212,7 @@ namespace Cyclops.DataModules
 
                 GetOrganizedFactorsVector(s_RInstance, s_TmpDataTable,
                     dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
-                    Model.NumberOfModules);
+                    Model.NumberOfModules, "Alias");
 
                 // Make sure that the factors table contains the field to perform the comparison
                 if (clsGenericRCalls.GetColumnNames(s_RInstance, dsp.FactorTable).Contains(dsp.FactorColumn))

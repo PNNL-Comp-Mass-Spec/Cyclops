@@ -72,10 +72,6 @@ namespace Cyclops.DataModules
         }
         #endregion
 
-        #region Members
-
-        #endregion
-
         #region Properties
 
         #endregion
@@ -190,7 +186,7 @@ namespace Cyclops.DataModules
 
                 GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
                     dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
-                    Model.NumberOfModules);
+                    Model.NumberOfModules, "Alias");
 
                 // Make sure that the factors table contains the field to perform the comparison
                 if (clsGenericRCalls.GetColumnNames(s_RInstance, dsp.FactorTable).Contains(dsp.FactorColumn))

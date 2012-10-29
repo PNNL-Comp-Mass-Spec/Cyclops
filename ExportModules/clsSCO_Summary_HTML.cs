@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -38,6 +39,8 @@ namespace Cyclops.ExportModules
         private string s_LineDelimiter = "\n";
         private string s_Tab = "\t";
         private enum HTMLFileType { Dataset, Index };
+        private Dictionary<string, string>
+            d_FileNameVault = new Dictionary<string, string>();
 
         private string s_RInstance;
         #endregion
@@ -73,7 +76,11 @@ namespace Cyclops.ExportModules
         #endregion
 
         #region Properties
-
+        public Dictionary<string, string> FileNameVault
+        {
+            get { return d_FileNameVault; }
+            set { d_FileNameVault = value; }
+        }
         #endregion
 
         #region Methods
@@ -113,8 +120,44 @@ namespace Cyclops.ExportModules
 
                 traceLog.Info("Preparing Spectral Count HTML summary file...");
 
+                AddDefaultValues2FileNameVault();
+
                 BuildHtmlFile();
             }
+        }
+
+        private void AddDefaultValues2FileNameVault()
+        {
+            FileNameVault.Add("CssFileName", "styles.css");
+            FileNameVault.Add("DatasetsHtmlFileName", "Datasets.html");
+            FileNameVault.Add("QcHtmlFileName", "QC.html");
+            FileNameVault.Add("CorrelationHtmlFileName", "Correlations.html");
+            FileNameVault.Add("SpectralCountSummaryFigureFileName", "Spectral_Count_Summary.png");
+            FileNameVault.Add("MissedCleavageSummaryFigureFileName", "MissedCleavage_Summary.png");
+            FileNameVault.Add("MissedCleavageSummary10percentFdrFigureFileName", "MissedCleavage_Summary_10.png");
+            FileNameVault.Add("MissedCleavageSummary05percentFdrFigureFileName", "MissedCleavage_Summary_5.png");
+            FileNameVault.Add("MissedCleavageSummary01percentFdrFigureFileName", "MissedCleavage_Summary_1.png");
+            FileNameVault.Add("TrypticPeptideSummaryFigureFileName", "Tryptic_Summary.png");
+            FileNameVault.Add("FilteredMsgfPpmHexbinFigureFileName", "Filtered_MSGF_vs_PPM.png");
+            FileNameVault.Add("FilteredMsgfPpmHexbin10percentFdrFigureFileName", "Filtered_10_MSGF_vs_PPM.png");
+            FileNameVault.Add("FilteredMsgfPpmHexbin05percentFdrFigureFileName", "Filtered_5_MSGF_vs_PPM.png");
+            FileNameVault.Add("FilteredMsgfPpmHexbin01percentFdrFigureFileName", "Filtered_1_MSGF_vs_PPM.png");
+
+            FileNameVault.Add("SpectralCountsCorrelationHeatmapFigureFileName", "T_SpectralCounts_CorrelationHeatmap.png");
+            FileNameVault.Add("SpectralCountsCorrelationHeatmap10percentFdrFigureFileName", "T_SpectralCounts_10_CorrelationHeatmap.png");
+            FileNameVault.Add("SpectralCountsCorrelationHeatmap05percentFdrFigureFileName", "T_SpectralCounts_5_CorrelationHeatmap.png");
+            FileNameVault.Add("SpectralCountsCorrelationHeatmap01percentFdrFigureFileName", "T_SpectralCounts_1_CorrelationHeatmap.png");
+
+            FileNameVault.Add("RowMetadataTablePeptideColumnName", "Peptide");
+            FileNameVault.Add("RowMetadataTableProteinColumnName", "Protein");
+            FileNameVault.Add("RowMetadataTable10FDR", "T_RowMetadata_10");
+            FileNameVault.Add("RowMetadataTable05FDR", "T_RowMetadata_5");
+            FileNameVault.Add("RowMetadataTable01FDR", "T_RowMetadata_1");
+
+            FileNameVault.Add("BBM_Pvals", "BBM_Pvals");
+            FileNameVault.Add("BBM_AdjPvals", "BBM_AdjPvals");
+            FileNameVault.Add("BbmResultsFdr01", "BBM_QuasiTel_Results_FDR01");
+            FileNameVault.Add("AggBbmResultsFdr01", "Agg_BBM_QuasiTel_Results_FDR01");
         }
 
         /// <summary>
@@ -123,11 +166,14 @@ namespace Cyclops.ExportModules
         private void BuildHtmlFile()
         {
             esp.GetParameters(ModuleName, Parameters);
-
+            
             if (CheckPassedParameters())
             {
-                string s_CssFileName = "styles.css", s_DatasetsFileName = "Datasets.html",
-                    s_QCFileName = "QC.html";
+                string s_CssFileName = FileNameVault["CssFileName"],
+                    s_DatasetsFileName = FileNameVault["DatasetsHtmlFileName"],
+                    s_QCFileName = FileNameVault["QcHtmlFileName"],
+                    s_CorrFileName = FileNameVault["CorrelationHtmlFileName"];
+
                 List<clsHtmlLinkNode> l_NavBarNodes = new List<clsHtmlLinkNode>();
                 
                 l_NavBarNodes.Add(new clsHtmlLinkNode(
@@ -136,6 +182,8 @@ namespace Cyclops.ExportModules
                     "Datasets", s_DatasetsFileName, false));
                 l_NavBarNodes.Add(new clsHtmlLinkNode(
                     "QC Plots", s_QCFileName, false));
+                l_NavBarNodes.Add(new clsHtmlLinkNode(
+                    "Correlation Heatmaps", s_CorrFileName, false));
                                 
                 using (StreamWriter sw_Css = File.AppendText(Path.Combine(esp.WorkDirectory, s_CssFileName)))
                 {
@@ -195,7 +243,7 @@ namespace Cyclops.ExportModules
                 sb_QC.Append("\t\t<DIV ID='SpectralCount'>\n");    
                 sb_QC.Append(clsHTMLFileHandler.GetQCElement("Spectral Count Summary"
                     , "table_header"
-                    , "Spectral_Count_Summary.png"
+                    , FileNameVault["SpectralCountSummaryFigureFileName"]
                     , clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_SpecCnt_Summary",
                         Path.Combine(esp.WorkDirectory, "Results.db3"))
                     , 1, 1, 1));
@@ -203,40 +251,44 @@ namespace Cyclops.ExportModules
 
                 // Missed Cleavages
                 sb_QC.Append("\t\t<A NAME='mc'/A>\n");
-                if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "MissedCleavage_Summary.png")))
+                if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["MissedCleavageSummaryFigureFileName"])))
                 {
                     sb_QC.Append(clsHTMLFileHandler.GetQCElement(
                         "Missed Cleavage Summary"
                         , "table_header"
-                        , "MissedCleavage_Summary.png"
+                        , FileNameVault["MissedCleavageSummaryFigureFileName"]
                         , clsSQLiteHandler.GetDataTable("SELECT * FROM T_MissedCleavageSummary",
                             Path.Combine(esp.WorkDirectory, "Results.db3"))
                         , 1, 1, 1));
                 }
-                if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "MissedCleavage_Summary_10.png")))
+                if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["MissedCleavageSummary10percentFdrFigureFileName"])))
                 {
                     sb_QC.Append(clsHTMLFileHandler.GetQCElement(
                         "10% FDR Missed Cleavage Summary"
                         , "table_header"
-                        , "MissedCleavage_Summary_10.png"
+                        , FileNameVault["MissedCleavageSummary10percentFdrFigureFileName"]
                         , clsGenericRCalls.GetDataTable(s_RInstance, "T_MissedCleavageSummary_10")
                         , 1, 1, 1));
                 }
-                if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "MissedCleavage_Summary_5.png")))
+                if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["MissedCleavageSummary05percentFdrFigureFileName"])))
                 {
                     sb_QC.Append(clsHTMLFileHandler.GetQCElement(
                         "5% FDR Missed Cleavage Summary"
                         , "table_header"
-                        , "MissedCleavage_Summary_5.png"
+                        , FileNameVault["MissedCleavageSummary05percentFdrFigureFileName"]
                         , clsGenericRCalls.GetDataTable(s_RInstance, "T_MissedCleavageSummary_5")
                         , 1, 1, 1));
                 }
-                if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "MissedCleavage_Summary_1.png")))
+                if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["MissedCleavageSummary01percentFdrFigureFileName"])))
                 {
                     sb_QC.Append(clsHTMLFileHandler.GetQCElement(
                         "1% FDR Missed Cleavage Summary"
                         , "table_header"
-                        , "MissedCleavage_Summary_1.png"
+                        , FileNameVault["MissedCleavageSummary01percentFdrFigureFileName"]
                         , clsGenericRCalls.GetDataTable(s_RInstance, "T_MissedCleavageSummary_1")
                         , 1, 1, 1));
                 }                
@@ -247,7 +299,7 @@ namespace Cyclops.ExportModules
                 sb_QC.Append(clsHTMLFileHandler.GetQCElement(
                     "Tryptic Peptide Summary"
                     , "table_header"
-                    , "Tryptic_Summary.png"
+                    , FileNameVault["TrypticPeptideSummaryFigureFileName"]
                     , clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_Trypticity_Summary",
                     Path.Combine(esp.WorkDirectory, "Results.db3"))
                     , 1, 1, 1));
@@ -259,25 +311,29 @@ namespace Cyclops.ExportModules
                 {
                     sb_QC.Append("\t\t<P ID='table_header'>MSGF vs PPM Hexbin Plot</P>\n");
                     sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Filtered_MSGF_vs_PPM.png", true, "pos_left", null, null));
+                        FileNameVault["FilteredMsgfPpmHexbinFigureFileName"], 
+                        true, "pos_left", null, null));
                 }
                 if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "Filtered_10_MSGF_vs_PPM.png")))
                 {
                     sb_QC.Append("\t\t<P ID='table_header'>10% FDR MSGF vs PPM Hexbin Plot</P>\n");
                     sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Filtered_10_MSGF_vs_PPM.png", true, "pos_left", null, null));
+                        FileNameVault["FilteredMsgfPpmHexbin10percentFdrFigureFileName"], 
+                        true, "pos_left", null, null));
                 }
                 if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "Filtered_5_MSGF_vs_PPM.png")))
                 {
                     sb_QC.Append("\t\t<P ID='table_header'>5% FDR MSGF vs PPM Hexbin Plot</P>\n");
                     sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Filtered_5_MSGF_vs_PPM.png", true, "pos_left", null, null));
+                        FileNameVault["FilteredMsgfPpmHexbin05percentFdrFigureFileName"], 
+                        true, "pos_left", null, null));
                 }
                 if (File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "Filtered_1_MSGF_vs_PPM.png")))
                 {
                     sb_QC.Append("\t\t<P ID='table_header'>1% FDR MSGF vs PPM Hexbin Plot</P>\n");
                     sb_QC.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Filtered_1_MSGF_vs_PPM.png", true, "pos_left", null, null));
+                        FileNameVault["FilteredMsgfPpmHexbin01percentFdrFigureFileName"], 
+                        true, "pos_left", null, null));
                 }
                 
 
@@ -294,11 +350,66 @@ namespace Cyclops.ExportModules
                 l_NavBarNodes.Remove(node_TrypticPeptides);
                 l_NavBarNodes.Remove(node_Hexbin);
 
+
+                StringBuilder sb_Corr = new StringBuilder();
+
+                clsHtmlLinkNode hln_Corr = new clsHtmlLinkNode(
+                    "Correlation", "ch", true);
+                l_NavBarNodes.Add(hln_Corr);
+
+                sb_Corr.Append(clsHTMLFileHandler.GetHtmlHeader());
+                sb_Corr.Append(clsHTMLFileHandler.GetHtmlJavascriptStart());
+                sb_Corr.Append(WriteHtmlScripts());
+                sb_Corr.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
+                sb_Corr.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
+                sb_Corr.Append(clsHTMLFileHandler.GetEndHeadStartBody());
+                sb_Corr.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
+                //sb_HTML.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+                sb_Corr.Append(WriteHtmlBody(HTMLFileType.Index));
+
+                sb_Corr.Append("\t<DIV ID='main_content'>\n");
+                sb_Corr.Append("\t\t<A NAME='ch'/A>\n");
+                sb_Corr.Append("\t\t<P ID='table_header'>Correlation Heatmap</P>\n");
+
+                string s = Path.Combine(esp.WorkDirectory, "Plots", 
+                    FileNameVault["SpectralCountsCorrelationHeatmapFigureFileName"]);
+                if (File.Exists(s))
+                    sb_Corr.Append(clsHTMLFileHandler.GetPictureCode(
+                        FileNameVault["SpectralCountsCorrelationHeatmapFigureFileName"], 
+                        true, "pos_left", null, null));
+                s = Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["SpectralCountsCorrelationHeatmap10percentFdrFigureFileName"]);
+                if (File.Exists(s))
+                    sb_Corr.Append(clsHTMLFileHandler.GetPictureCode(
+                        FileNameVault["SpectralCountsCorrelationHeatmap10percentFdrFigureFileName"], 
+                        true, "pos_left", null, null));
+                s = Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["SpectralCountsCorrelationHeatmap05percentFdrFigureFileName"]);
+                if (File.Exists(s))
+                    sb_Corr.Append(clsHTMLFileHandler.GetPictureCode(
+                        FileNameVault["SpectralCountsCorrelationHeatmap05percentFdrFigureFileName"], 
+                        true, "pos_left", null, null));
+                s = Path.Combine(esp.WorkDirectory, "Plots", 
+                    FileNameVault["SpectralCountsCorrelationHeatmap01percentFdrFigureFileName"]);
+                if (File.Exists(s))
+                    sb_Corr.Append(clsHTMLFileHandler.GetPictureCode(
+                        FileNameVault["SpectralCountsCorrelationHeatmap01percentFdrFigureFileName"], 
+                        true, "pos_left", null, null));
+
+                sb_Corr.Append("\t</DIV>\n");
+                sb_Corr.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
+
+
+                // TODO : Write the html out to the file
+                StreamWriter sw_Corr = new StreamWriter(Path.Combine(esp.WorkDirectory, s_CorrFileName));
+                sw_Corr.Write(sb_Corr);
+                sw_Corr.Close();
+
+
                 // Construct and write-out the main html summary page
                 StringBuilder sb_HTML = new StringBuilder();
 
-                l_NavBarNodes.Add(new clsHtmlLinkNode(
-                    "Correlation", "ch", true));
+                l_NavBarNodes.Remove(hln_Corr);
 
                 sb_HTML.Append(clsHTMLFileHandler.GetHtmlHeader());
                 sb_HTML.Append(clsHTMLFileHandler.GetHtmlJavascriptStart());
@@ -310,27 +421,21 @@ namespace Cyclops.ExportModules
                 //sb_HTML.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
                 sb_HTML.Append(WriteHtmlBody(HTMLFileType.Index));
 
-                sb_HTML.Append("\t<DIV ID='main_content'>\n");
-                sb_HTML.Append("\t\t<A NAME='ch'/A>\n");
-                sb_HTML.Append("\t\t<P ID='table_header'>Correlation Heatmap</P>\n");
+                sb_HTML.Append("\t<DIV ID='main_content'>\n");                
+                //sb_HTML.Append("\t\t<P ID='table_header'>Analysis Summary Statistics</P>\n");
 
-                string s = Path.Combine(esp.WorkDirectory, "Plots", "T_SpectralCounts_CorrelationHeatmap.png");
-                if (File.Exists(s))
-                    sb_HTML.Append(clsHTMLFileHandler.GetPictureCode(
-                        "T_SpectralCounts_CorrelationHeatmap.png", true, "pos_left", null, null));
-                s = Path.Combine(esp.WorkDirectory, "Plots", "T_SpectralCounts_10_CorrelationHeatmap.png");
-                if (File.Exists(s))
-                    sb_HTML.Append(clsHTMLFileHandler.GetPictureCode(
-                        "T_SpectralCounts_10_CorrelationHeatmap.png", true, "pos_left", null, null));
-                s = Path.Combine(esp.WorkDirectory, "Plots", "T_SpectralCounts_5_CorrelationHeatmap.png");
-                if (File.Exists(s)) 
-                    sb_HTML.Append(clsHTMLFileHandler.GetPictureCode(
-                        "T_SpectralCounts_5_CorrelationHeatmap.png", true, "pos_left", null, null));
-                s = Path.Combine(esp.WorkDirectory, "Plots", "T_SpectralCounts_1_CorrelationHeatmap.png");
-                if (File.Exists(s))
-                    sb_HTML.Append(clsHTMLFileHandler.GetPictureCode(
-                        "T_SpectralCounts_1_CorrelationHeatmap.png", true, "pos_left", null, null));
-
+                sb_HTML.Append("\t\t" +
+                    clsHTMLFileHandler.GetSummaryTableHtml(
+                    GetSpectralCountSummary(),
+                    "Spectral Count Analysis Summary",
+                    "table_header",
+                    0, 2, 4) + "\n\n" +
+                    clsHTMLFileHandler.GetSummaryTableHtml(
+                    GetSpectralCountStatSummary(),
+                    "Spectral Count Beta-Binomial Model Statistics Summary",
+                    "table_header",
+                    0, 2, 4));
+                
                 sb_HTML.Append("\t</DIV>\n");
                 sb_HTML.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
 
@@ -356,9 +461,19 @@ namespace Cyclops.ExportModules
             switch (TheHTMLFileType)
             {
                 case HTMLFileType.Dataset:
-                    s_Body = clsHTMLFileHandler.GetDatasetTableHtml(
-                        Path.Combine(esp.WorkDirectory, esp.DatabaseName), null,
-                            "table_header", "left", 0, 2, 4);
+                    if (File.Exists(Path.Combine(esp.WorkDirectory, esp.DatabaseName)))
+                    {
+                        s_Body = clsHTMLFileHandler.GetDatasetTableHtml(
+                            Path.Combine(esp.WorkDirectory, esp.DatabaseName), null,
+                                "table_header", "left", 0, 2, 4);
+                    }
+                    else
+                    {
+                        traceLog.Error(string.Format(
+                            "ERROR in clsSCO_Summary_HTML: " +
+                            "File: {0} does not exist",
+                            Path.Combine(esp.WorkDirectory, esp.DatabaseName)));
+                    }
                     break;
                 case HTMLFileType.Index:
 
@@ -366,6 +481,149 @@ namespace Cyclops.ExportModules
             }
 
             return s_Body;
+        }
+
+        private DataTable GetSpectralCountSummary()
+        {
+            DataTable dt_Return = new DataTable();
+
+            DataColumn dc_FDR = new DataColumn("FDR");
+            dt_Return.Columns.Add(dc_FDR);
+            DataColumn dc_Peptides = new DataColumn("Unique Peptides");
+            dt_Return.Columns.Add(dc_Peptides);
+            DataColumn dc_Proteins = new DataColumn("Unique Proteins");
+            dt_Return.Columns.Add(dc_Proteins);
+
+            if (clsGenericRCalls.ContainsObject(s_RInstance,
+                FileNameVault["RowMetadataTable10FDR"]))
+            {
+                if (clsGenericRCalls.TableContainsColumn(s_RInstance,
+                    FileNameVault["RowMetadataTable10FDR"],
+                    FileNameVault["RowMetadataTablePeptideColumnName"]))
+                {
+                    // 10% FDR Summary
+                    List<string> s_UnqPep = clsGenericRCalls.GetCharacterVector(
+                        s_RInstance, string.Format(
+                        "length(unique({0}[,'{1}']))",
+                        FileNameVault["RowMetadataTable10FDR"],
+                        FileNameVault["RowMetadataTablePeptideColumnName"]));
+                    List<string> s_UnqProt = clsGenericRCalls.GetCharacterVector(
+                        s_RInstance, string.Format(
+                        "length(unique({0}[,'{1}']))",
+                        FileNameVault["RowMetadataTable10FDR"],
+                        FileNameVault["RowMetadataTableProteinColumnName"]));
+
+                    DataRow dr_Fdr10 = dt_Return.NewRow();
+                    dr_Fdr10["FDR"] = 10;
+                    dr_Fdr10["Unique Peptides"] = s_UnqPep[0];
+                    dr_Fdr10["Unique Proteins"] = s_UnqProt[0];
+                    dt_Return.Rows.Add(dr_Fdr10);
+                }
+            }
+
+            if (clsGenericRCalls.ContainsObject(s_RInstance,
+                FileNameVault["RowMetadataTable05FDR"]))
+            {
+                if (clsGenericRCalls.TableContainsColumn(s_RInstance,
+                    FileNameVault["RowMetadataTable05FDR"],
+                    FileNameVault["RowMetadataTablePeptideColumnName"]))
+                {
+                    // 5% FDR Summary
+                    List<string> s_UnqPep = clsGenericRCalls.GetCharacterVector(
+                        s_RInstance, string.Format(
+                        "length(unique({0}[,'{1}']))",
+                        FileNameVault["RowMetadataTable05FDR"],
+                        FileNameVault["RowMetadataTablePeptideColumnName"]));
+                    List<string> s_UnqProt = clsGenericRCalls.GetCharacterVector(
+                        s_RInstance, string.Format(
+                        "length(unique({0}[,'{1}']))",
+                        FileNameVault["RowMetadataTable05FDR"],
+                        FileNameVault["RowMetadataTableProteinColumnName"]));
+
+                    DataRow dr_Fdr05 = dt_Return.NewRow();
+                    dr_Fdr05["FDR"] = 5;
+                    dr_Fdr05["Unique Peptides"] = s_UnqPep[0];
+                    dr_Fdr05["Unique Proteins"] = s_UnqProt[0];
+                    dt_Return.Rows.Add(dr_Fdr05);
+                }
+            }
+
+            if (clsGenericRCalls.ContainsObject(s_RInstance,
+                FileNameVault["RowMetadataTable01FDR"]))
+            {
+                if (clsGenericRCalls.TableContainsColumn(s_RInstance,
+                    FileNameVault["RowMetadataTable01FDR"],
+                    FileNameVault["RowMetadataTablePeptideColumnName"]))
+                {
+                    // 1% FDR Summary
+                    List<string> s_UnqPep = clsGenericRCalls.GetCharacterVector(
+                        s_RInstance, string.Format(
+                        "length(unique({0}[,'{1}']))",
+                        FileNameVault["RowMetadataTable01FDR"],
+                        FileNameVault["RowMetadataTablePeptideColumnName"]));
+                    List<string> s_UnqProt = clsGenericRCalls.GetCharacterVector(
+                        s_RInstance, string.Format(
+                        "length(unique({0}[,'{1}']))",
+                        FileNameVault["RowMetadataTable01FDR"],
+                        FileNameVault["RowMetadataTableProteinColumnName"]));
+
+                    DataRow dr_Fdr01 = dt_Return.NewRow();
+                    dr_Fdr01["FDR"] = 1;
+                    dr_Fdr01["Unique Peptides"] = s_UnqPep[0];
+                    dr_Fdr01["Unique Proteins"] = s_UnqProt[0];
+                    dt_Return.Rows.Add(dr_Fdr01);
+                }
+            }
+
+            return dt_Return;
+        }
+
+        private DataTable GetSpectralCountStatSummary()
+        {
+            DataTable dt_Return = new DataTable();
+
+            DataColumn dc_FDR = new DataColumn("P-value");
+            dt_Return.Columns.Add(dc_FDR);
+            DataColumn dc_Proteins = new DataColumn("Proteins");
+            dt_Return.Columns.Add(dc_Proteins);
+
+            
+            if (clsGenericRCalls.ContainsObject(
+                s_RInstance, FileNameVault["BbmResultsFdr01"]))
+            {
+                if (clsGenericRCalls.TableContainsColumn(
+                    s_RInstance, FileNameVault["BbmResultsFdr01"],
+                    FileNameVault["BBM_Pvals"]))
+                {
+                    // P-value 0.05
+                    DataRow dr05 = dt_Return.NewRow();
+                    double pVal = 0.05;
+                    string s_Cmd = string.Format("nrow({0}[{0}[,'{1}'] < {2},])",
+                        FileNameVault["BbmResultsFdr01"],
+                        FileNameVault["BBM_Pvals"],
+                        pVal);
+                    List<string> l_Prot = clsGenericRCalls.GetCharacterVector(
+                        s_RInstance, s_Cmd);
+                    dr05["P-value"] = "< " + pVal;
+                    dr05["Proteins"] = l_Prot[0];
+                    dt_Return.Rows.Add(dr05);
+
+                    // P-value 0.01
+                    DataRow dr01 = dt_Return.NewRow();
+                    pVal = 0.01;
+                    s_Cmd = string.Format("nrow({0}[{0}[,'{1}'] < {2},])",
+                        FileNameVault["BbmResultsFdr01"],
+                        FileNameVault["BBM_Pvals"],
+                        pVal);
+                    l_Prot = clsGenericRCalls.GetCharacterVector(
+                        s_RInstance, s_Cmd);
+                    dr01["P-value"] = "< " + pVal;
+                    dr01["Proteins"] = l_Prot[0];
+                    dt_Return.Rows.Add(dr01);
+                }
+            }
+
+            return dt_Return;
         }
         #endregion
 

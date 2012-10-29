@@ -36,11 +36,13 @@ namespace Cyclops.ExportModules
     /// </summary>
     public class clsExportTableModule : clsBaseExportModule
     {
+        #region Members
         private ExportModules.cslExportParameterHandler esp =
             new ExportModules.cslExportParameterHandler();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
 
         private string s_RInstance;
+        #endregion
 
         #region Constructors
         /// <summary>

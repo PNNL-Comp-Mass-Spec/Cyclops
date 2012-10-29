@@ -198,33 +198,43 @@ namespace Cyclops.DataModules
                         }
                         else if (Convert.ToInt16(dsp.Margin) == 2)
                         {
-                            GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
-                            dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
-                            Model.NumberOfModules);
+                            string s_TmpColTable = GetOrganizedFactorsVector(s_RInstance, 
+                                dsp.InputTableName, dsp.FactorTable, dsp.FactorColumn, 
+                                Model.StepNumber, Model.NumberOfModules, "Alias");
+
+                            /// Readdress the length of the factor
+                            i_LengthOfFactor = clsGenericRCalls.GetLengthOfVector(s_RInstance,
+                                s_TmpColTable + "$" + dsp.FactorColumn);
 
                             if (l_DimData[1] == i_LengthOfFactor)
                             {
                                 s_RStatement = string.Format(
                                     "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
-                                    "myFactor={3}, MARGIN={4}, FUN={5})",
+                                    "myFactor={3}, MARGIN={4}, FUN={5})\n" +
+                                    "rm({6})",
                                     dsp.NewTableName,
                                     dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
                                     dsp.InputTableName,
-                                    dsp.FactorComplete,
+                                    s_TmpColTable + "$" + dsp.FactorColumn,
+                                    //dsp.FactorComplete,
                                     dsp.Margin,  // '1' indicates rows, '2' indicates columns
-                                    dsp.Function);
+                                    dsp.Function,
+                                    s_TmpColTable);
                             }
                             else if (l_DimData[1] == l_LevelsOfFactor.Count)
                             {
                                 s_RStatement = string.Format(
                                     "{0} <- jnb_Aggregate(x=data.matrix({1}{2}), " +
-                                    "myFactor=levels({3}), MARGIN={4}, FUN={5})",
+                                    "myFactor=levels({3}), MARGIN={4}, FUN={5})\n" +
+                                    "rm({6})",
                                     dsp.NewTableName,
                                     dsp.SkipTheFirstColumn.ToLower().Equals("true") ? "[,-1]" : "",
                                     dsp.InputTableName,
-                                    dsp.FactorComplete,
+                                    s_TmpColTable + "$" + dsp.FactorColumn,
+                                    //dsp.FactorComplete,
                                     dsp.Margin,  // '1' indicates rows, '2' indicates columns
-                                    dsp.Function);
+                                    dsp.Function,
+                                    s_TmpColTable);
                             }
                         }
 
