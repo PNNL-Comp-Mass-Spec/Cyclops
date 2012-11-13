@@ -118,30 +118,67 @@ namespace Cyclops.DataModules
                     dsp.NewTableName + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
+
             if (!dsp.HasXTable)
             {
                 traceLog.Error("ERROR: Merge class: 'xTable': \"" +
                     dsp.X_Table + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
+            else if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.X_Table))
+            {
+                traceLog.Error("ERROR: Merge class: 'xTable': \"" +
+                    dsp.X_Table + "\", was not found in the R workspace.");
+                b_2Pass = false;
+            }
+            else if (!dsp.HasXLink)
+            {
+                traceLog.Error("ERROR: Merge class: 'xLink': \"" +
+                    dsp.X_Link + "\", was not found in the passed parameters");
+                b_2Pass = false;
+            }
+            else if (!dsp.X_Link.Equals("row.names"))
+            {
+                if (!clsGenericRCalls.TableContainsColumn(s_RInstance,
+                    dsp.X_Table, dsp.X_Link))
+                {
+                    traceLog.Error("ERROR: Merge class: 'xTable': \"" +
+                        dsp.X_Table + "\" does not contain the 'xLink' column: \"" +
+                        dsp.X_Link + "\"");
+                    b_2Pass = false;
+                }
+            }
+
             if (!dsp.HasYTable)
             {
                 traceLog.Error("ERROR: Merge class: 'yTable': \"" +
                     dsp.Y_Table + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
-            if (!dsp.HasXLink)
+            else if (!clsGenericRCalls.ContainsObject(s_RInstance, dsp.Y_Table))
             {
-                traceLog.Error("ERROR: Merge class: 'xLink': \"" +
-                    dsp.X_Link + "\", was not found in the passed parameters");
+                traceLog.Error("ERROR: Merge class: 'yTable': \"" +
+                    dsp.Y_Table + "\", was not found in the R workspace.");
                 b_2Pass = false;
-            }
-            if (!dsp.HasYLink)
+            }            
+            else if (!dsp.HasYLink)
             {
                 traceLog.Error("ERROR: Merge class: 'yLink': \"" +
                     dsp.Y_Link + "\", was not found in the passed parameters");
                 b_2Pass = false;
             }
+            else if (!dsp.Y_Link.Equals("row.names"))
+            {
+                if (!clsGenericRCalls.TableContainsColumn(s_RInstance,
+                    dsp.Y_Table, dsp.Y_Link))
+                {
+                    traceLog.Error("ERROR: Merge class: 'yTable': \"" +
+                        dsp.Y_Table + "\" does not contain the 'yLink' column: \"" +
+                        dsp.Y_Link + "\"");
+                    b_2Pass = false;
+                }
+            }
+
             if (!dsp.HasAllX)
             {
                 traceLog.Error("ERROR: Merge class: 'allX': \"" +

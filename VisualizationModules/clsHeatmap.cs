@@ -33,6 +33,7 @@ namespace Cyclops.VisualizationModules
         protected string s_RInstance;
         private VisualizationModules.clsVisualizationParameterHandler vgp =
             new VisualizationModules.clsVisualizationParameterHandler();
+        private bool b_FilteredSuccessfully = false;
         #endregion
 
         #region Constructors
@@ -78,26 +79,32 @@ namespace Cyclops.VisualizationModules
             if (Model.SuccessRunningPipeline)
             {
                 Model.IncrementStep(ModuleName);
-                vgp.Parameters = Parameters;
+                vgp.GetParameters(ModuleName, Parameters);
 
                 if (CheckPassedParameters())
                 {
+                    vgp.PlotDirectory = CreatePlotsFolder();
+                    vgp.ResetPlotFileName();
+
                     if (vgp.Mode.ToLower().Equals("filterpvals"))
                     {
                         FilterPvals();
+
+                        if (b_FilteredSuccessfully)
+                            BuildHeatmapPlot();
                     }
-
-                    CreatePlotsFolder();
-                    
-                    if (vgp.HasImageType)
+                    else
                     {
-                        PrepareImageFile();
-                    }                    
+                        if (vgp.HasImageType)
+                        {
+                            PrepareImageFile();
+                        }
 
-                    BuildHeatmapPlot();
-                    if (vgp.HasImageType)
-                    {
-                        CleanUpImageFile();
+                        BuildHeatmapPlot();
+                        if (vgp.HasImageType)
+                        {
+                            CleanUpImageFile();
+                        }
                     }
                 }
 
@@ -121,6 +128,11 @@ namespace Cyclops.VisualizationModules
             if (!clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
             {
                 traceLog.Error("Heatmap class: 'tableName' was not found in the R environment");
+                b_2Param = false;
+            }
+            if (!vgp.HasPlotFileName)
+            {
+                traceLog.Error("ERROR Heatmap class: 'plotFileName' was not found in the passed parameters");
                 b_2Param = false;
             }
 
@@ -151,7 +163,12 @@ namespace Cyclops.VisualizationModules
                     vgp.PValueColumn);
                 b_2Param = false;
             }
-
+            if (string.IsNullOrEmpty(vgp.FilteredTableName))
+            {
+                traceLog.Error("Heatmap class: 'filteredTableName' was not found in the passed parameters");                    
+                b_2Param = false;
+            }
+            
             return b_2Param;
         }
 
@@ -179,7 +196,20 @@ namespace Cyclops.VisualizationModules
         {
             if (CheckForFilterParameters())
             {
+                string s_RStatement = string.Format(
+                    "{0} <- {1}[{1}[,'{2}'] < {3},]\n"+
+                    "{0} <- {4}[which(rownames({4})%in%rownames({0})),]\n",
+                    vgp.FilteredTableName,
+                    vgp.SignificanceTable,
+                    vgp.PValueColumn,
+                    vgp.PValue,
+                    vgp.TableName);
 
+                b_FilteredSuccessfully = clsGenericRCalls.Run(
+                    s_RStatement,
+                    s_RInstance, "Filtering For P-value < " +
+                    vgp.PValue, Model.StepNumber,
+                    Model.NumberOfModules);
             }
         }
 
@@ -235,25 +265,63 @@ namespace Cyclops.VisualizationModules
                 "cmap <- myColorRamp({0})\n",
                 vgp.HeatmapColorScaleDegree);
             s_RStatement += string.Format(
-                "cmap <- seq({0}, {1}, length={2}+1)\n",
+                "colscale <- seq({0}, {1}, length={2}+1)\n",
                 vgp.HeatmapScaleMin,
                 vgp.HeatmapScaleMax,
                 vgp.HeatmapColorScaleDegree);
-            s_RStatement += string.Format("hm_{0} <- heatmap.2(x=data.matrix({0})," +
-            "Rowv={1}, Colv={2}, distfun={3}, hclustfun={4}, dendrogram={5}," +
-            "symm={6}, scale={7}, na.rm={8}, col=cmap, trace={9}, " +
-            "breaks=colscale, main={10})\n",
-                vgp.TableName,              // 0
-                vgp.HeatmapRowDendrogram,   // 1
-                vgp.HeatmapColDendrogram,   // 2
-                vgp.HeatmapDist,            // 3
-                vgp.HeatmapClusterFunction, // 4
-                vgp.HeatmapDrawDendrogram,  // 5
-                vgp.HeatmapSymm,            // 6
-                vgp.HeatmapScale,           // 7
-                vgp.HeatmapRemoveNA,        // 8 
-                vgp.HeatmapTrace,           // 9
-                vgp.Main);                  // 10
+            //s_RStatement += string.Format("hm_{0} <- heatmap.2(x=data.matrix({0})," +
+            //"Rowv={1}, Colv={2}, distfun={3}, hclustfun={4}, dendrogram={5}," +
+            //"symm={6}, scale={7}, na.rm={8}, col=cmap, trace={9}, " +
+            //"breaks=colscale, main={10})\n",
+            //    vgp.TableName,              // 0
+            //    vgp.HeatmapRowDendrogram,   // 1
+            //    vgp.HeatmapColDendrogram,   // 2
+            //    vgp.HeatmapDist,            // 3
+            //    vgp.HeatmapClusterFunction, // 4
+            //    vgp.HeatmapDrawDendrogram,  // 5
+            //    vgp.HeatmapSymm,            // 6
+            //    vgp.HeatmapScale,           // 7
+            //    vgp.HeatmapRemoveNA,        // 8 
+            //    vgp.HeatmapTrace,           // 9
+            //    vgp.Main);                  // 10
+
+            s_RStatement += string.Format(
+                "{0} <- jnb_Heatmap(x={1}, " +
+                "file={2}, clusterRows={3}, " +
+                "clusterCols={4}, distFunc={5}, " +
+                "hclustFunc={6}, " +
+                "bkground={7}, " +
+                "IMGwidth={8}, IMGheight={9}, " +
+                "FNTsize={10}, res={11}, title={12}, " +
+                "scale={13}, margins={14}, " +
+                "trace={15}, labRow={16}, " +
+                "nullReplacement={17}, " +
+                "zeroReplacement={18}, " +
+                "breaks=colscale, " +
+                "colMap=cmap)\n",
+                !string.IsNullOrEmpty(vgp.HeatmapResultsTableName) ?
+                    vgp.HeatmapResultsTableName :
+                    "hm_" + vgp.TableName,                  // 0
+                vgp.Mode.ToLower().Equals("filterpvals") ?
+                    vgp.FilteredTableName : vgp.TableName,  // 1
+                "'" + vgp.PlotFileName + "'",               // 2
+                vgp.HeatmapClusterRows,                     // 3
+                vgp.HeatmapClusterColumns,                  // 4
+                vgp.HeatmapDist,                            // 5
+                vgp.HeatmapClusterFunction,                 // 6
+                "'" + vgp.BackgroundColor + "'",            // 7
+                vgp.Width,                                  // 8
+                vgp.Height,                                 // 9
+                vgp.FontSize,                               // 10
+                vgp.Resolution,                             // 11
+                "'" + vgp.Main + "'",                       // 12
+                "'" + vgp.HeatmapScale + "'",               // 13
+                vgp.Margin,                                 // 14
+                "'" + vgp.HeatmapTrace + "'",               // 15
+                vgp.HeatmapIncludeRowLabels,                // 16
+                vgp.NullReplacement,                        // 17
+                vgp.ZeroReplacement                         // 18
+                );
 
             s_RStatement += "rm(myColorRamp)\nrm(cmap)";
 

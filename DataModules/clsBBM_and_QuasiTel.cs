@@ -113,7 +113,7 @@ namespace Cyclops.DataModules
         /// <returns>True if all necessary parameters are present</returns>
         protected bool CheckPassedParameters()
         {
-            bool b_2Pass = true;
+            bool b_2Pass = true, b_FactorTablePresent = true;
 
             // NECESSARY PARAMETERS
             if (string.IsNullOrEmpty(dsp.NewTableName))
@@ -151,6 +151,7 @@ namespace Cyclops.DataModules
                     " was not found in the R environment",
                     dsp.FactorTable));
                 b_2Pass = false;
+                b_FactorTablePresent = false;
             }
             if (Parameters.ContainsKey("Fixed_Effect"))
             {
@@ -159,14 +160,17 @@ namespace Cyclops.DataModules
                 if (string.IsNullOrEmpty(dsp.FactorColumn))
                     b_2Pass = false;
             }
-            if (!clsGenericRCalls.TableContainsColumn(s_RInstance,
-                dsp.FactorTable, dsp.FactorColumn))
+            if (b_FactorTablePresent)
             {
-                traceLog.Error(string.Format("Hexbin class: " +
-                    "FixedEffect: '{0}' was not found in the table: '{1}'",
-                    dsp.FactorColumn,
-                    dsp.FactorTable));
-                b_2Pass = false;
+                if (!clsGenericRCalls.TableContainsColumn(s_RInstance,
+                    dsp.FactorTable, dsp.FactorColumn))
+                {
+                    traceLog.Error(string.Format("Hexbin class: " +
+                        "FixedEffect: '{0}' was not found in the table: '{1}'",
+                        dsp.FactorColumn,
+                        dsp.FactorTable));
+                    b_2Pass = false;
+                }
             }
             if (!dsp.HasTheta)
             {

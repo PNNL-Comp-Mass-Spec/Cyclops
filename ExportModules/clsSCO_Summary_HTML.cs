@@ -126,12 +126,16 @@ namespace Cyclops.ExportModules
             }
         }
 
+        /// <summary>
+        /// Adds default values to the FileNameVault library
+        /// </summary>
         private void AddDefaultValues2FileNameVault()
         {
             FileNameVault.Add("CssFileName", "styles.css");
             FileNameVault.Add("DatasetsHtmlFileName", "Datasets.html");
             FileNameVault.Add("QcHtmlFileName", "QC.html");
             FileNameVault.Add("CorrelationHtmlFileName", "Correlations.html");
+            FileNameVault.Add("HeatmapsFileName", "Heatmaps.html");
             FileNameVault.Add("SpectralCountSummaryFigureFileName", "Spectral_Count_Summary.png");
             FileNameVault.Add("MissedCleavageSummaryFigureFileName", "MissedCleavage_Summary.png");
             FileNameVault.Add("MissedCleavageSummary10percentFdrFigureFileName", "MissedCleavage_Summary_10.png");
@@ -158,6 +162,9 @@ namespace Cyclops.ExportModules
             FileNameVault.Add("BBM_AdjPvals", "BBM_AdjPvals");
             FileNameVault.Add("BbmResultsFdr01", "BBM_QuasiTel_Results_FDR01");
             FileNameVault.Add("AggBbmResultsFdr01", "Agg_BBM_QuasiTel_Results_FDR01");
+
+            FileNameVault.Add("BBM_Heatmap_01_FigureFileName", "BBM_Heatmap_LT01.png");
+            FileNameVault.Add("BBM_Heatmap_05_FigureFileName", "BBM_Heatmap_LT05.png");
         }
 
         /// <summary>
@@ -172,7 +179,8 @@ namespace Cyclops.ExportModules
                 string s_CssFileName = FileNameVault["CssFileName"],
                     s_DatasetsFileName = FileNameVault["DatasetsHtmlFileName"],
                     s_QCFileName = FileNameVault["QcHtmlFileName"],
-                    s_CorrFileName = FileNameVault["CorrelationHtmlFileName"];
+                    s_CorrFileName = FileNameVault["CorrelationHtmlFileName"],
+                    s_HeatmapsFileName = FileNameVault["HeatmapsFileName"];
 
                 List<clsHtmlLinkNode> l_NavBarNodes = new List<clsHtmlLinkNode>();
                 
@@ -184,6 +192,8 @@ namespace Cyclops.ExportModules
                     "QC Plots", s_QCFileName, false));
                 l_NavBarNodes.Add(new clsHtmlLinkNode(
                     "Correlation Heatmaps", s_CorrFileName, false));
+                l_NavBarNodes.Add(new clsHtmlLinkNode(
+                    "Heatmaps", s_HeatmapsFileName, false));
                                 
                 using (StreamWriter sw_Css = File.AppendText(Path.Combine(esp.WorkDirectory, s_CssFileName)))
                 {
@@ -404,12 +414,55 @@ namespace Cyclops.ExportModules
                 StreamWriter sw_Corr = new StreamWriter(Path.Combine(esp.WorkDirectory, s_CorrFileName));
                 sw_Corr.Write(sb_Corr);
                 sw_Corr.Close();
+                l_NavBarNodes.Remove(hln_Corr);
 
+
+                StringBuilder sb_Heatmaps = new StringBuilder();
+                sb_Heatmaps.Append(clsHTMLFileHandler.GetHtmlHeader());
+                sb_Heatmaps.Append(clsHTMLFileHandler.GetHtmlJavascriptStart());
+                sb_Heatmaps.Append(WriteHtmlScripts());
+                sb_Heatmaps.Append(clsHTMLFileHandler.GetHtmlScriptEnd());
+                sb_Heatmaps.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
+                sb_Heatmaps.Append(clsHTMLFileHandler.GetEndHeadStartBody());
+                sb_Heatmaps.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
+                sb_Heatmaps.Append(WriteHtmlBody(HTMLFileType.Index));
+
+                sb_Heatmaps.Append("\t<DIV ID='main_content'>\n");
+                
+
+                if (File.Exists(
+                    Path.Combine(esp.WorkDirectory, "Plots", 
+                    FileNameVault["BBM_Heatmap_01_FigureFileName"])))
+                {
+                    sb_Heatmaps.Append("\t\t<A NAME='ch'/A>\n");
+                    sb_Heatmaps.Append("\t\t<P ID='table_header'>Proteins of Significant Difference (P-value < 0.01)</P>\n");
+
+                    sb_Heatmaps.Append(clsHTMLFileHandler.GetPictureCode(
+                        FileNameVault["BBM_Heatmap_01_FigureFileName"],
+                        true, "pos_left", null, null));
+                }
+
+                if (File.Exists(
+                    Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["BBM_Heatmap_05_FigureFileName"])))
+                {
+                    sb_Heatmaps.Append("\t\t<A NAME='ch'/A>\n");
+                    sb_Heatmaps.Append("\t\t<P ID='table_header'>Proteins of Significant Difference (P-value < 0.05)</P>\n");
+
+                    sb_Heatmaps.Append(clsHTMLFileHandler.GetPictureCode(
+                        FileNameVault["BBM_Heatmap_05_FigureFileName"],
+                        true, "pos_left", null, null));
+                }
+
+                sb_Heatmaps.Append("\t</DIV>\n");
+                sb_Heatmaps.Append(clsHTMLFileHandler.GetEndBodyEndHtml());
+
+                StreamWriter sw_Heatmaps = new StreamWriter(Path.Combine(esp.WorkDirectory, s_HeatmapsFileName));
+                sw_Heatmaps.Write(sb_Heatmaps);
+                sw_Heatmaps.Close();
 
                 // Construct and write-out the main html summary page
-                StringBuilder sb_HTML = new StringBuilder();
-
-                l_NavBarNodes.Remove(hln_Corr);
+                StringBuilder sb_HTML = new StringBuilder();                
 
                 sb_HTML.Append(clsHTMLFileHandler.GetHtmlHeader());
                 sb_HTML.Append(clsHTMLFileHandler.GetHtmlJavascriptStart());
@@ -418,7 +471,6 @@ namespace Cyclops.ExportModules
                 sb_HTML.Append(clsHTMLFileHandler.GetCSSLink(s_CssFileName));
                 sb_HTML.Append(clsHTMLFileHandler.GetEndHeadStartBody());
                 sb_HTML.Append(clsHTMLFileHandler.GetNavTable(l_NavBarNodes));
-                //sb_HTML.Append(clsHTMLFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
                 sb_HTML.Append(WriteHtmlBody(HTMLFileType.Index));
 
                 sb_HTML.Append("\t<DIV ID='main_content'>\n");                
@@ -598,27 +650,30 @@ namespace Cyclops.ExportModules
                     // P-value 0.05
                     DataRow dr05 = dt_Return.NewRow();
                     double pVal = 0.05;
-                    string s_Cmd = string.Format("nrow({0}[{0}[,'{1}'] < {2},])",
-                        FileNameVault["BbmResultsFdr01"],
+
+                    int i_Prot = clsGenericRCalls.GetNumberOfRowsInTable(
+                        s_RInstance, FileNameVault["BbmResultsFdr01"],
                         FileNameVault["BBM_Pvals"],
-                        pVal);
-                    List<string> l_Prot = clsGenericRCalls.GetCharacterVector(
-                        s_RInstance, s_Cmd);
+                        null, pVal.ToString());
+                    
                     dr05["P-value"] = "< " + pVal;
-                    dr05["Proteins"] = l_Prot[0];
+                    dr05["Proteins"] = i_Prot;
                     dt_Return.Rows.Add(dr05);
+
+
 
                     // P-value 0.01
                     DataRow dr01 = dt_Return.NewRow();
                     pVal = 0.01;
-                    s_Cmd = string.Format("nrow({0}[{0}[,'{1}'] < {2},])",
-                        FileNameVault["BbmResultsFdr01"],
+
+                    i_Prot = clsGenericRCalls.GetNumberOfRowsInTable(
+                        s_RInstance, FileNameVault["BbmResultsFdr01"],
                         FileNameVault["BBM_Pvals"],
-                        pVal);
-                    l_Prot = clsGenericRCalls.GetCharacterVector(
-                        s_RInstance, s_Cmd);
+                        null, pVal.ToString());
+
                     dr01["P-value"] = "< " + pVal;
-                    dr01["Proteins"] = l_Prot[0];
+                    dr01["Proteins"] = i_Prot;
+
                     dt_Return.Rows.Add(dr01);
                 }
             }

@@ -39,6 +39,7 @@ namespace Cyclops.ExportModules
             s_CanvasHeight="600",
             s_DatabaseName="Results.db3",
             s_FileName = "",
+            s_FilteredTableName = "",
             s_FontSize="20",
             s_HeaderFontSize="40",   
             s_HeatmapFileName="",
@@ -96,6 +97,11 @@ namespace Cyclops.ExportModules
         {
             get { return s_FileName; }
             set { s_FileName = value; }
+        }
+        public string FilteredTableName
+        {
+            get { return s_FilteredTableName; }
+            set { s_FilteredTableName = value; }
         }
         public string FontSize
         {
@@ -297,6 +303,9 @@ namespace Cyclops.ExportModules
                         FileName = kvp.Value;
                         if (FileName.Length > 0)
                             b_HasFileName = true;
+                        break;
+                    case "filteredTableName":
+                        FilteredTableName = kvp.Value;
                         break;
                     case "fontSize":
                         FontSize = kvp.Value;

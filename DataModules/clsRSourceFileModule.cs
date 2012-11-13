@@ -196,10 +196,10 @@ namespace Cyclops.DataModules
             /// beginning of each ".R" file, so just need to
             /// clean it up before reading it.
             if (Parameters.ContainsKey("removeFirstCharacters"))
-            {
-                if (Parameters["removeFirstCharacters"].ToString().Equals("true"))
+            {                
+                if (Parameters["removeFirstCharacters"].ToString().ToLower().Equals("true"))
                 {
-                    StreamReader sr = new StreamReader(MyFile);
+                    StreamReader sr = new StreamReader(MyFile);                    
                     string s_Content = sr.ReadToEnd();
                     sr.Close();
                     //s_Content = s_Content.Remove(0, 2);

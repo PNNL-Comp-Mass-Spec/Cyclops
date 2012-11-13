@@ -45,6 +45,8 @@ namespace Cyclops.ExportModules
         // Table names
         private string s_TypticTableSummaryName = "T_MAC_Trypticity_Summary";
         private bool b_LR = false, b_CT = false;
+        private Dictionary<string, string>
+            d_FileNameVault = new Dictionary<string, string>();
         #endregion
 
         #region Constructors
@@ -79,7 +81,11 @@ namespace Cyclops.ExportModules
         #endregion
 
         #region Properties
-        
+        public Dictionary<string, string> FileNameVault
+        {
+            get { return d_FileNameVault; }
+            set { d_FileNameVault = value; }
+        }
         #endregion
 
         #region Methods
@@ -127,12 +133,49 @@ namespace Cyclops.ExportModules
                 Model.IncrementStep(ModuleName);
                 traceLog.Info("Preparing to write LBF Summary HTML File...");
 
+                AddDefaultValues2FileNameVault();
+
                 SetLRandCTflags();
 
                 BuildHtmlFile();
             }
         }
 
+        /// <summary>
+        /// Adds default values to the FileNameVault library
+        /// </summary>
+        private void AddDefaultValues2FileNameVault()
+        {
+            FileNameVault.Add("CssFileName", "styles.css");
+            FileNameVault.Add("DatasetsHtmlFileName", "Datasets.html");
+            FileNameVault.Add("SummaryTableHtmlFileName", "SummaryTables.html");
+            FileNameVault.Add("QcHtmlFileName", "QC.html");
+            FileNameVault.Add("BoxPlotHtmlFileName", "BoxPlots.html");
+            FileNameVault.Add("CorrelationHtmlFileName", "Correlations.html");
+
+            FileNameVault.Add("LbfAnalysisSummaryFigureFileName", "LBF_Analysis_Summary.png");
+            FileNameVault.Add("LbfAnalysisSummaryFigureTableName", "T_MAC_MassTagID_Summary");
+            FileNameVault.Add("LbfMissedCleavageFigureFileName", "MissedCleavage_Summary.png");
+            FileNameVault.Add("LbfMissedCleavageFigureTableName", "T_MissedCleavageSummary");
+            FileNameVault.Add("LbfTrypticSummaryFigureFileName", "Tryptic_Summary.png");
+            FileNameVault.Add("LbfTrypticSummaryFigureTableName", "T_MAC_Trypticity_Summary");
+
+            FileNameVault.Add("LbfBoxplotFigureFileName", "Boxplot_Log_T_Data.png");
+            FileNameVault.Add("LbfBoxplotLRFigureFileName", "Boxplot_LR_Log_T_Data.png");
+            FileNameVault.Add("LbfBoxplotCTFigureFileName", "Boxplot_CT_Log_T_Data.png");
+            
+            FileNameVault.Add("LbfBoxplotRrFigureFileName", "Boxplot_RR_Log_T_Data.png");
+            FileNameVault.Add("LbfBoxplotRrLRFigureFileName", "Boxplot_RR_LR_Log_T_Data.png");
+            FileNameVault.Add("LbfBoxplotRrCTFigureFileName", "Boxplot_RR_CT_Log_T_Data.png");
+
+            FileNameVault.Add("LbfCorrelationHeatmapFigureFileName", "Log_T_Data_CorrelationHeatmap.png");
+            FileNameVault.Add("LbfCorrelationHeatmapLRFigureFileName", "LR_Log_T_Data_CorrelationHeatmap.png");
+            FileNameVault.Add("LbfCorrelationHeatmapCTFigureFileName", "CT_Log_T_Data_CorrelationHeatmap.png");
+
+            FileNameVault.Add("LbfCorrelationHeatmapRrFigureFileName", "RR_Log_T_Data_CorrelationHeatmap.png");
+            FileNameVault.Add("LbfCorrelationHeatmapRrLRFigureFileName", "RR_LR_Log_T_Data_CorrelationHeatmap.png");
+            FileNameVault.Add("LbfCorrelationHeatmapRrCTFigureFileName", "RR_CT_Log_T_Data_CorrelationHeatmap.png");
+        }
 
         /// <summary>
         /// Construct the HTML file
@@ -143,10 +186,13 @@ namespace Cyclops.ExportModules
 
             if (CheckPassedParameters())
             {
-                string s_CssFileName = "styles.css", s_DatasetsFileName = "Datasets.html",
-                    s_SummaryTableFileName = "SummaryTables.html",
-                    s_QCFileName = "QC.html", s_BoxPlotFileName = "BoxPlots.html", 
-                    s_CorrelationHeatmaps = "CorrHeatmaps.html";
+                string
+                    s_CssFileName = FileNameVault["CssFileName"],
+                    s_DatasetsFileName = FileNameVault["DatasetsHtmlFileName"],
+                    s_SummaryTableFileName = FileNameVault["SummaryTableHtmlFileName"],
+                    s_QCFileName = FileNameVault["QcHtmlFileName"],
+                    s_BoxPlotFileName = FileNameVault["BoxPlotHtmlFileName"],
+                    s_CorrelationHeatmaps = FileNameVault["CorrelationHtmlFileName"];
                 List<clsHtmlLinkNode> l_NavBarNodes = new List<clsHtmlLinkNode>();
 
                 l_NavBarNodes.Add(new clsHtmlLinkNode(
@@ -347,8 +393,8 @@ namespace Cyclops.ExportModules
                 StringBuilder sb_QC = new StringBuilder();
 
                 bool b_ContainsTrypticPeptideSummary = 
-                    clsSQLiteHandler.TableExists(s_TypticTableSummaryName, 
-                    Path.Combine(esp.WorkDirectory, "Results.db3"));
+                    clsSQLiteHandler.TableExists(s_TypticTableSummaryName,
+                    Path.Combine(esp.WorkDirectory, esp.DatabaseName));
 
                 clsHtmlLinkNode node_LBFSummary = new clsHtmlLinkNode("LBF Summary", "sum", true);
                 l_NavBarNodes.Add(node_LBFSummary);
@@ -377,9 +423,10 @@ namespace Cyclops.ExportModules
                     clsHTMLFileHandler.GetQCElement(
                         "Label-free Analysis Summary",
                         "table_header",
-                        "LBF_Analysis_Summary.png",
-                        clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_MassTagID_Summary",
-                            Path.Combine(esp.WorkDirectory, "Results.db3")),
+                        FileNameVault["LbfAnalysisSummaryFigureFileName"],
+                        clsSQLiteHandler.GetDataTable("SELECT * FROM " +
+                            FileNameVault["LbfAnalysisSummaryFigureTableName"],
+                            Path.Combine(esp.WorkDirectory, esp.DatabaseName)),
                         1, 1, 1));
 
                 sb_QC.Append("\t\t<A NAME='mc'/A>\n");
@@ -387,9 +434,10 @@ namespace Cyclops.ExportModules
                     clsHTMLFileHandler.GetQCElement(
                         "Missed Cleavage Summary",
                         "table_header",
-                        "MissedCleavage_Summary.png",
-                        clsSQLiteHandler.GetDataTable("SELECT * FROM T_MissedCleavageSummary",
-                            Path.Combine(esp.WorkDirectory, "Results.db3")),
+                        FileNameVault["LbfMissedCleavageFigureFileName"],
+                        clsSQLiteHandler.GetDataTable("SELECT * FROM " +
+                            FileNameVault["LbfMissedCleavageFigureTableName"],
+                            Path.Combine(esp.WorkDirectory, esp.DatabaseName)),
                         1, 1, 1));
 
                 if (b_ContainsTrypticPeptideSummary)
@@ -399,9 +447,10 @@ namespace Cyclops.ExportModules
                         clsHTMLFileHandler.GetQCElement(
                             "Tryptic Peptide Summary",
                             "table_header",
-                            "Tryptic_Summary.png",
-                            clsSQLiteHandler.GetDataTable("SELECT * FROM T_MAC_Trypticity_Summary",
-                                Path.Combine(esp.WorkDirectory, "Results.db3")),
+                            FileNameVault["LbfTrypticSummaryFigureFileName"],
+                            clsSQLiteHandler.GetDataTable("SELECT * FROM " +
+                                FileNameVault["LbfTrypticSummaryFigureTableName"],
+                                Path.Combine(esp.WorkDirectory, esp.DatabaseName)),
                             1, 1, 1));
                 }
 
@@ -456,8 +505,10 @@ namespace Cyclops.ExportModules
 
                 StringBuilder sb_BoxPlots = new StringBuilder();
 
-                bool b_LRBoxplot = File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "Boxplot_LR_Log_T_Data.png")),
-                    b_CTBoxplot = File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "Boxplot_CT_Log_T_Data.png"));
+                bool b_LRBoxplot = File.Exists(Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["LbfBoxplotLRFigureFileName"])),
+                    b_CTBoxplot = File.Exists(Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["LbfBoxplotCTFigureFileName"]));
 
                 clsHtmlLinkNode m_PepLog2BP = new clsHtmlLinkNode("Pep Log2 Boxplot", "log2bp", true);
                 clsHtmlLinkNode m_PepLRBP = new clsHtmlLinkNode("Pep LR Boxplot", "lrlog2bp", true);
@@ -492,7 +543,8 @@ namespace Cyclops.ExportModules
                 sb_BoxPlots.Append("\t\t<DIV>\n");
                 sb_BoxPlots.Append("\t\t<P ID='table_header'>Peptide Log2 Box Plot</P>\n");
                 sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                    "Boxplot_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                    FileNameVault["LbfBoxplotFigureFileName"], 
+                    true, "pos_left", null, null) + "\n");
                 sb_BoxPlots.Append("\t\t</DIV>\n");
                 if (b_LRBoxplot)
                 {
@@ -500,7 +552,8 @@ namespace Cyclops.ExportModules
                     sb_BoxPlots.Append("\t\t<DIV>\n");
                     sb_BoxPlots.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Box Plot</P>\n");
                     sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Boxplot_LR_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                        FileNameVault["LbfBoxplotLRFigureFileName"], 
+                        true, "pos_left", null, null) + "\n");
                     sb_BoxPlots.Append("\t\t</DIV>\n");
                 }
                 if (b_CTBoxplot)
@@ -509,7 +562,8 @@ namespace Cyclops.ExportModules
                     sb_BoxPlots.Append("\t\t<DIV>\n");
                     sb_BoxPlots.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Box Plot</P>\n");
                     sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Boxplot_CT_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                        FileNameVault["LbfBoxplotCTFigureFileName"], 
+                        true, "pos_left", null, null) + "\n");
                     sb_BoxPlots.Append("\t\t</DIV>\n");
                 }
 
@@ -517,7 +571,8 @@ namespace Cyclops.ExportModules
                 sb_BoxPlots.Append("\t\t<DIV>\n");
                 sb_BoxPlots.Append("\t\t<P ID='table_header'>Protein Log2 Box Plot</P>\n");
                 sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                    "Boxplot_RR_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                    FileNameVault["LbfBoxplotRrFigureFileName"], 
+                    true, "pos_left", null, null) + "\n");
                 sb_BoxPlots.Append("\t\t</DIV>\n");
 
                 if (b_LRBoxplot)
@@ -526,7 +581,8 @@ namespace Cyclops.ExportModules
                     sb_BoxPlots.Append("\t\t<DIV>\n");
                     sb_BoxPlots.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Box Plot</P>\n");
                     sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Boxplot_RR_LR_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                        FileNameVault["LbfBoxplotRrLRFigureFileName"], 
+                        true, "pos_left", null, null) + "\n");
                     sb_BoxPlots.Append("\t\t</DIV>\n");
                 }
                 if (b_CTBoxplot)
@@ -535,7 +591,8 @@ namespace Cyclops.ExportModules
                     sb_BoxPlots.Append("\t\t<DIV>\n");
                     sb_BoxPlots.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Box Plot</P>\n");
                     sb_BoxPlots.Append(clsHTMLFileHandler.GetPictureCode(
-                        "Boxplot_RR_CT_Log_T_Data.png", true, "pos_left", null, null) + "\n");
+                        FileNameVault["LbfBoxplotRrCTFigureFileName"], 
+                        true, "pos_left", null, null) + "\n");
                     sb_BoxPlots.Append("\t\t</DIV>\n");
                 }
 
@@ -559,8 +616,10 @@ namespace Cyclops.ExportModules
 
                 StringBuilder sb_CorrHeatmaps = new StringBuilder();
 
-                b_LRBoxplot = File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "LR_Log_T_Data_CorrelationHeatmap.png"));
-                b_CTBoxplot = File.Exists(Path.Combine(esp.WorkDirectory, "Plots", "CT_Log_T_Data_CorrelationHeatmap.png"));
+                b_LRBoxplot = File.Exists(Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["LbfCorrelationHeatmapLRFigureFileName"]));
+                b_CTBoxplot = File.Exists(Path.Combine(esp.WorkDirectory, "Plots",
+                    FileNameVault["LbfCorrelationHeatmapCTFigureFileName"]));
 
                 clsHtmlLinkNode m_PepLog2Corr = new clsHtmlLinkNode("Pep Log2 Corr", "log2ch", true);
                 clsHtmlLinkNode m_PepLRCorr = new clsHtmlLinkNode("Pep LR Corr", "lrlog2ch", true);
@@ -596,7 +655,8 @@ namespace Cyclops.ExportModules
                 sb_CorrHeatmaps.Append("\t\t<DIV>\n");
                 sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Peptide Log2 Correlation Heatmap</P>\n");
                 sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                    "Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                    FileNameVault["LbfCorrelationHeatmapFigureFileName"], 
+                    true, "pos_left", null, null) + "\n");
                 sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 if (b_LRBoxplot)
                 {
@@ -604,7 +664,8 @@ namespace Cyclops.ExportModules
                     sb_CorrHeatmaps.Append("\t\t<DIV>\n");
                     sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Correlation Heatmap</P>\n");
                     sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                        "LR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                        FileNameVault["LbfCorrelationHeatmapLRFigureFileName"], 
+                        true, "pos_left", null, null) + "\n");
                     sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 }
                 if (b_CTBoxplot)
@@ -613,7 +674,8 @@ namespace Cyclops.ExportModules
                     sb_CorrHeatmaps.Append("\t\t<DIV>\n");
                     sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Correlation Heatmap</P>\n");
                     sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                        "CT_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                        FileNameVault["LbfCorrelationHeatmapCTFigureFileName"], 
+                        true, "pos_left", null, null) + "\n");
                     sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 }
 
@@ -621,7 +683,8 @@ namespace Cyclops.ExportModules
                 sb_CorrHeatmaps.Append("\t\t<DIV>\n");
                 sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Protein Log2 Correlation Heatmap</P>\n");
                 sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                    "RR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                    FileNameVault["LbfCorrelationHeatmapRrFigureFileName"], 
+                    true, "pos_left", null, null) + "\n");
                 sb_CorrHeatmaps.Append("\t\t</DIV>\n");
 
                 if (b_LRBoxplot)
@@ -630,7 +693,8 @@ namespace Cyclops.ExportModules
                     sb_CorrHeatmaps.Append("\t\t<DIV>\n");
                     sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Correlation Heatmap</P>\n");
                     sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                        "RR_LR_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                        FileNameVault["LbfCorrelationHeatmapRrLRFigureFileName"], 
+                        true, "pos_left", null, null) + "\n");
                     sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 }
                 if (b_CTBoxplot)
@@ -639,7 +703,8 @@ namespace Cyclops.ExportModules
                     sb_CorrHeatmaps.Append("\t\t<DIV>\n");
                     sb_CorrHeatmaps.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Correlation Heatmap</P>\n");
                     sb_CorrHeatmaps.Append(clsHTMLFileHandler.GetPictureCode(
-                        "RR_CT_Log_T_Data_CorrelationHeatmap.png", true, "pos_left", null, null) + "\n");
+                        FileNameVault["LbfCorrelationHeatmapRrCTFigureFileName"], 
+                        true, "pos_left", null, null) + "\n");
                     sb_CorrHeatmaps.Append("\t\t</DIV>\n");
                 }
 

@@ -273,6 +273,14 @@ namespace Cyclops.ExportModules
                 traceLog.Error("ERROR ExportTable: 'tableName' was not found in the passed parameters");
                 b_2Param = false;
             }
+            if (esp.Source.ToUpper().Equals("R"))
+            {
+                if (!clsGenericRCalls.ContainsObject(s_RInstance, esp.TableName))
+                {
+                    traceLog.Error("ERROR ExportTable: 'tableName' is not present in the working directory");
+                    b_2Param = false;
+                }
+            }
             if (!esp.HasWorkDirectory)
             {
                 Model.SuccessRunningPipeline = false;

@@ -581,7 +581,73 @@ namespace Cyclops
                 l_Return.Add(s);
             }
 
-            return l_Return;
+            return l_Return;        
+        }
+
+        /// <summary>
+        /// Get the number of row in a table. Optionally, the table can be
+        /// filtered on a single column by a min value, max value, or both.
+        /// </summary>
+        /// <param name="InstanceOfR">Instance of your R workspace</param>
+        /// <param name="TableName">Name of table to report # of rows</param>
+        /// <param name="ColumnNameToFilter">Name of column to optionally filter on</param>
+        /// <param name="MinValue">Minimum value in column</param>
+        /// <param name="MaxValue">Maximum value in column</param>
+        /// <returns>Number of rows</returns>
+        public static int GetNumberOfRowsInTable(string InstanceOfR,
+            string TableName, string ColumnNameToFilter,
+            string MinValue, string MaxValue)
+        {
+            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
+            int i_Return = 0;
+
+            string s_Filter = "";
+
+            #region Construct the Filter
+            if (!string.IsNullOrEmpty(ColumnNameToFilter))
+            {
+                if (TableContainsColumn(InstanceOfR, TableName,
+                    ColumnNameToFilter))
+                {
+                    if (!string.IsNullOrEmpty(MinValue) &
+                        !string.IsNullOrEmpty(MaxValue))
+                    {
+                        s_Filter = string.Format(
+                            "[{0}[,'{1}'] > {2} & {0}[,'{1}'] < {3},]",
+                            TableName,
+                            ColumnNameToFilter,
+                            MinValue,
+                            MaxValue);
+                    }
+                    else if (!string.IsNullOrEmpty(MinValue))
+                    {
+                        s_Filter = string.Format(
+                            "[{0}[,'{1}'] > {2},]",
+                            TableName,
+                            ColumnNameToFilter,
+                            MinValue);
+                    }
+                    else if (!string.IsNullOrEmpty(MaxValue))
+                    {
+                        s_Filter = string.Format(
+                            "[{0}[,'{1}'] < {2},]",
+                            TableName,
+                            ColumnNameToFilter,
+                            MaxValue);
+                    }
+                }
+            }
+            #endregion
+
+            string s_Cmd = string.Format(
+                "nrow({0}{1})",
+                TableName,
+                !string.IsNullOrEmpty(s_Filter) ? s_Filter : "");
+
+            CharacterVector cv = engine.EagerEvaluate(s_Cmd).AsCharacter();
+            i_Return = Convert.ToInt32(cv[0]);
+
+            return i_Return;
         }
 
         /// <summary>
@@ -657,8 +723,11 @@ namespace Cyclops
         public static bool TableContainsColumn(string InstanceOfR, string TableName, string ColumnName)
         {
             bool b_Return = false;
-            List<string> l_Columns = GetColumnNames(InstanceOfR, TableName);
-            b_Return = l_Columns.Contains(ColumnName) ? true : false;
+            if (ContainsObject(InstanceOfR, TableName))
+            {                
+                List<string> l_Columns = GetColumnNames(InstanceOfR, TableName);
+                b_Return = l_Columns.Contains(ColumnName) ? true : false;
+            }
             return b_Return;
         }
 

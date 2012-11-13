@@ -509,6 +509,19 @@ namespace Cyclops.Operations
                         Model.NumberOfModules++;
                     }
                     break;
+                case "Heatmap":
+                    VisualizationModules.clsHeatmap heatMap = new VisualizationModules.clsHeatmap(Model, s_RInstance);
+                    heatMap.Parameters = GetParameters(Rows);
+                    if (Root == null)
+                    {
+                        traceLog.Error("ERROR: Trying to add Heatmap node to Root. This operation can not be performed!");
+                    }
+                    else
+                    {
+                        CurrentNode.AddVisualChild(heatMap);
+                        Model.NumberOfModules++;
+                    }
+                    break;
                 case "Hexbin":
                     VisualizationModules.clsHexbin hexbin = new VisualizationModules.clsHexbin(Model, s_RInstance);
                     hexbin.Parameters = GetParameters(Rows);

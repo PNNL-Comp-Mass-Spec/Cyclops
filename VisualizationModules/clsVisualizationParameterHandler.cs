@@ -54,15 +54,20 @@ namespace Cyclops.VisualizationModules
             s_Factor = "1",
             s_FatorTable = "",
             s_FileName = "",
+            s_FilteredTableName = "",
             s_FixedEffect = "",
             s_FontSize = "12",
+            s_HeatmapClusterColumns = "FALSE",
             s_HeatmapClusterFun = "hclust2",
+            s_HeatmapClusterRows = "TRUE",
             s_HeatmapColDendrogram = "FALSE",
             s_HeatmapColors = "c(\"green\", \"black\", \"red\")",
             s_HeatmapColorScaleDegree = "20",
             s_HeatmapColSideColors = "",
-            s_HeatmapDist = "dist2",
+            s_HeatmapDist = "na.dist2",
             s_HeatmapDrawDendrogram = "both",
+            s_HeatmapIncludeRowLabels = "FALSE",
+            s_HeatmapResultsTableName = "",
             s_HeatmapRmNA = "TRUE",
             s_HeatmapRowDendrogram = "TRUE",
             s_HeatmapScale = "row",
@@ -78,12 +83,15 @@ namespace Cyclops.VisualizationModules
             s_Log = "FALSE",
             s_LogBase = "NULL",
             s_Main = "",
+            s_Margin = "c(10,10)",
             s_Mode = "",
             s_ModuleName = "",
             s_Names = "",
+            s_NullReplacement="NULL",
             s_Outliers = "TRUE",
             s_PlotFileName = "",
             s_PointSize = "12",
+            s_Pvalue = "0.05",
             s_PvalueColumn = "",
             s_Resolution = "600",
             s_RowFactorTable = "",
@@ -102,7 +110,8 @@ namespace Cyclops.VisualizationModules
             s_yColumn = "",
             s_yLab = "",
             s_yMin = "NULL",
-            s_yMax = "NULL";            
+            s_yMax = "NULL",
+            s_ZeroReplacement="NULL";            
 
         private bool b_PlotDir = false, b_HasTableName = false, b_HasPlotFileName = false,
             b_HasXcolumn = false, b_HasYcolumn = false, b_AbsLogX = false, 
@@ -170,6 +179,11 @@ namespace Cyclops.VisualizationModules
         {
             get { return s_Factor; }
             set { s_Factor = value; }
+        }
+        public string FilteredTableName
+        {
+            get { return s_FilteredTableName; }
+            set { s_FilteredTableName = value; }
         }
         /// <summary>
         /// Fixed Effect Factor passed in through the ATM
@@ -389,6 +403,16 @@ namespace Cyclops.VisualizationModules
             get { return s_HeatmapColors; }
             set { s_HeatmapColors = value; }
         }
+        public string HeatmapIncludeRowLabels
+        {
+            get { return s_HeatmapIncludeRowLabels; }
+            set { s_HeatmapIncludeRowLabels = value; }
+        }
+        public string HeatmapResultsTableName
+        {
+            get { return s_HeatmapResultsTableName; }
+            set { s_HeatmapResultsTableName = value; }
+        }
         public string HeatmapScaleMin
         {
             get { return s_HeatmapScaleMin; }
@@ -404,10 +428,20 @@ namespace Cyclops.VisualizationModules
             get { return s_HeatmapDist; }
             set { s_HeatmapDist = value; }
         }
+        public string HeatmapClusterColumns
+        {
+            get { return s_HeatmapClusterColumns; }
+            set { s_HeatmapClusterColumns = value; }
+        }
         public string HeatmapClusterFunction
         {
             get { return s_HeatmapClusterFun; }
             set { s_HeatmapClusterFun = value; }
+        }
+        public string HeatmapClusterRows
+        {
+            get { return s_HeatmapClusterRows; }
+            set { s_HeatmapClusterRows = value; }
         }
         public string HeatmapRowDendrogram
         {
@@ -510,6 +544,16 @@ namespace Cyclops.VisualizationModules
             get { return b_AbsLogY; }
             set { b_AbsLogY = value; }
         }
+        public string Margin
+        {
+            get { return s_Margin; }
+            set { s_Margin = value; }
+        }
+        public string PValue
+        {
+            get { return s_Pvalue; }
+            set { s_Pvalue = value; }
+        }
 
         public string PValueColumn
         {
@@ -569,6 +613,18 @@ namespace Cyclops.VisualizationModules
             get { return s_Type; }
             set { s_Type = value; }
         }
+
+        public string NullReplacement
+        {
+            get { return s_NullReplacement; }
+            set { s_NullReplacement = value; }
+        }
+
+        public string ZeroReplacement
+        {
+            get { return s_ZeroReplacement; }
+            set { s_ZeroReplacement = value; }
+        }
         #endregion
 
         #region Methods
@@ -602,40 +658,43 @@ namespace Cyclops.VisualizationModules
         {
             foreach(KeyValuePair<string, dynamic> kvp in d_Param)
             {
-                switch (kvp.Key)
+                switch (kvp.Key.ToLower())
                 {
-                    case "tableName":
+                    case "tablename":
                         TableName = kvp.Value;
                         if (TableName.Length > 0)
                             HasTableName = true;
                         break;
-                    case "boxWidth":
+                    case "boxwidth":
                         BoxWidth = kvp.Value;
                         break;
-                    case "colorByFactor":
+                    case "colorbyfactor":
                         ColorByFactor = kvp.Value;
                         break;
-                    case "columnFactorTable":
+                    case "columnfactortable":
                         ColumnFactorTable = kvp.Value;
                         break;
-                    case "Consolidation_Factor":
+                    case "consolidation_factor":
                         ConsolidationFactor = kvp.Value;
                         break;
-                    case "correlationListName":
+                    case "correlationlistname":
                         CorrelationListName = kvp.Value;
                         break;
-                    case "doYLim":
+                    case "doylim":
                         DoYLim = kvp.Value;
                         break;
                     case "factor":
                         Factor = kvp.Value;
                         break;
-                    case "factorTable":
+                    case "factortable":
                         break;
-                    case "fileName":
+                    case "filename":
                         FileName = kvp.Value;
                         break;
-                    case "Fixed_Effect":
+                    case "filteredtablename":
+                        FilteredTableName = kvp.Value;
+                        break;
+                    case "fixed_effect":
                         FixedEffect = kvp.Value;
                         break;
                     case "width":
@@ -647,13 +706,16 @@ namespace Cyclops.VisualizationModules
                     case "horizontal":
                         Horizontal = kvp.Value;
                         break;
+                    case "margin":
+                        Margin = kvp.Value;
+                        break;
                     case "pointsize":
                         PointSize = kvp.Value;
-                        break;
-                    case "xLab":
+                        break;                        
+                    case "xlab":
                         xLabel = kvp.Value;
                         break;
-                    case "yLab":
+                    case "ylab":
                         yLabel = kvp.Value;
                         break;
                     case "main":
@@ -665,12 +727,12 @@ namespace Cyclops.VisualizationModules
                     case "names":
                         s_Names = kvp.Value;
                         break;
-                    case "xColumn":
+                    case "xcolumn":
                         xColumn = kvp.Value;
                         if (xColumn.Length > 0)
                             HasXcolumn = true;
                         break;
-                    case "yColumn":
+                    case "ycolumn":
                         yColumn = kvp.Value;
                         if (yColumn.Length > 0)
                             HasYcolumn = true;
@@ -683,12 +745,12 @@ namespace Cyclops.VisualizationModules
                         if (ImageType.Length > 0)
                             HasImageType = true;
                         break;
-                    case "workDir":
+                    case "workdir":
                         WorkDir = kvp.Value.Replace('\\', '/');
                         if (WorkDir.Length > 0)
                             HasWorkDir = true;
                         break;
-                    case "plotFileName":
+                    case "plotfilename":
                         PlotFileName = kvp.Value;
                         if (PlotFileName.Length > 0)
                             HasPlotFileName = true;
@@ -696,13 +758,13 @@ namespace Cyclops.VisualizationModules
                     case "outliers": // default TRUE
                         s_Outliers = kvp.Value;
                         break;
-                    case "backgroundColor":
+                    case "backgroundcolor":
                         BackgroundColor = kvp.Value;
                         break;
-                    case "barColor":
+                    case "barcolor":
                         BarColor = kvp.Value;
                         break;
-                    case "fontSize":
+                    case "fontsize":
                         FontSize = kvp.Value;
                         break;
                     case "hist_type":
@@ -710,102 +772,117 @@ namespace Cyclops.VisualizationModules
                         if (HistogramType.Length > 0)
                             HasHistogramType = true;
                         break;
-                    case "addRug":
+                    case "addrug":
                         AddRug = kvp.Value.ToUpper();
                         break;
-                    case "addDist":
+                    case "adddist":
                         AddDist = kvp.Value.ToUpper();
                         break;
-                    case "heatmapColors":
+                    case "heatmapcolors":
                         HeatmapColors = kvp.Value;
                         break;
-                    case "heatmapScale":
+                    case "heatmapscale":
                         HeatmapScale = kvp.Value;
                         break;
-                    case "heatmapScaleMin":
+                    case "heatmapscalemin":
                         HeatmapScaleMin = kvp.Value;
                         break;
-                    case "heatmapScaleMax":
+                    case "heatmapscalemax":
                         HeatmapScaleMax = kvp.Value;
                         break;
-                    case "heatmapDist":
+                    case "heatmapdist":
                         HeatmapDist = kvp.Value;
                         break;
-                    case "heatmapClusterFunction":
+                    case "heatmapclustercolumns":
+                        HeatmapClusterColumns = kvp.Value;
+                        break;
+                    case "heatmapclusterfunction":
                         HeatmapClusterFunction = kvp.Value;
                         break;
-                    case "heatmapRowDengrogram":
+                    case "heatmapclusterrows":
+                        HeatmapClusterRows = kvp.Value;
+                        break;
+                    case "heatmaprowdengrogram":
                         HeatmapRowDendrogram = kvp.Value.ToUpper();
                         break;
-                    case "heatmapColDendrogram":
+                    case "heatmapcoldendrogram":
                         HeatmapColDendrogram = kvp.Value.ToUpper();
                         break;
-                    case "heatmapDrawDendrogram":
+                    case "heatmapincluderowlabels":
+                        HeatmapIncludeRowLabels = kvp.Value;
+                        break;
+                    case "heatmapdrawdendrogram":
                         HeatmapDrawDendrogram = kvp.Value;
                         break;
-                    case "heatmapRemoveNAs":
+                    case "heatmapresultstablename":
+                        HeatmapResultsTableName = kvp.Value;
+                        break;
+                    case "heatmapremovenas":
                         HeatmapRemoveNA = kvp.Value;
                         break;
-                    case "heatmapSymm":
+                    case "heatmapsymm":
                         HeatmapSymm = kvp.Value;
                         break;
-                    case "heatmapTrace":
+                    case "heatmaptrace":
                         HeatmapTrace = kvp.Value;
                         break;
-                    case "heatmapColSideColors":
+                    case "heatmapcolsidecolors":
                         s_HeatmapColSideColors = kvp.Value;
                         break;
-                    case "heatmapColorScaleDegree":
+                    case "heatmapcolorscaledegree":
                         s_HeatmapColorScaleDegree = kvp.Value;
                         break;
-                    case "labelScale": // default 0.8
+                    case "labelscale": // default 0.8
                         s_LabelScale = kvp.Value;
                         break; 
                     case "log":
                         s_Log = kvp.Value;
                         break;
-                    case "logBase":
+                    case "logbase":
                         s_LogBase = kvp.Value;
                         break;
-                    case "dataColumns":
+                    case "datacolumns":
                         DataColumns = kvp.Value;
                         if (DataColumns.Length > 0)
                             HasDataColumns = true;
                         break;
-                    case "plotDir":
+                    case "plotdir":
                         string spd = kvp.Value;
                         PlotDirectory = true ? spd.ToLower().Equals("true") : false;
                         break;
-                    case "pValueColumn":
+                    case "pvalue":
+                        PValue = kvp.Value;
+                        break;
+                    case "pvaluecolumn":
                         s_PvalueColumn = kvp.Value;
                         break;
-                    case "absLogX":
+                    case "abslogx":
                         string salx = kvp.Value;
                         b_AbsLogX = true ? salx.ToLower().Equals("true") : false;
                         break;
-                    case "absLogY":
+                    case "abslogy":
                         string saly = kvp.Value; 
                         b_AbsLogY = true ? saly.ToLower().Equals("true") : false;
                         break;
-                    case "showCounts": // defaults to TRUE
+                    case "showcounts": // defaults to TRUE
                         ShowCount = kvp.Value;
                         break;
-                    case "showLegend":  // defaults to TRUE
+                    case "showlegend":  // defaults to TRUE
                         ShowLegend = kvp.Value;
                         break;
-                    case "skipTheFirstColumn":  // defaults to FALSE
+                    case "skipthefirstcolumn":  // defaults to FALSE
                         s_SkipTheFirstColumn = kvp.Value;
                         break;
                     case "stamp": // defaults to NULL
                         Stamp = kvp.Value;
                         break;
-                    case "significanceTable":
+                    case "significancetable":
                         SignificanceTable = kvp.Value;
                         break;
                     case "resolution":
                         Resolution = kvp.Value;
                         break;
-                    case "rowFactorTable":
+                    case "rowfactortable":
                         RowFactorTable = kvp.Value;
                         break;
                     case "threshold":
@@ -814,11 +891,17 @@ namespace Cyclops.VisualizationModules
                     case "type":
                         s_Type = kvp.Value;
                         break;
-                    case "yMin":
+                    case "ymin":
                         yMin = kvp.Value;
                         break;
-                    case "yMax":
+                    case "ymax":
                         yMax = kvp.Value;
+                        break;
+                    case "nullreplacement":
+                        NullReplacement = kvp.Value;
+                        break;
+                    case "zeroreplacment":
+                        ZeroReplacement = kvp.Value;
                         break;
                 }                
             }

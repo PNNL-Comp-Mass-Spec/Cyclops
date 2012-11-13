@@ -83,7 +83,11 @@ namespace Cyclops.VisualizationModules
         #endregion
 
         #region Properties
-        
+        public string FactorColumn
+        {
+            get;
+            set;
+        }
         #endregion
 
         #region Methods
@@ -125,19 +129,30 @@ namespace Cyclops.VisualizationModules
             bool b_2Param = true; 
 
             //NECESSARY PARAMETERS
-            if (!vgp.HasTableName)
+            if (b_2Param & !vgp.HasTableName)
             {
                 traceLog.Error("ERROR Boxplot class: 'tableName' was not found in the passed parameters");
                 b_2Param = false;
                 Model.SuccessRunningPipeline = false;
             }
-            if (!vgp.HasPlotFileName)
+            // if the table does not exist, do not throw an cyclops error, but do not plot boxplots
+            // this is because Linear Regression only runs if there is a consolidation factor
+            // if the linear regression table does not exist, then don't run boxplot
+            if (b_2Param & !clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+            {
+                //Model.SuccessRunningPipeline = false;
+                traceLog.Info("ERROR Boxplot class: '" + vgp.TableName +
+                    "' was not found in the R workspace!");
+                b_2Param = false;
+            }
+            if (b_2Param & !vgp.HasPlotFileName)
             {
                 traceLog.Error("ERROR Boxplot class: 'plotFileName' was not found in the passed parameters");
                 b_2Param = false;
                 Model.SuccessRunningPipeline = false;
             }
-            if (!string.IsNullOrEmpty(vgp.ColumnFactorTable))
+
+            if (b_2Param & !string.IsNullOrEmpty(vgp.ColumnFactorTable))
             {
                 List<string> l_FactorTableColNames = clsGenericRCalls.GetColumnNames(
                 s_RInstance,
@@ -148,19 +163,21 @@ namespace Cyclops.VisualizationModules
                         vgp.ConsolidationFactor))
                         vgp.ConsolidationFactor = l_FactorTableColNames[0];
             }
-
-            // if the table does not exist, do not throw an cyclops error, but do not plot boxplots
-            // this is because Linear Regression only runs if there is a consolidation factor
-            // if the linear regression table does not exist, then don't run boxplot
-            if (!clsGenericRCalls.ContainsObject(s_RInstance, vgp.TableName))
+            else if (b_2Param & !clsGenericRCalls.ContainsObject(s_RInstance, vgp.ColumnFactorTable))
             {
-                //Model.SuccessRunningPipeline = false;
-                traceLog.Info("ERROR Boxplot class: '" + vgp.TableName +
-                    "' was not found in the R workspace!");
+                traceLog.Error("ERROR Boxplot class: 'columnFactorTable', " +
+                    vgp.ColumnFactorTable + ", was not found in the R environment.");
                 b_2Param = false;
             }
-                        
-            
+
+            if (b_2Param & clsGenericRCalls.TableContainsColumn(s_RInstance, vgp.ColumnFactorTable, vgp.ConsolidationFactor))
+            {
+                FactorColumn = vgp.ConsolidationFactor;
+            }
+            else if (b_2Param & clsGenericRCalls.TableContainsColumn(s_RInstance, vgp.ColumnFactorTable, vgp.FixedEffect))
+            {
+                FactorColumn = vgp.FixedEffect;
+            }
 
             return b_2Param;
         }
@@ -168,21 +185,7 @@ namespace Cyclops.VisualizationModules
         private void CreateBoxPlot()
         {
             string s_RStatement = "";
-
-            // If a Factor to color by has been chosen, make sure that the
-            // Factor Table contains the column.
-            bool b_FactorIsPresent = true;
-            if (!vgp.FixedEffect.Equals(""))
-            {
-                b_FactorIsPresent = clsGenericRCalls.TableContainsColumn(s_RInstance, vgp.ColumnFactorTable, vgp.FixedEffect);
-                if (!b_FactorIsPresent)
-                {
-                    traceLog.Error("ERROR in BoxPlot: The factor table (" + vgp.ColumnFactorTable + ") " +
-                        "does NOT contain the factor " + vgp.FixedEffect);
-                    Model.SuccessRunningPipeline = false;
-                }
-            }
-                        
+                                    
             string s_TmpTable = GetTemporaryTableName();
             if (vgp.SkipTheFirstColumn.ToLower().Equals("true"))
             {
@@ -210,7 +213,7 @@ namespace Cyclops.VisualizationModules
                 vgp.PlotFileName,                                       // 2
                 vgp.ColorByFactor,                                      // 3
                 vgp.ColumnFactorTable,                                  // 4
-                vgp.ConsolidationFactor.Length > 0 ? "\"" + vgp.ConsolidationFactor + "\"": "NULL",  // 5
+                !string.IsNullOrEmpty(FactorColumn) ? "\"" + FactorColumn + "\"" : "NULL",  // 5
                 vgp.Outliers,                                           // 6
                 vgp.Color,                                              // 7
                 vgp.BackgroundColor,                                    // 8
