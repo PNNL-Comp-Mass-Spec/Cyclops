@@ -156,7 +156,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Transforming Datasets",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
 
                 if (dsp.AutoScale)
@@ -170,7 +170,7 @@ namespace Cyclops.DataModules
 
                         if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                             "Autoscaling Transformed Datasets",
-                            Model.StepNumber, Model.NumberOfModules))
+                            this.StepNumber, Model.NumberOfModules))
                             Model.SuccessRunningPipeline = false;
                     }
                 }

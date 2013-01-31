@@ -156,7 +156,7 @@ namespace Cyclops.DataModules
                 Model.SuccessRunningPipeline = clsGenericRCalls.Run(
                     s_RStatement, s_RInstance,
                     "Constructing KBase Formatted Table",
-                    Model.StepNumber, Model.NumberOfModules);
+                    this.StepNumber, Model.NumberOfModules);
             }
         }
         #endregion

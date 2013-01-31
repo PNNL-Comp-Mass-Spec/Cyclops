@@ -102,7 +102,7 @@ namespace Cyclops.VisualizationModules
 
                         if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                             "Loading Libraries for Hexbin Plot",
-                            Model.StepNumber, Model.NumberOfModules))
+                            this.StepNumber, Model.NumberOfModules))
                             Model.SuccessRunningPipeline = false;
 
                         BinData();
@@ -220,7 +220,7 @@ namespace Cyclops.VisualizationModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Binning Data for Hexbin",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 
@@ -262,7 +262,7 @@ namespace Cyclops.VisualizationModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Creating Hexbin Image File",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
 
                 s_RStatement = "";
@@ -277,7 +277,7 @@ namespace Cyclops.VisualizationModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Saving Hexbin Plot",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }  
         }

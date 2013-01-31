@@ -206,7 +206,7 @@ namespace Cyclops.DataModules
                 Model.SuccessRunningPipeline = clsGenericRCalls.Run(
                     s_RStatement, s_RInstance,
                     "Filtering data by peptide and protein counts",
-                    Model.StepNumber, Model.NumberOfModules);
+                    this.StepNumber, Model.NumberOfModules);
 
                 s_RStatement = "";
 
@@ -225,7 +225,7 @@ namespace Cyclops.DataModules
                 Model.SuccessRunningPipeline = clsGenericRCalls.Run(
                     s_RStatement, s_RInstance,
                     "Filtering data by peptide and protein counts",
-                    Model.StepNumber, Model.NumberOfModules);
+                    this.StepNumber, Model.NumberOfModules);
             }
             else
             {

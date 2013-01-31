@@ -190,7 +190,7 @@ namespace Cyclops.DataModules
             {
                 string s_TmpColMetadataTable = GetOrganizedFactorsVector(
                     s_RInstance, dsp.InputTableName,
-                    dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
+                    dsp.FactorTable, dsp.FactorColumn, this.StepNumber,
                     Model.NumberOfModules, "Alias");
 
                 string s_RStatement = "";
@@ -204,7 +204,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "BETA-BINOMIAL/QUASITEL MODEL",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
                 
                 // Make sure that the factors table contains the field to perform the comparison
@@ -236,7 +236,7 @@ namespace Cyclops.DataModules
 
                         if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                             "BETA-BINOMIAL/QUASITEL MODEL",
-                            Model.StepNumber, Model.NumberOfModules))
+                            this.StepNumber, Model.NumberOfModules))
                             Model.SuccessRunningPipeline = false;
                     }
                     else

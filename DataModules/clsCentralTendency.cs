@@ -137,7 +137,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Central Tendency Statement",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }

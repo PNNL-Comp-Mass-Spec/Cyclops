@@ -179,10 +179,12 @@ namespace Cyclops.Operations
         private void AddDataModule(DataRow[] Rows)
         {
             string s_Module = Rows[0]["Module"].ToString();
+            int i_StepNumber = Int32.Parse(Rows[0]["Step"].ToString());
             switch (s_Module)
             {
                 case "Aggregate":
                     DataModules.clsAggregate aggregate = new DataModules.clsAggregate(Model, s_RInstance);
+                    aggregate.StepNumber = i_StepNumber;
                     aggregate.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -199,6 +201,7 @@ namespace Cyclops.Operations
                     break;
                 case "Anova":
                     DataModules.clsANOVA anova = new DataModules.clsANOVA(Model, s_RInstance);
+                    anova.StepNumber = i_StepNumber;
                     anova.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -215,6 +218,7 @@ namespace Cyclops.Operations
                     break;
                 case "CentralTendency":
                     DataModules.clsCentralTendency centralTend = new DataModules.clsCentralTendency(Model, s_RInstance);
+                    centralTend.StepNumber = i_StepNumber;
                     centralTend.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -231,6 +235,7 @@ namespace Cyclops.Operations
                     break;
                 case "CleanDataAndColumnFactors":
                     DataModules.clsCleanDataAndColumnFactors cleanUp = new DataModules.clsCleanDataAndColumnFactors(Model, s_RInstance);
+                    cleanUp.StepNumber = i_StepNumber;
                     cleanUp.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -247,6 +252,7 @@ namespace Cyclops.Operations
                     break;
                 case "FilterByPeptideProteinCount":
                     DataModules.clsFilterByPeptideProteinCount filterByPepProtCnt = new DataModules.clsFilterByPeptideProteinCount(Model, s_RInstance);
+                    filterByPepProtCnt.StepNumber = i_StepNumber;
                     filterByPepProtCnt.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -263,6 +269,7 @@ namespace Cyclops.Operations
                     break; 
                 case "FilterByTable":
                     DataModules.clsFilterByAnotherTable filterByTable = new DataModules.clsFilterByAnotherTable(Model, s_RInstance);
+                    filterByTable.StepNumber = i_StepNumber;
                     filterByTable.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -279,6 +286,7 @@ namespace Cyclops.Operations
                     break;
                 case "FoldChange":
                     DataModules.clsFoldChange fc = new DataModules.clsFoldChange(Model, s_RInstance);
+                    fc.StepNumber = i_StepNumber;
                     fc.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -295,6 +303,7 @@ namespace Cyclops.Operations
                     break;
                 case "Kbase":
                     DataModules.clsKBaseFormat kbase = new DataModules.clsKBaseFormat(Model, s_RInstance);
+                    kbase.StepNumber = i_StepNumber;
                     kbase.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -311,6 +320,7 @@ namespace Cyclops.Operations
                     break;
                 case "LinearRegression":
                     DataModules.clsLinearRegression linreg = new DataModules.clsLinearRegression(Model, s_RInstance);
+                    linreg.StepNumber = i_StepNumber;
                     linreg.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -327,6 +337,7 @@ namespace Cyclops.Operations
                     break;
                 case "LoadRSourceFiles":
                     DataModules.clsRSourceFileModule load = new DataModules.clsRSourceFileModule(Model, s_RInstance);
+                    load.StepNumber = i_StepNumber;
                     load.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -343,6 +354,7 @@ namespace Cyclops.Operations
                     break;
                 case "LoadRWorkspace":
                     DataModules.clsLoadRWorkspaceModule source = new DataModules.clsLoadRWorkspaceModule(Model, s_RInstance);
+                    source.StepNumber = i_StepNumber;
                     source.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -359,6 +371,7 @@ namespace Cyclops.Operations
                     break;
                 case "Merge":
                     DataModules.clsMerge merge = new DataModules.clsMerge(Model, s_RInstance);
+                    merge.StepNumber = i_StepNumber;
                     merge.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -375,6 +388,7 @@ namespace Cyclops.Operations
                     break;
                 case "Import":
                     DataModules.clsImportDataModule import = new DataModules.clsImportDataModule(Model, s_RInstance);
+                    import.StepNumber = i_StepNumber;
                     import.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -391,6 +405,7 @@ namespace Cyclops.Operations
                     break;
                 case "MissedCleavageSummary":
                     DataModules.clsMissedCleavageAssessor mca = new DataModules.clsMissedCleavageAssessor(Model, s_RInstance);
+                    mca.StepNumber = i_StepNumber;
                     mca.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -407,6 +422,7 @@ namespace Cyclops.Operations
                     break;
                 case "ProteinProphet":
                     DataModules.clsProteinProphet protProph = new DataModules.clsProteinProphet(Model, s_RInstance);
+                    protProph.StepNumber = i_StepNumber;
                     protProph.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -423,6 +439,7 @@ namespace Cyclops.Operations
                     break;
                 case "PValueAdjust":
                     DataModules.clsPValueAdjust pvaladj = new DataModules.clsPValueAdjust(Model, s_RInstance);
+                    pvaladj.StepNumber = i_StepNumber;
                     pvaladj.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -439,6 +456,7 @@ namespace Cyclops.Operations
                     break;
                 case "RMD":
                     DataModules.clsRMD rmd = new DataModules.clsRMD(Model, s_RInstance);
+                    rmd.StepNumber = i_StepNumber;
                     rmd.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -455,6 +473,7 @@ namespace Cyclops.Operations
                     break;
                 case "RRollup":
                     DataModules.clsRRollup rrollup = new DataModules.clsRRollup(Model, s_RInstance);
+                    rrollup.StepNumber = i_StepNumber;
                     rrollup.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -471,6 +490,7 @@ namespace Cyclops.Operations
                     break;
                 case "SummarizeData":
                     DataModules.clsSummarizeData summarizeData = new DataModules.clsSummarizeData(Model, s_RInstance);
+                    summarizeData.StepNumber = i_StepNumber;
                     summarizeData.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -486,6 +506,7 @@ namespace Cyclops.Operations
                     break;
                 case "Transform":
                     DataModules.clsTransformModule transform = new DataModules.clsTransformModule(Model, s_RInstance);
+                    transform.StepNumber = i_StepNumber;
                     transform.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -502,6 +523,7 @@ namespace Cyclops.Operations
                     break;
                 case "Clean":
                     DataModules.clsCleanUpRSourceFileObjects clean = new DataModules.clsCleanUpRSourceFileObjects(Model, s_RInstance);
+                    clean.StepNumber = i_StepNumber;
                     clean.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -528,10 +550,12 @@ namespace Cyclops.Operations
         private void AddExportModule(DataRow[] Rows)
         {
             string s_Module = Rows[0]["Module"].ToString();
+            int i_StepNumber = Int32.Parse(Rows[0]["Step"].ToString());
             switch (s_Module)
             {
                 case "ExportTable":
                     ExportModules.clsExportTableModule exportTable = new ExportModules.clsExportTableModule(Model, s_RInstance);
+                    exportTable.StepNumber = i_StepNumber;
                     exportTable.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -545,6 +569,7 @@ namespace Cyclops.Operations
                     break;
                 case "Save":
                     ExportModules.clsSaveEnvironment save = new ExportModules.clsSaveEnvironment(Model, s_RInstance);
+                    save.StepNumber = i_StepNumber;
                     save.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -558,6 +583,7 @@ namespace Cyclops.Operations
                     break;
                 case "LBF_Summary":
                     ExportModules.clsLBF_Summary_HTML lbfSummary = new ExportModules.clsLBF_Summary_HTML(Model, s_RInstance);
+                    lbfSummary.StepNumber = i_StepNumber;
                     lbfSummary.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -581,10 +607,12 @@ namespace Cyclops.Operations
         private void AddVisualModules(DataRow[] Rows)
         {
             string s_Module = Rows[0]["Module"].ToString();
+            int i_StepNumber = Int32.Parse(Rows[0]["Step"].ToString());
             switch (s_Module)
             {
                 case "Histogram":
                     VisualizationModules.clsHistogram histogram = new VisualizationModules.clsHistogram(s_RInstance);
+                    histogram.StepNumber = i_StepNumber;
                     histogram.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -598,6 +626,7 @@ namespace Cyclops.Operations
                     break;
                 case "Heatmap":
                     VisualizationModules.clsHeatmap heatMap = new VisualizationModules.clsHeatmap(Model, s_RInstance);
+                    heatMap.StepNumber = i_StepNumber;
                     heatMap.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -611,6 +640,7 @@ namespace Cyclops.Operations
                     break;
                 case "Hexbin":
                     VisualizationModules.clsHexbin hexbin = new VisualizationModules.clsHexbin(Model, s_RInstance);
+                    hexbin.StepNumber = i_StepNumber;
                     hexbin.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -624,6 +654,7 @@ namespace Cyclops.Operations
                     break;
                 case "BarPlot":
                     VisualizationModules.clsBarPlot barPlot = new VisualizationModules.clsBarPlot(Model, s_RInstance);
+                    barPlot.StepNumber = i_StepNumber;
                     barPlot.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -637,6 +668,7 @@ namespace Cyclops.Operations
                     break;
                 case "BoxPlot":
                     VisualizationModules.clsBoxPlot box = new VisualizationModules.clsBoxPlot(Model, s_RInstance);
+                    box.StepNumber = i_StepNumber;
                     box.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {
@@ -651,6 +683,7 @@ namespace Cyclops.Operations
                     break;
                 case "CorrelationHeatmap":
                     VisualizationModules.clsCorrelationHeatmap corrPlot = new VisualizationModules.clsCorrelationHeatmap(Model, s_RInstance);
+                    corrPlot.StepNumber = i_StepNumber;
                     corrPlot.Parameters = GetParameters(Rows);
                     if (Root == null)
                     {

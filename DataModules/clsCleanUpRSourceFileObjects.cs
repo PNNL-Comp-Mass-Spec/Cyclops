@@ -81,7 +81,7 @@ namespace Cyclops.DataModules
             string s_RStatement = "rm(list=objects2delete)\nrm(objects2delete)";
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Cleaning R Workspace",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 

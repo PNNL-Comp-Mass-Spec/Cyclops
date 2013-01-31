@@ -219,7 +219,7 @@ namespace Cyclops.VisualizationModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Performing Barplot",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
         #endregion

@@ -138,7 +138,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_Current_R_Statement, s_RInstance,
                     "Summarizing the Data",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }

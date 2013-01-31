@@ -157,7 +157,7 @@ namespace Cyclops.DataModules
                             {
                                 if (!clsGenericRCalls.Run(s_RStatement,
                                     s_RInstance, "Importing Table",
-                                    Model.StepNumber, Model.NumberOfModules))
+                                    this.StepNumber, Model.NumberOfModules))
                                     Model.SuccessRunningPipeline = false;
                             }
 
@@ -256,7 +256,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_RStatement,
                     s_RInstance, "Connecting to SQLite Database",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }
@@ -271,7 +271,7 @@ namespace Cyclops.DataModules
 
             traceLog.Info("Disconnecting from Database: " + s_RStatement);
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
-                "Disconnecting from Database", Model.StepNumber,
+                "Disconnecting from Database", this.StepNumber,
                 Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
 
@@ -283,7 +283,7 @@ namespace Cyclops.DataModules
                 s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Cleaning Database Connection",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }
@@ -309,7 +309,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Retrieving Assay Data from SQLite",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
 
             SetDataMatrix("tmpData");
@@ -345,7 +345,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Retrieving Phenotype Data from SQLite",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 
@@ -377,7 +377,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Retrieving Feature Data from SQLite",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 
@@ -398,7 +398,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Retrieving Table from SQLite",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 
@@ -419,7 +419,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Retrieving Column Metadata from SQLite",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 
@@ -440,7 +440,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Retrieving Row Metadata from SQLite",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 
@@ -460,7 +460,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Setting Rownames on Table",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }
@@ -475,7 +475,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Setting Table to data.matrix",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }
@@ -509,7 +509,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Importing CSV",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 
@@ -522,7 +522,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Importing TSV",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 

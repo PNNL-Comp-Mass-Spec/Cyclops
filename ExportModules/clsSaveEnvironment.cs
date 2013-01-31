@@ -110,7 +110,7 @@ namespace Cyclops.ExportModules
 
             if (!clsGenericRCalls.Run(s_Command, s_RInstance,
                 "Saving R Environment",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
 

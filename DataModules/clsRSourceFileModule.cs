@@ -140,11 +140,11 @@ namespace Cyclops.DataModules
             }
             clsGenericRCalls.Run(s_RStatement,
                         s_RInstance, "Load Source File",
-                        Model.StepNumber, Model.NumberOfModules);
+                        this.StepNumber, Model.NumberOfModules);
 
             s_RStatement = string.Format("objects2delete <- ls()"); // index of all objects loaded into R from source files
             clsGenericRCalls.Run(s_RStatement, s_RInstance, "Defining Objects to delete",
-                Model.StepNumber, Model.NumberOfModules);
+                this.StepNumber, Model.NumberOfModules);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Cyclops.DataModules
             }
 
             clsGenericRCalls.Run(s_RStatement, s_RInstance, "Loading R Source files",
-                Model.StepNumber, Model.NumberOfModules);
+                this.StepNumber, Model.NumberOfModules);
 
             foreach (string s in Directory.GetDirectories(MyDirectory))
             {

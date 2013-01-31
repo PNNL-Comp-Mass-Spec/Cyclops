@@ -184,7 +184,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_Current_R_Statement, s_RInstance,
                     "Performing RRollup",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }

@@ -132,7 +132,7 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Executing QC Fraction Overlap Call in R",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }

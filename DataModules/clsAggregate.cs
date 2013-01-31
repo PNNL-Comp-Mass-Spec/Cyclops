@@ -200,7 +200,7 @@ namespace Cyclops.DataModules
                         {
                             string s_TmpColTable = GetOrganizedFactorsVector(s_RInstance, 
                                 dsp.InputTableName, dsp.FactorTable, dsp.FactorColumn, 
-                                Model.StepNumber, Model.NumberOfModules, "Alias");
+                                this.StepNumber, Model.NumberOfModules, "Alias");
 
                             /// Readdress the length of the factor
                             i_LengthOfFactor = clsGenericRCalls.GetLengthOfVector(s_RInstance,
@@ -241,7 +241,7 @@ namespace Cyclops.DataModules
                         Model.SuccessRunningPipeline = clsGenericRCalls.Run(
                             s_RStatement, s_RInstance,
                             "Aggregating Datasets",
-                            Model.StepNumber,
+                            this.StepNumber,
                             Model.NumberOfModules);
                         
                         // Now make an aggregate Column_Metadata table
@@ -259,7 +259,7 @@ namespace Cyclops.DataModules
                         Model.SuccessRunningPipeline = clsGenericRCalls.Run(
                             s_RStatement, s_RInstance,
                             "Constructing Aggregated Column Metadata table",
-                            Model.StepNumber, Model.NumberOfModules);
+                            this.StepNumber, Model.NumberOfModules);
                     }
                     else
                     {

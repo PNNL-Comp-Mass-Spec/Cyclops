@@ -93,6 +93,15 @@ namespace Cyclops.ExportModules
 
                 if (CheckPassedParameters())
                 {
+                    traceLog.Info(string.Format(
+                        "{0}{1}\n{2}\n{3}\n\n",
+                        this.StepNumber == null ? "" : "Step " +
+                        this.StepNumber + " of ",
+                        Model.NumberOfModules == null ? "" : Model.NumberOfModules + ": ",
+                        this.ModuleName,
+                        "Export table name: " + esp.TableName + " to file: " +
+                        esp.FileName));
+
                     switch (esp.Source.ToUpper())
                     {
                         case "R":
@@ -123,7 +132,7 @@ namespace Cyclops.ExportModules
 
                         if (!clsGenericRCalls.Run(s_Command, s_RInstance,
                             "Exporting Table to SQLite",
-                            Model.StepNumber, Model.NumberOfModules))
+                            this.StepNumber, Model.NumberOfModules))
                             Model.SuccessRunningPipeline = false;
 
                         DisconnectFromDatabase();
@@ -162,7 +171,7 @@ namespace Cyclops.ExportModules
 
                             if (!clsGenericRCalls.Run(s_Command, s_RInstance,
                                 "Exporting Table to CSV",
-                                Model.StepNumber, Model.NumberOfModules))
+                                this.StepNumber, Model.NumberOfModules))
                                 Model.SuccessRunningPipeline = false;
                         }
                     }
@@ -200,7 +209,7 @@ namespace Cyclops.ExportModules
 
                             if (!clsGenericRCalls.Run(s_Command, s_RInstance,
                                 "Exporting Table to TSV",
-                                Model.StepNumber, Model.NumberOfModules))
+                                this.StepNumber, Model.NumberOfModules))
                                 Model.SuccessRunningPipeline = false;
                         }
                     }
@@ -315,7 +324,7 @@ namespace Cyclops.ExportModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Connecting to SQLite Database",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
         }
@@ -330,7 +339,7 @@ namespace Cyclops.ExportModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "Disconnecting from Database",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
 
             bool b_Disconnected = clsGenericRCalls.AssessBoolean(s_RInstance, "terminated");
@@ -340,7 +349,7 @@ namespace Cyclops.ExportModules
                 s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "Cleaning Database Connection",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
             }
             else

@@ -52,7 +52,7 @@ namespace Cyclops
 
             traceLog.Info("Creating Instance of R Workspace...");
             try
-            {
+            {                
                 engine = REngine.CreateInstance(InstanceName, new[] { "-q" }); // quiet mode
                 return true;
             }
@@ -109,7 +109,7 @@ namespace Cyclops
             string Instance, string SummaryStatement,
             int? Step, int? TotalSteps)
         {
-            REngine engine = REngine.GetInstanceFromID(Instance);
+            REngine engine = REngine.GetInstanceFromID(Instance);            
             ILog traceLog = LogManager.GetLogger("TraceLog");
             StringWriter sw = new StringWriter();
             Console.SetOut(sw);

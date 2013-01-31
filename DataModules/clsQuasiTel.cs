@@ -207,11 +207,11 @@ namespace Cyclops.DataModules
 
                 if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                     "QuasiTel Analysis",
-                    Model.StepNumber, Model.NumberOfModules))
+                    this.StepNumber, Model.NumberOfModules))
                     Model.SuccessRunningPipeline = false;
 
                 GetOrganizedFactorsVector(s_RInstance, s_TmpDataTable,
-                    dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
+                    dsp.FactorTable, dsp.FactorColumn, this.StepNumber,
                     Model.NumberOfModules, "Alias");
 
                 // Make sure that the factors table contains the field to perform the comparison
@@ -290,7 +290,7 @@ namespace Cyclops.DataModules
 
                                     if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                                         "Running QuasiTel Analysis",
-                                        Model.StepNumber, Model.NumberOfModules))
+                                        this.StepNumber, Model.NumberOfModules))
                                         Model.SuccessRunningPipeline = false;
                                 }
                             }

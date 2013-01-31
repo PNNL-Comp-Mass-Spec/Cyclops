@@ -30,9 +30,12 @@ namespace Cyclops
     /// </summary>
     public abstract class clsBaseModule : IBaseModule
     {
+        #region Members
         private string s_ModuleName = "";
         private Dictionary<string, dynamic> d_Parameters;
         private DataModules.clsBaseDataModule bdm_ParentModule;
+        private int m_StepNumber = 0;
+        #endregion
 
         #region Properties
         public string ModuleName
@@ -45,6 +48,12 @@ namespace Cyclops
         {
             get { return d_Parameters; }
             set { d_Parameters = value; }
+        }
+
+        public int StepNumber
+        {
+            get { return m_StepNumber; }
+            set { m_StepNumber = value; }
         }
         #endregion
 

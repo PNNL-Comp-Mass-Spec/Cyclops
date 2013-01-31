@@ -128,7 +128,7 @@ namespace Cyclops.DataModules
 
                     if (!clsGenericRCalls.Run(s_Command, s_RInstance,
                         "Loading R Workspace",
-                        Model.StepNumber, Model.NumberOfModules))
+                        this.StepNumber, Model.NumberOfModules))
                         Model.SuccessRunningPipeline = false;
                 }
             }

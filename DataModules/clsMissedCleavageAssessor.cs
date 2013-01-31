@@ -131,6 +131,14 @@ namespace Cyclops.DataModules
 
             if (CheckPassedParameters())
             {
+                traceLog.Info(string.Format(
+                "{0}{1}\n{2}\n{3}\n\n",
+                this.StepNumber == null ? "" : "Step " + 
+                this.StepNumber + " of ",
+                Model.NumberOfModules == null ? "" : Model.NumberOfModules + ": ",
+                this.ModuleName,
+                "Input table: " + dsp.InputTableName));
+
                 DropAnyExistingTables();
 
                 string s_Command = "";

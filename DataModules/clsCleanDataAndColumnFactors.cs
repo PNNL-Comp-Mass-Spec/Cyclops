@@ -170,7 +170,7 @@ namespace Cyclops.DataModules
                         dsp.FactorColumn))
                     {
                         GetOrganizedFactorsVector(s_RInstance, dsp.InputTableName,
-                            dsp.FactorTable, dsp.FactorColumn, Model.StepNumber,
+                            dsp.FactorTable, dsp.FactorColumn, this.StepNumber,
                             Model.NumberOfModules, "Alias");
 
                         Model.SuccessRunningPipeline = 

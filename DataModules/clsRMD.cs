@@ -157,7 +157,7 @@ namespace Cyclops.DataModules
 
             if (!clsGenericRCalls.Run(s_RStatement, s_RInstance,
                 "RMD Module",
-                Model.StepNumber, Model.NumberOfModules))
+                this.StepNumber, Model.NumberOfModules))
                 Model.SuccessRunningPipeline = false;
         }
         #endregion
