@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5C5F8A2B-891F-4012-AA91-E73E9FCC806B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Cyclops</RootNamespace>
+    <AssemblyName>Cyclops</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\NUnit 2.6.2\bin\framework\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="PNNLOmics, Version=1.0.4841.16794, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\PNNL_SVN_Projects\PNNLOmics\development\trunk\PNNLOmics\bin\AnyCPU\Debug\PNNLOmics.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet">
+      <HintPath>..\packages\R.NET.1.5.0\lib\net40\RDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet.NativeLibrary">
+      <HintPath>..\packages\R.NET.1.5.0\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseModule.cs" />
+    <Compile Include="CyclopsController.cs" />
+    <Compile Include="DataModules\Aggregate.cs" />
+    <Compile Include="DataModules\ANOVA.cs" />
+    <Compile Include="DataModules\BBM_QuasiTel.cs" />
+    <Compile Include="DataModules\BetaBinomialModel.cs" />
+    <Compile Include="DataModules\Cast.cs" />
+    <Compile Include="DataModules\CentralTendency.cs" />
+    <Compile Include="DataModules\Clean.cs" />
+    <Compile Include="DataModules\ImportDataModule.cs" />
+    <Compile Include="DataModules\LinearRegression.cs" />
+    <Compile Include="DataModules\LoadRSourceFiles.cs" />
+    <Compile Include="DataModules\LoadRWorkspace.cs" />
+    <Compile Include="DataModules\Merge.cs" />
+    <Compile Include="DataModules\MissedCleavageSummary.cs" />
+    <Compile Include="DataModules\PValueAdjust.cs" />
+    <Compile Include="DataModules\QuasiTel.cs" />
+    <Compile Include="DataModules\RMD.cs" />
+    <Compile Include="DataModules\RRollup.cs" />
+    <Compile Include="DataModules\Transform.cs" />
+    <Compile Include="DataModules\ExportTable.cs" />
+    <Compile Include="DataModules\HtmlFileHandler.cs" />
+    <Compile Include="DataModules\HtmlLinkNode.cs" />
+    <Compile Include="DataModules\HtmlSummary.cs" />
+    <Compile Include="DataModules\Save.cs" />
+    <Compile Include="DataModules\Sco_Html_Summary.cs" />
+    <Compile Include="LogTools.cs" />
+    <Compile Include="CyclopsModel.cs" />
+    <Compile Include="DataModules\BaseDataModule.cs" />
+    <Compile Include="GenericRCalls.cs" />
+    <Compile Include="MessageEventBase.cs" />
+    <Compile Include="DataModules\SummarizeData.cs" />
+    <Compile Include="DataModules\BarPlot.cs" />
+    <Compile Include="DataModules\CorrelationHeatmap.cs" />
+    <Compile Include="DataModules\Hexbin.cs" />
+    <Compile Include="DataModules\Histogram.cs" />
+    <Compile Include="WorkflowHandler.cs" />
+    <Compile Include="Operations\BaseOperationModule.cs" />
+    <Compile Include="Operations\iTRAQMainOperation.cs" />
+    <Compile Include="Operations\LabelFreeMainOperation.cs" />
+    <Compile Include="Operations\Online2DLCMainOperation.cs" />
+    <Compile Include="Operations\SpectralCountMainOperation.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\MiscellaneousFunctions.cs" />
+    <Compile Include="ZipCompression.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Logging.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Library\ICSharpCode.SharpZipLib.dll" />
+    <Content Include="Library\log4net.dll" />
+    <Content Include="MyToDoChecklist.txt" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
