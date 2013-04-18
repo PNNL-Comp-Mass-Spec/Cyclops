@@ -72,6 +72,7 @@
     <Compile Include="DataModules\CentralTendency.cs" />
     <Compile Include="DataModules\Clean.cs" />
     <Compile Include="DataModules\ImportDataModule.cs" />
+    <Compile Include="DataModules\Jose.cs" />
     <Compile Include="DataModules\LinearRegression.cs" />
     <Compile Include="DataModules\LoadRSourceFiles.cs" />
     <Compile Include="DataModules\LoadRWorkspace.cs" />

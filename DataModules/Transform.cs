@@ -35,7 +35,8 @@ namespace Cyclops.DataModules
         /// Required parameters to run Transform Module
         /// </summary>
         private enum RequiredParameters
-        { InputTableName, NewTableName
+        { 
+            InputTableName, NewTableName
         }
         #endregion
 
@@ -151,7 +152,8 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, 
+                    ModuleName, StepNumber);
             }
             catch (Exception exc)
             {
