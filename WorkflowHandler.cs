@@ -196,11 +196,15 @@ namespace Cyclops
         private bool ReadXMLWorkflow()
         {
             bool b_Successful = true;
+			string InputWorkflowFilePath = "??";
+
             DataModules.BaseDataModule CurrentModule = Root;
             try
             {
-                XmlDocument xml = new XmlDocument();
-                xml.Load(InputWorkflowFileName);
+				InputWorkflowFilePath = Path.Combine(Model.WorkDirectory, InputWorkflowFileName);
+				
+				XmlDocument xml = new XmlDocument();
+                xml.Load(InputWorkflowFilePath);
                 XmlNodeList xnl_Modules = xml.SelectNodes("Cyclops/Module");
 
                 foreach (XmlNode xn in xnl_Modules)
@@ -246,13 +250,13 @@ namespace Cyclops
             catch (IOException ioe)
             {
                 Model.LogError("IOException thrown while reading XML Workflow file: \n" +
-                    InputWorkflowFileName + "\nIOException: " + ioe.ToString());
+					InputWorkflowFilePath + "\nIOException: " + ioe.ToString());
                 b_Successful = false;
             }
             catch (Exception exc)
             {
                 Model.LogError("Exception thrown while reading XML Workflow file: \n" +
-                    InputWorkflowFileName + "\nException: " + exc.ToString());
+					InputWorkflowFilePath + "\nException: " + exc.ToString());
                 b_Successful = false;
             }
 

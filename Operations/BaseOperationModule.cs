@@ -33,15 +33,6 @@ namespace Cyclops.Operations
         #endregion
 
         #region Properties
-        /// <summary>
-        /// Instance of Model class
-        /// </summary>
-        public CyclopsModel Model
-        {
-            get;
-            set;
-        }
-
 
         protected abstract string GetDefaultValue();
         protected abstract string GetTypeName();

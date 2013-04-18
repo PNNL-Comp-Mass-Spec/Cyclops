@@ -34,7 +34,7 @@ namespace Cyclops
     /// </summary>
     public class CyclopsModel : MessageEventBase
     {
-        #region Members                     
+        #region Members
         private Dictionary<string, string> m_CyclopsParameters = new Dictionary<string, string>();
         private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private bool m_SuccessRunningPipeline = true;

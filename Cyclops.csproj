@@ -41,17 +41,16 @@
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\NUnit 2.6.2\bin\framework\nunit.framework.dll</HintPath>
+      <HintPath>Library\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="PNNLOmics, Version=1.0.4841.16794, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\PNNL_SVN_Projects\PNNLOmics\development\trunk\PNNLOmics\bin\AnyCPU\Debug\PNNLOmics.dll</HintPath>
+    <Reference Include="PNNLOmics">
+      <HintPath>Library\PNNLOmics.dll</HintPath>
     </Reference>
     <Reference Include="RDotNet">
-      <HintPath>..\packages\R.NET.1.5.0\lib\net40\RDotNet.dll</HintPath>
+      <HintPath>Library\RDotNet.dll</HintPath>
     </Reference>
     <Reference Include="RDotNet.NativeLibrary">
-      <HintPath>..\packages\R.NET.1.5.0\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
+      <HintPath>Library\RDotNet.NativeLibrary.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

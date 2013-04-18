@@ -231,7 +231,7 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Writes out module's name to console
         /// </summary>
-        public void PrintModule()
+		public override void PrintModule()
         {
             Console.WriteLine(ModuleName);
             PrintChildModules();
