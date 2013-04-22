@@ -29,7 +29,7 @@ namespace Cyclops.DataModules
 {
     public abstract class BaseDataModule : BaseModule
     {
-        #region Members        
+        #region Members
         private List<BaseDataModule> l_ChildDataModules = new List<BaseDataModule>();
 
         #region Visualization Members
@@ -204,6 +204,7 @@ namespace Cyclops.DataModules
         /// <param name="NameOfDataTable">The Data Table</param>
         /// <param name="NameOfColumnMetadataTable">The Column Metadata Table</param>
         /// <param name="FactorColumn">Name of the column that contains the factor of interest</param>
+        /// <returns>Name of temporary table that has the organized factors</returns>
         public string GetOrganizedFactorsVector(string NameOfDataTable,
             string NameOfColumnMetadataTable, string FactorColumn, int? Step,
             string yMergeColumn, string TempTablePrefix)

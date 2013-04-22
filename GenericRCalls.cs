@@ -32,10 +32,12 @@ namespace Cyclops
     /// <summary>
     /// Structure for housing a Table's dimensions
     /// </summary>
-    public struct TableDimensions
+    public struct TableInfo
     {
+        public string Title { get; set; }
         public int Columns { get; set; }
         public int Rows { get; set; }
+        public string ObjectType { get; set; }
     }
 
     /// <summary>
@@ -45,7 +47,8 @@ namespace Cyclops
     {
         #region Members
         private REngine engine;
-        private string m_RInstance;
+        private string m_RInstance,
+            m_RPackageLocation = "http://cran.cs.wwu.edu/";
         #endregion
 
         #region Properties
@@ -66,6 +69,15 @@ namespace Cyclops
             get;
             set;
         }
+
+        /// <summary>
+        /// Website to download R packages for installation
+        /// </summary>
+        public string RPackageLocation
+        {
+            get { return m_RPackageLocation; }
+            set { m_RPackageLocation = value; }
+        }
         #endregion
 
         #region Constructors
@@ -76,7 +88,7 @@ namespace Cyclops
         public GenericRCalls(CyclopsModel CyclopsModel)
         {
             Model = CyclopsModel;
-        }
+        }        
         #endregion
 
         #region Instantiating R Environment
@@ -394,7 +406,10 @@ namespace Cyclops
         /// <param name="Package">Name of the package</param>
         public void InstallPackage(string Package)
         {
-            engine.Evaluate("install.packages('" + Package + "')");
+            engine.Evaluate(string.Format(
+                "install.packages('{0}', repos='{1}')",
+                Package,
+                RPackageLocation));
         }
 
         /// <summary>
@@ -518,15 +533,16 @@ namespace Cyclops
 
             return l_Return;  
         }
-
+        
         /// <summary>
         /// Gets the Dimensions of a data.frame or matrix
         /// </summary>
         /// <param name="ObjectName">Name of the data.frame or matrix</param>
         /// <returns>Dimensions of the Table</returns>
-        public TableDimensions GetDimensions(string ObjectName)
+        public TableInfo GetDimensions(string ObjectName)
         {
-            TableDimensions td = new TableDimensions();
+            TableInfo td = new TableInfo();
+            td.Title = ObjectName;
             td.Columns = 0;
             td.Rows = 0;
             if (ContainsObject(ObjectName))
@@ -543,7 +559,22 @@ namespace Cyclops
                         td.Columns = dim[1];
                     }
                 }
-            }
+            }            
+
+            return td;
+        }
+
+        /// <summary>
+        /// Gets the standard information about an object in R, 
+        /// including the dimensions and the type of object
+        /// </summary>
+        /// <param name="ObjectName">Name of the object that you'd 
+        /// like information for</param>
+        /// <returns>Information about the object</returns>
+        public TableInfo GetTableInfo(string ObjectName)
+        {
+            TableInfo td = GetDimensions(ObjectName);
+            td.ObjectType = GetClassOfObject(ObjectName);            
             return td;
         }
 
@@ -554,7 +585,7 @@ namespace Cyclops
         /// <returns>Number of rows</returns>
         public int GetNumberOfRowsInTable(string TableName)
         {
-            TableDimensions td = GetDimensions(TableName);
+            TableInfo td = GetDimensions(TableName);
             return td.Rows;
         }
 
@@ -626,7 +657,7 @@ namespace Cyclops
         /// <returns>Number of columns</returns>
         public int GetNumberOfColumnsInTable(string TableName)
         {
-            TableDimensions td = GetDimensions(TableName);
+            TableInfo td = GetDimensions(TableName);
             return td.Columns;
         }
 

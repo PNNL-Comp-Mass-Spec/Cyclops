@@ -46,7 +46,7 @@ namespace Cyclops.DataModules
         private Dictionary<string, string>
             d_FileNameVault = new Dictionary<string, string>();
         private bool m_DatabaseFound = false;
-        private PNNLOmics.Databases.SQLiteHandler sql = new PNNLOmics.Databases.SQLiteHandler();
+        private SQLiteHandler sql = new SQLiteHandler();
         #endregion
 
         #region Properties

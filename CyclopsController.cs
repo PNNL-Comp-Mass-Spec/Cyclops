@@ -61,6 +61,12 @@ namespace Cyclops
             get { return m_Parameters; }
             set { m_Parameters = value; }
         }
+
+        /// <summary>
+        /// Path to SQLite database that contains the table to
+        /// run a Cyclops Workflow
+        /// </summary>
+        public string OperationsDatabasePath { get; set; }
         #endregion
 
         #region Constructors
@@ -93,6 +99,7 @@ namespace Cyclops
         public bool Run()
         {
             m_Cyclops = new CyclopsModel(Parameters);
+            m_Cyclops.OperationsDatabasePath = OperationsDatabasePath;
             AttachEvents(m_Cyclops);
             if (string.IsNullOrEmpty(WorkingDirectory) &&
                 Parameters.ContainsKey("workDir"))

@@ -29,7 +29,7 @@ namespace Cyclops.Operations
     public abstract class BaseOperationModule : BaseModule
     {
         #region Members
-
+        private string m_OperationsDBPath = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3";
         #endregion
 
         #region Properties
@@ -37,6 +37,16 @@ namespace Cyclops.Operations
         protected abstract string GetDefaultValue();
         protected abstract string GetTypeName();
         private static Dictionary<string, Type> sTypeMap = CreateTypeMap();
+
+        /// <summary>
+        /// Path to SQLite database that contains the table to
+        /// run a Cyclops Workflow
+        /// </summary>
+        public string OperationsDatabasePath
+        {
+            get { return m_OperationsDBPath; }
+            set { m_OperationsDBPath = value; }
+        }
         #endregion
 
         #region Methods

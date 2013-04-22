@@ -25,8 +25,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using PNNLOmics;
-
 namespace Cyclops.DataModules
 {
     /// <summary>
@@ -53,7 +51,7 @@ namespace Cyclops.DataModules
 
         private bool m_DatabaseFound = false;
 
-        private PNNLOmics.Databases.SQLiteHandler sql = new PNNLOmics.Databases.SQLiteHandler();
+        private SQLiteHandler sql = new SQLiteHandler();
         #endregion
 
         #region Properties

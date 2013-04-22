@@ -35,7 +35,13 @@ namespace Cyclops.DataModules
             m_Interaction = "False",
             m_Unbalanced = "True",
             m_Threshold = "3",
-            m_UseREML = "True";
+            m_UseREML = "True",
+            m_ColumnMetadataLink = "Alias",
+            m_TechRep = "NULL",
+            m_Abundance = "Abundance",
+            m_AnovaModel = "fixed",
+            m_FeatureVar = "FALSE",
+            m_Progress = "FALSE";
         private bool m_RemoveFirstColumn = false;
         /// <summary>
         /// Required parameters to run ANOVA Module
@@ -43,6 +49,12 @@ namespace Cyclops.DataModules
         private enum RequiredParameters
         {
             NewTableName, InputTableName, Mode, FactorTable, Fixed_Effect
+        }
+
+        private enum MSstatRequiredParameters
+        {
+            RowMetadataTable, ColumnMetadataTable, RowMetadataProteinColumn,
+            RowMetadataPeptideColumn, BioRep, NewProteinQuantTable
         }
 
         /// <summary>
@@ -255,11 +267,11 @@ namespace Cyclops.DataModules
             Command = string.Format(
                             "options(warn=-1)\n" +
                             "{9} <- {1}\n" +
-                            "{0} <- performAnova(Data={9}, FixedEffects=\"{2}\", " +
+                            "{0} <- performAnova(Data={9}, FixedEffects='{2}', " +
                             "RandomEffects={3}, interact={4}, " +
                             "unbalanced={5}, useREML={6}, Factors=t({7}), " +
                             "thres={8})\n" +
-                            "rm({9})\n",
+                            "rm({9})\n\n",
                             Parameters[RequiredParameters.NewTableName.ToString()],
                             m_RemoveFirstColumn ?
                                 Parameters[RequiredParameters.InputTableName.ToString()] + "[,-1]" :
@@ -284,7 +296,119 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
+            if (CheckMSstatParameters())
+            {
 
+                string s_TmpTable4MSstats = GetTemporaryTableName("Tmp4MSstats_"),
+                s_TmpFitTable = GetTemporaryTableName("tmpFit_");
+
+                string Command = string.Format(
+                    "{0} <- jnb_Prepare4MSstats(" +
+                    "dm=data.matrix({1}), " +
+                    "RowMetadataTable={2}, " +
+                    "ColMetadataTable={3}, " +
+                    "rmd_ProteinColumn='{4}', " +
+                    "rmd_PeptideColumn='{5}', " +
+                    "cmd_Link='{6}', " +
+                    "cmd_BioRep='{7}', " +
+                    "cmd_TechRep='{8}', " +
+                    "cmd_Factor='{9}')\n\n" +
+                    "{10} <- fitModels(" +
+                    "protein='{4}', " +
+                    "feature='{5}', " +
+                    "bio.rep='{7}', " +
+                    "group='{9}', " +
+                    "abundance='{11}', " +
+                    "model='{12}', " +
+                    "feature.var='{13}', " +
+                    "progress={14}, " +
+                    "data={0})\n\n" +
+                    "{15} <- subjectQuantification({10}, " +
+                    "table=F, progress={14})\n" +
+                    "{colnames({15})[4] <- 'value'\n" +
+                    "{15} <- cast({15}, {4}~{7})\n" +
+                    "rownames({15}) <- {15}[,1]\n" +
+                    "{15} <- {15}[,-1]\n\n",
+                    s_TmpTable4MSstats,
+                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters[MSstatRequiredParameters.RowMetadataTable.ToString()],
+                    Parameters[MSstatRequiredParameters.ColumnMetadataTable.ToString()],
+                    Parameters[MSstatRequiredParameters.RowMetadataProteinColumn.ToString()],
+                    Parameters[MSstatRequiredParameters.RowMetadataPeptideColumn.ToString()],
+                    m_ColumnMetadataLink,
+                    Parameters[MSstatRequiredParameters.BioRep.ToString()],
+                    Parameters[RequiredParameters.Fixed_Effect.ToString()],
+                    s_TmpFitTable,
+                    m_Abundance,
+                    m_AnovaModel,
+                    m_FeatureVar,
+                    m_Progress
+                    );
+
+
+                try
+                {
+                    b_Successful = Model.RCalls.Run(Command,
+                        ModuleName, StepNumber);
+                }
+                catch (Exception exc)
+                {
+                    Model.LogError("Exception encountered while running MSstats:\n" +
+                        exc.ToString(), ModuleName, StepNumber);
+                    b_Successful = false;
+                }
+            }
+            else
+            {
+                b_Successful = false;
+            }
+
+            return b_Successful;
+        }
+
+        /// <summary>
+        /// Checks the supplied parameters to ensure they fulfill the necessary
+        /// requirements to run a MSstats analysis
+        /// </summary>
+        /// <returns>True, if the necessary parameters are present</returns>
+        private bool CheckMSstatParameters()
+        {
+            bool b_Successful = true;
+
+            foreach (string s in Enum.GetNames(typeof(MSstatRequiredParameters)))
+            {
+                if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
+                {
+                    Model.LogWarning("Required Field Missing: " + s,
+                        ModuleName, StepNumber);
+                    b_Successful = false;
+                    return b_Successful;
+                }
+            }
+
+            if (Parameters.ContainsKey("Abundance"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["Abundance"]))
+                    m_Abundance = Parameters["Abundance"];
+            }
+
+            if (Parameters.ContainsKey("AnovaModel"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["AnovaModel"]))
+                    m_AnovaModel = Parameters["AnovaModel"];
+            }
+
+            if (Parameters.ContainsKey("FeatureVar"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["FeatureVar"]))
+                    m_FeatureVar = Parameters["FeatureVar"].ToUpper();
+            }
+
+            if (Parameters.ContainsKey("ReportProgress"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["ReportProgress"]))
+                    m_Progress = Parameters["ReportProgress"].ToUpper();
+            }
 
             return b_Successful;
         }

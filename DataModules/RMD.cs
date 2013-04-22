@@ -181,7 +181,7 @@ namespace Cyclops.DataModules
                 "{0} <- DetectOutliers(" +
                 "data={1}, " +
                 "class=as.numeric({2}${3}), " +
-                "ConsolidateFactors=as.numeric({2}${4}))\n" +
+                "techreps=as.numeric({2}${4}))\n" +
                 "{5} <- {1}[,{0}$Keep_runs]\n",
                 s_TmpTable,
                 Parameters[RequiredParameters.InputTableName.ToString()],

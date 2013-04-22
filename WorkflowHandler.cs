@@ -26,7 +26,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-using PNNLOmics;
+
 
 namespace Cyclops
 {
@@ -37,9 +37,9 @@ namespace Cyclops
     /// </summary>
     public class WorkflowHandler
     {
-        #region Members        
+        #region Members
         private DataModules.BaseDataModule m_Root = null; 
-        private PNNLOmics.Databases.SQLiteHandler sql = new PNNLOmics.Databases.SQLiteHandler();
+        private SQLiteHandler sql = new SQLiteHandler();
         private int m_ModuleCount = 0;
         private WorkflowType m_InputType, 
             m_OutputType;
@@ -107,6 +107,15 @@ namespace Cyclops
         {
             get { return m_SQLiteWorkflowTableName; }
             set { m_SQLiteWorkflowTableName = value; }
+        }
+
+        /// <summary>
+        /// SQLite database handled by Cyclops
+        /// </summary>
+        public SQLiteHandler SQLiteDatabase
+        {
+            get { return sql; }
+            set { sql = value; }
         }
         #endregion
 
@@ -241,6 +250,12 @@ namespace Cyclops
                                 Operations.BaseOperationModule.Create(
                                 xn.Attributes["Name"].Value.ToString(),
                                 Model, OperationParam);
+                            if (!string.IsNullOrEmpty(
+                                Model.OperationsDatabasePath))
+                            {
+                                om.OperationsDatabasePath =
+                                    Model.OperationsDatabasePath;
+                            }
                             om.PerformOperation();
                             Count++;
                             break;

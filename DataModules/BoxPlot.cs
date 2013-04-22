@@ -27,75 +27,62 @@ using System.Text;
 
 namespace Cyclops.DataModules
 {
-    public class BarPlot : BaseDataModule
+    public class BoxPlot : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BarPlot",
-            m_BarColor = "cornflowerblue";
+        private string m_ModuleName = "BoxPlot",
+            m_DataColumns = "NULL",
+            m_ColorByFactor = "FALSE",
+            m_ColumnFactorTable = "NULL",
+            m_FactorColumn = "NULL",
+            m_Outliers = "TRUE",
+            m_Color = "cornflowerblue",
+            m_LabelScale = "0.8",
+            m_BoxWidth = "1",
+            m_ShowCount = "TRUE",
+            m_ShowLegend = "TRUE",
+            m_Stamp = "NULL",
+            m_DoYLim = "FALSE",
+            m_yMin = "NULL",
+            m_yMax = "NULL"; 
         /// <summary>
-        /// Required parameters to run Aggregate
+        /// Required parameters to run BoxPlot Module
         /// </summary>
         private enum RequiredParameters
-        { TableName, PlotFileName, DataColumns, 
+        {
+            TableName, PlotFileName
         }
-
-        private double? m_LogBase = null;
         #endregion
 
         #region Properties
-        public string BarColor
-        {
-            get { return m_BarColor; }
-            set { m_BarColor = value; }
-        }
-
-        public string Log
-        {
-            get
-            {
-                if (LogBase == null)
-                    return "FALSE";
-                else
-                    return "TRUE";
-            }   
-        }
-
-        public double? LogBase
-        {
-            get { return m_LogBase; }
-            set { m_LogBase = value; }
-        }
-
-        public string Names { get; set; }
-
         public string PlotFileName { get; set; }
         #endregion
 
         #region Constructors
         /// <summary>
-        /// Generic constructor creating an BarPlot Module
+        /// Generic constructor creating an BoxPlot Module
         /// </summary>
-        public BarPlot()
+        public BoxPlot()
         {
             ModuleName = m_ModuleName;
         }
 
         /// <summary>
-        /// BarPlot module that assigns a Cyclops Model
+        /// BoxPlot module that assigns a Cyclops Model
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
-        public BarPlot(CyclopsModel CyclopsModel)
+        public BoxPlot(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
         }
 
         /// <summary>
-        /// BarPlot module that assigns a Cyclops Model
+        /// BoxPlot module that assigns a Cyclops Model
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public BarPlot(CyclopsModel CyclopsModel,
+        public BoxPlot(CyclopsModel CyclopsModel,
             Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
@@ -114,8 +101,11 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
+                Model.LogMessage("Running BoxPlot",
+                        ModuleName, StepNumber);
+
                 if (CheckParameters())
-                    Model.PipelineCurrentlySuccessful = BarPlotFunction();
+                    Model.PipelineCurrentlySuccessful = BoxPlotFunction();
 
                 RunChildModules();
             }
@@ -134,22 +124,37 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
+                    Model.LogError("Required Field Missing: " + s,
                         ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.TableName.ToString()]))
+            #region Handling Factor Information
+            if (Parameters.ContainsKey("ColorByFactor"))
+                m_ColorByFactor = Parameters["ColorByFactor"].ToUpper();
+
+            if (Parameters.ContainsKey("ColumnFactorTable"))
             {
-                Model.LogError("R Environment does not contain the " +
-                    "specified input table: " +
-                    Parameters[RequiredParameters.TableName.ToString()],
-                    ModuleName, StepNumber);
-                b_Successful = false;
+                if (Model.RCalls.ContainsObject(
+                    Parameters["ColumnFactorTable"]))
+                    m_ColumnFactorTable = Parameters["ColumnFactorTable"];
             }
+
+            if (Parameters.ContainsKey("FactorColumn"))
+            {
+                if (Model.RCalls.TableContainsColumn(
+                    Parameters["ColumnFactorTable"],
+                    Parameters["FactorColumn"]))
+                    m_FactorColumn = Parameters["FactorColumn"];
+            }
+
+            if (!string.IsNullOrEmpty(m_ColumnFactorTable) &&
+                !string.IsNullOrEmpty(m_FactorColumn) &&
+                m_ColorByFactor.Equals("FALSE"))
+                m_ColorByFactor = "TRUE";
+            #endregion
 
             #region General Plot Parameters
             if (Parameters.ContainsKey("BackgroundColor"))
@@ -171,12 +176,28 @@ namespace Cyclops.DataModules
             #endregion
 
             #region Plot-specific Parameters
-            if (Parameters.ContainsKey("BarColor"))
-                BarColor = Parameters["BarColor"];
-            if (Parameters.ContainsKey("LogBase"))
-                LogBase = Convert.ToDouble(Parameters["LogBase"]);
-            if (Parameters.ContainsKey("Names"))
-                Names = Parameters["Names"];
+            if (Parameters.ContainsKey("DataColumns"))
+                m_DataColumns = Parameters["DataColumns"];
+            if (Parameters.ContainsKey("Outliers"))
+                m_Outliers = Parameters["Outliers"].ToUpper();
+            if (Parameters.ContainsKey("Color"))
+                m_Color = Parameters["Color"];
+            if (Parameters.ContainsKey("LabelScale"))
+                m_LabelScale = Parameters["LabelScale"];
+            if (Parameters.ContainsKey("BoxWidth"))
+                m_BoxWidth = Parameters["BoxWidth"];
+            if (Parameters.ContainsKey("ShowCount"))
+                m_ShowCount = Parameters["ShowCount"].ToUpper();
+            if (Parameters.ContainsKey("ShowLegend"))
+                m_ShowLegend = Parameters["ShowLegend"].ToUpper();
+            if (Parameters.ContainsKey("Stamp"))
+                m_Stamp = Parameters["Stamp"];
+            if (Parameters.ContainsKey("DoYLim"))
+                m_DoYLim = Parameters["DoYLim"].ToUpper();
+            if (Parameters.ContainsKey("yMin"))
+                m_yMin = Parameters["yMin"];
+            if (Parameters.ContainsKey("yMax"))
+                m_yMax = Parameters["yMax"];
             #endregion
 
             if (Directory.Exists(Model.WorkDirectory) && b_Successful)
@@ -185,7 +206,8 @@ namespace Cyclops.DataModules
                     Model.WorkDirectory, "Plots").Replace("\\", "/");
                 if (!Directory.Exists(s_PlotDirectory))
                     Directory.CreateDirectory(s_PlotDirectory);
-                PlotFileName = Path.Combine(s_PlotDirectory,
+                PlotFileName =
+                    Path.Combine(s_PlotDirectory,
                     Parameters[RequiredParameters.PlotFileName.ToString()]).Replace("\\", "/");
             }
 
@@ -196,92 +218,60 @@ namespace Cyclops.DataModules
         /// Function
         /// </summary>
         /// <returns>True, if the function completes successfully</returns>
-        public bool BarPlotFunction()
+        public bool BoxPlotFunction()
         {
             bool b_Successful = true;
 
-            string Command = "";
-
-            if (Parameters.ContainsKey("Mode"))
-            {
-                switch (Parameters["Mode"])
-                {
-                    case "iterator":
-                        string s_TmpTable = GetTemporaryTableName("tmpBarPlot_");
-                        Command += string.Format("{0} <- " +
-                            "data.frame(Cleavage=c(\"Tryptic\", " +
-                            "\"Partial\", \"NonTryptic\"), " +
-                            "Frequency=c(sum({1}$Tryptic), " +
-                            "sum({1}$PartTryptic), " +
-                            "sum({1}$NonTryptic)))\n\n",
-                            s_TmpTable,
-                            Parameters[RequiredParameters.TableName.ToString()]);
-
-                        Parameters[RequiredParameters.TableName.ToString()] =
-                            s_TmpTable;
-                        break;
-                }
-            }
-
-            Command += string.Format("plotBars(" +
-                    "x={0}, Data.Column=\"{1}\", " +
-                    "file=\"{2}\", " +
-                    "bkground=\"{3}\", " +
-                    "takeLog={4}, " +
-                    "base={5}, " +
-                    "names.arg=\"{6}\", " +
-                    "xLab=\"{7}\", " +
-                    "yLab=\"{8}\", " +
-                    "title=\"{9}\", " +
-                    "col={10}, " +
-                    "IMGwidth={11}, " +
-                    "IMGheight={12}, " +
-                    "FNTsize={13}, " +
-                    "res={14})\n",
-                    Parameters[RequiredParameters.TableName.ToString()],    // 0
-                    Parameters[RequiredParameters.DataColumns.ToString()],  // 1
-                    PlotFileName,                                           // 2
-                    BackgroundColor,                                        // 3
-                    Log,                                                    // 4
-                    LogBase,                                                // 5
-                    Names,                                                  // 6
-                    XLabel,                                                 // 7
-                    YLabel,                                                 // 8
-                    Main,                                                   // 9
-                    BarColor,                                               // 10
-                    Width,                                                  // 11
-                    Height,                                                 // 12
-                    FontSize,                                               // 13
-                    Resolution                                              // 14
-                    );
-
-            if (Parameters.ContainsKey("Mode"))
-            {
-                if (Parameters["Mode"].Equals("iterator"))
-                {
-                    Command += string.Format(
-                        "rm({0})\n",
-                        Parameters[RequiredParameters.TableName.ToString()]);
-                }
-            }
+            string s_TmpTable = GetTemporaryTableName("tmpBoxPlot_"),
+                Command = string.Format(
+                "Boxplots(x={0}, Columns={1}, " +
+                "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
+                "colorFactorName={5}, " +
+                "outliers={6}, color=\"{7}\", bkground=\"{8}\", labelscale={9}, " +
+                "boxwidth={10}, showcount={11}, showlegend={12}, stamp={13}, " +
+                "do.ylim={14}, ymin={15}, ymax={16}, ylabel=\"{17}\", " +
+                "IMGwidth={18}, IMGheight={19}, FNTsize={20}, res={21})\n" +
+                "rm({0})\n",
+                s_TmpTable,
+                m_DataColumns,
+                PlotFileName,
+                m_ColorByFactor,
+                m_ColumnFactorTable,
+                m_FactorColumn,
+                m_Outliers,
+                m_Color,
+                BackgroundColor,
+                m_LabelScale,
+                m_BoxWidth,
+                m_ShowCount,
+                m_ShowLegend,
+                m_Stamp,
+                m_DoYLim,
+                m_yMin,
+                m_yMax,
+                YLabel,
+                Width,
+                Height,
+                FontSize,
+                Resolution
+                );
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, 
+                    ModuleName, StepNumber);
             }
             catch (Exception exc)
             {
                 Model.LogError("Exception encountered while creating a " +
-                    "BarPlot:\n" + exc.ToString());
+                    "BoxPlot:\n" + exc.ToString());
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }
 
-
-
             return b_Successful;
         }
-        
+
         /// <summary>
         /// Retrieves the Default Value
         /// </summary>
@@ -303,4 +293,3 @@ namespace Cyclops.DataModules
         #endregion
     }
 }
-

@@ -24,8 +24,6 @@ using System.Data;
 using System.IO;
 using System.Text;
 
-using PNNLOmics;
-
 namespace Cyclops.DataModules
 {
     /// <summary>
@@ -463,7 +461,7 @@ namespace Cyclops.DataModules
         /// <returns>Selected columns from Column Metadata table</returns>
         private static DataTable GetDatasetInfo(string DatabaseFileName, string TableName)
         {
-            PNNLOmics.Databases.SQLiteHandler sql = new PNNLOmics.Databases.SQLiteHandler();
+            SQLiteHandler sql = new SQLiteHandler();
             sql.DatabaseFileName = DatabaseFileName;
             string Command = string.Format(
                 "Select Alias, Dataset, Dataset_ID FROM {0} ORDER BY Alias",

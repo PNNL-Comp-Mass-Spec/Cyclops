@@ -47,7 +47,7 @@ namespace Cyclops.Operations
         #endregion
 
         #region Members
-        private string m_OperationsDBPath = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3", 
+        private string 
             m_LabelFreeTableName = "T_LabelFreeLog2PipelineOperation",
             m_ModuleName = "LabelFreeMainOperation";
 
@@ -110,7 +110,7 @@ namespace Cyclops.Operations
 
             if (Parameters.ContainsKey("DatabaseFileName"))
             {
-                m_OperationsDBPath = Parameters["DatabaseFileName"];
+                OperationsDatabasePath = Parameters["DatabaseFileName"];
             }
 
             return b_Successful;
@@ -181,7 +181,7 @@ namespace Cyclops.Operations
             try
             {
                 WorkflowHandler wfh = new WorkflowHandler(Model);
-                wfh.InputWorkflowFileName = m_OperationsDBPath;
+                wfh.InputWorkflowFileName = OperationsDatabasePath;
                 wfh.WorkflowTableName = m_LabelFreeTableName;
                 b_Successful = wfh.ReadSQLiteWorkflow();
 

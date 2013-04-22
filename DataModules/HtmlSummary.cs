@@ -42,7 +42,7 @@ namespace Cyclops.DataModules
         }
         private bool m_DatabaseFound = false;
         private enum HTMLFileType { Dataset, Index };
-        private PNNLOmics.Databases.SQLiteHandler sql = new PNNLOmics.Databases.SQLiteHandler();
+        private SQLiteHandler sql = new SQLiteHandler();
         #endregion
 
         #region Properties

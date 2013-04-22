@@ -45,7 +45,7 @@ namespace Cyclops.Operations
         #endregion
 
         #region Members
-        private string m_OperationsDBPath = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3",
+        private string 
             m_SpectralCountTableName = "T_SpectralCountPipelineOperation",
             m_ModuleName = "SpectralCountMainOperation";
         
@@ -123,7 +123,7 @@ namespace Cyclops.Operations
 
             if (Parameters.ContainsKey("DatabaseFileName"))
             {
-                m_OperationsDBPath = Parameters["DatabaseFileName"];
+                OperationsDatabasePath = Parameters["DatabaseFileName"];
             }
 
             return b_Successful;
@@ -182,7 +182,7 @@ namespace Cyclops.Operations
             try
             {                
                 WorkflowHandler wfh = new WorkflowHandler(Model);                
-                wfh.InputWorkflowFileName = m_OperationsDBPath;
+                wfh.InputWorkflowFileName = OperationsDatabasePath;
                 wfh.WorkflowTableName = m_SpectralCountTableName;
                 b_Successful = wfh.ReadSQLiteWorkflow();
 

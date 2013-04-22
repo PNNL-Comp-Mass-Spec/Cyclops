@@ -123,6 +123,12 @@ namespace Cyclops
         /// SQLite database to work from
         /// </summary>
         public string SQLiteDatabase { get; set; }
+
+        /// <summary>
+        /// Path to SQLite database that contains the table to
+        /// run a Cyclops Workflow
+        /// </summary>
+        public string OperationsDatabasePath { get; set; }
         #endregion
 
         #region Constructors

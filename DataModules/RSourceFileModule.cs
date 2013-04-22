@@ -28,31 +28,18 @@ using System.Text;
 namespace Cyclops.DataModules
 {
     /// <summary>
-    /// Loads the R source files, and all libraries needed. This 
+    /// Loads all the R source files in the directory and subdirectories
     /// </summary>
-    public class LoadRSourceFiles : BaseDataModule
+    public class RSourceFileModule : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "LoadRSourceFiles";
+        private string m_ModuleName = "RSourceFileModule";
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
         private enum RequiredParameters
         {
         }
-
-        private string[] m_PackagesToLoad = new string[] 
-        {
-            "gplots",
-            "grDevices",
-            "Hmisc",  
-            "lme4",
-            "moments",
-            "outliers",
-            "pcaPP",
-            "reshape",
-            "RSQLite"
-        };
         #endregion
 
         #region Properties
@@ -63,7 +50,7 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Generic constructor creating an R Source File Module
         /// </summary>
-        public LoadRSourceFiles()
+        public RSourceFileModule()
         {
             ModuleName = m_ModuleName;
         }
@@ -72,7 +59,7 @@ namespace Cyclops.DataModules
         /// RSourceFileModule module that assigns a Cyclops Model
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
-        public LoadRSourceFiles(CyclopsModel CyclopsModel)
+        public RSourceFileModule(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
@@ -83,7 +70,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="DataParameters">Parameters to run module</param>
-        public LoadRSourceFiles(CyclopsModel CyclopsModel,
+        public RSourceFileModule(CyclopsModel CyclopsModel,
             Dictionary<string, string> DataParameters)
         {
             ModuleName = m_ModuleName;
@@ -102,22 +89,8 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
-
                 if (CheckParameters())
-                {
-                    bool b_Successful = Run_LoadRSourceFiles(); 
-                    
-                    if (b_Successful)
-                        b_Successful = CheckThatRequiredPackagesAreInstalled();
-
-                    if (b_Successful)
-                        b_Successful = LoadLibraries();
-
-
-                    Model.PipelineCurrentlySuccessful = b_Successful;
-                }
+                    Model.PipelineCurrentlySuccessful = Run_LoadRSourceFiles();
 
                 RunChildModules();
             }
@@ -136,7 +109,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
+                    Model.LogError("Required Field Missing: " + s,
                         ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
@@ -190,7 +163,7 @@ namespace Cyclops.DataModules
                         if (b_Successful)
                         {
                             string Command = string.Format(
-                                "source('{0}')\n",
+                                "source(\"{0}\")\n",
                                 s.Replace("\\", "/"));
                             b_Successful = Model.RCalls.Run(Command,
                                 ModuleName, StepNumber);
@@ -203,9 +176,6 @@ namespace Cyclops.DataModules
                         }
                     }
                 }
-
-                Model.RCalls.Run("objects2delete <- ls()\n",
-                    ModuleName, StepNumber);
             }
             catch (Exception exc)
             {
@@ -249,46 +219,6 @@ namespace Cyclops.DataModules
             }
 
             return b_Successful;
-        }
-
-        public bool CheckThatRequiredPackagesAreInstalled()
-        {
-            bool b_Successful = true;
-
-            foreach (string s in m_PackagesToLoad)
-            {
-                if (!Model.RCalls.IsPackageInstalled(s))
-                {
-                    try
-                    {
-                        Model.RCalls.InstallPackage(s);
-                    }
-                    catch (Exception exc)
-                    {
-                        Model.LogError("Exception encountered while installing " +
-                            "package: " + s + "\nException: " + exc.ToString());
-                        return false;
-                    }
-                }
-            }
-
-            return b_Successful;
-        }
-
-        /// <summary>
-        /// Loads the required packages into R environment
-        /// </summary>
-        /// <returns>True, if packages are loaded successfully</returns>
-        private bool LoadLibraries()
-        {
-            string Command = "";
-            foreach (string s in m_PackagesToLoad)
-            {
-                Command += string.Format("require({0})\n",
-                    s);
-            }
-
-            return Model.RCalls.Run(Command, ModuleName, StepNumber);
         }
         #endregion
     }

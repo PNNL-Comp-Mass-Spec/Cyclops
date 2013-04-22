@@ -25,7 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using PNNLOmics;
+
 
 namespace Cyclops.DataModules
 {
@@ -41,8 +41,8 @@ namespace Cyclops.DataModules
         private string m_ModuleName = "MissedCleavageSummary",
             m_InputFileName = "Results.db3";
 
-        private PNNLOmics.Databases.SQLiteHandler sql = 
-            new PNNLOmics.Databases.SQLiteHandler();
+        private SQLiteHandler sql = 
+            new SQLiteHandler();
 
         private Dictionary<int, int> dict_Cleavages = new Dictionary<int, int>();
         #endregion
