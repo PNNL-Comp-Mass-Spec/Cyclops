@@ -163,9 +163,27 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey(
                 RequiredParameters.Fixed_Effect.ToString()))
             {
+				string s_FactorTable = Parameters[RequiredParameters.FactorTable.ToString()];
+				string s_FixedEffect = Parameters[RequiredParameters.Fixed_Effect.ToString()];
+
+				if (string.IsNullOrEmpty(s_FactorTable))
+				{
+					  Model.LogWarning("FactorTable parameter is empty; skipping QuasiTel" ,
+                        ModuleName, StepNumber);
+					return true;
+				}
+
+				if (string.IsNullOrEmpty(s_FixedEffect))
+				{
+					Model.LogWarning("FixedEffect parameter is empty; skipping QuasiTel" ,
+                        ModuleName, StepNumber);
+					return true;
+				}
+
+
                 if (!Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()]))
+				s_FactorTable,
+					s_FixedEffect))
                 {
                     Model.LogError(string.Format(
                         "Factor table ({0}) does not contain the specified " +

@@ -137,8 +137,7 @@ namespace Cyclops.DataModules
         public bool SaveFunction()
         {
             bool b_Successful = true;
-            string s_DefaultOutputFileName = "Results.RData", s_Command = "",
-                s_FileName;
+            string s_DefaultOutputFileName = "Results.RData", s_FileName;
 
             try
             {
@@ -152,12 +151,10 @@ namespace Cyclops.DataModules
 
                 s_FileName = s_FileName.Replace("\\", "/");
 
-                s_Command = string.Format("save.image('{0}')\n",
-                    s_FileName);
-
-                Model.LogMessage("Saving R environment: " + s_Command,
+				Model.LogMessage("Saving R environment to: " + s_FileName,
                     ModuleName, StepNumber);
-                b_Successful = Model.RCalls.SaveEnvironment(s_Command);
+
+				b_Successful = Model.RCalls.SaveEnvironment(s_FileName);
 
                 if (b_Successful)
                     Model.RWorkEnvironment = s_FileName;

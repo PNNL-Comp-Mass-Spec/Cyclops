@@ -279,18 +279,21 @@ namespace Cyclops
                 if (!string.IsNullOrEmpty(m_WorkflowHandler.InputWorkflowFileName))
                 {
                     b_Successful = m_WorkflowHandler.ReadWorkflow();
-                    if (b_Successful && m_WorkflowHandler.Root != null)
-                        m_WorkflowHandler.Root.PerformOperation();
-                    else if (!b_Successful)
-                    {
-                        LogError("ERROR occurred while reading workflow.");
-                        return false;
-                    }
-                    else if (m_WorkflowHandler.Root == null)
-                    {
-                        LogError("ERROR: No Root Module created to initialize modules.");
-                        return false;
-                    }
+					if (b_Successful && m_WorkflowHandler.Root != null)
+					{
+						//b_Successful = m_WorkflowHandler.Root.PerformOperation();
+						m_WorkflowHandler.Root.PerformOperation();
+					}
+					else if (!b_Successful)
+					{
+						LogError("ERROR occurred while reading workflow.");
+						return false;
+					}
+					else if (m_WorkflowHandler.Root == null)
+					{
+						LogError("ERROR: No Root Module created to initialize modules.");
+						return false;
+					}
                     
                 }
                 else if (string.IsNullOrEmpty(m_WorkflowHandler.InputWorkflowFileName))
@@ -305,7 +308,8 @@ namespace Cyclops
             }
             else
             {
-                m_WorkflowHandler.Root.PerformOperation();
+				// b_Successful = m_WorkflowHandler.Root.PerformOperation();
+				m_WorkflowHandler.Root.PerformOperation();
             }
 
             if (b_Successful)
