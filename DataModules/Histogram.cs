@@ -31,7 +31,8 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "Histogram",
-            m_BarColor = "cornflowerblue";
+            m_BarColor = "cornflowerblue",
+            m_Main = "", m_XLabel = "", m_YLabel = "";
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
@@ -96,17 +97,19 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
-        public override void PerformOperation()
+        public override bool PerformOperation()
         {
+            bool b_Successful = true;
+
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
 
                 if (CheckParameters())
-                    Model.PipelineCurrentlySuccessful = HistogramFunction();
-
-                RunChildModules();
+                    b_Successful = HistogramFunction();
             }
+
+            return b_Successful;
         }
 
         /// <summary>
@@ -151,6 +154,22 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey("Width"))
                 Width = Convert.ToInt32(Parameters["Width"]);
 
+            if (Parameters.ContainsKey("Main"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["Main"]))
+                    m_Main = Parameters["Main"];
+            }
+            if (Parameters.ContainsKey("XLabel"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["XLabel"]))
+                    m_XLabel = Parameters["XLabel"];
+            }
+            if (Parameters.ContainsKey("YLabel"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["YLabel"]))
+                    m_YLabel = Parameters["YLabel"];
+            }
+
             if (Directory.Exists(Model.WorkDirectory))
             {
                 string s_PlotDirectory = Path.Combine(
@@ -159,7 +178,7 @@ namespace Cyclops.DataModules
                     Directory.CreateDirectory(s_PlotDirectory);
                 PlotFileName = Path.Combine(s_PlotDirectory,
                     Parameters[RequiredParameters.PlotFileName.ToString()]).Replace("\\", "/");
-            }
+            }            
 
             return b_Successful;
         }
@@ -178,7 +197,7 @@ namespace Cyclops.DataModules
             {
                 case "standard":
                     Command = string.Format("plot_hist(Data={0}, " +
-                         "file=\"{1}\", Data.Columns={2}, " +
+                         "file=\"{1}\", Data.Columns='{2}', " +
                          "IMGwidth={3}, " +
                          "IMGheight={4}, FNTsize={5}, colF=\"{6}\", colB=\"{7}\")",
                          Parameters[RequiredParameters.TableName.ToString()],

@@ -76,6 +76,8 @@
     <Compile Include="DataModules\Clean.cs" />
     <Compile Include="DataModules\CleanDataAndColumnFactors.cs" />
     <Compile Include="DataModules\FilterByPeptideProteinCount.cs" />
+    <Compile Include="DataModules\FilterTable.cs" />
+    <Compile Include="DataModules\Heatmap.cs" />
     <Compile Include="DataModules\ImportDataModule.cs" />
     <Compile Include="DataModules\LBF_Summary_HTML.cs" />
     <Compile Include="DataModules\LinearRegression.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="DataModules\QuasiTel.cs" />
     <Compile Include="DataModules\RMD.cs" />
     <Compile Include="DataModules\RRollup.cs" />
+    <Compile Include="DataModules\TopMostAbundant.cs" />
     <Compile Include="DataModules\Transform.cs" />
     <Compile Include="DataModules\ExportTable.cs" />
     <Compile Include="DataModules\HtmlFileHandler.cs" />

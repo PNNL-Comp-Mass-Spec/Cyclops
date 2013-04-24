@@ -73,8 +73,10 @@ namespace Cyclops.Operations
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
-        public override void PerformOperation()
+        public override bool PerformOperation()
         {
+            bool b_Successful = true;
+
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -83,9 +85,11 @@ namespace Cyclops.Operations
                         ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    Model.PipelineCurrentlySuccessful =
+                    b_Successful =
                         LabelFreeMainOperationFunction();
             }
+
+            return b_Successful;
         }
 
         /// <summary>

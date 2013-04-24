@@ -82,8 +82,10 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
-        public override void PerformOperation()
+        public override bool PerformOperation()
         {
+            bool b_Successful = true;
+
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -93,9 +95,9 @@ namespace Cyclops.DataModules
 
                 if (CheckParameters())
                     Model.PipelineCurrentlySuccessful = QuasiTelFunction();
-
-                RunChildModules();
             }
+
+            return b_Successful;
         }
 
         /// <summary>

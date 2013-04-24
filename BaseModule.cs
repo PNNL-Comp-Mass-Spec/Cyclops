@@ -74,8 +74,9 @@ namespace Cyclops
         /// <summary>
         /// Runs the module's operation
         /// </summary>
-        public virtual void PerformOperation()
+        public virtual bool PerformOperation()
         {
+            return true;
         }
 
         /// <summary>

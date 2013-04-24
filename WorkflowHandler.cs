@@ -38,7 +38,8 @@ namespace Cyclops
     public class WorkflowHandler
     {
         #region Members
-        private DataModules.BaseDataModule m_Root = null; 
+        private LinkedList<DataModules.BaseDataModule> m_Modules =
+            new LinkedList<DataModules.BaseDataModule>();         
         private SQLiteHandler sql = new SQLiteHandler();
         private int m_ModuleCount = 0;
         private WorkflowType m_InputType, 
@@ -49,7 +50,6 @@ namespace Cyclops
         private struct strModuleInfo
         {
             public string ModuleName { get; set; }
-            public int ModuleType { get; set; }
         }
         #endregion
 
@@ -88,16 +88,7 @@ namespace Cyclops
         /// </summary>
         public int Count
         {
-            get { return m_ModuleCount; }
-            set { m_ModuleCount = value; }
-        }
-        /// <summary>
-        /// Root Module
-        /// </summary>
-        public DataModules.BaseDataModule Root
-        {
-            get { return m_Root; }
-            set { m_Root = value; }
+            get { return Modules.Count; }
         }
 
         /// <summary>
@@ -117,6 +108,12 @@ namespace Cyclops
             get { return sql; }
             set { sql = value; }
         }
+
+        public LinkedList<DataModules.BaseDataModule> Modules
+        {
+            get { return m_Modules; }
+            set { m_Modules = value; }
+        }
         #endregion
 
         #region Constructors
@@ -131,6 +128,7 @@ namespace Cyclops
         #endregion
 
         #region Methods
+
         /// <summary>
         /// Reads a workflow and assembles the modules
         /// </summary>
@@ -202,15 +200,18 @@ namespace Cyclops
             return ReadWorkflow();
         }
 
+        /// <summary>
+        /// Reads an XML workflow and assembles modules from the file
+        /// </summary>
+        /// <returns>True, if the modules are assembled correctly</returns>
         private bool ReadXMLWorkflow()
         {
             bool b_Successful = true;
-			string InputWorkflowFilePath = "??";
+			string InputWorkflowFilePath = InputWorkflowFileName;
 
-            DataModules.BaseDataModule CurrentModule = Root;
             try
             {
-				InputWorkflowFilePath = Path.Combine(Model.WorkDirectory, InputWorkflowFileName);
+                //InputWorkflowFilePath = Path.Combine(Model.WorkDirectory, InputWorkflowFileName);
 				
 				XmlDocument xml = new XmlDocument();
                 xml.Load(InputWorkflowFilePath);
@@ -230,18 +231,7 @@ namespace Cyclops
                             dm.StepNumber = Convert.ToInt32(
                                 xn.Attributes["Step"].Value.ToString());
                             dm = AddParameters(dm);
-                            if (Root == null)
-                            {
-                                Root = dm;
-                                CurrentModule = Root;
-                                Count++;
-                            }
-                            else
-                            {
-                                CurrentModule.AddDataChild(dm);
-                                CurrentModule = dm;
-                                Count++;
-                            }
+                            Modules.AddLast(dm);
                             break;
                         case "OPERATION":
                             Dictionary<string, string> OperationParam =
@@ -256,8 +246,8 @@ namespace Cyclops
                                 om.OperationsDatabasePath =
                                     Model.OperationsDatabasePath;
                             }
-                            om.PerformOperation();
-                            Count++;
+                            b_Successful = om.PerformOperation();
+                            
                             break;
                     }
                 }
@@ -273,6 +263,25 @@ namespace Cyclops
                 Model.LogError("Exception thrown while reading XML Workflow file: \n" +
 					InputWorkflowFilePath + "\nException: " + exc.ToString());
                 b_Successful = false;
+            }
+
+            return b_Successful;
+        }
+
+        /// <summary>
+        /// Runs the Module Workflow
+        /// </summary>
+        /// <returns>True, if the workflow completes successfully</returns>
+        public bool RunWorkflow()
+        {
+            bool b_Successful = true;
+
+            foreach (DataModules.BaseDataModule bdm in Modules)
+            {
+                b_Successful = bdm.PerformOperation();
+
+                if (!b_Successful)
+                    return false;
             }
 
             return b_Successful;
@@ -309,7 +318,6 @@ namespace Cyclops
             bool b_Successful = true;
             try
             {
-                DataModules.BaseDataModule CurrentModule = Root;
                 sql.DatabaseFileName = InputWorkflowFileName;
                 DataTable dt_Workflow = sql.GetTable(WorkflowTableName);
                 int? MaxSteps = GetMaximumStepsInWorkflowDataTable(dt_Workflow);
@@ -324,23 +332,23 @@ namespace Cyclops
                             string.Format("Step = {0}",
                             r));
                         Dictionary<string, string> Param = GetParametersFromDataRows(rows);
-                        strModuleInfo mi = GetModuleNameAndTypeFromRows(rows, r);
+                        strModuleInfo mi = GetModuleNameFromRows(rows, r);
 
                         DataModules.BaseDataModule bdm = DataModules.BaseDataModule.Create(
                                     mi.ModuleName, Model, Param);
-                        bdm.StepNumber = r;
-                        bdm = AddParameters(bdm);
-                        if (Root == null)
+
+                        if (bdm != null)
                         {
-                            Root = bdm;
-                            CurrentModule = Root;
-                            Count++;
+                            bdm.StepNumber = r;
+                            bdm = AddParameters(bdm);
+                            Modules.AddLast(bdm);
                         }
                         else
                         {
-                            CurrentModule.AddDataChild(bdm);
-                            CurrentModule = bdm;
-                            Count++;
+                            Model.LogError("Error occurred while assembling modules:\n" +
+                                mi.ModuleName + " module does not exist! Please check the " +
+                                "version of Cyclops and reassemble your workflow");
+                            return false;   
                         }
                     }
                 }
@@ -411,13 +419,12 @@ namespace Cyclops
             return Param;
         }
 
-        private strModuleInfo GetModuleNameAndTypeFromRows(DataRow[] rows, int Step)
+        private strModuleInfo GetModuleNameFromRows(DataRow[] rows, int Step)
         {
             strModuleInfo mi = new strModuleInfo();
             if (rows.Length > 0)
             {
                 mi.ModuleName = rows[0]["Module"].ToString();
-                mi.ModuleType = Convert.ToInt32(rows[0]["ModuleType"].ToString());
             }
             // Now check that the other rows have the same values
             foreach (DataRow dr in rows)
@@ -426,12 +433,6 @@ namespace Cyclops
                 {
                     Model.LogWarning("Warning reading workflow info from SQLite:\n" +
                         "Step " + Step + " has multiple Modules");
-                }
-                int i = Convert.ToInt32(dr["ModuleType"].ToString());
-                if (mi.ModuleType != i)
-                {
-                    Model.LogWarning("Warning reading workflow info from SQLite:\n" +
-                        "Step " + Step + " has multiple ModuleTypes");
                 }
             }
             return mi;
@@ -525,7 +526,10 @@ namespace Cyclops
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Cyclops");
 
-                    Root.WriteModuleToXML(writer);
+                    foreach (DataModules.BaseDataModule bdm in Modules)
+                    {
+                        bdm.WriteModuleToXML(writer);
+                    }
 
                     writer.WriteEndElement();
                     writer.WriteEndDocument();
@@ -579,7 +583,10 @@ namespace Cyclops
                     dt_Workflow.Columns.Add(dc);
                 }
 
-                dt_Workflow = Root.WriteModuleToDataTable(dt_Workflow);
+                foreach (DataModules.BaseDataModule bdm in Modules)
+                {
+                    bdm.WriteModuleToDataTable(dt_Workflow);
+                }
 
                 sql.DatabaseFileName = OutputWorkflowFileName;
                 sql.CreateDatabase(OutputWorkflowFileName, false);

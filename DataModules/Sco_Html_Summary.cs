@@ -94,8 +94,10 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
-        public override void PerformOperation()
+        public override bool PerformOperation()
         {
+            bool b_Successful = true;
+
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -106,10 +108,10 @@ namespace Cyclops.DataModules
                 AddDefaultValues2FileNameVault();
 
                 if (CheckParameters())
-                    Model.PipelineCurrentlySuccessful = Sco_Html_SummaryFunction();
-
-                RunChildModules();
+                    b_Successful = Sco_Html_SummaryFunction();
             }
+
+            return b_Successful;
         }
 
         /// <summary>
@@ -197,7 +199,7 @@ namespace Cyclops.DataModules
             l_NavBarNodes.Add(new HtmlLinkNode(
                 "Correlation Heatmaps", s_CorrFileName, false));
             l_NavBarNodes.Add(new HtmlLinkNode(
-                "Heatmaps", s_HeatmapsFileName, false));
+                "Protein Heatmaps", s_HeatmapsFileName, false));
 
             using (StreamWriter sw_Css = File.AppendText(Path.Combine(Model.WorkDirectory, s_CssFileName)))
             {

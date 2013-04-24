@@ -97,8 +97,10 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
-        public override void PerformOperation()
+        public override bool PerformOperation()
         {
+            bool b_Successful = true;
+
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -108,16 +110,14 @@ namespace Cyclops.DataModules
 
                 if (CheckParameters())
                 {
-                    bool b_Successful = RunCorrelationAnalysis();
+                    b_Successful = RunCorrelationAnalysis();
 
                     if (b_Successful)
                         b_Successful = CorrelationHeatmapFunction();
-
-                    Model.PipelineCurrentlySuccessful = b_Successful;
                 }
-
-                RunChildModules();
             }
+
+            return b_Successful;
         }
 
         /// <summary>

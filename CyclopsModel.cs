@@ -272,52 +272,13 @@ namespace Cyclops
         /// <returns>True, if the workflow completes successfully</returns>
         public bool Run()
         {
-            bool b_Successful = true;
-
-            if (m_WorkflowHandler.Count < 1)
-            {
-                if (!string.IsNullOrEmpty(m_WorkflowHandler.InputWorkflowFileName))
-                {
-                    b_Successful = m_WorkflowHandler.ReadWorkflow();
-					if (b_Successful && m_WorkflowHandler.Root != null)
-					{
-						//b_Successful = m_WorkflowHandler.Root.PerformOperation();
-						m_WorkflowHandler.Root.PerformOperation();
-					}
-					else if (!b_Successful)
-					{
-						LogError("ERROR occurred while reading workflow.");
-						return false;
-					}
-					else if (m_WorkflowHandler.Root == null)
-					{
-						LogError("ERROR: No Root Module created to initialize modules.");
-						return false;
-					}
-                    
-                }
-                else if (string.IsNullOrEmpty(m_WorkflowHandler.InputWorkflowFileName))
-                {
-                    LogError("ERROR: No Workflow file was entered to run!");
-                    return false;
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            if (m_WorkflowHandler.Count > 0)
+                return m_WorkflowHandler.RunWorkflow();
             else
             {
-				// b_Successful = m_WorkflowHandler.Root.PerformOperation();
-				m_WorkflowHandler.Root.PerformOperation();
+                LogWarning("No modules were detected during the Workflow Run()");
+                return true;
             }
-
-            if (b_Successful)
-                LogMessage("Cyclops Completed Successfully!");
-            else
-                LogMessage("Cyclops did NOT Complete Successfully!");
-
-            return b_Successful;
         }
 
         public bool WriteOutWorkflow(string FileName, WorkflowType OutputWorkflowType)

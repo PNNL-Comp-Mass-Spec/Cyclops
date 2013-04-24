@@ -30,7 +30,6 @@ namespace Cyclops.DataModules
     public abstract class BaseDataModule : BaseModule
     {
         #region Members
-        private List<BaseDataModule> l_ChildDataModules = new List<BaseDataModule>();
 
         #region Visualization Members
         private string m_BackgroundColor = "white";
@@ -88,23 +87,6 @@ namespace Cyclops.DataModules
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Adds a child data module
-        /// </summary>
-        /// <param name="Child">Data Child Module to Add</param>
-        public void AddDataChild(BaseDataModule Child)
-        {
-            l_ChildDataModules.Add(Child);
-        }
-
-        /// <summary>
-        /// Runs the child modules in order: 1. visualization, 2. export, 3. data
-        /// </summary>
-        public void RunChildModules()
-        {
-            foreach (BaseDataModule bdm in l_ChildDataModules)
-                bdm.PerformOperation();
-        }
 
         /// <summary>
         /// Writes the Data Module out to XML
@@ -136,18 +118,6 @@ namespace Cyclops.DataModules
             }
 
             Writer.WriteEndElement();
-
-            WriteChildModulesToXML(Writer);
-        }
-
-        /// <summary>
-        /// Iterates through child modules, and writes their information out to XML
-        /// </summary>
-        /// <param name="Writer">XML stream to write parameters out to</param>
-        public void WriteChildModulesToXML(XmlWriter Writer)
-        {
-            foreach (DataModules.BaseDataModule bdm in l_ChildDataModules)
-                bdm.WriteModuleToXML(Writer);
         }
 
 
@@ -182,17 +152,7 @@ namespace Cyclops.DataModules
                 dr["ModuleType"] = 1;
                 Table.Rows.Add(dr);
             }
-
-            Table = WriteChildNodesToDataTable(Table);
-
-            return Table;
-        }
-
-        public DataTable WriteChildNodesToDataTable(DataTable Table)
-        {
-            foreach (DataModules.BaseDataModule bdm in l_ChildDataModules)
-                Table = bdm.WriteModuleToDataTable(Table);
-
+            
             return Table;
         }
 
@@ -235,18 +195,6 @@ namespace Cyclops.DataModules
 		public override void PrintModule()
         {
             Console.WriteLine(ModuleName);
-            PrintChildModules();
-        }
-
-        /// <summary>
-        /// Prints the modules name to the console
-        /// </summary>
-        public void PrintChildModules()
-        {
-            foreach (BaseDataModule bdm in l_ChildDataModules)
-            {
-                bdm.PrintModule();
-            }
         }
 
         /// <summary>
@@ -298,6 +246,13 @@ namespace Cyclops.DataModules
             return typeMap;
         }
 
+        public void CheckForPlotsDirectory()
+        {
+            string s_Dir = Path.Combine(Model.WorkDirectory, "Plots");
+            if (!Directory.Exists(s_Dir))
+                Directory.CreateDirectory(s_Dir);
+        }
+
         /// <summary>
         /// Saves the current work environment, important for 
         /// debugging instances when Cyclops fails.
@@ -310,6 +265,14 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 Model.RCalls.Run(string.Format("save.image('{0}')\n",
                     Model.RWorkEnvironment), ModuleName, StepNumber);
+            }
+            else
+            {
+                Model.LogMessage("Saving current work environment...",
+                    ModuleName, StepNumber);
+                string s_SaveFileName = Path.Combine(Model.WorkDirectory, "Results.RData").Replace("\\", "/");
+                Model.RCalls.Run(string.Format("save.image('{0}')\n",
+                    s_SaveFileName), ModuleName, StepNumber);
             }
         }
         #endregion

@@ -43,15 +43,16 @@ namespace Cyclops.DataModules
 
         private string[] m_PackagesToLoad = new string[] 
         {
-            "gplots",
-            "grDevices",
-            "Hmisc",  
-            "lme4",
-            "moments",
-            "outliers",
-            "pcaPP",
-            "reshape",
-            "RSQLite"
+            "Cairo"
+            , "gplots"
+            , "grDevices"
+            , "Hmisc"
+            , "lme4"
+            , "moments"
+            , "outliers"
+            , "pcaPP"
+            , "reshape"
+            , "RSQLite"
         };
         #endregion
 
@@ -96,8 +97,10 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
-        public override void PerformOperation()
+        public override bool PerformOperation()
         {
+            bool b_Successful = true;
+            
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -107,20 +110,17 @@ namespace Cyclops.DataModules
 
                 if (CheckParameters())
                 {
-                    bool b_Successful = Run_LoadRSourceFiles(); 
+                    b_Successful = Run_LoadRSourceFiles(); 
                     
                     if (b_Successful)
                         b_Successful = CheckThatRequiredPackagesAreInstalled();
 
                     if (b_Successful)
                         b_Successful = LoadLibraries();
-
-
-                    Model.PipelineCurrentlySuccessful = b_Successful;
                 }
-
-                RunChildModules();
             }
+
+            return b_Successful;
         }
 
         /// <summary>

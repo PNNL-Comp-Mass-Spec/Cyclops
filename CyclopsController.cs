@@ -105,6 +105,7 @@ namespace Cyclops
                 Parameters.ContainsKey("workDir"))
                 WorkingDirectory = Parameters["workDir"];
             //CreateLogFile();
+            m_Cyclops.ModuleLoader.ReadWorkflow();
             return m_Cyclops.Run();
         }
 
@@ -118,15 +119,6 @@ namespace Cyclops
             Model.WarningEvent += new MessageEventBase.MessageEventHandler(CyclopsEngineWarningEvent);
             Model.MessageEvent += new MessageEventBase.MessageEventHandler(CyclopsEngineMessageEvent);
         }
-
-        //public void CreateLogFile()
-        //{
-        //    /// Create Logging file                
-        //    string s_TmpLogFileName = Path.Combine(WorkingDirectory,
-        //        "CyclopsLog_");
-        //    log4net.GlobalContext.Properties["name"] = s_TmpLogFileName;
-        //    LogTools.ChangeLogFileName(s_TmpLogFileName);
-        //}
         #endregion
 
         #region EventHandlers

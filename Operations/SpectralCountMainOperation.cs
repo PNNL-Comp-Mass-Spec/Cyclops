@@ -86,8 +86,10 @@ namespace Cyclops.Operations
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
-        public override void PerformOperation()
+        public override bool PerformOperation()
         {
+            bool b_Successful = true;
+
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -96,9 +98,11 @@ namespace Cyclops.Operations
                         ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    Model.PipelineCurrentlySuccessful =
+                    b_Successful =
                         SpectralCountMainOperationFunction();
             }
+
+            return b_Successful;
         }
 
         /// <summary>
@@ -154,7 +158,7 @@ namespace Cyclops.Operations
             {
                 case "standard":
                     m_SpectralCountTableName =
-                        m_SpectralCountTableNames[(int)ScoTypes.Standard];
+                        m_SpectralCountTableNames[(int)ScoTypes.Standard];                    
                     break;
                 case "iterator":
                     m_SpectralCountTableName =
@@ -169,6 +173,14 @@ namespace Cyclops.Operations
                         m_SpectralCountTableNames[(int)ScoTypes.ScoHtmlPractice];
                     break;
             }
+
+            Model.LogMessage(string.Format(
+                        "Spectral Count Operation: {0}\nDatabase: {1}\nTable: {2}\n",
+                        Parameters[RequiredParameters.Type.ToString()],
+                        OperationsDatabasePath,
+                        m_SpectralCountTableName),
+                        ModuleName,
+                        StepNumber);
         }
 
         /// <summary>
