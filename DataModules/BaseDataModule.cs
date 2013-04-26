@@ -246,6 +246,41 @@ namespace Cyclops.DataModules
             return typeMap;
         }
 
+
+        /// <summary>
+        /// Gets the list of data modules in Cyclops
+        /// </summary>
+        /// <returns>List of module names</returns>
+        public List<string> GetModuleNames()
+        {
+            List<string> Names = new List<string>();
+
+            Assembly currAssembly = Assembly.GetExecutingAssembly();
+
+            Type baseType = typeof(BaseDataModule);
+
+            foreach (Type type in currAssembly.GetTypes())
+            {
+                if (!type.IsClass || type.IsAbstract ||
+                    !type.IsSubclassOf(baseType))
+                {
+                    continue;
+                }
+
+                BaseDataModule derivedObject =
+                    System.Activator.CreateInstance(type) as BaseDataModule;
+
+                if (derivedObject != null)
+                {
+                    Names.Add(derivedObject.GetTypeName());
+                }
+            }
+
+            Names.Sort();
+
+            return Names;
+        }
+
         public void CheckForPlotsDirectory()
         {
             string s_Dir = Path.Combine(Model.WorkDirectory, "Plots");

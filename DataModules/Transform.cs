@@ -133,7 +133,7 @@ namespace Cyclops.DataModules
             string Command = "";
 
             if (Parameters.ContainsKey("logBase"))
-            {
+            {                
                 Command = string.Format(
                     "{0} <- log((data.matrix({1})+{2})*{3},{4})",
                         Parameters[RequiredParameters.NewTableName.ToString()],

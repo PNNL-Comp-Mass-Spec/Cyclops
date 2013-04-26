@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace Cyclops
     /// This class is responsible for reading and writing workflows, from
     /// XML and SQLite
     /// </summary>
-    public class WorkflowHandler
+    public class WorkflowHandler : INotifyPropertyChanged
     {
         #region Members
         private LinkedList<DataModules.BaseDataModule> m_Modules =
@@ -51,6 +52,11 @@ namespace Cyclops
         {
             public string ModuleName { get; set; }
         }
+
+        private DataTable m_ModulesTable = new DataTable("T_Modules");       
+
+        // Declare the event 
+        public event PropertyChangedEventHandler PropertyChanged;
         #endregion
 
         #region Properties
@@ -60,7 +66,7 @@ namespace Cyclops
         public WorkflowType InputWorkflowType
         {
             get { return m_InputType; }
-            set { m_OutputType = value; }
+            set { m_InputType = value; }
         }
         /// <summary>
         /// Type of workflow to write out
@@ -114,6 +120,16 @@ namespace Cyclops
             get { return m_Modules; }
             set { m_Modules = value; }
         }
+
+        public DataTable WorkflowTable
+        {
+            get { return m_ModulesTable; }
+            set 
+            { 
+                m_ModulesTable = value;
+                OnPropertyChanged("WorkflowTable");
+            }
+        }
         #endregion
 
         #region Constructors
@@ -124,10 +140,30 @@ namespace Cyclops
         public WorkflowHandler(CyclopsModel TheModel)
         {
             Model = TheModel;
+
+            AddDataColumnsToWorkflowTables();
         }
         #endregion
 
         #region Methods
+
+        private void AddDataColumnsToWorkflowTables()
+        {
+            Dictionary<string, string> d_ModuleTableColumnHeaders =
+                new Dictionary<string, string>();
+            d_ModuleTableColumnHeaders.Add("Step", "System.Int32");
+            d_ModuleTableColumnHeaders.Add("Module", "System.String");
+            d_ModuleTableColumnHeaders.Add("Parameter", "System.String");
+            d_ModuleTableColumnHeaders.Add("Value", "System.String");
+
+            foreach (KeyValuePair<string, string>
+                kvp_Module in d_ModuleTableColumnHeaders)
+            {
+                DataColumn dc = new DataColumn(kvp_Module.Key);
+                dc.DataType = System.Type.GetType(kvp_Module.Value);
+                m_ModulesTable.Columns.Add(dc);
+            }
+        }
 
         /// <summary>
         /// Reads a workflow and assembles the modules
@@ -217,6 +253,9 @@ namespace Cyclops
                 xml.Load(InputWorkflowFilePath);
                 XmlNodeList xnl_Modules = xml.SelectNodes("Cyclops/Module");
 
+                // Clear the LinkedList
+                Modules.Clear();
+
                 foreach (XmlNode xn in xnl_Modules)
                 {
                     switch (xn.Attributes["Type"].Value.ToString().ToUpper())
@@ -231,7 +270,24 @@ namespace Cyclops
                             dm.StepNumber = Convert.ToInt32(
                                 xn.Attributes["Step"].Value.ToString());
                             dm = AddParameters(dm);
-                            Modules.AddLast(dm);
+
+                            // Only add the module if that particular step
+                            // is available
+                            if (!HasStep(dm.StepNumber))
+                                Modules.AddLast(dm);
+                            else
+                            {
+                                Model.LogError("Error occurred while trying to " +
+                                    "add Step: " + dm.StepNumber + ", Module: " +
+                                    dm.ModuleName + ". This Step is already " +
+                                    "taken in the workflow. Please check your " +
+                                    "workflow so the same step number is not " +
+                                    "used twice!");
+
+                                return false;
+                            }
+
+                            AddModulesToDataTables(dm);
                             break;
                         case "OPERATION":
                             Dictionary<string, string> OperationParam =
@@ -266,6 +322,20 @@ namespace Cyclops
             }
 
             return b_Successful;
+        }
+
+        private void AddModulesToDataTables(DataModules.BaseDataModule Module)
+        {
+            foreach (KeyValuePair<string, string> kvp in Module.Parameters)
+            {
+                DataRow dr_Module = m_ModulesTable.NewRow();
+                dr_Module["Step"] = Module.StepNumber;
+                dr_Module["Module"] = Module.ModuleName;
+                dr_Module["Parameter"] = kvp.Key;
+                dr_Module["Value"] = kvp.Value;
+
+                m_ModulesTable.Rows.Add(dr_Module);
+            }
         }
 
         /// <summary>
@@ -320,44 +390,74 @@ namespace Cyclops
             {
                 sql.DatabaseFileName = InputWorkflowFileName;
                 DataTable dt_Workflow = sql.GetTable(WorkflowTableName);
-                int? MaxSteps = GetMaximumStepsInWorkflowDataTable(dt_Workflow);
-                if (MaxSteps == null)
-                    return false;
-                else
-                {
-                    for (int i = 0; i < MaxSteps; i++)
-                    {
-                        int r = i + 1;
-                        DataRow[] rows = dt_Workflow.Select(
-                            string.Format("Step = {0}",
-                            r));
-                        Dictionary<string, string> Param = GetParametersFromDataRows(rows);
-                        strModuleInfo mi = GetModuleNameFromRows(rows, r);
 
-                        DataModules.BaseDataModule bdm = DataModules.BaseDataModule.Create(
-                                    mi.ModuleName, Model, Param);
-
-                        if (bdm != null)
-                        {
-                            bdm.StepNumber = r;
-                            bdm = AddParameters(bdm);
-                            Modules.AddLast(bdm);
-                        }
-                        else
-                        {
-                            Model.LogError("Error occurred while assembling modules:\n" +
-                                mi.ModuleName + " module does not exist! Please check the " +
-                                "version of Cyclops and reassemble your workflow");
-                            return false;   
-                        }
-                    }
-                }
+                b_Successful = ReadDataTableWorkflow(dt_Workflow);
             }
             catch (Exception exc)
             {
                 Model.LogError("Exception encountered while reading SQLite workflow:\n" +
                     exc.ToString());
                 b_Successful = false;
+            }
+
+            return b_Successful;
+        }
+
+        public bool ReadDataTableWorkflow(DataTable WorkflowTable)
+        {
+            bool b_Successful = true;
+
+            int? MaxSteps = GetMaximumStepsInWorkflowDataTable(WorkflowTable);
+            if (MaxSteps == null)
+                return false;
+            else
+            {
+                // Clear the LinkedList
+                Modules.Clear();
+
+                for (int i = 0; i < MaxSteps; i++)
+                {
+                    int r = i + 1;
+                    DataRow[] rows = WorkflowTable.Select(
+                        string.Format("Step = {0}",
+                        r));
+                    Dictionary<string, string> Param = GetParametersFromDataRows(rows);
+                    strModuleInfo mi = GetModuleNameFromRows(rows, r);
+
+                    DataModules.BaseDataModule bdm = DataModules.BaseDataModule.Create(
+                                mi.ModuleName, Model, Param);
+
+                    if (bdm != null)
+                    {
+                        bdm.StepNumber = r;
+                        bdm = AddParameters(bdm);
+
+                        // Only add the module if that particular step
+                        // is available
+                        if (!HasStep(bdm.StepNumber))
+                            Modules.AddLast(bdm);
+                        else
+                        {
+                            Model.LogError("Error occurred while trying to " +
+                                "add Step: " + bdm.StepNumber + ", Module: " +
+                                bdm.ModuleName + ". This Step is already " +
+                                "taken in the workflow. Please check your " +
+                                "workflow so the same step number is not " +
+                                "used twice!");
+
+                            return false;
+                        }
+
+                        AddModulesToDataTables(bdm);
+                    }
+                    else
+                    {
+                        Model.LogError("Error occurred while assembling modules:\n" +
+                            mi.ModuleName + " module does not exist! Please check the " +
+                            "version of Cyclops and reassemble your workflow");
+                        return false;
+                    }
+                }
             }
 
             return b_Successful;
@@ -571,7 +671,6 @@ namespace Cyclops
                 Dictionary<string, string> d_Columns = new Dictionary<string, string>();
                 d_Columns.Add("Step", "System.Int32");
                 d_Columns.Add("Module", "System.String");
-                d_Columns.Add("ModuleType", "System.Int32");
                 d_Columns.Add("Parameter", "System.String");
                 d_Columns.Add("Value", "System.String");
 
@@ -600,6 +699,104 @@ namespace Cyclops
             }
 
             return b_Successful;
+        }
+
+        /// <summary>
+        /// Get the module at a particular step
+        /// </summary>
+        /// <param name="StepNumber">Step to retrieve module for</param>
+        /// <returns>Module at the indicated step number</returns>
+        public DataModules.BaseDataModule GetModule(int StepNumber)
+        {
+            foreach (DataModules.BaseDataModule m in Modules)
+            {
+                if (m.StepNumber == StepNumber)
+                    return m;
+            }
+
+            // if Step number is not found, return null
+            return null;
+        }
+
+        /// <summary>
+        /// Indicates if a particular step number is present in the Modules
+        /// </summary>
+        /// <param name="StepNumber">Step number to query for</param>
+        /// <returns>True, if the step number is present</returns>
+        public bool HasStep(int StepNumber)
+        {
+            bool b_HasStep = false;
+
+            foreach (DataModules.BaseDataModule m in Modules)
+            {
+                if (m.StepNumber == StepNumber)
+                    return true;
+            }
+
+            return b_HasStep;
+        }
+
+        /// <summary>
+        /// Get the Maximum step number for the modules
+        /// </summary>
+        /// <returns>Maximum Step Number</returns>
+        public int GetMaxStep()
+        {
+            int i_Max = 0;
+
+            foreach (DataModules.BaseDataModule m in Modules)
+            {
+                if (m.StepNumber > i_Max)
+                    i_Max = m.StepNumber;
+            }
+
+            return i_Max;
+        }
+
+        /// <summary>
+        /// Removes a module from the List of Modules
+        /// </summary>
+        /// <param name="Module2Remove">Module to remove</param>
+        //public void RemoveModuleFromWorkflow(DataModules.BaseDataModule Module2Remove)
+        //{
+        //    // Remove from m_ModulesTable
+        //    // Update StepNumber of subsequent modules
+            
+        //    // Remove from LinkedList
+        //    // Update StepNumber of subsequent modules
+        //}
+
+        /// <summary>
+        /// Removes a module from the List of Modules
+        /// </summary>
+        /// <param name="StepNumber">Step to remove module</param>
+        public void RemoveModuleFromWorkflow(int StepNumber)
+        {
+            var node = Modules.First;
+            bool b_Removed = false;
+            while (node != null)
+            {
+                var NextNode = node.Next;
+                if (node.Value.StepNumber == StepNumber)
+                {
+                    Modules.Remove(node);
+                    b_Removed = true;
+                }
+                else if (b_Removed)
+                    node.Value.StepNumber--;
+                node = NextNode;
+            }
+
+        }
+
+        // Create the OnPropertyChanged method to raise the event 
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
         }
         #endregion
     }

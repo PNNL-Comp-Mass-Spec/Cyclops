@@ -175,7 +175,104 @@ namespace Cyclops.DataModules
             bool b_Successful = true;
 
             AddDefaultValues2FileNameVault();
+            
+            WriteCssFile();
 
+            #region Datasets Page
+            try
+            {
+                WriteDatasetsPage(GetOriginalNavBar());
+            }
+            catch (Exception exc)
+            {
+                Model.LogError("Exception encountered while " +
+                    "constructing and writing Datasets HTML Page:\n" +
+                    exc.ToString(),
+                    ModuleName, StepNumber);
+                return false;
+            }
+            #endregion
+
+            #region Summary HTML Page
+            try
+            {
+                WriteSummaryHTMLPage(GetOriginalNavBar());
+            }
+            catch (Exception exc)
+            {
+                Model.LogError("Exception encountered while " +
+                    "constructing and writing Summary HTML Page:\n" +
+                    exc.ToString(),
+                    ModuleName, StepNumber);
+                return false;
+            }
+            #endregion
+
+            #region QC Page
+            try
+            {
+                WriteQCHTMLPage(GetOriginalNavBar());
+            }
+            catch (Exception exc)
+            {
+                Model.LogError("Exception encountered while " +
+                    "constructing and writing QC HTML Page:\n" +
+                    exc.ToString(),
+                    ModuleName, StepNumber);
+                return false;
+            }
+            #endregion
+
+            #region BoxPlots Page
+            try
+            {
+                WriteBoxPlotHTMLPage(GetOriginalNavBar());
+            }
+            catch (Exception exc)
+            {
+                Model.LogError("Exception encountered while " +
+                    "constructing and writing Boxplot HTML Page:\n" +
+                    exc.ToString(),
+                    ModuleName, StepNumber);
+                return false;
+            }
+            #endregion
+
+            #region Correlation Heatmaps Page
+            try
+            {
+                WriteCorrelationHeatmapHTMLPage(GetOriginalNavBar());
+            }
+            catch (Exception exc)
+            {
+                Model.LogError("Exception encountered while " +
+                    "constructing and writing Correlation Heatmap HTML Page:\n" +
+                    exc.ToString(),
+                    ModuleName, StepNumber);
+                return false;
+            }
+            #endregion
+
+            #region Main HTML Page
+            try
+            {
+                WriteMainHTMLPage(GetOriginalNavBar());
+            }
+            catch (Exception exc)
+            {
+                Model.LogError("Exception encountered while " +
+                    "constructing and writing Main HTML Page:\n" +
+                    exc.ToString(),
+                    ModuleName, StepNumber);
+                return false;
+            }
+            #endregion
+
+            return b_Successful;
+        }
+
+        private List<HtmlLinkNode> GetOriginalNavBar()
+        {
             List<HtmlLinkNode> l_NavBarNodes = new List<HtmlLinkNode>();
 
             l_NavBarNodes.Add(new HtmlLinkNode(
@@ -191,99 +288,7 @@ namespace Cyclops.DataModules
             l_NavBarNodes.Add(new HtmlLinkNode(
                 "Correlation Heatmaps", FileNameVault["CorrelationHtmlFileName"], false));
 
-            WriteCssFile();
-
-            #region Datasets Page
-            try
-            {
-                WriteDatasetsPage(l_NavBarNodes);
-            }
-            catch (Exception exc)
-            {
-                Model.LogError("Exception encountered while " +
-                    "constructing and writing Datasets HTML Page:\n" +
-                    exc.ToString(),
-                    ModuleName, StepNumber);
-                return false;
-            }
-            #endregion
-
-            #region Summary HTML Page
-            try
-            {
-                WriteSummaryHTMLPage(l_NavBarNodes);
-            }
-            catch (Exception exc)
-            {
-                Model.LogError("Exception encountered while " +
-                    "constructing and writing Summary HTML Page:\n" +
-                    exc.ToString(),
-                    ModuleName, StepNumber);
-                return false;
-            }
-            #endregion
-
-            #region QC Page
-            try
-            {
-                WriteQCHTMLPage(l_NavBarNodes);
-            }
-            catch (Exception exc)
-            {
-                Model.LogError("Exception encountered while " +
-                    "constructing and writing QC HTML Page:\n" +
-                    exc.ToString(),
-                    ModuleName, StepNumber);
-                return false;
-            }
-            #endregion
-
-            #region BoxPlots Page
-            try
-            {
-                WriteBoxPlotHTMLPage(l_NavBarNodes);
-            }
-            catch (Exception exc)
-            {
-                Model.LogError("Exception encountered while " +
-                    "constructing and writing Boxplot HTML Page:\n" +
-                    exc.ToString(),
-                    ModuleName, StepNumber);
-                return false;
-            }
-            #endregion
-
-            #region Correlation Heatmaps Page
-            try
-            {
-                WriteCorrelationHeatmapHTMLPage(l_NavBarNodes);
-            }
-            catch (Exception exc)
-            {
-                Model.LogError("Exception encountered while " +
-                    "constructing and writing Correlation Heatmap HTML Page:\n" +
-                    exc.ToString(),
-                    ModuleName, StepNumber);
-                return false;
-            }
-            #endregion
-
-            #region Main HTML Page
-            try
-            {
-                WriteMainHTMLPage(l_NavBarNodes);
-            }
-            catch (Exception exc)
-            {
-                Model.LogError("Exception encountered while " +
-                    "constructing and writing Main HTML Page:\n" +
-                    exc.ToString(),
-                    ModuleName, StepNumber);
-                return false;
-            }
-            #endregion
-
-            return b_Successful;
+            return l_NavBarNodes;
         }
 
         /// <summary>
@@ -332,6 +337,9 @@ namespace Cyclops.DataModules
             FileNameVault.Add("LbfCorrelationHeatmapRrCTFigureFileName", "RR_CT_Log_T_Data_CorrelationHeatmap.png");
         }
 
+        /// <summary>
+        /// Writes out the CSS file to the working directory
+        /// </summary>
         private void WriteCssFile()
         {
             using (StreamWriter sw = File.AppendText(Path.Combine(m_WorkingDirectory, FileNameVault["CssFileName"])))
