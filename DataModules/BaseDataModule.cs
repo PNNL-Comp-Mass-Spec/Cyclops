@@ -251,7 +251,7 @@ namespace Cyclops.DataModules
         /// Gets the list of data modules in Cyclops
         /// </summary>
         /// <returns>List of module names</returns>
-        public List<string> GetModuleNames()
+        public static List<string> GetModuleNames()
         {
             List<string> Names = new List<string>();
 

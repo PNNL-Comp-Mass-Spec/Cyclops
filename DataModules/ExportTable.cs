@@ -273,6 +273,9 @@ namespace Cyclops.DataModules
                 case "TSV":
                     b_Successful = ExportR_to_Text("\t");
                     break;
+                case "TXT":
+                    b_Successful = ExportR_to_Text("\t");
+                    break;
                 case "ACCESS":
                     /// TODO : Implement R to Access Export :(*
                     break;
@@ -404,17 +407,20 @@ namespace Cyclops.DataModules
                 {
                     case "tsv":
                         b_Successful = WriteDataTableToFile(dt,
-                            Parameters[RequiredParameters.FileName.ToString()],
+                            Path.Combine(Model.WorkDirectory,
+                                Parameters[RequiredParameters.FileName.ToString()]),
                             "\t");
                         break;
                     case "txt":
                         b_Successful = WriteDataTableToFile(dt,
-                            Parameters[RequiredParameters.FileName.ToString()],
+                            Path.Combine(Model.WorkDirectory,
+                                Parameters[RequiredParameters.FileName.ToString()]),
                             "\t");
                         break;
                     case "csv":
                         b_Successful = WriteDataTableToFile(dt,
-                            Parameters[RequiredParameters.FileName.ToString()],
+                            Path.Combine(Model.WorkDirectory,
+                            Parameters[RequiredParameters.FileName.ToString()]),
                             ",");
                         break;
                 }

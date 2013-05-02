@@ -303,7 +303,7 @@ namespace Cyclops
                 LogError("Exception caught while creating modules: " +
                     exc.ToString());
                 b_Successful = false;
-            }
+            } 
             return b_Successful;
         }
 

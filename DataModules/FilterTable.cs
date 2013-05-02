@@ -25,30 +25,23 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Cyclops.Operations
+namespace Cyclops.DataModules
 {
-    public class iTRAQMainOperation : BaseOperationModule
+    /// <summary>
+    /// Filters tables in the R workspace based on column criteria
+    /// </summary>
+    public class FilterTable : BaseDataModule
     {
-        #region Enums
-        public enum iTraqTypes { Standard };
-
+        #region Members
+        private string m_ModuleName = "FilterTable";
         /// <summary>
-        /// Required parameters to run iTRAQ MainOperation Module
+        /// Required parameters to run FilterTable Module
         /// </summary>
         private enum RequiredParameters
         {
-            Type
+            InputTableName, NewTableName, ColumnName,
+            Operation, Value
         }
-        #endregion
-
-        #region Members
-        private string 
-            m_iTraqTableName = "T_iTRAQ_PipelineOperation",
-            m_ModuleName = "iTRAQMainOperation";
-
-        private string[] m_iTraqTableNames = new string[] {
-            "T_iTRAQ_PipelineOperation"
-        };
         #endregion
 
         #region Properties
@@ -56,23 +49,35 @@ namespace Cyclops.Operations
         #endregion
 
         #region Constructors
-        public iTRAQMainOperation()
+        /// <summary>
+        /// Generic constructor creating an FilterTable Module
+        /// </summary>
+        public FilterTable()
         {
             ModuleName = m_ModuleName;
         }
 
-        public iTRAQMainOperation(CyclopsModel CyclopsModel)
+        /// <summary>
+        /// FilterTable module that assigns a Cyclops Model
+        /// </summary>
+        /// <param name="CyclopsModel">Cyclops Model</param>
+        public FilterTable(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
         }
 
-        public iTRAQMainOperation(CyclopsModel CyclopsModel,
-            Dictionary<string, string> OperationParameters)
+        /// <summary>
+        /// FilterTable module that assigns a Cyclops Model
+        /// </summary>
+        /// <param name="CyclopsModel">Cyclops Model</param>
+        /// <param name="ExportParameters">Export Parameters</param>
+        public FilterTable(CyclopsModel CyclopsModel,
+            Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
-            Parameters = OperationParameters;
+            Parameters = ExportParameters;
         }
         #endregion
 
@@ -88,12 +93,11 @@ namespace Cyclops.Operations
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
+                Model.LogMessage("Running FilterTable",
                         ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful =
-                        iTRAQMainOperationFunction();
+                    b_Successful = FilterTableFunction();
             }
 
             return b_Successful;
@@ -112,84 +116,52 @@ namespace Cyclops.Operations
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
+                    Model.LogError("Required Field Missing: " + s,
                         ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
             }
 
-            if (Parameters.ContainsKey("DatabaseFileName"))
+            if (b_Successful &&
+                !Model.RCalls.ContainsObject(
+                Parameters[RequiredParameters.InputTableName.ToString()]))
             {
-                OperationsDatabasePath = Parameters["DatabaseFileName"];
+                Model.LogError("Error R Environment does not contain the " +
+                    "input table: " +
+                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    ModuleName, StepNumber);
+                b_Successful = false;
             }
 
             return b_Successful;
         }
 
         /// <summary>
-        /// Main Method to run the iTRAQ Operation
+        /// Function
         /// </summary>
-        /// <returns>True, if the operation completes successfully</returns>
-        public bool iTRAQMainOperationFunction()
+        /// <returns>True, if the function completes successfully</returns>
+        public bool FilterTableFunction()
         {
             bool b_Successful = true;
 
-            SetTypes();
-
-            b_Successful = ConstructModules();
-
-            return b_Successful;
-        }
-
-
-        /// <summary>
-        /// Sets the type of iTRAQ Operation, and sets the SQLite table
-        /// to use to run the operation.
-        /// </summary>
-        public void SetTypes()
-        {
-            switch (Parameters[RequiredParameters.Type.ToString()].ToLower())
-            {
-                case "standard":
-                    m_iTraqTableName =
-                        m_iTraqTableNames[(int)iTraqTypes.Standard];
-                    break;
-            }
-
-            Model.LogMessage(string.Format(
-                        "iTRAQ Operation: {0}\nDatabase: {1}\nTable: {2}\n",
-                        Parameters[RequiredParameters.Type.ToString()],
-                        OperationsDatabasePath,
-                        m_iTraqTableName),
-                        ModuleName,
-                        StepNumber);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public bool ConstructModules()
-        {
-            bool b_Successful = true;
+            string Command = string.Format(
+                "{0} <- {1}[{1}[,'{2}'] {3} {4},]\n",
+                Parameters[RequiredParameters.NewTableName.ToString()],
+                Parameters[RequiredParameters.InputTableName.ToString()],
+                Parameters[RequiredParameters.Operation.ToString()],
+                Parameters[RequiredParameters.Value.ToString()]);
 
             try
             {
-                WorkflowHandler wfh = new WorkflowHandler(Model);
-                wfh.InputWorkflowFileName = OperationsDatabasePath;
-                wfh.WorkflowTableName = m_iTraqTableName;
-                b_Successful = wfh.ReadSQLiteWorkflow();
-
-                if (b_Successful)
-                    Model.ModuleLoader = wfh;
+                b_Successful = Model.RCalls.Run(Command,
+                    ModuleName, StepNumber);
             }
             catch (Exception exc)
             {
-                Model.LogError("Exception encounterd while running 'ConstructModules' " +
-                    "for the iTRAQ Operation:\n" +
-                    exc.ToString(), ModuleName, StepNumber);
+                Model.LogError("Exception encountered while filtering " +
+                    "table: " + Parameters[RequiredParameters.InputTableName.ToString()],
+                    ModuleName, StepNumber);
                 b_Successful = false;
             }
 

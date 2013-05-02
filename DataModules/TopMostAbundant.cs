@@ -25,30 +25,22 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Cyclops.Operations
+namespace Cyclops.DataModules
 {
-    public class iTRAQMainOperation : BaseOperationModule
+    public class TopMostAbundant : BaseDataModule
     {
-        #region Enums
-        public enum iTraqTypes { Standard };
+        #region Members
+        private string m_ModuleName = "TopMostAbundant",
+            m_Function = "median";
 
+        private bool m_RemoveNAs = true;
         /// <summary>
-        /// Required parameters to run iTRAQ MainOperation Module
+        /// Required parameters to run TopMostAbundant Module
         /// </summary>
         private enum RequiredParameters
         {
-            Type
+            InputTableName, NewTableName, NumberOfMostAbundant
         }
-        #endregion
-
-        #region Members
-        private string 
-            m_iTraqTableName = "T_iTRAQ_PipelineOperation",
-            m_ModuleName = "iTRAQMainOperation";
-
-        private string[] m_iTraqTableNames = new string[] {
-            "T_iTRAQ_PipelineOperation"
-        };
         #endregion
 
         #region Properties
@@ -56,23 +48,35 @@ namespace Cyclops.Operations
         #endregion
 
         #region Constructors
-        public iTRAQMainOperation()
+        /// <summary>
+        /// Generic constructor creating an TopMostAbundant Module
+        /// </summary>
+        public TopMostAbundant()
         {
             ModuleName = m_ModuleName;
         }
 
-        public iTRAQMainOperation(CyclopsModel CyclopsModel)
+        /// <summary>
+        /// TopMostAbundant module that assigns a Cyclops Model
+        /// </summary>
+        /// <param name="CyclopsModel">Cyclops Model</param>
+        public TopMostAbundant(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
         }
 
-        public iTRAQMainOperation(CyclopsModel CyclopsModel,
-            Dictionary<string, string> OperationParameters)
+        /// <summary>
+        /// TopMostAbundant module that assigns a Cyclops Model
+        /// </summary>
+        /// <param name="CyclopsModel">Cyclops Model</param>
+        /// <param name="ExportParameters">Export Parameters</param>
+        public TopMostAbundant(CyclopsModel CyclopsModel,
+            Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
-            Parameters = OperationParameters;
+            Parameters = ExportParameters;
         }
         #endregion
 
@@ -88,12 +92,11 @@ namespace Cyclops.Operations
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
+                Model.LogMessage("Running TopMostAbundant",
                         ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful =
-                        iTRAQMainOperationFunction();
+                    b_Successful = TopMostAbundantFunction();
             }
 
             return b_Successful;
@@ -112,84 +115,71 @@ namespace Cyclops.Operations
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
+                    Model.LogError("Required Field Missing: " + s,
                         ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
             }
 
-            if (Parameters.ContainsKey("DatabaseFileName"))
+            if (b_Successful &&
+                !Model.RCalls.ContainsObject(
+                Parameters[RequiredParameters.InputTableName.ToString()]))
             {
-                OperationsDatabasePath = Parameters["DatabaseFileName"];
+                Model.LogError("Error: R environment does not contain the " +
+                    "input table: " +
+                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    ModuleName, StepNumber);
+                return false;
+            }
+
+            if (b_Successful &&
+                Parameters.ContainsKey("Function"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["Function"]))
+                    m_Function = Parameters["Function"];
+            }
+
+            if (b_Successful &&
+                Parameters.ContainsKey("RemoveNA"))
+            {
+                if (!string.IsNullOrEmpty(Parameters["RemoveNA"]))
+                    m_RemoveNAs = Convert.ToBoolean(Parameters["RemoveNA"]);
             }
 
             return b_Successful;
         }
 
         /// <summary>
-        /// Main Method to run the iTRAQ Operation
+        /// Function
         /// </summary>
-        /// <returns>True, if the operation completes successfully</returns>
-        public bool iTRAQMainOperationFunction()
+        /// <returns>True, if the function completes successfully</returns>
+        public bool TopMostAbundantFunction()
         {
             bool b_Successful = true;
 
-            SetTypes();
-
-            b_Successful = ConstructModules();
-
-            return b_Successful;
-        }
-
-
-        /// <summary>
-        /// Sets the type of iTRAQ Operation, and sets the SQLite table
-        /// to use to run the operation.
-        /// </summary>
-        public void SetTypes()
-        {
-            switch (Parameters[RequiredParameters.Type.ToString()].ToLower())
-            {
-                case "standard":
-                    m_iTraqTableName =
-                        m_iTraqTableNames[(int)iTraqTypes.Standard];
-                    break;
-            }
-
-            Model.LogMessage(string.Format(
-                        "iTRAQ Operation: {0}\nDatabase: {1}\nTable: {2}\n",
-                        Parameters[RequiredParameters.Type.ToString()],
-                        OperationsDatabasePath,
-                        m_iTraqTableName),
-                        ModuleName,
-                        StepNumber);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public bool ConstructModules()
-        {
-            bool b_Successful = true;
+            string Command = string.Format(
+                "{0} <- cbind({1}, Median=apply({1}, MARGIN=1, FUN={2}, na.rm={3}))\n" +
+                    "{0} <- {0}[order({0}[,'Median'], decreasing=T),]\n" +
+                    "{0} <- {0}[,-grep('Median', colnames({0}))]\n" +
+                    "{0} <- {0}[1:{4},]\n",
+                    Parameters[RequiredParameters.NewTableName.ToString()],
+                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    m_Function,
+                    m_RemoveNAs.ToString().ToUpper(),
+                    Parameters[RequiredParameters.NumberOfMostAbundant.ToString()]);
 
             try
             {
-                WorkflowHandler wfh = new WorkflowHandler(Model);
-                wfh.InputWorkflowFileName = OperationsDatabasePath;
-                wfh.WorkflowTableName = m_iTraqTableName;
-                b_Successful = wfh.ReadSQLiteWorkflow();
-
-                if (b_Successful)
-                    Model.ModuleLoader = wfh;
+                b_Successful = Model.RCalls.Run(Command,
+                    ModuleName, StepNumber);
             }
             catch (Exception exc)
             {
-                Model.LogError("Exception encounterd while running 'ConstructModules' " +
-                    "for the iTRAQ Operation:\n" +
-                    exc.ToString(), ModuleName, StepNumber);
+                Model.LogError("Exception encountered: " +
+                    exc.ToString(),
+                    ModuleName, StepNumber);
+                SaveCurrentREnvironment();
                 b_Successful = false;
             }
 

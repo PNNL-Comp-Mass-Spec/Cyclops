@@ -700,6 +700,8 @@ namespace Cyclops
 
                     cmd = conn.CreateCommand();
                     cmd.CommandText = Command;
+                    //SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
+                    //da.Fill(dt_Return);
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     dt_Return.Load(reader);
                     conn.Close();
@@ -708,6 +710,7 @@ namespace Cyclops
             }
             catch (IOException ioe)
             {
+                
                 return null;
             }
             catch (Exception exc)
