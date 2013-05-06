@@ -43,6 +43,7 @@ namespace Cyclops
             new LinkedList<DataModules.BaseDataModule>();         
         private SQLiteHandler sql = new SQLiteHandler();
         private int m_ModuleCount = 0;
+        private bool m_WorkflowContainsOperations = false;
         private WorkflowType m_InputType, 
             m_OutputType;
 
@@ -202,8 +203,10 @@ namespace Cyclops
                     b_Successful = ReadSQLiteWorkflow();
                     break;
             }
-
-            if (Count == 0)
+            
+            /// Operations do not add to the overall Count for the primary Model
+            /// So, exclude instances that are running operations.
+            if (Count == 0 && !m_WorkflowContainsOperations)
             {
                 Model.LogError(string.Format("No modules were assembled from the workflow:\n" +
                     "Please check that the settings " +
@@ -321,7 +324,8 @@ namespace Cyclops
                                     Model.OperationsDatabasePath;
                             }
                             b_Successful = om.PerformOperation();
-                            
+                            m_WorkflowContainsOperations = true;
+
                             break;
                     }
 
