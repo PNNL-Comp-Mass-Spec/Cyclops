@@ -218,7 +218,8 @@ namespace Cyclops.DataModules
         private static Dictionary<string, Type> CreateTypeMap()
         {
             Dictionary<string, Type> typeMap =
-                new Dictionary<string, Type>();
+                new Dictionary<string, Type>(
+                    StringComparer.OrdinalIgnoreCase);
 
             Assembly currAssembly = Assembly.GetExecutingAssembly();
 

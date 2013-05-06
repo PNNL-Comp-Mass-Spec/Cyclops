@@ -368,12 +368,19 @@ namespace Cyclops
         {
             bool b_Successful = true;
 
+            int i_Step = 1;
             foreach (DataModules.BaseDataModule bdm in Modules)
             {
-                b_Successful = bdm.PerformOperation();
+                if (bdm != null)
+                    b_Successful = bdm.PerformOperation();
+                else
+                    Model.LogError("Cyclops did not detect a module at step number: " +
+                        i_Step);
 
                 if (!b_Successful)
                     return false;
+
+                i_Step++;
             }
 
             return b_Successful;
@@ -453,8 +460,6 @@ namespace Cyclops
                     {
                         bdm.StepNumber = r;
                         
-                        if (bdm.Parameters.Count > 0)
-                            bdm.Parameters.Clear();
                         bdm = AddParameters(bdm);
 
                         // Only add the module if that particular step
