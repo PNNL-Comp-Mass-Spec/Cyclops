@@ -136,17 +136,18 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
+                    Model.LogWarning("Required Field Missing: " + s,
                         ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(
+            if (b_Successful &&
+                !Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.TableName.ToString()]))
             {
-                Model.LogError("Error Checking Parameters in Heatmap:\n" +
+                Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                     "The input table, " +
                     Parameters[RequiredParameters.TableName.ToString()] +
                     ", does not exist in the R work environment!",
@@ -161,7 +162,7 @@ namespace Cyclops.DataModules
                 {
                     if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                     {
-                        Model.LogError("Required Field Missing: " + s,
+                        Model.LogWarning("Required Field Missing: " + s,
                             ModuleName, StepNumber);
                         b_Successful = false;
                         return b_Successful;
@@ -178,7 +179,7 @@ namespace Cyclops.DataModules
                     !Model.RCalls.ContainsObject(
                     Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]))
                 {
-                    Model.LogError("Error Checking Parameters in Heatmap:\n" +
+                    Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                         "Filter P-values was selected, but the significance table, " +
                         Parameters[FilteredRequiredParameters.SignificanceTable.ToString()] +
                         ", does not exist in the R work environment!",
@@ -191,7 +192,7 @@ namespace Cyclops.DataModules
                     Parameters[FilteredRequiredParameters.SignificanceTable.ToString()],
                     Parameters[FilteredRequiredParameters.PValueColumn.ToString()]))
                 {
-                    Model.LogError("Error Checking Parameters in Heatmap:\n" +
+                    Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                         "Filter P-values was selected, but the significance table, " +
                         Parameters[FilteredRequiredParameters.SignificanceTable.ToString()] +
                         ", does not the specified Significance Column, " +

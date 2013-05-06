@@ -175,7 +175,14 @@ namespace Cyclops
 
             if (string.IsNullOrEmpty(InputWorkflowFileName))
             {
-                Model.LogError("A workflow file must be supplied in order to read modules!");
+                Model.LogError("A workflow file must be supplied in order to read modules!",
+                    "WorkflowHandler: ReadWorkflow()", 0);
+                return false;
+            }
+            else if (!File.Exists(InputWorkflowFileName))
+            {
+                Model.LogError("Cyclops cannot find the specified workflow file: " +
+                    InputWorkflowFileName, "WorkflowHandler: ReadWorkflow()", 0);
                 return false;
             }
 
@@ -243,11 +250,22 @@ namespace Cyclops
         private bool ReadXMLWorkflow()
         {
             bool b_Successful = true;
-			string InputWorkflowFilePath = InputWorkflowFileName;
+			string InputWorkflowFilePath = "";
 
             try
             {
-                //InputWorkflowFilePath = Path.Combine(Model.WorkDirectory, InputWorkflowFileName);
+                if (File.Exists(InputWorkflowFileName))
+                    InputWorkflowFilePath = InputWorkflowFileName;
+                else if (Directory.Exists(Model.WorkDirectory) &&
+                    File.Exists(Path.Combine(Model.WorkDirectory, InputWorkflowFileName)))
+                    InputWorkflowFilePath = Path.Combine(Model.WorkDirectory, InputWorkflowFileName);
+                else
+                {
+                    Model.LogError("Cyclops could not find the XML workflow file: \n" +
+                        "Working directory: " + Model.WorkDirectory + "\n" +
+                        "XML Workflow File: " + InputWorkflowFileName);
+                    return false;
+                }
 				
 				XmlDocument xml = new XmlDocument();
                 xml.Load(InputWorkflowFilePath);
@@ -430,6 +448,9 @@ namespace Cyclops
                     if (bdm != null)
                     {
                         bdm.StepNumber = r;
+                        
+                        if (bdm.Parameters.Count > 0)
+                            bdm.Parameters.Clear();
                         bdm = AddParameters(bdm);
 
                         // Only add the module if that particular step

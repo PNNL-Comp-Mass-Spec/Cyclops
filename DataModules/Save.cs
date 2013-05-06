@@ -71,7 +71,7 @@ namespace Cyclops.DataModules
         public Save(CyclopsModel CyclopsModel,
             Dictionary<string, string> ExportParameters)
         {
-            ModuleName = "Save Environment";
+            ModuleName = m_ModuleName;
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
