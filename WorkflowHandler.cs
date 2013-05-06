@@ -179,7 +179,7 @@ namespace Cyclops
                     "WorkflowHandler: ReadWorkflow()", 0);
                 return false;
             }
-            else if (!File.Exists(InputWorkflowFileName))
+            else if (!File.Exists(InputWorkflowFileName) && !File.Exists(Path.Combine(Model.WorkDirectory, InputWorkflowFileName)))
             {
                 Model.LogError("Cyclops cannot find the specified workflow file: " +
                     InputWorkflowFileName, "WorkflowHandler: ReadWorkflow()", 0);
@@ -324,6 +324,10 @@ namespace Cyclops
                             
                             break;
                     }
+
+					if (!b_Successful)
+						break;
+
                 }
             }
             catch (IOException ioe)

@@ -105,7 +105,12 @@ namespace Cyclops
                 Parameters.ContainsKey("workDir"))
                 WorkingDirectory = Parameters["workDir"];
             //CreateLogFile();
-            m_Cyclops.ModuleLoader.ReadWorkflow();
+
+			bool b_Successful;
+			b_Successful = m_Cyclops.ModuleLoader.ReadWorkflow();
+			if (!b_Successful)
+				return false;
+
             return m_Cyclops.Run();
         }
 
