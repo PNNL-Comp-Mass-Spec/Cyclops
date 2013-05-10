@@ -31,6 +31,7 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "CleanDataAndColumnFactors",
+            m_Description = "",
             m_MergeColumnName = "Alias";
         /// <summary>
         /// Required parameters to run CleanDataAndColumnFactors Module
@@ -61,6 +62,7 @@ namespace Cyclops.DataModules
         public CleanDataAndColumnFactors()
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
         }
 
         /// <summary>
@@ -70,6 +72,7 @@ namespace Cyclops.DataModules
         public CleanDataAndColumnFactors(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
         }
 
@@ -82,6 +85,7 @@ namespace Cyclops.DataModules
             Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
@@ -238,6 +242,16 @@ namespace Cyclops.DataModules
         protected override string GetTypeName()
         {
             return ModuleName;
+        }
+
+        /// <summary>
+        /// Retrieves the Type Description for automatically
+        /// registering the module assembly
+        /// </summary>
+        /// <returns>Module's Description</returns>
+        protected override string GetTypeDescription()
+        {
+            return Description;
         }
 
         /// <summary>

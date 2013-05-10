@@ -47,6 +47,7 @@ namespace Cyclops.DataModules
         }
 
         private string m_ModuleName = "ExportTable",
+            m_Description = "",
             m_DatabaseFileName = "Results.db3";
 
         private bool m_DatabaseFound = false;
@@ -65,6 +66,7 @@ namespace Cyclops.DataModules
         public ExportTable()
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
         }
 
         /// <summary>
@@ -74,6 +76,7 @@ namespace Cyclops.DataModules
         public ExportTable(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
         }
 
@@ -86,6 +89,7 @@ namespace Cyclops.DataModules
             Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
@@ -524,6 +528,16 @@ namespace Cyclops.DataModules
         protected override string GetTypeName()
         {
             return ModuleName;
+        }
+
+        /// <summary>
+        /// Retrieves the Type Description for automatically
+        /// registering the module assembly
+        /// </summary>
+        /// <returns>Module's Description</returns>
+        protected override string GetTypeDescription()
+        {
+            return Description;
         }
 
         /// <summary>

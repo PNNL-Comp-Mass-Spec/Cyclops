@@ -41,10 +41,9 @@ namespace Cyclops.DataModules
 
         #region Properties
 
-
-
         protected abstract string GetDefaultValue();
         protected abstract string GetTypeName();
+        protected abstract string GetTypeDescription();
         private static Dictionary<string, Type> sTypeMap = CreateTypeMap();
         
         #region Visualization Properties
@@ -287,9 +286,7 @@ namespace Cyclops.DataModules
                     Names.Add(derivedObject.GetTypeName());
                 }
             }
-
-            Names.Sort();
-
+            
             return Names;
         }
 

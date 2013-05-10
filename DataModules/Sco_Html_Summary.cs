@@ -41,6 +41,7 @@ namespace Cyclops.DataModules
 
         #region Members
         private string m_ModuleName = "Sco_HTML_Summary",
+            m_Description = "",
             m_DatabaseFileName = "Results.db3";
         private Dictionary<string, string>
             d_FileNameVault = new Dictionary<string, string>();
@@ -63,6 +64,7 @@ namespace Cyclops.DataModules
         public Sco_Html_Summary()
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
         }
 
         /// <summary>
@@ -72,6 +74,7 @@ namespace Cyclops.DataModules
         public Sco_Html_Summary(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
         }
 
@@ -84,6 +87,7 @@ namespace Cyclops.DataModules
             Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
@@ -940,6 +944,16 @@ namespace Cyclops.DataModules
         protected override string GetTypeName()
         {
             return ModuleName;
+        }
+
+        /// <summary>
+        /// Retrieves the Type Description for automatically
+        /// registering the module assembly
+        /// </summary>
+        /// <returns>Module's Description</returns>
+        protected override string GetTypeDescription()
+        {
+            return Description;
         }
         #endregion
     }

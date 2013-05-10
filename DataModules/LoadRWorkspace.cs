@@ -30,7 +30,8 @@ namespace Cyclops.DataModules
     public class LoadRWorkspace : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "LoadRWorkspace";
+        private string m_ModuleName = "LoadRWorkspace",
+            m_Description = "";
         /// <summary>
         /// Required parameters to run LoadRWorkspace Module
         /// </summary>
@@ -51,6 +52,7 @@ namespace Cyclops.DataModules
         public LoadRWorkspace()
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
         }
 
         /// <summary>
@@ -60,6 +62,7 @@ namespace Cyclops.DataModules
         public LoadRWorkspace(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
         }
 
@@ -72,6 +75,7 @@ namespace Cyclops.DataModules
             Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
@@ -195,6 +199,16 @@ namespace Cyclops.DataModules
         protected override string GetTypeName()
         {
             return ModuleName;
+        }
+
+        /// <summary>
+        /// Retrieves the Type Description for automatically
+        /// registering the module assembly
+        /// </summary>
+        /// <returns>Module's Description</returns>
+        protected override string GetTypeDescription()
+        {
+            return Description;
         }
         #endregion
     }

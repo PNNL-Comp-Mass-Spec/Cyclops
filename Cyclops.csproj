@@ -127,7 +127,6 @@
   <ItemGroup>
     <Content Include="Library\ICSharpCode.SharpZipLib.dll" />
     <Content Include="Library\log4net.dll" />
-    <Content Include="Library\System.Data.SQLite.dll" />
     <Content Include="MyToDoChecklist.txt" />
   </ItemGroup>
   <ItemGroup />

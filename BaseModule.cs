@@ -30,7 +30,8 @@ namespace Cyclops
     public abstract class BaseModule
     {
         #region Members
-        private string s_ModuleName = "";
+
+        private string m_ModuleName = "", m_Description = "";
         private Dictionary<string, string> d_Parameters;
         private DataModules.BaseDataModule bdm_ParentModule;
         private int m_StepNumber = 0;
@@ -42,8 +43,17 @@ namespace Cyclops
         /// </summary>
         public string ModuleName
         {
-            get { return s_ModuleName; }
-            set { s_ModuleName = value; }
+            get { return m_ModuleName; }
+            set { m_ModuleName = value; }
+        }
+
+        /// <summary>
+        /// Description of the module
+        /// </summary>
+        public string Description
+        {
+            get { return m_Description; }
+            set { m_Description = value; }
         }
         
         /// <summary>

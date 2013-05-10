@@ -31,6 +31,7 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "ANOVA",
+            m_Description = "",
             m_RandomEffect = "Null",
             m_Interaction = "False",
             m_Unbalanced = "True",
@@ -106,6 +107,7 @@ namespace Cyclops.DataModules
         public ANOVA()
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
         }
 
         /// <summary>
@@ -115,6 +117,7 @@ namespace Cyclops.DataModules
         public ANOVA(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
         }
 
@@ -127,6 +130,7 @@ namespace Cyclops.DataModules
             Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
@@ -161,12 +165,20 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> d_Parameters = new Dictionary<string, string>(
+                StringComparer.OrdinalIgnoreCase);
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 d_Parameters.Add(s, "");
             }
+
+            d_Parameters.Add("Random_Effect", RandomEffect);
+            d_Parameters.Add("RowMetadataTable", "");
+            d_Parameters.Add("Interaction", Interaction);
+            d_Parameters.Add("Unbalanced", Unbalanced);
+            d_Parameters.Add("Threshold", Threshold);
+            d_Parameters.Add("UseREML", UseREML);
 
             return d_Parameters;
         }
@@ -252,36 +264,16 @@ namespace Cyclops.DataModules
             return b_Successful;
         }
 
-        public bool ANOVAFunction()
-        {
-            bool b_Successful = true;
-
-            switch (Parameters[RequiredParameters.Mode.ToString()].ToLower())
-            {
-                case "anova":
-                    b_Successful = RunStandardAnova();
-                    break;
-                case "msstats":
-                    b_Successful = RunMSstats();
-                    break;
-                case "itraq":
-                    b_Successful = RunAnovaForiTRAQ();
-                    break;
-            }
-
-            return b_Successful;
-        }
-
         /// <summary>
         /// Runs Ashoka's ANOVA method
         /// </summary>
         /// <returns>True, if the ANOVA completes successfully</returns>
-        private bool RunStandardAnova()
+        public bool ANOVAFunction()
         {
             bool b_Successful = true;
 
             string Command = "",
-                s_TmpInputTable = GetTemporaryTableName("tmpInputAnova_");           
+                s_TmpInputTable = GetTemporaryTableName("tmpInputAnova_");
 
             Command = string.Format(
                             "options(warn=-1)\n" +
@@ -303,144 +295,18 @@ namespace Cyclops.DataModules
                             Parameters[RequiredParameters.FactorTable.ToString()],
                             Threshold.ToUpper(),
                             s_TmpInputTable);
-            
-            return b_Successful;
-        }
 
-        /// <summary>
-        /// Performs MSstats from Olga's group
-        /// </summary>
-        /// <returns>True, if MSstats completes successfully</returns>
-        private bool RunMSstats()
-        {
-            bool b_Successful = true;
-
-            if (CheckMSstatParameters())
+            try
             {
-
-                string s_TmpTable4MSstats = GetTemporaryTableName("Tmp4MSstats_"),
-                s_TmpFitTable = GetTemporaryTableName("tmpFit_");
-
-                string Command = string.Format(
-                    "{0} <- jnb_Prepare4MSstats(" +
-                    "dm=data.matrix({1}), " +
-                    "RowMetadataTable={2}, " +
-                    "ColMetadataTable={3}, " +
-                    "rmd_ProteinColumn='{4}', " +
-                    "rmd_PeptideColumn='{5}', " +
-                    "cmd_Link='{6}', " +
-                    "cmd_BioRep='{7}', " +
-                    "cmd_TechRep='{8}', " +
-                    "cmd_Factor='{9}')\n\n" +
-                    "{10} <- fitModels(" +
-                    "protein='{4}', " +
-                    "feature='{5}', " +
-                    "bio.rep='{7}', " +
-                    "group='{9}', " +
-                    "abundance='{11}', " +
-                    "model='{12}', " +
-                    "feature.var='{13}', " +
-                    "progress={14}, " +
-                    "data={0})\n\n" +
-                    "{15} <- subjectQuantification({10}, " +
-                    "table=F, progress={14})\n" +
-                    "{colnames({15})[4] <- 'value'\n" +
-                    "{15} <- cast({15}, {4}~{7})\n" +
-                    "rownames({15}) <- {15}[,1]\n" +
-                    "{15} <- {15}[,-1]\n\n",
-                    s_TmpTable4MSstats,
-                    Parameters[RequiredParameters.InputTableName.ToString()],
-                    Parameters[MSstatRequiredParameters.RowMetadataTable.ToString()],
-                    Parameters[MSstatRequiredParameters.ColumnMetadataTable.ToString()],
-                    Parameters[MSstatRequiredParameters.RowMetadataProteinColumn.ToString()],
-                    Parameters[MSstatRequiredParameters.RowMetadataPeptideColumn.ToString()],
-                    m_ColumnMetadataLink,
-                    Parameters[MSstatRequiredParameters.BioRep.ToString()],
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()],
-                    s_TmpFitTable,
-                    m_Abundance,
-                    m_AnovaModel,
-                    m_FeatureVar,
-                    m_Progress
-                    );
-
-
-                try
-                {
-                    b_Successful = Model.RCalls.Run(Command,
-                        ModuleName, StepNumber);
-                }
-                catch (Exception exc)
-                {
-                    Model.LogError("Exception encountered while running MSstats:\n" +
-                        exc.ToString(), ModuleName, StepNumber);
-                    b_Successful = false;
-                }
+                b_Successful = Model.RCalls.Run(Command,
+                    ModuleName, StepNumber);
             }
-            else
+            catch (Exception exc)
             {
+                Model.LogError("Exception encountered while running ANOVA:\n" +
+                    exc.ToString(), ModuleName, StepNumber);
                 b_Successful = false;
             }
-
-            return b_Successful;
-        }
-
-        /// <summary>
-        /// Checks the supplied parameters to ensure they fulfill the necessary
-        /// requirements to run a MSstats analysis
-        /// </summary>
-        /// <returns>True, if the necessary parameters are present</returns>
-        private bool CheckMSstatParameters()
-        {
-            bool b_Successful = true;
-
-            foreach (string s in Enum.GetNames(typeof(MSstatRequiredParameters)))
-            {
-                if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
-                {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
-                }
-            }
-
-            if (Parameters.ContainsKey("Abundance"))
-            {
-                if (!string.IsNullOrEmpty(Parameters["Abundance"]))
-                    m_Abundance = Parameters["Abundance"];
-            }
-
-            if (Parameters.ContainsKey("AnovaModel"))
-            {
-                if (!string.IsNullOrEmpty(Parameters["AnovaModel"]))
-                    m_AnovaModel = Parameters["AnovaModel"];
-            }
-
-            if (Parameters.ContainsKey("FeatureVar"))
-            {
-                if (!string.IsNullOrEmpty(Parameters["FeatureVar"]))
-                    m_FeatureVar = Parameters["FeatureVar"].ToUpper();
-            }
-
-            if (Parameters.ContainsKey("ReportProgress"))
-            {
-                if (!string.IsNullOrEmpty(Parameters["ReportProgress"]))
-                    m_Progress = Parameters["ReportProgress"].ToUpper();
-            }
-
-            return b_Successful;
-        }
-
-        /// <summary>
-        /// Performs ANOVA specific for iTRAQ samples
-        /// </summary>
-        /// <returns>True, if ANOVA completes successfully</returns>
-        private bool RunAnovaForiTRAQ()
-        {
-            bool b_Successful = true;
-
-
 
             return b_Successful;
         }
@@ -462,6 +328,16 @@ namespace Cyclops.DataModules
         protected override string GetTypeName()
         {
             return ModuleName;
+        }
+
+        /// <summary>
+        /// Retrieves the Type Description for automatically
+        /// registering the module assembly
+        /// </summary>
+        /// <returns>Module's Description</returns>
+        protected override string GetTypeDescription()
+        {
+            return Description;
         }
         #endregion
     }

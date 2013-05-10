@@ -31,6 +31,7 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "FilterByPeptideProteinCount",
+            m_Description = "",
             m_MaxProtValue = "NULL",
             m_MinProtValue = "NULL",
             m_MaxPepValue = "NULL",
@@ -60,6 +61,7 @@ namespace Cyclops.DataModules
         public FilterByPeptideProteinCount()
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
         }
 
         /// <summary>
@@ -69,6 +71,7 @@ namespace Cyclops.DataModules
         public FilterByPeptideProteinCount(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
         }
 
@@ -81,6 +84,7 @@ namespace Cyclops.DataModules
             Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
+            Description = m_Description;
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
@@ -347,6 +351,16 @@ namespace Cyclops.DataModules
         protected override string GetTypeName()
         {
             return ModuleName;
+        }
+
+        /// <summary>
+        /// Retrieves the Type Description for automatically
+        /// registering the module assembly
+        /// </summary>
+        /// <returns>Module's Description</returns>
+        protected override string GetTypeDescription()
+        {
+            return Description;
         }
         #endregion
     }
