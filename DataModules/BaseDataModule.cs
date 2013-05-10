@@ -46,7 +46,7 @@ namespace Cyclops.DataModules
         protected abstract string GetDefaultValue();
         protected abstract string GetTypeName();
         private static Dictionary<string, Type> sTypeMap = CreateTypeMap();
-
+        
         #region Visualization Properties
         protected string BackgroundColor
         {
@@ -197,6 +197,17 @@ namespace Cyclops.DataModules
             Console.WriteLine(ModuleName);
         }
 
+        public static BaseDataModule Create(string TypeName)
+        {
+            Type derivedType = null;
+            if (sTypeMap.TryGetValue(TypeName, out derivedType))
+            {
+                return System.Activator.CreateInstance(derivedType) 
+                    as BaseDataModule;
+            }
+            return null;
+        }
+
         /// <summary>
         /// Instantiates a new type of Data Module
         /// </summary>
@@ -215,7 +226,7 @@ namespace Cyclops.DataModules
             return null;
         }
 
-        private static Dictionary<string, Type> CreateTypeMap()
+        public static Dictionary<string, Type> CreateTypeMap()
         {
             Dictionary<string, Type> typeMap =
                 new Dictionary<string, Type>(
@@ -311,6 +322,16 @@ namespace Cyclops.DataModules
                     s_SaveFileName), ModuleName, StepNumber);
             }
         }
+
+        /// <summary>
+        /// Generic method for modules to report the parameters they use with default values
+        /// </summary>
+        /// <returns>Parameters used by module and default values</returns>
+        public virtual Dictionary<string, string> GetParametersTemplate()
+        {
+            return null;
+        }
+
         #endregion
     }
 }

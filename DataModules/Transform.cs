@@ -100,6 +100,27 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
+        /// Retrieves a dictionary of all parameters used by the module, 
+        /// and the corresponding default values
+        /// </summary>
+        /// <returns>Parameters used by module</returns>
+        public override Dictionary<string, string> GetParametersTemplate()
+        {
+            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+
+            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            {
+                d_Parameters.Add(s, "");
+            }
+
+            d_Parameters.Add("Add", "0");
+            d_Parameters.Add("Scale", "1");
+            d_Parameters.Add("LogBase", "2");
+            
+            return d_Parameters;
+        }
+
+        /// <summary>
         /// Checks the parameters to ensure that all required keys are present
         /// </summary>
         /// <returns>True, if all required keys are included in the

@@ -47,7 +47,7 @@ namespace Cyclops.DataModules
         {
             ModuleName = m_ModuleName;
         }
-
+        
         /// <summary>
         /// Aggregate module that assigns a Cyclops Model
         /// </summary>
@@ -92,6 +92,23 @@ namespace Cyclops.DataModules
             }
 
             return b_Successful;
+        }
+
+        /// <summary>
+        /// Retrieves a dictionary of all parameters used by the module, 
+        /// and the corresponding default values
+        /// </summary>
+        /// <returns>Parameters used by module</returns>
+        public override Dictionary<string, string> GetParametersTemplate()
+        {
+            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+
+            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            {
+                d_Parameters.Add(s, "");
+            }
+
+            return d_Parameters;
         }
 
         /// <summary>

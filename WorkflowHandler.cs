@@ -23,8 +23,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml;
 
 
@@ -790,19 +788,6 @@ namespace Cyclops
         /// <summary>
         /// Removes a module from the List of Modules
         /// </summary>
-        /// <param name="Module2Remove">Module to remove</param>
-        //public void RemoveModuleFromWorkflow(DataModules.BaseDataModule Module2Remove)
-        //{
-        //    // Remove from m_ModulesTable
-        //    // Update StepNumber of subsequent modules
-            
-        //    // Remove from LinkedList
-        //    // Update StepNumber of subsequent modules
-        //}
-
-        /// <summary>
-        /// Removes a module from the List of Modules
-        /// </summary>
         /// <param name="StepNumber">Step to remove module</param>
         public void RemoveModuleFromWorkflow(int StepNumber)
         {
@@ -821,6 +806,89 @@ namespace Cyclops
                 node = NextNode;
             }
 
+        }
+
+        public bool ContainsStep(int StepNumber)
+        {
+            bool b_StepExists = false;
+            foreach (DataModules.BaseDataModule bdm in Modules)
+            {
+                if (bdm.StepNumber == StepNumber)
+                {
+                    return true;
+                }
+            }
+            return b_StepExists;
+        }
+
+        public void AddNewModuleToWorkflow(
+            DataModules.BaseDataModule NewModule)
+        {
+            if (NewModule.StepNumber > Modules.Count)
+            {
+                Modules.AddLast(NewModule);
+                return;
+            }
+
+            var Module2Displace = GetModule(NewModule.StepNumber);
+            var NNext = Modules.Find(Module2Displace);
+            Modules.AddBefore(NNext, Module2Displace);
+
+            // increment new StepNumbers
+            for (int Step = NewModule.StepNumber + 1;
+                Step < Modules.Count - 1; Step++)
+            {
+                var Module2Modify = GetModule(Step);
+                var NextModule = GetModule(Step + 1);
+                NNext = Modules.Find(NextModule);
+                Modules.Remove(Module2Modify);
+                Module2Modify.StepNumber++;
+                Modules.AddBefore(NNext, Module2Modify);
+            }
+
+            // Modify the step number of the last module
+            var LastModule = GetModule(Modules.Count);
+            Modules.Remove(LastModule);
+            LastModule.StepNumber++;
+            Modules.AddLast(LastModule);
+        }
+
+        public void MoveStepUp(int StepNumber)
+        {
+            // Do not run if Step does not exist, or if already
+            // the first step
+            if (!ContainsStep(StepNumber) | StepNumber == 1)
+                return;
+            
+            var Module2Move = GetModule(StepNumber);
+            Modules.Remove(Module2Move);
+            Module2Move.StepNumber--;
+            var PreviousNode = GetModule(StepNumber - 1);
+            var PNode = Modules.Find(PreviousNode);
+            Modules.AddBefore(PNode, Module2Move);
+            Modules.Remove(PreviousNode);
+            PreviousNode.StepNumber = PreviousNode.StepNumber + 1;
+            PNode = Modules.Find(Module2Move);
+            Modules.AddAfter(PNode, PreviousNode);
+        }
+
+        public void MoveStepBack(int StepNumber)
+        {
+            // Do not run if Step does not exist, or if already
+            // the first step
+            if (!ContainsStep(StepNumber) | StepNumber == Modules.Count)
+                return;
+
+            var Module2Move = GetModule(StepNumber);
+            Modules.Remove(Module2Move);
+            Module2Move.StepNumber++;
+            var NextNode = GetModule(StepNumber + 1);
+            var PNode = Modules.Find(NextNode);
+            Modules.AddAfter(PNode, Module2Move);
+            Modules.Remove(NextNode);
+            NextNode.StepNumber = NextNode.StepNumber - 1;
+            PNode = Modules.Find(Module2Move);
+            Modules.AddBefore(PNode, NextNode);
         }
 
         // Create the OnPropertyChanged method to raise the event 
