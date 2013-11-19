@@ -35,7 +35,6 @@ namespace Cyclops.DataModules
             m_PValueThreshold = "0.01",
             m_ClusterRows = "FALSE",
             m_ClusterColumns = "FALSE",
-            m_FunctionToGetTopMostAbundant = "median",
             m_RemoveNA = "TRUE",
             m_NumberOfTopMostAbundant = "200",
             m_PlotFileType = "png",
@@ -391,10 +390,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while filtering " +
-                    "significance table for p-value threshold",
+                    "significance table for p-value threshold: " + ex.Message,
                     ModuleName, StepNumber);
                 b_Successful = false;
             }
@@ -506,10 +505,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing Heatmap:\n" +
-                    exc.ToString());
+                    ex.ToString());
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }

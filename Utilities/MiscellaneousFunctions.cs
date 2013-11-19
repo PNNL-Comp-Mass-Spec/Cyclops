@@ -102,9 +102,10 @@ namespace Cyclops.Utilities
 
                 sw_Writer.Close();
             }
-            catch (IOException ioe)
+            catch (IOException ex)
             {
                 // TODO : Figure out how to handle this exception
+				Console.WriteLine("IOException in SaveDataTable: " + ex.Message);
             }
         }
         #endregion

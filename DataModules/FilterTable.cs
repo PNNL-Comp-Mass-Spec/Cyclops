@@ -178,10 +178,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while filtering " +
-                    "table: " + Parameters[RequiredParameters.InputTableName.ToString()],
+                    "table: " + Parameters[RequiredParameters.InputTableName.ToString()] + ": " + ex.Message,
                     ModuleName, StepNumber);
                 b_Successful = false;
             }

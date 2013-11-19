@@ -237,10 +237,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing " +
-                    "Histogram:\n" + exc.ToString(), ModuleName, StepNumber);
+                    "Histogram:\n" + ex.ToString(), ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }

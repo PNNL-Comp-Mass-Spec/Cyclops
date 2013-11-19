@@ -30,18 +30,20 @@ namespace Cyclops.DataModules
     public class HtmlSummary : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "HtmlSummary",
-            m_Description = "",
-            m_LineDelimiter = "\n",
-            m_Tab = "\t",
-            m_DatabaseFileName = "Results.db3";
-        /// <summary>
+
+	    private const string m_ModuleName = "HtmlSummary";
+
+	    private const string m_Description = "";
+
+	    private string m_DatabaseFileName = "Results.db3";
+
+	    /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
         { FileName
         }
-        private bool m_DatabaseFound = false;
+        private bool m_DatabaseFound;
         private enum HTMLFileType { Dataset, Index };
         private SQLiteHandler sql = new SQLiteHandler();
         #endregion

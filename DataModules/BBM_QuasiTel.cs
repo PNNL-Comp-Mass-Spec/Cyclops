@@ -279,10 +279,10 @@ namespace Cyclops.DataModules
                         b_Successful = false;
                     }
                 }
-                catch (Exception exc)
+                catch (Exception ex)
                 {
                     Model.LogError("Exception encountered while performing " +
-                        "BBM and QuasiTel analyses:\n" + exc.ToString(),
+                        "BBM and QuasiTel analyses:\n" + ex.ToString(),
                         ModuleName, StepNumber);
                     SaveCurrentREnvironment();
                     b_Successful = false;

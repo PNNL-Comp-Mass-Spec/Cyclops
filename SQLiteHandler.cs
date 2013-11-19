@@ -234,8 +234,9 @@ namespace Cyclops
                     dbTrans.Commit();
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in FillTable: " + ex.Message);
                 b_Successful = false;
             }
 
@@ -364,8 +365,9 @@ namespace Cyclops
 
                 FillTable(Conn, Table);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in WriteDataTableToDatabase: " + ex.Message);
                 b_Successful = false;
             }
             finally
@@ -467,8 +469,9 @@ namespace Cyclops
                     conn.Close();
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in GetDatabaseInformation: " + ex.Message);
                 return null;
             }
             return dt_Info;
@@ -515,8 +518,9 @@ namespace Cyclops
                     l_Tables.Add(dr["tbl_name"].ToString());
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in GetListOfTablesInDatabase: " + ex.Message);
                 return null;
             }
 
@@ -567,12 +571,14 @@ namespace Cyclops
                     conn.Close();
                 }
             }
-            catch (IOException ioe)
+            catch (IOException ex)
             {
+				Console.WriteLine("IOException in WriteDataTableToDatabase: " + ex.Message);
                 b_Successful = false;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in CreateIndex: " + ex.Message);
                 b_Successful = false;
             }
 
@@ -613,12 +619,14 @@ namespace Cyclops
                 }
 
             }
-            catch (IOException ioe)
+            catch (IOException ex)
             {
+				Console.WriteLine("IOException in SelecTable: " + ex.Message);
                 return null;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in SelectTable: " + ex.Message);
                 return null;
             }
 
@@ -662,8 +670,9 @@ namespace Cyclops
                         conn.Close();
                     }
                 }
-                catch (Exception exc)
+                catch (Exception ex)
                 {
+					Console.WriteLine("Error in DropTable: " + ex.Message);
                     b_Successful = false;
                 }
             }
@@ -708,13 +717,14 @@ namespace Cyclops
                 }
 
             }
-            catch (IOException ioe)
+            catch (IOException ex)
             {
-                
+				Console.WriteLine("IOException in GetTable: " + ex.Message);
                 return null;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in GetTable: " + ex.Message);
                 return null;
             }
 
@@ -753,12 +763,14 @@ namespace Cyclops
                 }
 
             }
-            catch (IOException ioe)
+            catch (IOException ex)
             {
+				Console.WriteLine("IOException in RunNonQuery: " + ex.Message);
                 b_Successful = false;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in RunNonQuery: " + ex.Message);
                 b_Successful = false;
             }
 
@@ -802,9 +814,10 @@ namespace Cyclops
                         ColumnNames.Add(dc.ColumnName);
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 // TODO : Handle exception
+				Console.WriteLine("Error in GetColumnNames: " + ex.Message);
                 return null;
             }
 

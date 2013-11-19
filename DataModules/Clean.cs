@@ -159,10 +159,10 @@ namespace Cyclops.DataModules
                 Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while cleaning R source " +
-                    "objects:\n" + exc.ToString(), ModuleName, StepNumber);
+                    "objects:\n" + ex.ToString(), ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }

@@ -192,11 +192,11 @@ namespace Cyclops.Operations
                 if (b_Successful)
                     Model.ModuleLoader = wfh;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encounterd while running 'ConstructModules' " +
                     "for the LabelFree Operation:\n" +
-                    exc.ToString(), ModuleName, StepNumber);
+                    ex.ToString(), ModuleName, StepNumber);
                 b_Successful = false;
             }
 

@@ -320,12 +320,12 @@ namespace Cyclops.DataModules
                         SaveCurrentREnvironment();
                         b_Successful = false;
                     }
-                    catch (Exception exc)
+                    catch (Exception ex)
                     {
                         Model.LogError("Exception encountered while " +
                             "connecting to SQLite database:\n" +
-                            exc.ToString() + "\nInnerException: " +
-                            exc.InnerException, ModuleName, StepNumber);
+                            ex.ToString() + "\nInnerException: " +
+                            ex.InnerException, ModuleName, StepNumber);
                         SaveCurrentREnvironment();
                         b_Successful = false;
                     }
@@ -445,10 +445,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(s_Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
-                    "'GetTableFromSQLite': " + exc.ToString(), ModuleName,
+                    "'GetTableFromSQLite': " + ex.ToString(), ModuleName,
                     StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;
@@ -477,10 +477,10 @@ namespace Cyclops.DataModules
                     b_Successful = Model.RCalls.Run(s_Command,
                         ModuleName, StepNumber);
                 }
-                catch (Exception exc)
+                catch (Exception ex)
                 {
                     Model.LogError("Exception encountered while running " +
-                    "'SetTableRowNames': " + exc.ToString(), ModuleName,
+                    "'SetTableRowNames': " + ex.ToString(), ModuleName,
                     StepNumber);
                     SaveCurrentREnvironment();
                     b_Successful = false;

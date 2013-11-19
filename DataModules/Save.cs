@@ -192,10 +192,10 @@ namespace Cyclops.DataModules
                 if (b_Successful)
                     Model.RWorkEnvironment = s_FileName;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while Saving R Environment: " +
-                    exc.ToString());
+                    ex.ToString());
                 b_Successful = false;
             }
 

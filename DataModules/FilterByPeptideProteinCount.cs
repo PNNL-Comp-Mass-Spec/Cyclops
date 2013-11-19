@@ -322,11 +322,11 @@ namespace Cyclops.DataModules
                 Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
                     "running 'FilterByPeptideProteinCountFunction': " +
-                    exc.ToString(), ModuleName, StepNumber);
+                    ex.ToString(), ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }

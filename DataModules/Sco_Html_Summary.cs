@@ -215,10 +215,10 @@ namespace Cyclops.DataModules
             {
                 WriteDatasetsPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while constructing " +
-                    "the Datasets HTML Summary Page: " + exc.ToString(),
+                    "the Datasets HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -229,10 +229,10 @@ namespace Cyclops.DataModules
             {
                 WriteQCHTMLPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while constructing " +
-                    "the Quality Control HTML Summary Page: " + exc.ToString(),
+                    "the Quality Control HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -243,10 +243,10 @@ namespace Cyclops.DataModules
             {
                 WriteCorrelationHeatmapHTMLPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while constructing " +
-                    "the Correlation HTML Summary Page: " + exc.ToString(),
+                    "the Correlation HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -257,10 +257,10 @@ namespace Cyclops.DataModules
             {
                 WriteHeatmapsPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while constructing " +
-                    "the Heatmaps HTML Summary Page: " + exc.ToString(),
+                    "the Heatmaps HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -271,10 +271,10 @@ namespace Cyclops.DataModules
             {
                 WriteMainHTMLPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while constructing " +
-                    "the Main HTML Summary Page: " + exc.ToString(),
+                    "the Main HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -856,10 +856,10 @@ namespace Cyclops.DataModules
                     dt_Return.Rows.Add(dr_Fdr01);
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered within " +
-                    "GetSpectralCountSummary(): " + exc.ToString(),
+                    "GetSpectralCountSummary(): " + ex.ToString(),
                     ModuleName, StepNumber);
                 return null;
             }
@@ -916,10 +916,10 @@ namespace Cyclops.DataModules
                     }
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered within " +
-                    "GetSpectralCountStatSummary(): " + exc.ToString(),
+                    "GetSpectralCountStatSummary(): " + ex.ToString(),
                     ModuleName, StepNumber);
                 return null;
             }

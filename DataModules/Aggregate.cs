@@ -183,10 +183,10 @@ namespace Cyclops.DataModules
                     // TODO : Make it work
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 string s_ErrorMessage = "Exception thrown while Aggregating Data:\n" +
-                    exc.ToString() + "\n";
+                    ex.ToString() + "\n";
                 Model.LogError(s_ErrorMessage, ModuleName, StepNumber);
             }
 

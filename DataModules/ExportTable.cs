@@ -247,7 +247,7 @@ namespace Cyclops.DataModules
                         {
                             Model.LogWarning(string.Format(
                                 "Warning Table, {0}, was not found in the SQLite database, {1}, for " +
-                                "export!",
+                                "export! Note that table names are case-sensitive.",
                                 Parameters[RequiredParameters.TableName.ToString()],
                                 m_DatabaseFileName),
                                 ModuleName, StepNumber);
@@ -500,10 +500,10 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 b_Successful = false;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while writing a table " +
-                    "out to " + FileName + "\nException: " + exc.ToString(),
+                    "out to " + FileName + "\nException: " + ex.ToString(),
                     ModuleName, StepNumber);
                 b_Successful = false;
             }

@@ -218,10 +218,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
-                    "RMD Analysis: " + exc.ToString(), ModuleName,
+                    "RMD Analysis: " + ex.ToString(), ModuleName,
                     StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;

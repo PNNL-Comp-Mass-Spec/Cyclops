@@ -334,10 +334,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(
                     Command, ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
-                    "'ModifyFactorAndDataTables': " + exc.ToString(),
+                    "'ModifyFactorAndDataTables': " + ex.ToString(),
                     ModuleName, StepNumber);
                 b_Successful = false;
             }

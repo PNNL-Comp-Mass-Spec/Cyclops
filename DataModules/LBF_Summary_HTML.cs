@@ -36,8 +36,6 @@ namespace Cyclops.DataModules
         #region Members
         private string m_ModuleName = "LBF_Summary_HTML",
             m_Description = "",
-            m_LineDelimiter = "\n",
-            m_Tab = "\t",
             m_TypticTableSummaryName = "T_MAC_Trypticity_Summary",
             m_WorkingDirectory = "",
             m_DatabaseName = "Results.db3";
@@ -204,11 +202,11 @@ namespace Cyclops.DataModules
             {
                 WriteDatasetsPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
                     "constructing and writing Datasets HTML Page:\n" +
-                    exc.ToString(),
+                    ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -219,11 +217,11 @@ namespace Cyclops.DataModules
             {
                 WriteSummaryHTMLPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
                     "constructing and writing Summary HTML Page:\n" +
-                    exc.ToString(),
+                    ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -234,11 +232,11 @@ namespace Cyclops.DataModules
             {
                 WriteQCHTMLPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
                     "constructing and writing QC HTML Page:\n" +
-                    exc.ToString(),
+                    ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -249,11 +247,11 @@ namespace Cyclops.DataModules
             {
                 WriteBoxPlotHTMLPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
                     "constructing and writing Boxplot HTML Page:\n" +
-                    exc.ToString(),
+                    ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -264,11 +262,11 @@ namespace Cyclops.DataModules
             {
                 WriteCorrelationHeatmapHTMLPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
                     "constructing and writing Correlation Heatmap HTML Page:\n" +
-                    exc.ToString(),
+                    ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -279,11 +277,11 @@ namespace Cyclops.DataModules
             {
                 WriteMainHTMLPage(GetOriginalNavBar());
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
                     "constructing and writing Main HTML Page:\n" +
-                    exc.ToString(),
+                    ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }

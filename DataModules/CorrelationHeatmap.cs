@@ -240,10 +240,10 @@ namespace Cyclops.DataModules
             {
                 b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while creating a " +
-                    "Correlation Heatmap:\n" + exc.ToString());
+                    "Correlation Heatmap:\n" + ex.ToString());
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }
@@ -278,10 +278,10 @@ namespace Cyclops.DataModules
             {
                 b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
-                    "'RunCorrelationAnalysis': " + exc.ToString(), ModuleName,
+                    "'RunCorrelationAnalysis': " + ex.ToString(), ModuleName,
                     StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;

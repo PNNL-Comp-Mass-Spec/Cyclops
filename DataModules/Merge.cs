@@ -202,10 +202,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing merge:\n" +
-                    exc.ToString());
+                    ex.ToString());
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }

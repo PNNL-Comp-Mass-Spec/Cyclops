@@ -238,10 +238,10 @@ namespace Cyclops.DataModules
                 Model.RCalls.Run("objects2delete <- ls()\n",
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while loading R source files: " +
-                    exc.ToString(), ModuleName, StepNumber);
+                    ex.ToString(), ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -270,12 +270,14 @@ namespace Cyclops.DataModules
                 sw.Write(s_Content);
                 sw.Close();
             }
-            catch (IOException ioe)
+            catch (IOException ex)
             {
+				Console.WriteLine("IOException in ClearRSourceFile: " + ex.Message);
                 b_Successful = false;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
+				Console.WriteLine("Error in ClearRSourceFile: " + ex.Message);
                 b_Successful = false;
             }
 
@@ -294,10 +296,10 @@ namespace Cyclops.DataModules
                     {
                         Model.RCalls.InstallPackage(s);
                     }
-                    catch (Exception exc)
+                    catch (Exception ex)
                     {
                         Model.LogError("Exception encountered while installing " +
-                            "package: " + s + "\nException: " + exc.ToString());
+                            "package: " + s + "\nException: " + ex.ToString());
                         return false;
                     }
                 }

@@ -296,12 +296,13 @@ namespace Cyclops
                         
             try
             {
-                string s_Module = "MissedCleavageSummary";                
+	            const string s_Module = "MissedCleavageSummary";
+	            Console.WriteLine(s_Module);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 LogError("Exception caught while creating modules: " +
-                    exc.ToString());
+                    ex.ToString());
                 b_Successful = false;
             } 
             return b_Successful;

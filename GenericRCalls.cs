@@ -107,10 +107,10 @@ namespace Cyclops
                 engine = REngine.CreateInstance(InstanceOfR);
                 engine.Initialize();
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while instantiating R: " +
-                    exc.ToString(), "Generic R Calls");
+                    ex.ToString(), "Generic R Calls");
             }
 
             return b_Successful;
@@ -150,10 +150,10 @@ namespace Cyclops
                     Environment.SetEnvironmentVariable("PATH", s_RVersion);
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while Setting R Home Variable: " +
-                    exc.ToString(), "Generic R Calls");
+                    ex.ToString(), "Generic R Calls");
                 b_Successful = false;
             }
 
@@ -204,11 +204,11 @@ namespace Cyclops
                     SummaryStatement, (int)Step);
                 b_Successful = false;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running command:\n" +
-                    Command + "\nException: " + exc.ToString() +
-                    "\nInnerException: " + exc.InnerException,
+                    Command + "\nException: " + ex.ToString() +
+                    "\nInnerException: " + ex.InnerException,
                     SummaryStatement, (int)Step);
                 b_Successful = false;
             }
@@ -251,11 +251,11 @@ namespace Cyclops
                     d_Return.Add(s, df[0, s].ToString());       
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Error retrieving R version():\n" +
-                    exc.ToString() + "\nInnerException: " +
-                    exc.InnerException);
+                    ex.ToString() + "\nInnerException: " +
+                    ex.InnerException);
                 return null;
             }
             return d_Return;
@@ -325,12 +325,12 @@ namespace Cyclops
                     engine.Evaluate(string.Format("rm({0})\n",
                         Object2Remove));
                 }
-                catch (Exception exc)
+                catch (Exception ex)
                 {
                     Model.LogError("Exception caught while trying to remove an object:\n" +
                         "Object to remove: " + Object2Remove + "\n" +
-                        "Exception: " + exc.ToString() + "\n" +
-                        "InnerException: " + exc.InnerException);
+                        "Exception: " + ex.ToString() + "\n" +
+                        "InnerException: " + ex.InnerException);
                     b_Successful = false;
                 }
             }
@@ -444,10 +444,10 @@ namespace Cyclops
             {
                 engine.Evaluate(Command);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while Saving R " +
-                    "environment:\n" + exc.ToString());
+                    "environment:\n" + ex.ToString());
                 b_Successful = false;
             }
 
@@ -900,10 +900,10 @@ namespace Cyclops
             {
                 engine.Evaluate(Command);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered in GenericRCalls " +
-                    "'SetDataFrame':\n" + exc.ToString());
+					"'SetDataFrame':\n" + ex.ToString());
                 return false;
             }
 
@@ -930,9 +930,10 @@ namespace Cyclops
             {
                 engine.Evaluate(s_RStatement);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                // TODO : Handle this error
+				// TODO : Handle this error
+				Console.WriteLine("Error in GenericRCalls->SetDataFrameRowNames: " + ex.Message);
                 return false;
             }
 
@@ -954,9 +955,10 @@ namespace Cyclops
                 string Command = ObjectName + " <- " + Value;
                 engine.Evaluate(Command);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 // TODO : Handle this error
+				Console.WriteLine("Error in GenericRCalls->SetObject: " + ex.Message);
                 return false;
             }
 

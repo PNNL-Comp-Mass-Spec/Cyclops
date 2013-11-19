@@ -320,11 +320,11 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.WriteDataTableToR(dt_MissedCleavages,
                     dt_MissedCleavages.TableName);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while adding Missed Cleavage " +
                     "results to SQLite database and to R environment:\n" +
-                    exc.ToString());
+                    ex.ToString());
                 b_Successful = false;
             }
 

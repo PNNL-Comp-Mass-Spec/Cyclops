@@ -36,13 +36,7 @@ namespace Cyclops.DataModules
             m_Interaction = "False",
             m_Unbalanced = "True",
             m_Threshold = "3",
-            m_UseREML = "True",
-            m_ColumnMetadataLink = "Alias",
-            m_TechRep = "NULL",
-            m_Abundance = "Abundance",
-            m_AnovaModel = "fixed",
-            m_FeatureVar = "FALSE",
-            m_Progress = "FALSE";
+            m_UseREML = "True";
         private bool m_RemoveFirstColumn = false;
         /// <summary>
         /// Required parameters to run ANOVA Module
@@ -301,10 +295,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running ANOVA:\n" +
-                    exc.ToString(), ModuleName, StepNumber);
+                    ex.ToString(), ModuleName, StepNumber);
                 b_Successful = false;
             }
 

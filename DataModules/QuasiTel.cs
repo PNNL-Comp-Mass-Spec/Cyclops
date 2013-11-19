@@ -304,10 +304,10 @@ namespace Cyclops.DataModules
                     b_Successful = false;
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing QuasiTel:\n" +
-                    exc.ToString(), ModuleName, StepNumber);
+                    ex.ToString(), ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }

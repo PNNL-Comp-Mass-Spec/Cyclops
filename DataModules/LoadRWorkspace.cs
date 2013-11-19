@@ -172,10 +172,10 @@ namespace Cyclops.DataModules
                     Model.RWorkEnvironment = Parameters[
                         RequiredParameters.InputFileName.ToString()].Replace("\\", "/");
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception was encountered while loading an R workspace: " +
-                    exc.ToString(), ModuleName, StepNumber);
+                    ex.ToString(), ModuleName, StepNumber);
                 b_Successful = false;
             }
 

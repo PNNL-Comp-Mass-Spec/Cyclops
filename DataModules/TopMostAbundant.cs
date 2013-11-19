@@ -195,10 +195,10 @@ namespace Cyclops.DataModules
                 b_Successful = Model.RCalls.Run(Command,
                     ModuleName, StepNumber);
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 Model.LogError("Exception encountered: " +
-                    exc.ToString(),
+                    ex.ToString(),
                     ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;
