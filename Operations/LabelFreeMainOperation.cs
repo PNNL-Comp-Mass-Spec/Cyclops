@@ -27,200 +27,230 @@ using System.Text;
 
 namespace Cyclops.Operations
 {
-    public class LabelFreeMainOperation : BaseOperationModule
-    {
-        #region Enums
-        /// <summary>
-        /// Log2: Simple Log2 transformation, RRollup
-        /// Log2LR: Log2 transformation, Linear Regression, RRollup
-        /// Log2CT: Log2 transformation, Central Tendency, RRollup
-        /// </summary>
-        public enum LbfTypes { Log2, Log2LR, Log2CT, Log2All, AnovaPractice, MainAnovaPractice, HtmlPractice };
+	public class LabelFreeMainOperation : BaseOperationModule
+	{
+		#region Enums
+		/// <summary>
+		/// Log2: Simple Log2 transformation, RRollup
+		/// Log2LR: Log2 transformation, Linear Regression, RRollup
+		/// Log2CT: Log2 transformation, Central Tendency, RRollup
+		/// </summary>
+		public enum LbfTypes { Log2, Log2LR, Log2CT, Log2All, AnovaPractice, MainAnovaPractice, HtmlPractice };
 
-        /// <summary>
-        /// Required parameters to run SpectralCountMainOperation Module
-        /// </summary>
-        private enum RequiredParameters
-        {
-            Type
-        }
-        #endregion
+		/// <summary>
+		/// Required parameters to run SpectralCountMainOperation Module
+		/// </summary>
+		private enum RequiredParameters
+		{
+			Type
+		}
+		#endregion
 
-        #region Members
-        private string 
-            m_LabelFreeTableName = "T_LabelFreeLog2PipelineOperation",
-            m_ModuleName = "LabelFreeMainOperation";
+		#region Members
 
-        
-        private string[] m_LabelFreeTableNames = new string[] { "T_LabelFreeLog2PipelineOperation",
-            "T_LabelFreeLog2_LR_PipelineOperation", "T_LabelFreeLog2_CT_PipelineOperation",
-            "T_LabelFreeLog2_All_PipelineOperation", "T_LabelFree_AnovaPractice", 
-            "T_LabelFree_MainAnovaPractice", "T_LabelFree_HtmlPractice"};
-        #endregion
+		private string m_LabelFreeTableName = "T_LabelFreeLog2PipelineOperation";
 
-        #region Properties
+		private const string m_ModuleName = "LabelFreeMainOperation";
 
-        #endregion
+		private Dictionary<LbfTypes, string> m_LabelFreeTableNames;
 
-        #region Constructors
-        public LabelFreeMainOperation()
-        {
-            ModuleName = m_ModuleName;
-        }
-        #endregion
+		#endregion
 
-        #region Methods
-        /// <summary>
-        /// Runs module and then child modules
-        /// </summary>
-        public override bool PerformOperation()
-        {
-            bool b_Successful = true;
+		#region Properties
 
-            if (Model.PipelineCurrentlySuccessful)
-            {
-                Model.CurrentStepNumber = StepNumber;
+		#endregion
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+		#region Constructors
+		public LabelFreeMainOperation()
+		{
+			ModuleName = m_ModuleName;
+			Initialize();
+		}
 
-                if (CheckParameters())
-                    b_Successful =
-                        LabelFreeMainOperationFunction();
-            }
+		public LabelFreeMainOperation(CyclopsModel CyclopsModel)
+		{
+			ModuleName = m_ModuleName;
+			Model = CyclopsModel;
+			Initialize();
+		}
 
-            return b_Successful;
-        }
+		public LabelFreeMainOperation(CyclopsModel CyclopsModel,
+			Dictionary<string, string> OperationParameters)
+		{
+			ModuleName = m_ModuleName;
+			Model = CyclopsModel;
+			Parameters = OperationParameters;
+			Initialize();
+		}
+		#endregion
 
-        /// <summary>
-        /// Checks the parameters to ensure that all required keys are present
-        /// </summary>
-        /// <returns>True, if all required keys are included in the
-        /// Parameters</returns>
-        public override bool CheckParameters()
-        {
-            bool b_Successful = true;
+		#region Methods
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
-            {
-                if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
-                {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
-                }
-            }
+		private void Initialize()
+		{
+			m_LabelFreeTableNames = new Dictionary<LbfTypes, string>
+			{
+				{LbfTypes.Log2,              "T_LabelFreeLog2PipelineOperation"},
+				{LbfTypes.Log2LR,            "T_LabelFreeLog2_LR_PipelineOperation"},
+				{LbfTypes.Log2CT,            "T_LabelFreeLog2_CT_PipelineOperation"},
+				{LbfTypes.Log2All,           "T_LabelFreeLog2_All_PipelineOperation"},
+				{LbfTypes.AnovaPractice,     "T_LabelFree_AnovaPractice"},
+				{LbfTypes.MainAnovaPractice, "T_LabelFree_MainAnovaPractice"},
+				{LbfTypes.HtmlPractice,      "T_LabelFree_HtmlPractice"}
+			};
+		}
 
-            if (Parameters.ContainsKey("DatabaseFileName"))
-            {
-                OperationsDatabasePath = Parameters["DatabaseFileName"];
-            }
+		/// <summary>
+		/// Runs module and then child modules
+		/// </summary>
+		public override bool PerformOperation()
+		{
+			bool b_Successful = true;
 
-            return b_Successful;
-        }
+			if (Model.PipelineCurrentlySuccessful)
+			{
+				Model.CurrentStepNumber = StepNumber;
 
-        /// <summary>
-        /// Main Method to run the Spectral Count Operation
-        /// </summary>
-        /// <returns>True, if the operation completes successfully</returns>
-        public bool LabelFreeMainOperationFunction()
-        {
-            bool b_Successful = true;
+				Model.LogMessage("Running " + ModuleName,
+						ModuleName, StepNumber);
 
-            SetTypes();
+				if (CheckParameters())
+					b_Successful =
+						LabelFreeMainOperationFunction();
+			}
 
-            b_Successful = ConstructModules();
+			return b_Successful;
+		}
 
-            return b_Successful;
-        }
+		/// <summary>
+		/// Checks the parameters to ensure that all required keys are present
+		/// </summary>
+		/// <returns>True, if all required keys are included in the
+		/// Parameters</returns>
+		public override bool CheckParameters()
+		{
+			bool b_Successful = true;
 
-        /// <summary>
-        /// Sets the type of Spectral Count Operation, and sets the SQLite table
-        /// to use to run the operation.
-        /// </summary>
-        public void SetTypes()
-        {
-            switch (Parameters[RequiredParameters.Type.ToString()].ToLower())
-            {
-                case "log2":
-                    m_LabelFreeTableName =
-                        m_LabelFreeTableNames[(int)LbfTypes.Log2];
-                    break;
-                case "log2lr":
-                    m_LabelFreeTableName =
-                        m_LabelFreeTableNames[(int)LbfTypes.Log2LR];
-                    break;
-                case "log2ct":
-                    m_LabelFreeTableName =
-                        m_LabelFreeTableNames[(int)LbfTypes.Log2CT];
-                    break;
-                case "log2all":
-                    m_LabelFreeTableName =
-                        m_LabelFreeTableNames[(int)LbfTypes.Log2All];
-                    break;
-                case "htmlpractice":
-                    m_LabelFreeTableName =
-                        m_LabelFreeTableNames[(int)LbfTypes.HtmlPractice];
-                    break;
-                case "anovapractice":
-                    m_LabelFreeTableName =
-                        m_LabelFreeTableNames[(int)LbfTypes.AnovaPractice];
-                    break;
-                case "mainanovapractice":
-                    m_LabelFreeTableName =
-                        m_LabelFreeTableNames[(int)LbfTypes.MainAnovaPractice];
-                    break;
-            }
-        }
+			foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+			{
+				if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
+				{
+					Model.LogWarning("Required Field Missing: " + s,
+						ModuleName, StepNumber);
+					b_Successful = false;
+					return b_Successful;
+				}
+			}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public bool ConstructModules()
-        {
-            bool b_Successful = true;
+			if (Parameters.ContainsKey("DatabaseFileName"))
+			{
+				OperationsDatabasePath = Parameters["DatabaseFileName"];
+			}
 
-            try
-            {
-                WorkflowHandler wfh = new WorkflowHandler(Model);
-                wfh.InputWorkflowFileName = OperationsDatabasePath;
-                wfh.WorkflowTableName = m_LabelFreeTableName;
-                b_Successful = wfh.ReadSQLiteWorkflow();
+			return b_Successful;
+		}
 
-                if (b_Successful)
-                    Model.ModuleLoader = wfh;
-            }
-            catch (Exception ex)
-            {
-                Model.LogError("Exception encounterd while running 'ConstructModules' " +
-                    "for the LabelFree Operation:\n" +
-                    ex.ToString(), ModuleName, StepNumber);
-                b_Successful = false;
-            }
+		/// <summary>
+		/// Main Method to run the Spectral Count Operation
+		/// </summary>
+		/// <returns>True, if the operation completes successfully</returns>
+		public bool LabelFreeMainOperationFunction()
+		{
+			bool b_Successful = true;
 
-            return b_Successful;
-        }
+			SetTypes();
 
-        /// <summary>
-        /// Retrieves the Default Value
-        /// </summary>
-        /// <returns>Default Value</returns>
-        protected override string GetDefaultValue()
-        {
-            return "false";
-        }
+			b_Successful = ConstructModules();
 
-        /// <summary>
-        /// Retrieves the Type Name for automatically 
-        /// registering the module assembly
-        /// </summary>
-        /// <returns>Module's Name</returns>
-        protected override string GetTypeName()
-        {
-            return ModuleName;
-        }
-        #endregion
-    }
+			return b_Successful;
+		}
+
+		/// <summary>
+		/// Sets the type of Spectral Count Operation, and sets the SQLite table
+		/// to use to run the operation.
+		/// </summary>
+		public void SetTypes()
+		{
+			switch (Parameters[RequiredParameters.Type.ToString()].ToLower())
+			{
+				case "log2":
+					m_LabelFreeTableName =
+						m_LabelFreeTableNames[LbfTypes.Log2];
+					break;
+				case "log2lr":
+					m_LabelFreeTableName =
+						m_LabelFreeTableNames[LbfTypes.Log2LR];
+					break;
+				case "log2ct":
+					m_LabelFreeTableName =
+						m_LabelFreeTableNames[LbfTypes.Log2CT];
+					break;
+				case "log2all":
+					m_LabelFreeTableName =
+						m_LabelFreeTableNames[LbfTypes.Log2All];
+					break;
+				case "htmlpractice":
+					m_LabelFreeTableName =
+						m_LabelFreeTableNames[LbfTypes.HtmlPractice];
+					break;
+				case "anovapractice":
+					m_LabelFreeTableName =
+						m_LabelFreeTableNames[LbfTypes.AnovaPractice];
+					break;
+				case "mainanovapractice":
+					m_LabelFreeTableName =
+						m_LabelFreeTableNames[LbfTypes.MainAnovaPractice];
+					break;
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public bool ConstructModules()
+		{
+			bool b_Successful = true;
+
+			try
+			{
+				WorkflowHandler wfh = new WorkflowHandler(Model);
+				wfh.InputWorkflowFileName = OperationsDatabasePath;
+				wfh.WorkflowTableName = m_LabelFreeTableName;
+				b_Successful = wfh.ReadSQLiteWorkflow();
+
+				if (b_Successful)
+					Model.ModuleLoader = wfh;
+			}
+			catch (Exception ex)
+			{
+				Model.LogError("Exception encounterd while running 'ConstructModules' " +
+					"for the LabelFree Operation:\n" +
+					ex.ToString(), ModuleName, StepNumber);
+				b_Successful = false;
+			}
+
+			return b_Successful;
+		}
+
+		/// <summary>
+		/// Retrieves the Default Value
+		/// </summary>
+		/// <returns>Default Value</returns>
+		protected override string GetDefaultValue()
+		{
+			return "false";
+		}
+
+		/// <summary>
+		/// Retrieves the Type Name for automatically 
+		/// registering the module assembly
+		/// </summary>
+		/// <returns>Module's Name</returns>
+		protected override string GetTypeName()
+		{
+			return ModuleName;
+		}
+		#endregion
+	}
 }

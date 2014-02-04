@@ -42,6 +42,20 @@ namespace Cyclops.Operations
         {
             ModuleName = m_ModuleName;
         }
+
+		public Online2DLCMainOperation(CyclopsModel CyclopsModel)
+        {
+            ModuleName = m_ModuleName;
+            Model = CyclopsModel;
+        }
+
+		public Online2DLCMainOperation(CyclopsModel CyclopsModel,
+            Dictionary<string, string> OperationParameters)
+        {
+            ModuleName = m_ModuleName;
+            Model = CyclopsModel;
+            Parameters = OperationParameters;
+        }
         #endregion
 
         #region Methods

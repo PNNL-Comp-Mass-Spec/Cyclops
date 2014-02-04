@@ -45,16 +45,13 @@ namespace Cyclops.Operations
         #endregion
 
         #region Members
-        private string 
-            m_SpectralCountTableName = "T_SpectralCountPipelineOperation",
-            m_ModuleName = "SpectralCountMainOperation";
-        
-        private string[] m_SpectralCountTableNames = new string[] {
-            "T_SpectralCountPipelineOperation",
-            "T_SpectralCountIteratorPipelineOperation",
-            "T_PracticeOperation",
-            "T_Sco_HTML_Practice"
-        };
+
+	    private string m_SpectralCountTableName = "T_SpectralCountPipelineOperation";
+
+	    private const string m_ModuleName = "SpectralCountMainOperation";
+
+	    private Dictionary<ScoTypes, string> m_SpectralCountTableNames;
+
         #endregion
 
         #region Properties
@@ -65,12 +62,14 @@ namespace Cyclops.Operations
         public SpectralCountMainOperation()
         {
             ModuleName = m_ModuleName;
+			Initialize();
         }
 
         public SpectralCountMainOperation(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
+			Initialize();
         }
 
         public SpectralCountMainOperation(CyclopsModel CyclopsModel,
@@ -79,10 +78,24 @@ namespace Cyclops.Operations
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
             Parameters = OperationParameters;
+	        Initialize();
         }
         #endregion
 
         #region Methods
+
+		private void Initialize()
+		{
+			m_SpectralCountTableNames = new Dictionary<ScoTypes, string>
+			{
+				{ScoTypes.Standard,        "T_SpectralCountPipelineOperation"},
+				{ScoTypes.Iterator,        "T_SpectralCountIteratorPipelineOperation"},
+				{ScoTypes.Practice,        "T_PracticeOperation"},
+				{ScoTypes.ScoHtmlPractice, "T_Sco_HTML_Practice"}
+			};
+
+		}
+
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -158,19 +171,19 @@ namespace Cyclops.Operations
             {
                 case "standard":
                     m_SpectralCountTableName =
-                        m_SpectralCountTableNames[(int)ScoTypes.Standard];                    
+                        m_SpectralCountTableNames[ScoTypes.Standard];                    
                     break;
                 case "iterator":
                     m_SpectralCountTableName =
-                        m_SpectralCountTableNames[(int)ScoTypes.Iterator];
+                        m_SpectralCountTableNames[ScoTypes.Iterator];
                     break;
                 case "practice":
                     m_SpectralCountTableName =
-                        m_SpectralCountTableNames[(int)ScoTypes.Practice];
+                        m_SpectralCountTableNames[ScoTypes.Practice];
                     break;
                 case "scohtmlpractice":
                     m_SpectralCountTableName =
-                        m_SpectralCountTableNames[(int)ScoTypes.ScoHtmlPractice];
+                        m_SpectralCountTableNames[ScoTypes.ScoHtmlPractice];
                     break;
             }
 

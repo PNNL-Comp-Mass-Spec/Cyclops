@@ -46,9 +46,7 @@ namespace Cyclops.Operations
             m_iTraqTableName = "T_iTRAQ_PipelineOperation",
             m_ModuleName = "iTRAQMainOperation";
 
-        private string[] m_iTraqTableNames = new string[] {
-            "T_iTRAQ_PipelineOperation"
-        };
+	    private Dictionary<iTraqTypes, string> m_iTraqTableNames;
         #endregion
 
         #region Properties
@@ -59,12 +57,14 @@ namespace Cyclops.Operations
         public iTRAQMainOperation()
         {
             ModuleName = m_ModuleName;
+	        Initialize();
         }
 
         public iTRAQMainOperation(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
+			Initialize();
         }
 
         public iTRAQMainOperation(CyclopsModel CyclopsModel,
@@ -73,10 +73,21 @@ namespace Cyclops.Operations
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
             Parameters = OperationParameters;
+			Initialize();
         }
         #endregion
 
         #region Methods
+
+		private void Initialize()
+		{
+			m_iTraqTableNames = new Dictionary<iTraqTypes, string>
+			{
+				{iTraqTypes.Standard, "T_iTRAQ_PipelineOperation"}				
+			};
+
+		}
+
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -153,7 +164,7 @@ namespace Cyclops.Operations
             {
                 case "standard":
                     m_iTraqTableName =
-                        m_iTraqTableNames[(int)iTraqTypes.Standard];
+                        m_iTraqTableNames[iTraqTypes.Standard];
                     break;
             }
 
