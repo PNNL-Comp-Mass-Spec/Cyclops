@@ -340,8 +340,7 @@ namespace Cyclops
         {
             bool b_Successful = true;
 
-            SQLiteConnection Conn = new SQLiteConnection(
-                    "Data Source=" + DatabaseFileName);
+            SQLiteConnection Conn = new SQLiteConnection("Data Source=" + DatabaseFileName, true);
 
             int retval = 0;
 
@@ -457,7 +456,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     SQLiteCommand cmd = conn.CreateCommand();
@@ -559,7 +558,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     SQLiteCommand cmd = conn.CreateCommand();
@@ -605,7 +604,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     SQLiteCommand cmd = conn.CreateCommand();
@@ -656,7 +655,7 @@ namespace Cyclops
                         DataSource = DatabaseFileName
                     };
 
-                    using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+					using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
                     {
                         conn.Open();
                         SQLiteCommand cmd = conn.CreateCommand();
@@ -701,7 +700,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+				using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     SQLiteCommand cmd = conn.CreateCommand();
@@ -751,7 +750,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+				using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     SQLiteCommand cmd = conn.CreateCommand();
@@ -799,7 +798,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString()))
+				using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     SQLiteCommand cmd = conn.CreateCommand();
