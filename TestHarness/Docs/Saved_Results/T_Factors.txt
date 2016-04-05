@@ -1,0 +1,4 @@
+Dataset	Dataset_ID	Alias	Sample
+Otauri_iTRAQ8_Rep1_03_20Feb16_Samwise_15-08-55	475520	Otauri_iTRAQ8_Rep1_03	Rep1
+Otauri_iTRAQ8_Rep1_02_20Feb16_Samwise_15-08-55	475521	Otauri_iTRAQ8_Rep1_02	Rep1
+Otauri_iTRAQ8_Rep1_01_20Feb16_Samwise_15-08-55	475525	Otauri_iTRAQ8_Rep1_01	Rep1
