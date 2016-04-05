@@ -96,6 +96,11 @@ namespace Cyclops
                 REngine.SetEnvironmentVariables();
                 engine = REngine.GetInstance();
                 engine.Initialize();
+
+                // When this is True, RDotNet displays the results of R method calls in the console
+                // This can lead to thousands of rows of data being displayed
+                engine.AutoPrint = false;
+
                 return true;
             }
             catch (Exception ex)
