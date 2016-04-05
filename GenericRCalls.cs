@@ -98,67 +98,20 @@ namespace Cyclops
         /// <returns></returns>
         public bool InstantiateR()
         {
-            bool b_Successful = true;
-
             try
             {
-                SetRHomeVariable();
-                InstanceOfR = GetRInstanceName();
-                engine = REngine.CreateInstance(InstanceOfR);
+                REngine.SetEnvironmentVariables();
+                engine = REngine.GetInstance();
                 engine.Initialize();
+                return true;
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while instantiating R: " +
-                    ex.ToString(), "Generic R Calls");
+                Model.LogError("Exception encountered while instantiating R: " + ex, "Generic R Calls");
+                return false;
             }
-
-            return b_Successful;
         }
 
-        /// <summary>
-        /// Sets the R HOME Variable
-        /// </summary>
-        /// <returns>True, if the variable to successfully set</returns>
-        public bool SetRHomeVariable()
-        {
-            bool b_Successful = true;
-
-            bool b_Is32bit = true;
-            if (IntPtr.Size == 4)
-                b_Is32bit = true;
-            else if (IntPtr.Size == 8)
-                b_Is32bit = false;
-
-            string rHome = System.Environment.GetEnvironmentVariable("R_HOME"),
-                s_BitFolderPath = b_Is32bit ? @"\bin\i386" : @"\bin\x64",
-                s_RVersion = "";
-
-            try
-            {
-                if (string.IsNullOrEmpty(rHome))
-                {
-                    string s = @"C:\Program Files\R";
-                    string[] d = Directory.GetDirectories(s);
-
-                    if (d.Length > 0)
-                    {
-                        s_RVersion = d[d.Length - 1].Replace(";", ""); // Take the latest version of R
-                        s_RVersion = s_RVersion + s_BitFolderPath;
-                    }
-
-                    Environment.SetEnvironmentVariable("PATH", s_RVersion);
-                }
-            }
-            catch (Exception ex)
-            {
-                Model.LogError("Exception encountered while Setting R Home Variable: " +
-                    ex.ToString(), "Generic R Calls");
-                b_Successful = false;
-            }
-
-            return b_Successful;
-        }
         #endregion
 
         #region Methods
@@ -786,8 +739,7 @@ namespace Cyclops
                 NameOfFirstColumn = "RowNames";
 
             DataTable dt_Return = new DataTable();
-            REngine engine = REngine.GetInstanceFromID(InstanceOfR);
-
+            
             if (GetClassOfObject(Table2Retrieve).Equals("data.frame"))
             {
                 DataFrame dataset = engine.Evaluate(Table2Retrieve).AsDataFrame();
