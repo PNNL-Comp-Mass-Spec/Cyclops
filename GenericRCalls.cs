@@ -23,8 +23,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Threading;
-
-using log4net;
 using RDotNet;
 
 namespace Cyclops
@@ -47,19 +45,14 @@ namespace Cyclops
     {
         #region Members
         private REngine engine;
-        private string m_RInstance,
-            m_RPackageLocation = "http://cran.cs.wwu.edu/";
+        private string m_RPackageLocation = "http://cran.cs.wwu.edu/";
         #endregion
 
         #region Properties
         /// <summary>
         /// Instance of R Workspace
         /// </summary>
-        public string InstanceOfR
-        {
-            get { return m_RInstance; }
-            set { m_RInstance = value; }
-        }
+        public string InstanceOfR { get; set; }
 
         /// <summary>
         /// Instance of the Model Class
@@ -123,46 +116,46 @@ namespace Cyclops
         /// <param name="Step">Module Number running the command</param>
         /// <returns>True, if the command is issued successfully</returns>
         public bool Run(string Command, string SummaryStatement,
-            int? Step)
+            int Step)
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             try
             {
-                Model.LogMessage(Command, SummaryStatement, (int)Step);
+                Model.LogMessage(Command, SummaryStatement, Step);
 
-                SymbolicExpression se = engine.Evaluate(Command);                
+                var se = engine.Evaluate(Command);                
             }
             catch (ParseException pe)
             {
                 Model.LogError("ParseException encountered while running command:\n" +
-                    Command + "\nParseException: " + pe.ToString() +
+                    Command + "\nParseException: " + pe.Message +
                     "\nInnerException: " + pe.InnerException,
-                    SummaryStatement, (int)Step);
+                    SummaryStatement, Step);
                 b_Successful = false;
             }
             catch (IOException ioe)
             {
                 Model.LogError("IOException encountered while running command:\n" +
-                    Command + "\nIOException: " + ioe.ToString() +
+                    Command + "\nIOException: " + ioe.Message +
                     "\nInnerException: " + ioe.InnerException,
-                    SummaryStatement, (int)Step);
+                    SummaryStatement, Step);
                 b_Successful = false;
             }
             catch (AccessViolationException ave)
             {
                 Model.LogError("AccessViolationException encountered while running command:\n" +
-                    Command + "\nAccessViolationException: " + ave.ToString() +
+                    Command + "\nAccessViolationException: " + ave.Message +
                     "\nInnerException: " + ave.InnerException,
-                    SummaryStatement, (int)Step);
+                    SummaryStatement, Step);
                 b_Successful = false;
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running command:\n" +
-                    Command + "\nException: " + ex.ToString() +
+                    Command + "\nException: " + ex.Message +
                     "\nInnerException: " + ex.InnerException,
-                    SummaryStatement, (int)Step);
+                    SummaryStatement, Step);
                 b_Successful = false;
             }
 
@@ -177,10 +170,10 @@ namespace Cyclops
         /// <param name="Step">Module Number running LoadRWorkspace</param>
         /// <returns>True, if loaded successfully</returns>
         public bool LoadRWorkspace(string WorkspaceFileName,
-            string Module, int? Step)
+            string Module, int Step)
         {
             WorkspaceFileName = WorkspaceFileName.Replace('\\', '/');
-            string Command = string.Format(
+            var Command = string.Format(
                         "load(\"{0}\")",
                         WorkspaceFileName);
 
@@ -193,13 +186,13 @@ namespace Cyclops
         /// <returns></returns>
         public Dictionary<string, string> Version()
         {
-            Dictionary<string, string> d_Return = new Dictionary<string, string>();
+            var d_Return = new Dictionary<string, string>();
 
             try
             {
                 Model.LogMessage("Retrieving R Version Information...");
-                DataFrame df = engine.Evaluate("version").AsDataFrame();
-                foreach (string s in df.ColumnNames)
+                var df = engine.Evaluate("version").AsDataFrame();
+                foreach (var s in df.ColumnNames)
                 {
                     d_Return.Add(s, df[0, s].ToString());       
                 }
@@ -207,7 +200,7 @@ namespace Cyclops
             catch (Exception ex)
             {
                 Model.LogError("Error retrieving R version():\n" +
-                    ex.ToString() + "\nInnerException: " +
+                    ex.Message + "\nInnerException: " +
                     ex.InnerException);
                 return null;
             }
@@ -220,10 +213,10 @@ namespace Cyclops
         /// <returns>List of all the objects in the R workspace</returns>
         public List<string> ls()
         {
-            List<string> l_Objects = new List<string>();
+            var l_Objects = new List<string>();
 
-            CharacterVector cv = engine.Evaluate("ls()").AsCharacter();
-            foreach (string s in cv)
+            var cv = engine.Evaluate("ls()").AsCharacter();
+            foreach (var s in cv)
                 l_Objects.Add(s);
 
             return l_Objects;
@@ -238,7 +231,7 @@ namespace Cyclops
         {
             if (!ObjectName.Contains("$"))
             {
-                List<string> l_Objects = ls();
+                var l_Objects = ls();
                 if (l_Objects.Contains(ObjectName))
                     return true;
                 else
@@ -246,10 +239,10 @@ namespace Cyclops
             }
             else
             {
-                string[] s_Split = ObjectName.Split('$');
+                var s_Split = ObjectName.Split('$');
                 if (s_Split.Length == 2)
                 {
-                    List<string> l_Objects = ls();
+                    var l_Objects = ls();
                     if (l_Objects.Contains(s_Split[0]))
                         return true;
                     else
@@ -269,7 +262,7 @@ namespace Cyclops
         /// <returns>True, if successfully removed</returns>
         public bool RemoveObject(string Object2Remove)
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             if (!string.IsNullOrEmpty(Object2Remove))
             {
@@ -282,7 +275,7 @@ namespace Cyclops
                 {
                     Model.LogError("Exception caught while trying to remove an object:\n" +
                         "Object to remove: " + Object2Remove + "\n" +
-                        "Exception: " + ex.ToString() + "\n" +
+                        "Exception: " + ex.Message + "\n" +
                         "InnerException: " + ex.InnerException);
                     b_Successful = false;
                 }
@@ -300,9 +293,9 @@ namespace Cyclops
         {
             if (ContainsObject(ObjectName))
             {
-                string s_RStatement = string.Format("class({0})", ObjectName);
-                CharacterVector cv = engine.Evaluate(s_RStatement).AsCharacter();
-                return cv[0].ToString();
+                var s_RStatement = string.Format("class({0})", ObjectName);
+                var cv = engine.Evaluate(s_RStatement).AsCharacter();
+                return cv[0];
             }
             else 
                 return null;
@@ -314,9 +307,9 @@ namespace Cyclops
         /// <returns>Current working directory</returns>
         public string GetWorkingDirectory()
         {
-            string s_RStatement = string.Format("getwd()");
-            CharacterVector cv = engine.Evaluate(s_RStatement).AsCharacter();
-            return cv[0].ToString();
+            var s_RStatement = "getwd()";
+            var cv = engine.Evaluate(s_RStatement).AsCharacter();
+            return cv[0];
         }
 
         /// <summary>
@@ -345,9 +338,9 @@ namespace Cyclops
         /// <returns>TRUE or FALSE</returns>
         public bool AssessBoolean(string RStatement)
         {
-            bool b_Return = false;
+            var b_Return = false;
 
-            CharacterVector cv = engine.Evaluate(RStatement).AsCharacter();
+            var cv = engine.Evaluate(RStatement).AsCharacter();
             if (cv[0].ToUpper().Equals("TRUE"))
                 b_Return = true;
             return b_Return;
@@ -372,10 +365,10 @@ namespace Cyclops
         /// <returns>>TRUE or FALSE</returns>
         public bool IsPackageInstalled(string Package)
         {
-            bool b_Return = false;
-            string s_RStatement = string.Format("jnbIsPackageInstalled('{0}')",
+            var b_Return = false;
+            var s_RStatement = string.Format("jnbIsPackageInstalled('{0}')",
                 Package);
-            CharacterVector cv = engine.Evaluate(s_RStatement).AsCharacter();
+            var cv = engine.Evaluate(s_RStatement).AsCharacter();
             if (cv[0].ToUpper().Equals("TRUE"))
                 b_Return = true;
             return b_Return;
@@ -388,9 +381,9 @@ namespace Cyclops
         /// <returns>True, if the R environment is saved successfully</returns>
         public bool SaveEnvironment(string FileName)
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
-            string Command = string.Format("save.image(file=\"{0}\")",
+            var Command = string.Format("save.image(file=\"{0}\")",
                 FileName);
             Command = Command.Replace("\\", "/");
             try
@@ -400,7 +393,7 @@ namespace Cyclops
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while Saving R " +
-                    "environment:\n" + ex.ToString());
+                    "environment:\n" + ex.Message);
                 b_Successful = false;
             }
 
@@ -414,15 +407,15 @@ namespace Cyclops
         /// <returns>List of the rownames</returns>
         public List<string> GetRowNames(string ObjectName)
         {
-            List<string> l_Return = new List<string>();
+            var l_Return = new List<string>();
 
             if (GetClassOfObject(ObjectName).Equals("data.frame") ||
                 GetClassOfObject(ObjectName).Equals("matrix"))
             {
-                CharacterVector cv = engine.Evaluate(string.Format("rownames({0})",
+                var cv = engine.Evaluate(string.Format("rownames({0})",
                     ObjectName)).AsCharacter();
 
-                for (int i = 0; i < cv.Length; i++)
+                for (var i = 0; i < cv.Length; i++)
                     l_Return.Add(cv[i]);
             }
 
@@ -447,15 +440,15 @@ namespace Cyclops
         /// <returns>Column Names</returns>
         public List<string> GetColumnNames(string ObjectName, bool Unique)
         {
-            List<string> l_Columns = new List<string>();
+            var l_Columns = new List<string>();
 
             if (GetClassOfObject(ObjectName).Equals("data.frame") ||
                 GetClassOfObject(ObjectName).Equals("matrix"))
             {
-                CharacterVector cv = engine.Evaluate(string.Format("colnames({0})",
+                var cv = engine.Evaluate(string.Format("colnames({0})",
                     ObjectName)).AsCharacter();
 
-                for (int i = 0; i < cv.Length; i++)
+                for (var i = 0; i < cv.Length; i++)
                 {
                     if (Unique)
                     {
@@ -477,9 +470,9 @@ namespace Cyclops
         /// <returns>List of strings in the returned Vector</returns>
         public List<string> GetCharacterVector(string Vector)
         {
-            List<string> l_Return = new List<string>();
-            CharacterVector cv = engine.Evaluate(Vector).AsCharacter();
-            foreach (string s in cv)
+            var l_Return = new List<string>();
+            var cv = engine.Evaluate(Vector).AsCharacter();
+            foreach (var s in cv)
             {
                 l_Return.Add(s);
             }
@@ -494,16 +487,19 @@ namespace Cyclops
         /// <returns>Dimensions of the Table</returns>
         public TableInfo GetDimensions(string ObjectName)
         {
-            TableInfo td = new TableInfo();
-            td.Title = ObjectName;
-            td.Columns = 0;
-            td.Rows = 0;
+            var td = new TableInfo
+            {
+                Title = ObjectName,
+                Columns = 0,
+                Rows = 0
+            };
+
             if (ContainsObject(ObjectName))
             {
                 if (GetClassOfObject(ObjectName).Equals("data.frame") ||
                     GetClassOfObject(ObjectName).Equals("matrix"))
                 {
-                    IntegerVector dim = engine.Evaluate(
+                    var dim = engine.Evaluate(
                         string.Format("dim({0})\n",
                         ObjectName)).AsInteger();
                     if (dim.Length == 2)
@@ -526,7 +522,7 @@ namespace Cyclops
         /// <returns>Information about the object</returns>
         public TableInfo GetTableInfo(string ObjectName)
         {
-            TableInfo td = GetDimensions(ObjectName);
+            var td = GetDimensions(ObjectName);
             td.ObjectType = GetClassOfObject(ObjectName);            
             return td;
         }
@@ -538,7 +534,7 @@ namespace Cyclops
         /// <returns>Number of rows</returns>
         public int GetNumberOfRowsInTable(string TableName)
         {
-            TableInfo td = GetDimensions(TableName);
+            var td = GetDimensions(TableName);
             return td.Rows;
         }
 
@@ -554,7 +550,7 @@ namespace Cyclops
         public int GetNumberOfRowsInTable(string TableName,
             string ColumnName, string MinValue, string MaxValue)
         {            
-            string s_Filter = "";
+            var s_Filter = "";
 
             #region Construct the Filter
             if (!string.IsNullOrEmpty(ColumnName))
@@ -592,7 +588,7 @@ namespace Cyclops
             }
             #endregion
 
-            IntegerVector iv = engine.Evaluate(
+            var iv = engine.Evaluate(
                     string.Format("nrow({0}{1})\n",
                     TableName,
                     !string.IsNullOrEmpty(s_Filter) ? s_Filter : "")).AsInteger();
@@ -610,7 +606,7 @@ namespace Cyclops
         /// <returns>Number of columns</returns>
         public int GetNumberOfColumnsInTable(string TableName)
         {
-            TableInfo td = GetDimensions(TableName);
+            var td = GetDimensions(TableName);
             return td.Columns;
         }
 
@@ -622,11 +618,11 @@ namespace Cyclops
         /// <returns>True, if table contains the column name</returns>
         public bool TableContainsColumn(string TableName, string ColumnName)
         {
-            bool b_IncludesColumn = false;
+            var b_IncludesColumn = false;
 
             if (ContainsObject(TableName))
             {
-                List<string> l_Columns = GetColumnNames(TableName);
+                var l_Columns = GetColumnNames(TableName);
                 b_IncludesColumn = l_Columns.Contains(ColumnName);
             }
 
@@ -640,10 +636,10 @@ namespace Cyclops
         /// <returns>Length of Vector</returns>
         public int GetLengthOfVector(string Vector)
         {
-            string s_Command = string.Format("length({0})",
+            var s_Command = string.Format("length({0})",
                 Vector);
 
-            IntegerVector iv = engine.Evaluate(s_Command).AsInteger();
+            var iv = engine.Evaluate(s_Command).AsInteger();
             return iv[0];
         }
 
@@ -656,31 +652,31 @@ namespace Cyclops
         public DataTable GetDataTable(string Table2Retrieve,
             bool IgnoreLs)
         {
-            DataTable dt_Return = new DataTable();
+            var dt_Return = new DataTable();
 
             if (IgnoreLs || ContainsObject(Table2Retrieve))
             {
                 if (GetClassOfObject(Table2Retrieve).Equals("data.frame"))
                 {
-                    DataFrame dataset = engine.Evaluate(Table2Retrieve).AsDataFrame();
+                    var dataset = engine.Evaluate(Table2Retrieve).AsDataFrame();
 
-                    for (int i = 0; i < dataset.ColumnCount; i++)
+                    for (var i = 0; i < dataset.ColumnCount; i++)
                     {
-                        DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                        var dc = new DataColumn(dataset.ColumnNames[i]);
                         if (dc.Namespace.Equals(""))
                         {
-                            int j = i + 1;
+                            var j = i + 1;
                             dc.Namespace = j.ToString();
                         }
                         dt_Return.Columns.Add(dc);
                     }
 
-                    for (int r = 0; r < dataset.RowCount; r++)
+                    for (var r = 0; r < dataset.RowCount; r++)
                     {
-                        DataFrameRow df_Row = dataset.GetRow(r);
+                        var df_Row = dataset.GetRow(r);
 
-                        string[] s_Row = new string[df_Row.DataFrame.ColumnCount];
-                        for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                        var s_Row = new object[df_Row.DataFrame.ColumnCount];
+                        for (var i = 0; i < df_Row.DataFrame.ColumnCount; i++)
                         {
                             s_Row[i] = df_Row[i].ToString();
                         }
@@ -689,25 +685,25 @@ namespace Cyclops
                 }
                 else if (GetClassOfObject(Table2Retrieve).Equals("matrix"))
                 {
-                    DataFrame dataset = engine.Evaluate("data.frame(" + Table2Retrieve + ")").AsDataFrame();
+                    var dataset = engine.Evaluate("data.frame(" + Table2Retrieve + ")").AsDataFrame();
 
-                    for (int i = 0; i < dataset.ColumnCount; i++)
+                    for (var i = 0; i < dataset.ColumnCount; i++)
                     {
-                        DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                        var dc = new DataColumn(dataset.ColumnNames[i]);
                         if (dc.Namespace.Equals(""))
                         {
-                            int j = i + 1;
+                            var j = i + 1;
                             dc.Namespace = j.ToString();
                         }
                         dt_Return.Columns.Add(dc);
                     }
 
-                    for (int r = 0; r < dataset.RowCount; r++)
+                    for (var r = 0; r < dataset.RowCount; r++)
                     {
-                        DataFrameRow df_Row = dataset.GetRow(r);
+                        var df_Row = dataset.GetRow(r);
 
-                        string[] s_Row = new string[df_Row.DataFrame.ColumnCount];
-                        for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                        var s_Row = new object[df_Row.DataFrame.ColumnCount];
+                        for (var i = 0; i < df_Row.DataFrame.ColumnCount; i++)
                         {
                             s_Row[i] = df_Row[i].ToString();
                         }
@@ -733,39 +729,39 @@ namespace Cyclops
                 return null;
             }
 
-            List<string> l_Rownames = GetRowNames(Table2Retrieve);
+            var l_Rownames = GetRowNames(Table2Retrieve);
 
             if (string.IsNullOrEmpty(NameOfFirstColumn))
                 NameOfFirstColumn = "RowNames";
 
-            DataTable dt_Return = new DataTable();
+            var dt_Return = new DataTable();
             
             if (GetClassOfObject(Table2Retrieve).Equals("data.frame"))
             {
-                DataFrame dataset = engine.Evaluate(Table2Retrieve).AsDataFrame();
+                var dataset = engine.Evaluate(Table2Retrieve).AsDataFrame();
 
-                DataColumn dc_RowName = new DataColumn(NameOfFirstColumn);
+                var dc_RowName = new DataColumn(NameOfFirstColumn);
                 dt_Return.Columns.Add(dc_RowName);
 
-                for (int i = 0; i < dataset.ColumnCount; i++)
+                for (var i = 0; i < dataset.ColumnCount; i++)
                 {
-                    DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                    var dc = new DataColumn(dataset.ColumnNames[i]);
                     if (dc.Namespace.Equals(""))
                     {
-                        int j = i + 1;
+                        var j = i + 1;
                         dc.Namespace = j.ToString();
                     }
                     dt_Return.Columns.Add(dc);
                 }
 
                 // iterate across the rows
-                for (int r = 0; r < dataset.RowCount; r++)
+                for (var r = 0; r < dataset.RowCount; r++)
                 {
-                    DataFrameRow df_Row = dataset.GetRow(r);
+                    var df_Row = dataset.GetRow(r);
 
-                    string[] s_Row = new string[df_Row.DataFrame.ColumnCount + 1];
+                    var s_Row = new object[df_Row.DataFrame.ColumnCount + 1];
                     s_Row[0] = l_Rownames[r];
-                    for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                    for (var i = 0; i < df_Row.DataFrame.ColumnCount; i++)
                     {
                         s_Row[i + 1] = df_Row[i].ToString();
                     }
@@ -774,31 +770,31 @@ namespace Cyclops
             }
             else if (GetClassOfObject(Table2Retrieve).Equals("matrix"))
             {
-                DataFrame dataset = engine.Evaluate("data.frame(" 
+                var dataset = engine.Evaluate("data.frame(" 
                     + Table2Retrieve + ")").AsDataFrame();
 
-                DataColumn dc_RowName = new DataColumn(NameOfFirstColumn);
+                var dc_RowName = new DataColumn(NameOfFirstColumn);
                 dt_Return.Columns.Add(dc_RowName);
 
-                for (int i = 0; i < dataset.ColumnCount; i++)
+                for (var i = 0; i < dataset.ColumnCount; i++)
                 {
-                    DataColumn dc = new DataColumn(dataset.ColumnNames[i]);
+                    var dc = new DataColumn(dataset.ColumnNames[i]);
                     if (dc.Namespace.Equals(""))
                     {
-                        int j = i + 1;
+                        var j = i + 1;
                         dc.Namespace = j.ToString();
                     }
                     dt_Return.Columns.Add(dc);
                 }
 
                 // iterate across the rows
-                for (int r = 0; r < dataset.RowCount; r++)
+                for (var r = 0; r < dataset.RowCount; r++)
                 {
-                    DataFrameRow df_Row = dataset.GetRow(r);
+                    var df_Row = dataset.GetRow(r);
 
-                    string[] s_Row = new string[df_Row.DataFrame.ColumnCount + 1];
+                    var s_Row = new object[df_Row.DataFrame.ColumnCount + 1];
                     s_Row[0] = l_Rownames[r];
-                    for (int i = 0; i < df_Row.DataFrame.ColumnCount; i++)
+                    for (var i = 0; i < df_Row.DataFrame.ColumnCount; i++)
                     {
                         s_Row[i + 1] = df_Row[i].ToString();
                     }
@@ -817,24 +813,22 @@ namespace Cyclops
         /// <returns>True, if the new data.frame is created successfully</returns>
         public bool WriteDataTableToR(DataTable Table, string TableName)
         {
-            bool b_Successful = true;
-
-            string Command = string.Format("{0} <- data.frame(",
+            var Command = string.Format("{0} <- data.frame(",
                     TableName);
 
-            for (int c = 0; c < Table.Columns.Count; c++)
+            for (var c = 0; c < Table.Columns.Count; c++)
             {
                 Command += "\"" + Table.Columns[c].ColumnName + "\"=c(\"";
 
-                for (int r = 0; r < Table.Rows.Count; r++)
+                for (var r = 0; r < Table.Rows.Count; r++)
                 {
                     if (r < Table.Rows.Count - 1)
                     {
-                        Command += Table.Rows[r][c].ToString() + "\",\"";
+                        Command += Table.Rows[r][c] + "\",\"";
                     }
                     else
                     {
-                        Command += Table.Rows[r][c].ToString() + "\")";
+                        Command += Table.Rows[r][c] + "\")";
                     }
                 }
 
@@ -855,11 +849,11 @@ namespace Cyclops
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered in GenericRCalls " +
-					"'SetDataFrame':\n" + ex.ToString());
+					"'SetDataFrame':\n" + ex.Message);
                 return false;
             }
 
-            return b_Successful;
+            return true;
         }
 
         /// <summary>
@@ -872,9 +866,7 @@ namespace Cyclops
         public bool SetDataFrameRowNames(
             string DataFrameName, int ColumnIndex)
         {
-            bool b_Successful = true;
-
-            string s_RStatement = string.Format("rownames({0}) <- {0}[,{1}]\n" +
+            var s_RStatement = string.Format("rownames({0}) <- {0}[,{1}]\n" +
                 "{0} <- {0}[,-{1}]",
                 DataFrameName, ColumnIndex.ToString());
 
@@ -889,7 +881,7 @@ namespace Cyclops
                 return false;
             }
 
-            return b_Successful;
+            return true;
         }
 
         /// <summary>
@@ -900,11 +892,10 @@ namespace Cyclops
         /// <returns>True, if the object's value is set successfully</returns>
         public bool SetObject(string ObjectName, string Value)
         {
-            bool b_Successful = true;
 
             try
             {
-                string Command = ObjectName + " <- " + Value;
+                var Command = ObjectName + " <- " + Value;
                 engine.Evaluate(Command);
             }
             catch (Exception ex)
@@ -914,7 +905,7 @@ namespace Cyclops
                 return false;
             }
 
-            return b_Successful;
+            return true;
         }
         #endregion
 
@@ -926,12 +917,12 @@ namespace Cyclops
         /// <returns>Random instance name</returns>
         private string GetRInstanceName()
         {
-            string s_RInstance = "";
+            var s_RInstance = "";
             Thread.Sleep(2);
-            Random rnd = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
-            string chars = "2346789ABCDEFGHJKLMNPQRTUVWXYZabcdefghjkmnpqrtuvwxyz";
+            var rnd = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
+            var chars = "2346789ABCDEFGHJKLMNPQRTUVWXYZabcdefghjkmnpqrtuvwxyz";
 
-            for (int i = 0; i < 20; i++)
+            for (var i = 0; i < 20; i++)
             {
                 s_RInstance += chars.Substring(rnd.Next(chars.Length), 1);
             }
@@ -967,17 +958,17 @@ namespace Cyclops
         /// <returns>True, if the function completes successfully</returns>
         public bool TestConnectionToR()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             // .NET Framework array to R vector.
-            NumericVector group1 = engine.CreateNumericVector(new double[] { 30.02, 29.99, 30.11, 29.97, 30.01, 29.99 });
+            var group1 = engine.CreateNumericVector(new[] { 30.02, 29.99, 30.11, 29.97, 30.01, 29.99 });
             engine.SetSymbol("group1", group1);
             // Direct parsing from R script.
-            NumericVector group2 = engine.Evaluate("group2 <- c(29.89, 29.93, 29.72, 29.98, 30.02, 29.98)").AsNumeric();
+            var group2 = engine.Evaluate("group2 <- c(29.89, 29.93, 29.72, 29.98, 30.02, 29.98)").AsNumeric();
 
             // Test difference of mean and get the P-value.
-            GenericVector testResult = engine.Evaluate("t.test(group1, group2)").AsList();
-            NumericVector nv = testResult["p.value"].AsNumeric();
+            var testResult = engine.Evaluate("t.test(group1, group2)").AsList();
+            var nv = testResult["p.value"].AsNumeric();
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("Group1: [{0}]", string.Join(", ", group1));

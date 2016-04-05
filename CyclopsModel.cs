@@ -19,11 +19,7 @@
  * -----------------------------------------------------*/
 
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-
 using log4net;
 
 
@@ -36,11 +32,9 @@ namespace Cyclops
     {
         #region Members
         private Dictionary<string, string> m_CyclopsParameters = new Dictionary<string, string>();
-        private static ILog traceLog = LogManager.GetLogger("TraceLog");
         private bool m_SuccessRunningPipeline = true;
-        private int m_StepNumber = 0, m_TotalNumberOfModules = 0;
         private WorkflowHandler m_WorkflowHandler;
-        private GenericRCalls m_RCalls;
+
         #endregion
 
         #region Properties
@@ -67,20 +61,12 @@ namespace Cyclops
         /// <summary>
         /// Current step that Cyclops is processing
         /// </summary>
-        public int CurrentStepNumber
-        {
-            get { return m_StepNumber; }
-            set { m_StepNumber = value; }
-        }
+        public int CurrentStepNumber { get; set; }
 
         /// <summary>
         /// Total number of steps (modules) in the pipeline
         /// </summary>
-        public int TotalNumberOfSteps
-        {
-            get { return m_TotalNumberOfModules; }
-            set { m_TotalNumberOfModules = value; }
-        }
+        public int TotalNumberOfSteps { get; set; }
 
         /// <summary>
         /// Flag that indicates the pipeline is running successfully
@@ -94,11 +80,7 @@ namespace Cyclops
         /// <summary>
         /// Instance of the object that makes all calls to R
         /// </summary>
-        public GenericRCalls RCalls
-        {
-            get { return m_RCalls; }
-            set { m_RCalls = value; }
-        }
+        public GenericRCalls RCalls { get; set; }
 
         /// <summary>
         /// Loader that manages the root node, module assembly and IO.
@@ -137,7 +119,7 @@ namespace Cyclops
         /// </summary>
         public CyclopsModel()
         {
-            m_RCalls = new GenericRCalls(this);
+            RCalls = new GenericRCalls(this);
             m_WorkflowHandler = new WorkflowHandler(this);
             RCalls.InstantiateR();
             ReportMessage("Running Cyclops Version: " + CyclopsVersion);            
@@ -150,7 +132,7 @@ namespace Cyclops
         /// <param name="ParametersForCyclops">Parameters to run Cyclops</param>
         public CyclopsModel(Dictionary<string, string> ParametersForCyclops)
         {
-            m_RCalls = new GenericRCalls(this);
+            RCalls = new GenericRCalls(this);
             m_WorkflowHandler = new WorkflowHandler(this);
             RCalls.InstantiateR();
             CyclopsParameters = ParametersForCyclops;
@@ -186,9 +168,11 @@ namespace Cyclops
 
         public CyclopsModel(string XMLWorkflow, string WorkDirectory)
         {
-            m_RCalls = new GenericRCalls(this);
-            m_WorkflowHandler = new WorkflowHandler(this);
-            m_WorkflowHandler.InputWorkflowFileName = XMLWorkflow;
+            RCalls = new GenericRCalls(this);
+            m_WorkflowHandler = new WorkflowHandler(this)
+            {
+                InputWorkflowFileName = XMLWorkflow
+            };
             this.WorkDirectory = WorkDirectory;
             RCalls.InstantiateR();
             ReportMessage("Running Cyclops Version: " + CyclopsVersion);
@@ -207,9 +191,9 @@ namespace Cyclops
             ReportError(Message, Module);
         }
 
-        public void LogError(string Message, string Module, int? Step)
+        public void LogError(string Message, string Module, int Step)
         {
-            ReportError(Message, Module, (int)Step);
+            ReportError(Message, Module, Step);
         }
 
         public void LogWarning(string Message)
@@ -222,9 +206,9 @@ namespace Cyclops
             ReportWarning(Message, Module);
         }
 
-        public void LogWarning(string Message, string Module, int? Step)
+        public void LogWarning(string Message, string Module, int Step)
         {
-            ReportWarning(Message, Module, (int)Step);
+            ReportWarning(Message, Module, Step);
         }
 
         public void LogMessage(string Message)
@@ -237,9 +221,9 @@ namespace Cyclops
             ReportMessage(Message, Module);
         }
 
-        public void LogMessage(string Message, string Module, int? Step)
+        public void LogMessage(string Message, string Module, int Step)
         {
-            ReportMessage(Message, Module, (int)Step);
+            ReportMessage(Message, Module, Step);
         }
         #endregion
 
@@ -251,7 +235,7 @@ namespace Cyclops
         /// <param name="Message"></param>
         public static void TraceLogWrite(LogTools.LogLevels level, string Message)
         {
-            ILog traceLog = LogManager.GetLogger("TraceLog");
+            var traceLog = LogManager.GetLogger("TraceLog");
             switch (level)
             {
                 case LogTools.LogLevels.INFO:
@@ -292,7 +276,7 @@ namespace Cyclops
         /// <returns>True, if pipeline runs successfully</returns>
         public bool TestMethod()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
                         
             try
             {
@@ -301,8 +285,7 @@ namespace Cyclops
             }
             catch (Exception ex)
             {
-                LogError("Exception caught while creating modules: " +
-                    ex.ToString());
+                LogError("Exception caught while creating modules: " + ex.Message);
                 b_Successful = false;
             } 
             return b_Successful;

@@ -149,8 +149,7 @@ namespace Cyclops
 	                {"Value", "System.String"}
                 };
 
-	        foreach (KeyValuePair<string, string>
-                kvp_Module in d_ModuleTableColumnHeaders)
+	        foreach (var kvp_Module in d_ModuleTableColumnHeaders)
             {
                 var dc = new DataColumn(kvp_Module.Key)
                 {
@@ -166,7 +165,7 @@ namespace Cyclops
         /// <returns>True, if the workflow is read successfully</returns>
         public bool ReadWorkflow()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             if (string.IsNullOrEmpty(InputWorkflowFileName))
             {
@@ -247,8 +246,8 @@ namespace Cyclops
         /// <returns>True, if the modules are assembled correctly</returns>
         private bool ReadXMLWorkflow()
         {
-            bool b_Successful = true;
-			string InputWorkflowFilePath = "";
+            var b_Successful = true;
+			var InputWorkflowFilePath = "";
 
             try
             {
@@ -267,7 +266,7 @@ namespace Cyclops
 				
 				var xml = new XmlDocument();
                 xml.Load(InputWorkflowFilePath);
-                XmlNodeList xnl_Modules = xml.SelectNodes("Cyclops/Module");
+                var xnl_Modules = xml.SelectNodes("Cyclops/Module");
 
                 // Clear the LinkedList
                 Modules.Clear();
@@ -281,9 +280,9 @@ namespace Cyclops
 				            switch (xn.Attributes["Type"].Value.ToUpper())
 				            {
 					            case "DATA":
-						            Dictionary<string, string> DataParam = 
+						            var DataParam = 
 							            GetXMLParameters(xn);
-						            DataModules.BaseDataModule dm =
+						            var dm =
 							            DataModules.BaseDataModule.Create(
 								            xn.Attributes["Name"].Value,
 								            Model, DataParam);
@@ -310,9 +309,9 @@ namespace Cyclops
 						            AddModulesToDataTables(dm);
 						            break;
 					            case "OPERATION":
-						            Dictionary<string, string> OperationParam =
+						            var OperationParam =
 							            GetXMLParameters(xn);                                                       
-						            Operations.BaseOperationModule om =
+						            var om =
 							            Operations.BaseOperationModule.Create(
 								            xn.Attributes["Name"].Value,
 								            Model, OperationParam);
@@ -352,9 +351,9 @@ namespace Cyclops
 
         private void AddModulesToDataTables(DataModules.BaseDataModule Module)
         {
-            foreach (KeyValuePair<string, string> kvp in Module.Parameters)
+            foreach (var kvp in Module.Parameters)
             {
-                DataRow dr_Module = m_ModulesTable.NewRow();
+                var dr_Module = m_ModulesTable.NewRow();
                 dr_Module["Step"] = Module.StepNumber;
                 dr_Module["Module"] = Module.ModuleName;
                 dr_Module["Parameter"] = kvp.Key;
@@ -370,10 +369,10 @@ namespace Cyclops
         /// <returns>True, if the workflow completes successfully</returns>
         public bool RunWorkflow()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
-            int i_Step = 1;
-            foreach (DataModules.BaseDataModule bdm in Modules)
+            var i_Step = 1;
+            foreach (var bdm in Modules)
             {
                 if (bdm != null)
                     b_Successful = bdm.PerformOperation();
@@ -393,7 +392,7 @@ namespace Cyclops
         private DataModules.BaseDataModule AddParameters(
             DataModules.BaseDataModule Module)
         {
-            foreach (KeyValuePair<string, string> kvp in Model.CyclopsParameters)
+            foreach (var kvp in Model.CyclopsParameters)
             {
                 Module.Parameters.Add(kvp.Key, kvp.Value);
             }
@@ -405,7 +404,7 @@ namespace Cyclops
         {
             var d_Parameters = new Dictionary<string, string>(
                 StringComparer.OrdinalIgnoreCase);
-            XmlNodeList xnl_Parameters = Node.SelectNodes("Parameter");
+            var xnl_Parameters = Node.SelectNodes("Parameter");
 
 	        if (xnl_Parameters != null)
 	        {
@@ -428,7 +427,7 @@ namespace Cyclops
             try
             {
                 sql.DatabaseFileName = InputWorkflowFileName;
-                DataTable dt_Workflow = sql.GetTable(WorkflowTableName);
+                var dt_Workflow = sql.GetTable(WorkflowTableName);
 
                 b_Successful = ReadDataTableWorkflow(dt_Workflow);
             }
@@ -444,23 +443,23 @@ namespace Cyclops
 		public bool ReadDataTableWorkflow(DataTable workflowTableName)
         {
 
-			int? MaxSteps = GetMaximumStepsInWorkflowDataTable(workflowTableName);
+			var MaxSteps = GetMaximumStepsInWorkflowDataTable(workflowTableName);
             if (MaxSteps == null)
                 return false;
 
 			// Clear the LinkedList
 			Modules.Clear();
 
-			for (int i = 0; i < MaxSteps; i++)
+			for (var i = 0; i < MaxSteps; i++)
 			{
-				int r = i + 1;
-				DataRow[] rows = workflowTableName.Select(
+				var r = i + 1;
+				var rows = workflowTableName.Select(
 					string.Format("Step = {0}",
 					              r));
-				Dictionary<string, string> Param = GetParametersFromDataRows(rows, r);
-				strModuleInfo mi = GetModuleNameFromRows(rows, r);
+				var Param = GetParametersFromDataRows(rows, r);
+				var mi = GetModuleNameFromRows(rows, r);
 
-				DataModules.BaseDataModule bdm = DataModules.BaseDataModule.Create(
+				var bdm = DataModules.BaseDataModule.Create(
 					mi.ModuleName, Model, Param);
 
 				if (bdm != null)
@@ -507,16 +506,16 @@ namespace Cyclops
         /// <returns>Max Steps, or null if intermediate steps are missing</returns>
         private int? GetMaximumStepsInWorkflowDataTable(DataTable Table)
         {
-            int i_MaxStepNumber = 0;
+            var i_MaxStepNumber = 0;
 
             var h_Steps = new HashSet<int>();
 
             foreach (DataRow dr in Table.Rows)
             {
-                string s_Step = dr["Step"].ToString();
+                var s_Step = dr["Step"].ToString();
                 if (!string.IsNullOrEmpty(s_Step))
                 {
-                    int i = Convert.ToInt32(s_Step);
+                    var i = Convert.ToInt32(s_Step);
                     if (!h_Steps.Contains(i))
                         h_Steps.Add(i);
                     if (i > i_MaxStepNumber)
@@ -524,9 +523,9 @@ namespace Cyclops
                 }
             }
 
-            for (int i = 0; i < i_MaxStepNumber; i++)
+            for (var i = 0; i < i_MaxStepNumber; i++)
             {
-                int j = i + 1;
+                var j = i + 1;
                 if (!h_Steps.Contains(j))
                 {
                     Model.LogError(string.Format("ERROR: While reading workflow from " +
@@ -546,9 +545,9 @@ namespace Cyclops
         {
             var Param = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (DataRow dr in Rows)
+            foreach (var dr in Rows)
             {
-	            string keyName = dr["Parameter"].ToString();
+	            var keyName = dr["Parameter"].ToString();
 	            if (Param.ContainsKey(keyName))
 		            throw new DuplicateNameException("Parameter " + keyName + " is specified twice for step " + stepNumber);
 	            
@@ -566,7 +565,7 @@ namespace Cyclops
                 mi.ModuleName = rows[0]["Module"].ToString();
             }
             // Now check that the other rows have the same values
-            foreach (DataRow dr in rows)
+            foreach (var dr in rows)
             {
                 if (!mi.ModuleName.Equals(dr["Module"].ToString()))
                 {
@@ -583,7 +582,7 @@ namespace Cyclops
         /// <returns>True, if the workflow modules are written out successfully</returns>
         public bool WriteWorkflow()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             if (Count > 0)
             {
@@ -650,7 +649,7 @@ namespace Cyclops
         /// <returns>True, if the XML file is written correctly</returns>
         private bool WriteModulesOutAsXML()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             try
             {
@@ -662,12 +661,12 @@ namespace Cyclops
 	                NewLineChars = "\n"
                 };
 
-	            using (XmlWriter writer = XmlWriter.Create(OutputWorkflowFileName, Settings))
+	            using (var writer = XmlWriter.Create(OutputWorkflowFileName, Settings))
                 {
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Cyclops");
 
-                    foreach (DataModules.BaseDataModule bdm in Modules)
+                    foreach (var bdm in Modules)
                     {
                         bdm.WriteModuleToXML(writer);
                     }
@@ -703,7 +702,7 @@ namespace Cyclops
         /// <returns>True, if the table is exported successfully</returns>
         private bool WriteModulesOutToSQLite()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
             try
             {
                 var d_Columns = new Dictionary<string, string>
@@ -715,7 +714,7 @@ namespace Cyclops
                 };
 
 	            var dt_Workflow = new DataTable(WorkflowTableName);
-                foreach (KeyValuePair<string, string> kvp in d_Columns)
+                foreach (var kvp in d_Columns)
                 {
                     var dc = new DataColumn(kvp.Key)
                     {
@@ -724,7 +723,7 @@ namespace Cyclops
 	                dt_Workflow.Columns.Add(dc);
                 }
 
-                foreach (DataModules.BaseDataModule bdm in Modules)
+                foreach (var bdm in Modules)
                 {
                     bdm.WriteModuleToDataTable(dt_Workflow);
                 }
@@ -749,7 +748,7 @@ namespace Cyclops
         /// <returns>Module at the indicated step number</returns>
         public DataModules.BaseDataModule GetModule(int StepNumber)
         {
-            foreach (DataModules.BaseDataModule m in Modules)
+            foreach (var m in Modules)
             {
                 if (m.StepNumber == StepNumber)
                     return m;
@@ -767,7 +766,7 @@ namespace Cyclops
         public bool HasStep(int StepNumber)
         {
 
-            foreach (DataModules.BaseDataModule m in Modules)
+            foreach (var m in Modules)
             {
                 if (m.StepNumber == StepNumber)
                     return true;
@@ -782,9 +781,9 @@ namespace Cyclops
         /// <returns>Maximum Step Number</returns>
         public int GetMaxStep()
         {
-            int i_Max = 0;
+            var i_Max = 0;
 
-            foreach (DataModules.BaseDataModule m in Modules)
+            foreach (var m in Modules)
             {
                 if (m.StepNumber > i_Max)
                     i_Max = m.StepNumber;
@@ -800,7 +799,7 @@ namespace Cyclops
         public void RemoveModuleFromWorkflow(int StepNumber)
         {
             var node = Modules.First;
-            bool b_Removed = false;
+            var b_Removed = false;
             while (node != null)
             {
                 var NextNode = node.Next;
@@ -818,7 +817,7 @@ namespace Cyclops
 
         public bool ContainsStep(int StepNumber)
         {
-            foreach (DataModules.BaseDataModule bdm in Modules)
+            foreach (var bdm in Modules)
             {
                 if (bdm.StepNumber == StepNumber)
                 {
@@ -844,7 +843,7 @@ namespace Cyclops
 		        Modules.AddBefore(NNext, Module2Displace);
 
 		        // increment new StepNumbers
-		        for (int Step = NewModule.StepNumber + 1;
+		        for (var Step = NewModule.StepNumber + 1;
 			        Step < Modules.Count - 1; Step++)
 		        {
 			        var Module2Modify = GetModule(Step);
@@ -919,7 +918,7 @@ namespace Cyclops
         // Create the OnPropertyChanged method to raise the event 
         protected void OnPropertyChanged(string name)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
+            var handler = PropertyChanged;
             if (handler != null)
             {
                 handler(this, new PropertyChangedEventArgs(name));

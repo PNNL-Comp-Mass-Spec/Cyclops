@@ -32,7 +32,7 @@ namespace Cyclops
     public class SQLiteHandler : DatabaseHandler
     {
         #region Members
-        private string[] m_SQLiteKeywords = new string[] {
+        private readonly string[] m_SQLiteKeywords = {
             "ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND",
             "AS", "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN",
             "BY", "CASCADE", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "COMMIT",
@@ -68,7 +68,7 @@ namespace Cyclops
         /// <returns>Data type for SQLite database</returns>
         private string ConvertMS2SqliteDataType(string MicrosoftDataType)
         {
-            string s_Return = "";
+            var s_Return = "";
             switch (MicrosoftDataType)
             {
                 case "System.String":
@@ -101,7 +101,7 @@ namespace Cyclops
         /// <returns>DbType</returns>
         private DbType GetDatabaseType(string MicrosoftDataType)
         {
-            DbType db = new DbType();
+            var db = new DbType();
 
             switch (MicrosoftDataType)
             {
@@ -129,7 +129,7 @@ namespace Cyclops
         /// <returns>True, if the word is a SQLite Keyword</returns>
         private bool IsSQLiteKeyword(string Word)
         {
-            foreach (string s in m_SQLiteKeywords)
+            foreach (var s in m_SQLiteKeywords)
             {
                 if (Word.ToUpper().Equals(s))
                     return true;
@@ -144,17 +144,15 @@ namespace Cyclops
         /// <returns>SQL Command for creating the table</returns>
         private string SqliteCreateTableStatement(DataTable Table)
         {
-            string s_Command = string.Format(
+            var s_Command = string.Format(
                 "CREATE TABLE {0} (",
                 Table.TableName);
 
-            List<string> l_FieldType = new List<string>();
+            var l_FieldType = new List<string>();
 
             foreach (DataColumn dc in Table.Columns)
             {
-                string s_FieldType;
-
-                s_FieldType = FormatDataColumnName(dc.ColumnName) + " ";
+                var s_FieldType = FormatDataColumnName(dc.ColumnName) + " ";
 
                 s_FieldType += ConvertMS2SqliteDataType(dc.DataType.FullName);
 
@@ -192,15 +190,15 @@ namespace Cyclops
             SQLiteConnection Conn,
             DataTable Table)
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             try
             {
-                using (SQLiteTransaction dbTrans = Conn.BeginTransaction())
+                using (var dbTrans = Conn.BeginTransaction())
                 {
-                    using (SQLiteCommand cmd = Conn.CreateCommand())
+                    using (var cmd = Conn.CreateCommand())
                     {
-                        List<string> l_Col = new List<string>();
+                        var l_Col = new List<string>();
                         foreach (DataColumn dc in Table.Columns)
                             l_Col.Add(FormatDataColumnName(dc.ColumnName));
 
@@ -210,15 +208,15 @@ namespace Cyclops
                             string.Join(", ", l_Col),
                             string.Join(", @", l_Col));
 
-                        foreach (string s in l_Col)
+                        foreach (var s in l_Col)
                         {
-                            SQLiteParameter param = cmd.CreateParameter();
+                            var param = cmd.CreateParameter();
                             cmd.Parameters.Add(param);
                         }
 
                         foreach (DataRow dr in Table.Rows)
                         {
-                            int idx = 0;
+                            var idx = 0;
                             foreach (SQLiteParameter p in cmd.Parameters)
                             {
                                 p.ParameterName = "@" + l_Col[idx];
@@ -253,17 +251,16 @@ namespace Cyclops
             SQLiteConnection Conn,
             DataSet MainData)
         {
-            bool b_Successful = true;
 
             foreach (DataTable dt in MainData.Tables)
             {
-                b_Successful = FillTable(Conn, dt);
+                var b_Successful = FillTable(Conn, dt);
 
                 if (!b_Successful)
-                    return b_Successful;
+                    return false;
             }
 
-            return b_Successful;
+            return true;
         }
         #endregion
 
@@ -275,7 +272,7 @@ namespace Cyclops
         /// <returns>True, if the function completes successfully</returns>
         public override bool CreateDatabase()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             if (DatabaseFileName == null)
                 return false;
@@ -297,15 +294,14 @@ namespace Cyclops
         /// <returns>True, if the function completes successfully</returns>
         public bool CreateDatabase(bool OverwriteExistingDatabase)
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             if (DatabaseFileName == null)
                 return false; 
 
             if (OverwriteExistingDatabase)
                 SQLiteConnection.CreateFile(DatabaseFileName);
-            else if (!OverwriteExistingDatabase && 
-                !File.Exists(DatabaseFileName))
+            else if (!File.Exists(DatabaseFileName))
                 SQLiteConnection.CreateFile(DatabaseFileName);
 
             if (!File.Exists(DatabaseFileName))
@@ -338,11 +334,11 @@ namespace Cyclops
         public bool WriteDataTableToDatabase(
             DataTable Table)
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
-            SQLiteConnection Conn = new SQLiteConnection("Data Source=" + DatabaseFileName, true);
+            var Conn = new SQLiteConnection("Data Source=" + DatabaseFileName, true);
 
-            int retval = 0;
+            var retval = 0;
 
             try
             {
@@ -351,13 +347,13 @@ namespace Cyclops
 
                 if (TableExists(Table.TableName))
                 {
-                    SQLiteCommand Cmd = new SQLiteCommand(string.Format(
+                    var Cmd = new SQLiteCommand(string.Format(
                         "DROP TABLE IF EXISTS {0};",
                         Table.TableName), Conn);
                     retval = Cmd.ExecuteNonQuery();
                 }
 
-                SQLiteCommand cmd_Table = new SQLiteCommand(
+                var cmd_Table = new SQLiteCommand(
                     SqliteCreateTableStatement(Table),
                     Conn);
                 retval = cmd_Table.ExecuteNonQuery();
@@ -388,17 +384,15 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return false;
 
-            bool b_Successful = true;
-
             foreach (DataTable dt in MainData.Tables)
             {
-                b_Successful = WriteDataTableToDatabase(dt);
+                var b_Successful = WriteDataTableToDatabase(dt);
 
                 if (!b_Successful)
-                    return b_Successful;
+                    return false;
             }
 
-            return b_Successful;
+            return true;
         }
 
         /// <summary>
@@ -426,7 +420,7 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return false; 
 
-            DataTable dt_Tables = GetDatabaseInformation();
+            var dt_Tables = GetDatabaseInformation();
             foreach (DataRow dr in dt_Tables.Rows)
             {
                 if (dr["tbl_name"].ToString().Equals(TableName))
@@ -444,8 +438,8 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return null; 
 
-            DataTable dt_Info = new DataTable();
-            string s_Command =
+            var dt_Info = new DataTable();
+            var s_Command =
             "SELECT * FROM " +
             "sqlite_master WHERE type='table'";
 
@@ -456,14 +450,12 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
+                using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
-                    SQLiteCommand cmd = conn.CreateCommand();
-
-                    cmd = conn.CreateCommand();
+                    var cmd = conn.CreateCommand();
                     cmd.CommandText = s_Command;
-                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    var reader = cmd.ExecuteReader();
                     dt_Info.Load(reader);
                     conn.Close();
                 }
@@ -484,12 +476,12 @@ namespace Cyclops
         /// <returns>DataSet containing all tables in the database</returns>
         public override DataSet GetDatabase()
         {
-            DataSet ds = new DataSet(
+            var ds = new DataSet(
                 Path.GetFileNameWithoutExtension(DatabaseFileName));
 
-            List<string> l_Tables = GetListOfTablesInDatabase();
+            var l_Tables = GetListOfTablesInDatabase();
 
-            foreach (string s in l_Tables)
+            foreach (var s in l_Tables)
             {
                 ds.Tables.Add(GetTable(s));
             }
@@ -506,11 +498,11 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return null; 
 
-            List<string> l_Tables = new List<string>();
+            var l_Tables = new List<string>();
 
             try
             {
-                DataTable dt_Info = GetDatabaseInformation();
+                var dt_Info = GetDatabaseInformation();
 
                 foreach (DataRow dr in dt_Info.Rows)
                 {
@@ -538,14 +530,14 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return false; 
 
-            bool b_Successful = true;
+            var b_Successful = true;
 
             try
             {
                 if (string.IsNullOrEmpty(IndexName))
                     IndexName = "idx_" + Table + "_" + Column;
 
-                string s_Command = string.Format(
+                var s_Command = string.Format(
                     "CREATE INDEX {0} ON {1}({2});",
                     IndexName,
                     Table,
@@ -558,10 +550,10 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
+                using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
-                    SQLiteCommand cmd = conn.CreateCommand();
+                    var cmd = conn.CreateCommand();
                     cmd.CommandText = s_Command;
 
                     cmd = conn.CreateCommand();
@@ -587,7 +579,6 @@ namespace Cyclops
         /// <summary>
         /// Selects a table from a given query
         /// </summary>
-        /// <param name="TableName">Name to give to the output table</param>
         /// <param name="Command">SQLite query to generate the table that is returned</param>
         /// <returns>Table generated from the supplied SQLite query, null if query fails</returns>
         public override DataTable SelectTable(string Command)
@@ -595,7 +586,7 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return null; 
 
-            DataTable dt_Return = new DataTable();
+            var dt_Return = new DataTable();
 
             try
             {
@@ -604,15 +595,15 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-                using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
+                using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
-                    SQLiteCommand cmd = conn.CreateCommand();
+                    var cmd = conn.CreateCommand();
                     cmd.CommandText = Command;
 
                     cmd = conn.CreateCommand();
                     cmd.CommandText = Command;
-                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    var reader = cmd.ExecuteReader();
                     dt_Return.Load(reader);
                     conn.Close();
                 }
@@ -642,11 +633,11 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return false; 
 
-            bool b_Successful = true;
+            var b_Successful = true;
             
             if (TableExists(TableName))
             {
-                string s_Command = "DROP TABLE " + TableName;
+                var s_Command = "DROP TABLE " + TableName;
 
                 try
                 {
@@ -655,14 +646,13 @@ namespace Cyclops
                         DataSource = DatabaseFileName
                     };
 
-					using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
+					using (var conn = new SQLiteConnection(connStr.ToString(), true))
                     {
                         conn.Open();
-                        SQLiteCommand cmd = conn.CreateCommand();
 
-                        cmd = conn.CreateCommand();
+                        var cmd = conn.CreateCommand();
                         cmd.CommandText = s_Command;
-                        int i = cmd.ExecuteNonQuery();
+                        var i = cmd.ExecuteNonQuery();
                         Console.WriteLine("Returned: " + i);
                         conn.Close();
 
@@ -689,9 +679,9 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return null; 
 
-            DataTable dt_Return = new DataTable();
+            var dt_Return = new DataTable();
 
-            string Command = string.Format("SELECT * FROM {0};", TableName);
+            var Command = string.Format("SELECT * FROM {0};", TableName);
 
             try
             {
@@ -700,17 +690,17 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-				using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
+				using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
-                    SQLiteCommand cmd = conn.CreateCommand();
+                    var cmd = conn.CreateCommand();
                     cmd.CommandText = Command;
 
                     cmd = conn.CreateCommand();
                     cmd.CommandText = Command;
                     //SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
                     //da.Fill(dt_Return);
-                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    var reader = cmd.ExecuteReader();
                     dt_Return.Load(reader);
                     conn.Close();
                 }
@@ -740,8 +730,8 @@ namespace Cyclops
             if (string.IsNullOrEmpty(DatabaseFileName))
                 return false; 
 
-            bool b_Successful = true;
-            DataTable dt_Return = new DataTable();
+            var b_Successful = true;
+            var dt_Return = new DataTable();
 
             try
             {
@@ -750,13 +740,13 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-				using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
+				using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
-                    SQLiteCommand cmd = conn.CreateCommand();
+                    var cmd = conn.CreateCommand();
                     cmd.CommandText = Command;
 
-                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    var reader = cmd.ExecuteReader();
                     dt_Return.Load(reader);
                     conn.Close();
                 }
@@ -786,8 +776,8 @@ namespace Cyclops
             if (string.IsNullOrEmpty(DatabaseFileName))
                 return null; 
 
-            List<string> ColumnNames = new List<string>();
-            string Command = string.Format(
+            var ColumnNames = new List<string>();
+            var Command = string.Format(
                 "SELECT * FROM {0} LIMIT 1",
                 TableName);            
 
@@ -798,14 +788,14 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-				using (SQLiteConnection conn = new SQLiteConnection(connStr.ToString(), true))
+				using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
-                    SQLiteCommand cmd = conn.CreateCommand();
+                    var cmd = conn.CreateCommand();
                     cmd.CommandText = Command;
 
-                    SQLiteDataReader reader = cmd.ExecuteReader();
-                    DataTable dt = new DataTable();
+                    var reader = cmd.ExecuteReader();
+                    var dt = new DataTable();
                     dt.Load(reader);
                     conn.Close();
 

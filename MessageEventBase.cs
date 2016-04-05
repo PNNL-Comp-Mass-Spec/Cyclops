@@ -18,9 +18,6 @@
  * software.
  * -----------------------------------------------------*/
 
-using System;
-using System.Collections.Generic;
-
 namespace Cyclops
 {
     public class MessageEventBase

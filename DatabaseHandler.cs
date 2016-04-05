@@ -18,7 +18,6 @@
  * software.
  * -----------------------------------------------------*/
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -73,7 +72,6 @@ namespace Cyclops
         /// <summary>
         /// Selects a table from a given query
         /// </summary>
-        /// <param name="TableName">Name to give to the output table</param>
         /// <param name="Command">SQL query to generate the table that is returned</param>
         /// <returns>Table generated from the supplied SQL query, null if query fails</returns>
         abstract public DataTable SelectTable(string Command);

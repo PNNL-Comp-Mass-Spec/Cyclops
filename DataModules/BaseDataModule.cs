@@ -44,7 +44,7 @@ namespace Cyclops.DataModules
         protected abstract string GetDefaultValue();
         protected abstract string GetTypeName();
         protected abstract string GetTypeDescription();
-        private static Dictionary<string, Type> sTypeMap = CreateTypeMap();
+        private static readonly Dictionary<string, Type> sTypeMap = CreateTypeMap();
         
         #region Visualization Properties
         protected string BackgroundColor
@@ -104,7 +104,7 @@ namespace Cyclops.DataModules
             Writer.WriteValue(StepNumber);
             Writer.WriteEndAttribute();
 
-            foreach (KeyValuePair<string, string> kvp in Parameters)
+            foreach (var kvp in Parameters)
             {
                 Writer.WriteStartElement("Parameter");
                 Writer.WriteStartAttribute("key");
@@ -129,9 +129,9 @@ namespace Cyclops.DataModules
         {
             if (Parameters.Count > 0)
             {
-                foreach (KeyValuePair<string, string> kvp in Parameters)
+                foreach (var kvp in Parameters)
                 {
-                    DataRow dr = Table.NewRow();
+                    var dr = Table.NewRow();
 
                     dr["Step"] = StepNumber;
                     dr["Module"] = ModuleName;
@@ -144,7 +144,7 @@ namespace Cyclops.DataModules
             }
             else
             {
-                DataRow dr = Table.NewRow();
+                var dr = Table.NewRow();
 
                 dr["Step"] = StepNumber;
                 dr["Module"] = ModuleName;
@@ -159,18 +159,17 @@ namespace Cyclops.DataModules
         /// Organizes the ColumnMetadataTable so that the factors column will directly
         /// match the columns of the data table.
         /// </summary>
-        /// <param name="InstanceOfR">Instance of the R workspace</param>
         /// <param name="NameOfDataTable">The Data Table</param>
         /// <param name="NameOfColumnMetadataTable">The Column Metadata Table</param>
         /// <param name="FactorColumn">Name of the column that contains the factor of interest</param>
         /// <returns>Name of temporary table that has the organized factors</returns>
         public string GetOrganizedFactorsVector(string NameOfDataTable,
-            string NameOfColumnMetadataTable, string FactorColumn, int? Step,
+            string NameOfColumnMetadataTable, string FactorColumn, int Step,
             string yMergeColumn, string TempTablePrefix)
         {
-            string s_TmpTable = GetTemporaryTableName(TempTablePrefix);
+            var s_TmpTable = GetTemporaryTableName(TempTablePrefix);
 
-            string s_RStatement = string.Format(
+            var s_RStatement = string.Format(
                 "{0} <- cbind('{3}'=colnames({1}))\n" +
                 "{0} <- unique(merge(x={0}, y={2}[,c('{3}', '{4}')], " +
                 "by.x='{3}', " +
@@ -198,7 +197,7 @@ namespace Cyclops.DataModules
 
         public static BaseDataModule Create(string TypeName)
         {
-            Type derivedType = null;
+            Type derivedType;
             if (sTypeMap.TryGetValue(TypeName, out derivedType))
             {
                 return System.Activator.CreateInstance(derivedType) 
@@ -227,15 +226,15 @@ namespace Cyclops.DataModules
 
         public static Dictionary<string, Type> CreateTypeMap()
         {
-            Dictionary<string, Type> typeMap =
+            var typeMap =
                 new Dictionary<string, Type>(
                     StringComparer.OrdinalIgnoreCase);
 
-            Assembly currAssembly = Assembly.GetExecutingAssembly();
+            var currAssembly = Assembly.GetExecutingAssembly();
 
-            Type baseType = typeof(BaseDataModule);
+            var baseType = typeof(BaseDataModule);
 
-            foreach (Type type in currAssembly.GetTypes())
+            foreach (var type in currAssembly.GetTypes())
             {
                 if (!type.IsClass || type.IsAbstract ||
                     !type.IsSubclassOf(baseType))
@@ -243,7 +242,7 @@ namespace Cyclops.DataModules
                     continue;
                 }
 
-                BaseDataModule derivedObject =
+                var derivedObject =
                     System.Activator.CreateInstance(type) as BaseDataModule;
 
                 if (derivedObject != null)
@@ -264,13 +263,13 @@ namespace Cyclops.DataModules
         /// <returns>List of module names</returns>
         public static List<string> GetModuleNames()
         {
-            List<string> Names = new List<string>();
+            var Names = new List<string>();
 
-            Assembly currAssembly = Assembly.GetExecutingAssembly();
+            var currAssembly = Assembly.GetExecutingAssembly();
 
-            Type baseType = typeof(BaseDataModule);
+            var baseType = typeof(BaseDataModule);
 
-            foreach (Type type in currAssembly.GetTypes())
+            foreach (var type in currAssembly.GetTypes())
             {
                 if (!type.IsClass || type.IsAbstract ||
                     !type.IsSubclassOf(baseType))
@@ -278,7 +277,7 @@ namespace Cyclops.DataModules
                     continue;
                 }
 
-                BaseDataModule derivedObject =
+                var derivedObject =
                     System.Activator.CreateInstance(type) as BaseDataModule;
 
                 if (derivedObject != null)
@@ -292,7 +291,7 @@ namespace Cyclops.DataModules
 
         public void CheckForPlotsDirectory()
         {
-            string s_Dir = Path.Combine(Model.WorkDirectory, "Plots");
+            var s_Dir = Path.Combine(Model.WorkDirectory, "Plots");
             if (!Directory.Exists(s_Dir))
                 Directory.CreateDirectory(s_Dir);
         }
@@ -314,7 +313,7 @@ namespace Cyclops.DataModules
             {
                 Model.LogMessage("Saving current work environment...",
                     ModuleName, StepNumber);
-                string s_SaveFileName = Path.Combine(Model.WorkDirectory, "Results.RData").Replace("\\", "/");
+                var s_SaveFileName = Path.Combine(Model.WorkDirectory, "Results.RData").Replace("\\", "/");
                 Model.RCalls.Run(string.Format("save.image('{0}')\n",
                     s_SaveFileName), ModuleName, StepNumber);
             }
