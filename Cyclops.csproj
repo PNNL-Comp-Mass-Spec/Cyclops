@@ -39,10 +39,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Library\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Library\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\NUnit 2.6.2\bin\framework\nunit.framework.dll</HintPath>
@@ -103,7 +99,6 @@
     <Compile Include="DataModules\HtmlSummary.cs" />
     <Compile Include="DataModules\Save.cs" />
     <Compile Include="DataModules\Sco_Html_Summary.cs" />
-    <Compile Include="LogTools.cs" />
     <Compile Include="CyclopsModel.cs" />
     <Compile Include="DataModules\BaseDataModule.cs" />
     <Compile Include="GenericRCalls.cs" />
@@ -125,9 +120,6 @@
     <Compile Include="ZipCompression.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Logging.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -138,7 +130,12 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)\Library\x86\SQLite.Interop.dll" "$(TargetDir)" /D /y</PostBuildEvent>
+    <PostBuildEvent>if exist "$(TargetDir)SQLite.Interop.dll" (del "$(TargetDir)SQLite.Interop.dll")
+if not exist "$(TargetDir)x86" mkdir "$(TargetDir)x86"
+if not exist "$(TargetDir)x64" mkdir "$(TargetDir)x64"
+xcopy "$(ProjectDir)Library\x86\*" "$(TargetDir)x86\" /D /Y
+xcopy "$(ProjectDir)Library\x64\*" "$(TargetDir)x64\" /D /Y
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

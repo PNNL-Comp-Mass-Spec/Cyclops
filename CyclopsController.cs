@@ -20,7 +20,6 @@
 
 using System;
 using System.Collections.Generic;
-using log4net;
 
 namespace Cyclops
 {
@@ -30,11 +29,8 @@ namespace Cyclops
     public class CyclopsController
     {
         #region Members
-        private readonly ILog traceLog = LogManager.GetLogger("TraceLog");
-        private Dictionary<string, string> m_Parameters =
-            new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase);
-        private CyclopsModel m_Cyclops;
+
+        private Dictionary<string, string> m_Parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         #endregion
 
         #region Properties
@@ -95,53 +91,58 @@ namespace Cyclops
         /// <returns>True, if Cyclops completes successfully</returns>
         public bool Run()
         {
-            m_Cyclops = new CyclopsModel(Parameters)
+            var cyclops = new CyclopsModel(Parameters)
             {
                 OperationsDatabasePath = OperationsDatabasePath
             };
-            AttachEvents(m_Cyclops);
+
+            cyclops.ErrorEvent += CyclopsEngineErrorEvent;
+            cyclops.WarningEvent += CyclopsEngineWarningEvent;
+            cyclops.MessageEvent += CyclopsEngineMessageEvent;
+
             if (string.IsNullOrEmpty(WorkingDirectory) &&
                 Parameters.ContainsKey("workDir"))
                 WorkingDirectory = Parameters["workDir"];
-            //CreateLogFile();
-
-            var b_Successful = m_Cyclops.ModuleLoader.ReadWorkflow();
+            
+            var b_Successful = cyclops.ModuleLoader.ReadWorkflow();
 			if (!b_Successful)
 				return false;
 
-            return m_Cyclops.Run();
+            var success = cyclops.Run();
+            return success;
         }
+  
+        #endregion
 
-        /// <summary>
-        /// Attaches the Error, Warning, and Message events to the local event handler
-        /// </summary>
-        /// <param name="Model"></param>
-        private void AttachEvents(CyclopsModel Model)
-        {
-            Model.ErrorEvent += CyclopsEngineErrorEvent;
-            Model.WarningEvent += CyclopsEngineWarningEvent;
-            Model.MessageEvent += CyclopsEngineMessageEvent;
-        }
+        #region "Event Delegates and Classes"
+
+        public event MessageEventHandler ErrorEvent;
+        public event MessageEventHandler WarningEvent;
+        public event MessageEventHandler MessageEvent;
+
+        public delegate void MessageEventHandler(object sender, MessageEventArgs e);
         #endregion
 
         #region EventHandlers
+
         private void CyclopsEngineErrorEvent(object sender, MessageEventArgs e)
         {
-            traceLog.Error("Step: " + e.Step + "\n" +
-                e.Message + "\nModule: " + e.Module);
+            if (ErrorEvent != null)
+                ErrorEvent(this, e);
         }
 
         private void CyclopsEngineWarningEvent(object sender, MessageEventArgs e)
         {
-            traceLog.Warn("Step: " + e.Step + "\n" +
-                e.Message + "\nModule: " + e.Module);
+            if (WarningEvent != null)
+                WarningEvent(this, e);
         }
 
         private void CyclopsEngineMessageEvent(object sender, MessageEventArgs e)
         {            
-            traceLog.Info("Step: " + e.Step + "\n" +
-                e.Message + "\nModule: " + e.Module);       
+              if (MessageEvent != null)
+                MessageEvent(this, e);
         }
+
         #endregion
     }
 }

@@ -20,7 +20,6 @@
 
 using System;
 using System.Collections.Generic;
-using log4net;
 
 
 namespace Cyclops
@@ -228,28 +227,7 @@ namespace Cyclops
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Main Logging method in Cyclops
-        /// </summary>
-        /// <param name="level"></param>
-        /// <param name="Message"></param>
-        public static void TraceLogWrite(LogTools.LogLevels level, string Message)
-        {
-            var traceLog = LogManager.GetLogger("TraceLog");
-            switch (level)
-            {
-                case LogTools.LogLevels.INFO:
-                    traceLog.Info(Message);
-                    break;
-                case LogTools.LogLevels.WARN:
-                    traceLog.Warn(Message);
-                    break;
-                case LogTools.LogLevels.ERROR:
-                    traceLog.Error(Message);
-                    break;
-            }
-        }
-
+       
         /// <summary>
         /// Main method to run the Cyclops Workflow
         /// </summary>

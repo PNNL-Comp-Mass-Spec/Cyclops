@@ -44,6 +44,10 @@ namespace CyclopsTest
                 Console.WriteLine("Initializing the CyclopsController");
                 var cyclops = new CyclopsController(d_Params);
 
+                cyclops.ErrorEvent += cyclops_ErrorEvent;
+                cyclops.WarningEvent += cyclops_WarningEvent;
+                cyclops.MessageEvent += cyclops_MessageEvent;
+
                 Console.WriteLine("Running the workflow against the Results.db3 file in " + workingDirectory.FullName);
                 var success = cyclops.Run();
 
@@ -56,5 +60,21 @@ namespace CyclopsTest
             }
 
         }
+
+        static void cyclops_ErrorEvent(object sender, MessageEventArgs e)
+        {
+            Console.WriteLine("Error: " + e.Message + " (step " + e.Step + ", module " + e.Module + ")");
+        }
+
+        static void cyclops_WarningEvent(object sender, MessageEventArgs e)
+        {
+            Console.WriteLine("Warning: " + e.Message + " (step " + e.Step + ", module " + e.Module + ")");
+        }
+
+        static void cyclops_MessageEvent(object sender, MessageEventArgs e)
+        {
+            Console.WriteLine(e.Message + " (step " + e.Step + ", module " + e.Module + ")");
+        }
+
     }
 }

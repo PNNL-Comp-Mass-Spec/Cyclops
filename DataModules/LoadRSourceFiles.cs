@@ -42,7 +42,7 @@ namespace Cyclops.DataModules
         {
         }
 
-        private string[] m_PackagesToLoad = new string[] 
+        private readonly string[] m_PackagesToLoad = new string[] 
         {
             "Cairo"
             , "gplots"
@@ -103,7 +103,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
             
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -134,9 +134,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            var d_Parameters = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 d_Parameters.Add(s, "");
             }
@@ -151,9 +151,9 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
@@ -193,11 +193,11 @@ namespace Cyclops.DataModules
         /// <returns>True, if R source files are loaded successfully</returns>
         public bool Run_LoadRSourceFiles()
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             try
             {
-                string s_WorkDir = "";
+                var s_WorkDir = "";
                 if (!Parameters.ContainsKey("source"))
                 {
                     s_WorkDir = Path.Combine(
@@ -211,7 +211,7 @@ namespace Cyclops.DataModules
                     "{0} R scripts into workspace...",
                     Directory.GetFiles(s_WorkDir, "*.R").Length));
 
-                foreach (string s in Directory.GetFiles(s_WorkDir))
+                foreach (var s in Directory.GetFiles(s_WorkDir))
                 {
                     if (Path.GetExtension(s).ToUpper().Equals(".R"))
                     {
@@ -220,7 +220,7 @@ namespace Cyclops.DataModules
 
                         if (b_Successful)
                         {
-                            string Command = string.Format(
+                            var Command = string.Format(
                                 "source('{0}')\n",
                                 s.Replace("\\", "/"));
                             b_Successful = Model.RCalls.Run(Command,
@@ -257,16 +257,16 @@ namespace Cyclops.DataModules
         /// <returns>True, if the file is cleaned successfully</returns>
         private bool CleanRSourceFile(string FileName)
         {
-            bool b_Successful = true;
+            var b_Successful = true;
 
             try
             {
-                StreamReader sr = new StreamReader(FileName);
-                string s_Content = sr.ReadToEnd();
+                var sr = new StreamReader(FileName);
+                var s_Content = sr.ReadToEnd();
                 sr.Close();
                 //s_Content = s_Content.Remove(0, 2);
                 s_Content.Replace("ï»¿", "");
-                StreamWriter sw = new StreamWriter(FileName);
+                var sw = new StreamWriter(FileName);
                 sw.Write(s_Content);
                 sw.Close();
             }
@@ -286,9 +286,7 @@ namespace Cyclops.DataModules
 
         public bool CheckThatRequiredPackagesAreInstalled()
         {
-            bool b_Successful = true;
-
-            foreach (string s in m_PackagesToLoad)
+            foreach (var s in m_PackagesToLoad)
             {
                 if (!Model.RCalls.IsPackageInstalled(s))
                 {
@@ -305,7 +303,7 @@ namespace Cyclops.DataModules
                 }
             }
 
-            return b_Successful;
+            return true;
         }
 
         /// <summary>
@@ -314,8 +312,8 @@ namespace Cyclops.DataModules
         /// <returns>True, if packages are loaded successfully</returns>
         private bool LoadLibraries()
         {
-            string Command = "";
-            foreach (string s in m_PackagesToLoad)
+            var Command = "";
+            foreach (var s in m_PackagesToLoad)
             {
                 Command += string.Format("require({0})\n",
                     s);
