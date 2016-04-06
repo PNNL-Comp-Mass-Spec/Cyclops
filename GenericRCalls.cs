@@ -41,11 +41,12 @@ namespace Cyclops
     /// <summary>
     /// Generic class for making generic calls to the R workspace.
     /// </summary>
+    /// 
     public class GenericRCalls
     {
         #region Members
         private REngine engine;
-        private string m_RPackageLocation = "http://cran.cs.wwu.edu/";
+        private string m_RPackageLocation = "http://cran.fhcrc.org/";
         #endregion
 
         #region Properties
