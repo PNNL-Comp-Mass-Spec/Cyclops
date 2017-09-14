@@ -4,26 +4,22 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Cyclops.DataModules
 {
@@ -31,12 +27,7 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "ANOVA",
-            m_Description = "",
-            m_RandomEffect = "Null",
-            m_Interaction = "False",
-            m_Unbalanced = "True",
-            m_Threshold = "3",
-            m_UseREML = "True";
+            m_Description = "";
         private bool m_RemoveFirstColumn = false;
         /// <summary>
         /// Required parameters to run ANOVA Module
@@ -57,41 +48,22 @@ namespace Cyclops.DataModules
         /// </summary>
         private enum AnovaParameters
         {
-            Random_Effect, RowMetaDataTable, Interaction, 
+            Random_Effect, RowMetaDataTable, Interaction,
             Unbalanced, Threshold, UseREML
         }
         #endregion
 
         #region Properties
-        public string RandomEffect
-        {
-            get { return m_RandomEffect; }
-            set { m_RandomEffect = value; }
-        }
+        public string RandomEffect { get; set; } = "Null";
 
-        public string Interaction
-        {
-            get { return m_Interaction; }
-            set { m_Interaction = value; }
-        }
+        public string Interaction { get; set; } = "False";
 
-        public string Unbalanced
-        {
-            get { return m_Unbalanced; }
-            set { m_Unbalanced = value; }
-        }
+        public string Unbalanced { get; set; } = "True";
 
-        public string Threshold
-        {
-            get { return m_Threshold; }
-            set { m_Threshold = value; }
-        }
+        public string Threshold { get; set; } = "3";
 
-        public string UseREML
-        {
-            get { return m_UseREML; }
-            set { m_UseREML = value; }
-        }
+        public string UseREML { get; set; } = "True";
+
         #endregion
 
         #region Constructors
@@ -153,7 +125,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -218,7 +190,7 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Random_Effect.ToString()]))
-                    m_RandomEffect = Parameters[
+                    RandomEffect = Parameters[
                         AnovaParameters.Random_Effect.ToString()];
             }
             /// Get Interaction parameter
@@ -227,7 +199,7 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Interaction.ToString()]))
-                    m_Interaction = Parameters[AnovaParameters.Interaction.ToString()];
+                    Interaction = Parameters[AnovaParameters.Interaction.ToString()];
             }
             /// Get Threshold parameter
             if (Parameters.ContainsKey(
@@ -235,7 +207,7 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Threshold.ToString()]))
-                    m_Threshold = Parameters[AnovaParameters.Threshold.ToString()];
+                    Threshold = Parameters[AnovaParameters.Threshold.ToString()];
             }
             /// Get Unbalanced parameter
             if (Parameters.ContainsKey(
@@ -243,7 +215,7 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Unbalanced.ToString()]))
-                    m_Unbalanced = Parameters[AnovaParameters.Unbalanced.ToString()];
+                    Unbalanced = Parameters[AnovaParameters.Unbalanced.ToString()];
             }
 
             /// Get REML parameter
@@ -252,7 +224,7 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.UseREML.ToString()]))
-                    m_UseREML = Parameters[AnovaParameters.UseREML.ToString()];
+                    UseREML = Parameters[AnovaParameters.UseREML.ToString()];
             }
 
             return b_Successful;
@@ -315,7 +287,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

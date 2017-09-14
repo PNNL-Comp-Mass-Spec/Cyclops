@@ -4,26 +4,23 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Cyclops.DataModules
 {
@@ -32,8 +29,7 @@ namespace Cyclops.DataModules
         #region Members
         private string m_ModuleName = "Histogram",
             m_Description = "",
-            m_BarColor = "cornflowerblue",
-            m_Main = "", m_XLabel = "", m_YLabel = "";
+                       m_Main = "", m_XLabel = "", m_YLabel = "";
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
@@ -42,21 +38,12 @@ namespace Cyclops.DataModules
             TableName, PlotFileName, DataColumns
         }
 
-        private string m_HistogramType = "standard";
         #endregion
 
         #region Properties
-        public string HistogramType
-        {
-            get { return m_HistogramType; }
-            set { m_HistogramType = value; }
-        }
+        public string HistogramType { get; set; } = "standard";
 
-        public string BarColor
-        {
-            get { return m_BarColor; }
-            set { m_BarColor = value; }
-        }
+        public string BarColor { get; set; } = "cornflowerblue";
 
         public string PlotFileName { get; set; }
         #endregion
@@ -117,7 +104,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -152,7 +139,7 @@ namespace Cyclops.DataModules
                     return b_Successful;
                 }
             }
-            
+
             if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.TableName.ToString()]))
             {
@@ -199,7 +186,7 @@ namespace Cyclops.DataModules
                     Directory.CreateDirectory(s_PlotDirectory);
                 PlotFileName = Path.Combine(s_PlotDirectory,
                     Parameters[RequiredParameters.PlotFileName.ToString()]).Replace("\\", "/");
-            }            
+            }
 
             return b_Successful;
         }
@@ -258,7 +245,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

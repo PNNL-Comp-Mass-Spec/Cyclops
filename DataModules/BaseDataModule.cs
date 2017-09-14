@@ -4,16 +4,16 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
@@ -32,10 +32,7 @@ namespace Cyclops.DataModules
         #region Members
 
         #region Visualization Members
-        private string m_BackgroundColor = "white";
 
-        private int m_Height = 1200, m_Width = 1200,
-            m_Resolution = 600, m_FontSize = 12;
         #endregion
         #endregion
 
@@ -45,37 +42,18 @@ namespace Cyclops.DataModules
         protected abstract string GetTypeName();
         protected abstract string GetTypeDescription();
         private static readonly Dictionary<string, Type> sTypeMap = CreateTypeMap();
-        
+
         #region Visualization Properties
-        protected string BackgroundColor
-        {
-            get { return m_BackgroundColor; }
-            set { m_BackgroundColor = value; }
-        }
 
-        protected int Height
-        {
-            get { return m_Height; }
-            set { m_Height = value; }
-        }
+        protected string BackgroundColor { get; set; } = "white";
 
-        protected int Width
-        {
-            get { return m_Width; }
-            set { m_Width = value; }
-        }
+        protected int Height { get; set; } = 1200;
 
-        public int FontSize
-        {
-            get { return m_FontSize; }
-            set { m_FontSize = value; }
-        }
+        protected int Width { get; set; } = 1200;
 
-        public int Resolution
-        {
-            get { return m_Resolution; }
-            set { m_Resolution = value; }
-        }
+        public int FontSize { get; set; } = 12;
+
+        public int Resolution { get; set; } = 600;
 
         public string Main { get; set; }
 
@@ -151,7 +129,7 @@ namespace Cyclops.DataModules
                 dr["ModuleType"] = 1;
                 Table.Rows.Add(dr);
             }
-            
+
             return Table;
         }
 
@@ -164,7 +142,7 @@ namespace Cyclops.DataModules
         /// <param name="FactorColumn">Name of the column that contains the factor of interest</param>
         /// <returns>Name of temporary table that has the organized factors</returns>
         public string GetOrganizedFactorsVector(string NameOfDataTable,
-            string NameOfColumnMetadataTable, string FactorColumn, int Step,
+            string NameOfColumnMetadataTable, string FactorColumn, int step,
             string yMergeColumn, string TempTablePrefix)
         {
             var s_TmpTable = GetTemporaryTableName(TempTablePrefix);
@@ -180,9 +158,9 @@ namespace Cyclops.DataModules
                 yMergeColumn,
                 FactorColumn);
 
-            Model.RCalls.Run(s_RStatement, 
+            Model.RCalls.Run(s_RStatement,
                 "Organizing Factors Vector",
-                Step);
+                step);
 
             return s_TmpTable;
         }
@@ -190,7 +168,7 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Writes out module's name to console
         /// </summary>
-		public override void PrintModule()
+        public override void PrintModule()
         {
             Console.WriteLine(ModuleName);
         }
@@ -200,7 +178,7 @@ namespace Cyclops.DataModules
             Type derivedType;
             if (sTypeMap.TryGetValue(TypeName, out derivedType))
             {
-                return System.Activator.CreateInstance(derivedType) 
+                return System.Activator.CreateInstance(derivedType)
                     as BaseDataModule;
             }
             return null;
@@ -212,13 +190,13 @@ namespace Cyclops.DataModules
         /// <param name="TypeName">Name of the module type</param>
         /// <param name="TheModel">CyclopsModel</param>
         /// <returns>A Data Module</returns>
-        public static BaseDataModule Create(string TypeName, 
+        public static BaseDataModule Create(string TypeName,
             CyclopsModel TheModel, Dictionary<string, string> TheParameters)
         {
             Type derivedType = null;
             if (sTypeMap.TryGetValue(TypeName, out derivedType))
             {
-                return System.Activator.CreateInstance(derivedType, 
+                return System.Activator.CreateInstance(derivedType,
                     TheModel, TheParameters) as BaseDataModule;
             }
             return null;
@@ -285,7 +263,7 @@ namespace Cyclops.DataModules
                     Names.Add(derivedObject.GetTypeName());
                 }
             }
-            
+
             return Names;
         }
 
@@ -297,7 +275,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Saves the current work environment, important for 
+        /// Saves the current work environment, important for
         /// debugging instances when Cyclops fails.
         /// </summary>
         public void SaveCurrentREnvironment()

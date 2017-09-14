@@ -4,26 +4,23 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Cyclops.DataModules
 {
@@ -31,8 +28,7 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "CorrelationHeatmap",
-            m_Description = "",
-            m_Horizontal = "TRUE";
+            m_Description = "";
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
@@ -42,21 +38,12 @@ namespace Cyclops.DataModules
             SkipTheFirstColumn
         }
 
-        private int m_PointSize = 12;
         #endregion
 
         #region Properties
-        public string Horizontal
-        {
-            get { return m_Horizontal; }
-            set { m_Horizontal = value; }
-        }
+        public string Horizontal { get; set; } = "TRUE";
 
-        public int PointSize
-        {
-            get { return m_PointSize; }
-            set { m_PointSize = value; }
-        }
+        public int PointSize { get; set; } = 12;
 
         public string PlotFileName { get; set; }
         #endregion
@@ -125,7 +112,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -203,7 +190,7 @@ namespace Cyclops.DataModules
             bool b_Successful = true;
 
             string Command = "require(grDevices)\nrequire(gplots)\n";
-                        
+
             switch (Parameters[RequiredParameters.Image.ToString()].ToLower())
             {
                 case "esp":
@@ -235,7 +222,7 @@ namespace Cyclops.DataModules
             Command += GetHeatmapStatement();
 
             Command += "dev.off()\n";
-            
+
             try
             {
                 b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
@@ -249,7 +236,7 @@ namespace Cyclops.DataModules
             }
 
             return b_Successful;
-        }        
+        }
 
         /// <summary>
         /// Runs the Correlation analysis
@@ -324,7 +311,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

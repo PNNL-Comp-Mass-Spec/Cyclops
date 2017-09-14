@@ -4,26 +4,22 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Cyclops.DataModules
 {
@@ -31,8 +27,7 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "CleanDataAndColumnFactors",
-            m_Description = "",
-            m_MergeColumnName = "Alias";
+            m_Description = "";
         /// <summary>
         /// Required parameters to run CleanDataAndColumnFactors Module
         /// </summary>
@@ -48,11 +43,8 @@ namespace Cyclops.DataModules
         /// to the column names in the Data Table.
         /// Defaults to 'Alias'
         /// </summary>
-        public string MergeColumn
-        {
-            get { return m_MergeColumnName; }
-            set { m_MergeColumnName = value; }
-        }
+        public string MergeColumn { get; set; } = "Alias";
+
         #endregion
 
         #region Constructors
@@ -114,7 +106,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -187,7 +179,7 @@ namespace Cyclops.DataModules
 
                 if (b_Successful &&
                     Parameters.ContainsKey("MergeColumn"))
-                    m_MergeColumnName = Parameters["MergeColumn"];
+                    MergeColumn = Parameters["MergeColumn"];
             }
 
             return b_Successful;
@@ -213,7 +205,7 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("Error occurred while running: " +
                     "'GetOrganizedFactorsVector'!",
-                    ModuleName, StepNumber);                    
+                    ModuleName, StepNumber);
                 return false;
             }
 
@@ -235,7 +227,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>
@@ -257,7 +249,7 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Checks to see if the number of datasets in the DataTable
         /// are the same number as in the T_Column_Metadata table. If
-        /// they are the same, it checks that the dataset names are 
+        /// they are the same, it checks that the dataset names are
         /// represented in the T_Column_Metadata table.
         /// </summary>
         /// <param name="DataTableName">Name of the table containing the main data</param>
@@ -279,7 +271,7 @@ namespace Cyclops.DataModules
             if (td_Data.Columns != td_ColumnMetadata.Rows)
             {
                 b_Successful = ModifyFactorAndDataTables(
-                    DataTableName, ColumnMetadataTableName, 
+                    DataTableName, ColumnMetadataTableName,
                     ColumnMetadataFactor);
             }
             else
@@ -309,7 +301,7 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Removes rows in the Column Metadata table that are not in the data table, and
         /// removes columns in the data table that do not have factor information.
-        /// </summary>        
+        /// </summary>
         /// <param name="DataTableName">Name of the table containing the main data</param>
         /// <param name="ColumnMetadataTableName">Name of the Column Metadata table</param>
         /// <param name="ColumnMetadataFactor">Column in the Column Metadata table that maps to the datasets</param>

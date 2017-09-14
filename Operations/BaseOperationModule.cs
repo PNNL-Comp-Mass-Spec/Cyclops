@@ -4,24 +4,22 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
 using System.Reflection;
 
 namespace Cyclops.Operations
@@ -29,7 +27,7 @@ namespace Cyclops.Operations
     public abstract class BaseOperationModule : BaseModule
     {
         #region Members
-        private string m_OperationsDBPath = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3";
+
         #endregion
 
         #region Properties
@@ -42,11 +40,8 @@ namespace Cyclops.Operations
         /// Path to SQLite database that contains the table to
         /// run a Cyclops Workflow
         /// </summary>
-        public string OperationsDatabasePath
-        {
-            get { return m_OperationsDBPath; }
-            set { m_OperationsDBPath = value; }
-        }
+        public string OperationsDatabasePath { get; set; } = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3";
+
         #endregion
 
         #region Methods
@@ -56,13 +51,13 @@ namespace Cyclops.Operations
         /// <param name="TypeName">Name of the module type</param>
         /// <param name="TheModel">CyclopsModel</param>
         /// <returns>An Operation Module</returns>
-        public static BaseOperationModule Create(string TypeName, 
+        public static BaseOperationModule Create(string TypeName,
             CyclopsModel TheModel, Dictionary<string, string> TheParameters)
         {
             Type derivedType = null;
             if (sTypeMap.TryGetValue(TypeName, out derivedType))
             {
-                return System.Activator.CreateInstance(derivedType, 
+                return System.Activator.CreateInstance(derivedType,
                     TheModel, TheParameters) as BaseOperationModule;
             }
             return null;

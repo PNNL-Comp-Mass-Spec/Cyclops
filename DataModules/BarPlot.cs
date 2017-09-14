@@ -4,26 +4,23 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Cyclops.DataModules
 {
@@ -31,24 +28,18 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "BarPlot",
-            m_Description = "",
-            m_BarColor = "cornflowerblue";
+            m_Description = "";
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
-        { TableName, PlotFileName, DataColumns, 
+        { TableName, PlotFileName, DataColumns,
         }
 
-        private double? m_LogBase = null;
         #endregion
 
         #region Properties
-        public string BarColor
-        {
-            get { return m_BarColor; }
-            set { m_BarColor = value; }
-        }
+        public string BarColor { get; set; } = "cornflowerblue";
 
         public string Log
         {
@@ -58,14 +49,10 @@ namespace Cyclops.DataModules
                     return "FALSE";
                 else
                     return "TRUE";
-            }   
+            }
         }
 
-        public double? LogBase
-        {
-            get { return m_LogBase; }
-            set { m_LogBase = value; }
-        }
+        public double? LogBase { get; set; } = null;
 
         public string Names { get; set; }
 
@@ -128,7 +115,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -304,7 +291,7 @@ namespace Cyclops.DataModules
 
             return b_Successful;
         }
-        
+
         /// <summary>
         /// Retrieves the Default Value
         /// </summary>
@@ -315,7 +302,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

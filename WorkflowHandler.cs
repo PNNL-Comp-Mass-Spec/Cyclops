@@ -37,37 +37,33 @@ namespace Cyclops
     public class WorkflowHandler : INotifyPropertyChanged
     {
         #region Members
-        private LinkedList<DataModules.BaseDataModule> m_Modules =
-            new LinkedList<DataModules.BaseDataModule>();         
-        private SQLiteHandler sql = new SQLiteHandler();
-        private bool m_WorkflowContainsOperations;
 
-	    private string m_SQLiteWorkflowTableName = "T_Workflow";
+        private bool m_WorkflowContainsOperations;
 
         private struct strModuleInfo
         {
             public string ModuleName { get; set; }
         }
 
-        private DataTable m_ModulesTable = new DataTable("T_Modules");       
+        private DataTable m_ModulesTable = new DataTable("T_Modules");
 
-        // Declare the event 
+        // Declare the event
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
 
         #region Properties
 
-	    /// <summary>
-	    /// Type of workflow to read in
-	    /// </summary>
-	    public WorkflowType InputWorkflowType { get; set; }
+        /// <summary>
+        /// Type of workflow to read in
+        /// </summary>
+        public WorkflowType InputWorkflowType { get; set; }
 
-	    /// <summary>
-	    /// Type of workflow to write out
-	    /// </summary>
-	    public WorkflowType OutputWorkflowType { get; set; }
+        /// <summary>
+        /// Type of workflow to write out
+        /// </summary>
+        public WorkflowType OutputWorkflowType { get; set; }
 
-	    /// <summary>
+        /// <summary>
         /// Instance of the CyclopsModel controller
         /// </summary>
         public CyclopsModel Model { get; set; }
@@ -79,44 +75,29 @@ namespace Cyclops
         /// File name for the output workflow
         /// </summary>
         public string OutputWorkflowFileName { get; set; }
-        
+
         /// <summary>
         /// The number of modules in the workflow
         /// </summary>
-        public int Count
-        {
-            get { return Modules.Count; }
-        }
+        public int Count => Modules.Count;
 
         /// <summary>
         /// Name of the table in the database to run
         /// </summary>
-        public string WorkflowTableName
-        {
-            get { return m_SQLiteWorkflowTableName; }
-            set { m_SQLiteWorkflowTableName = value; }
-        }
+        public string WorkflowTableName { get; set; } = "T_Workflow";
 
         /// <summary>
         /// SQLite database handled by Cyclops
         /// </summary>
-        public SQLiteHandler SQLiteDatabase
-        {
-            get { return sql; }
-            set { sql = value; }
-        }
+        public SQLiteHandler SQLiteDatabase { get; set; } = new SQLiteHandler();
 
-        public LinkedList<DataModules.BaseDataModule> Modules
-        {
-            get { return m_Modules; }
-            set { m_Modules = value; }
-        }
+        public LinkedList<DataModules.BaseDataModule> Modules { get; set; } = new LinkedList<DataModules.BaseDataModule>();
 
         public DataTable WorkflowTable
         {
-            get { return m_ModulesTable; }
-            set 
-            { 
+            get => m_ModulesTable;
+            set
+            {
                 m_ModulesTable = value;
                 OnPropertyChanged("WorkflowTable");
             }

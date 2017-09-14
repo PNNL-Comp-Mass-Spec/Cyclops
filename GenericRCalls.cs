@@ -46,7 +46,7 @@ namespace Cyclops
     {
         #region Members
         private REngine engine;
-        private string m_RPackageLocation = "http://cran.fhcrc.org/";
+
         #endregion
 
         #region Properties
@@ -67,11 +67,8 @@ namespace Cyclops
         /// <summary>
         /// Website to download R packages for installation
         /// </summary>
-        public string RPackageLocation
-        {
-            get { return m_RPackageLocation; }
-            set { m_RPackageLocation = value; }
-        }
+        public string RPackageLocation { get; set; } = "http://cran.fhcrc.org/";
+
         #endregion
 
         #region Constructors

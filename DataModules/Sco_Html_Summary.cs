@@ -4,16 +4,16 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
@@ -22,7 +22,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Cyclops.DataModules
@@ -43,18 +42,14 @@ namespace Cyclops.DataModules
         private string m_ModuleName = "Sco_HTML_Summary",
             m_Description = "",
             m_DatabaseFileName = "Results.db3";
-        private Dictionary<string, string>
-            d_FileNameVault = new Dictionary<string, string>();
+
         private bool m_DatabaseFound = false;
         private SQLiteHandler sql = new SQLiteHandler();
         #endregion
 
         #region Properties
-        public Dictionary<string, string> FileNameVault
-        {
-            get { return d_FileNameVault; }
-            set { d_FileNameVault = value; }
-        }
+        public Dictionary<string, string> FileNameVault { get; set; } = new Dictionary<string, string>();
+
         #endregion
 
         #region Constructors
@@ -118,7 +113,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -207,7 +202,7 @@ namespace Cyclops.DataModules
         public bool Sco_Html_SummaryFunction()
         {
             bool b_Successful = true;
-            
+
             WriteCssFile();
 
             #region Datasets Page
@@ -223,7 +218,7 @@ namespace Cyclops.DataModules
                 return false;
             }
             #endregion
-            
+
             #region QC Page
             try
             {
@@ -392,11 +387,11 @@ namespace Cyclops.DataModules
             // Construct and write-out the QC Page
             StringBuilder sb_QC = new StringBuilder();
 
-            NavBar.Add(new HtmlLinkNode("Summary", "sum", true));            
+            NavBar.Add(new HtmlLinkNode("Summary", "sum", true));
             NavBar.Add(new HtmlLinkNode("Missed Cleavages", "mc", true));
             NavBar.Add(new HtmlLinkNode("Tryptic Peptides", "tp", true));
             NavBar.Add(new HtmlLinkNode("Hexbin", "hb", true));
-            
+
             sb_QC.Append(HtmlFileHandler.GetHtmlHeader());
             sb_QC.Append(HtmlFileHandler.GetHtmlJavascriptStart());
             sb_QC.Append(WriteHtmlScripts());
@@ -659,7 +654,7 @@ namespace Cyclops.DataModules
 
             sb_HTML.Append("\t</DIV>\n");
             sb_HTML.Append(HtmlFileHandler.GetEndBodyEndHtml());
-            
+
             // TODO : Write the html out to the file
             StreamWriter sw = new StreamWriter(Path.Combine(Model.WorkDirectory,
                 FileNameVault["MainFileName"]));
@@ -693,7 +688,7 @@ namespace Cyclops.DataModules
                         Model.LogError(string.Format(
                             "ERROR in Sco_Html_Summary: " +
                             "File: {0} does not exist",
-                            Path.Combine(Model.WorkDirectory, 
+                            Path.Combine(Model.WorkDirectory,
                             Parameters["DatabaseFileName"])),
                         ModuleName, StepNumber);
                     }
@@ -937,7 +932,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

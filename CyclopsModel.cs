@@ -30,9 +30,6 @@ namespace Cyclops
     public class CyclopsModel : MessageEventBase
     {
         #region Members
-        private Dictionary<string, string> m_CyclopsParameters = new Dictionary<string, string>();
-        private bool m_SuccessRunningPipeline = true;
-        private WorkflowHandler m_WorkflowHandler;
 
         #endregion
 
@@ -40,22 +37,12 @@ namespace Cyclops
         /// <summary>
         /// The executing version of Cyclops
         /// </summary>
-        public string CyclopsVersion
-        {
-            get
-            {
-                return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            }
-        }
+        public string CyclopsVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         /// <summary>
         /// Parameters to run Cyclops
         /// </summary>
-        public Dictionary<string, string> CyclopsParameters
-        {
-            get { return m_CyclopsParameters; }
-            set { m_CyclopsParameters = value; }
-        }
+        public Dictionary<string, string> CyclopsParameters { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Current step that Cyclops is processing
@@ -70,11 +57,7 @@ namespace Cyclops
         /// <summary>
         /// Flag that indicates the pipeline is running successfully
         /// </summary>
-        public bool PipelineCurrentlySuccessful
-        {
-            get { return m_SuccessRunningPipeline; }
-            set { m_SuccessRunningPipeline = value; }
-        }
+        public bool PipelineCurrentlySuccessful { get; set; } = true;
 
         /// <summary>
         /// Instance of the object that makes all calls to R
@@ -84,11 +67,7 @@ namespace Cyclops
         /// <summary>
         /// Loader that manages the root node, module assembly and IO.
         /// </summary>
-        public WorkflowHandler ModuleLoader
-        {
-            get { return m_WorkflowHandler; }
-            set { m_WorkflowHandler = value; }
-        }
+        public WorkflowHandler ModuleLoader { get; set; }
 
         /// <summary>
         /// Primary working directory
@@ -119,20 +98,20 @@ namespace Cyclops
         public CyclopsModel()
         {
             RCalls = new GenericRCalls(this);
-            m_WorkflowHandler = new WorkflowHandler(this);
+            ModuleLoader = new WorkflowHandler(this);
             RCalls.InstantiateR();
-            ReportMessage("Running Cyclops Version: " + CyclopsVersion);            
+            OnStatusEvent("Running Cyclops Version: " + CyclopsVersion);
         }
-        
+
         /// <summary>
-        /// Primary Cyclops Constructor, instantiates the R work environment 
-        /// and sets the parameters for running Cyclops. 
+        /// Primary Cyclops Constructor, instantiates the R work environment
+        /// and sets the parameters for running Cyclops.
         /// </summary>
         /// <param name="ParametersForCyclops">Parameters to run Cyclops</param>
         public CyclopsModel(Dictionary<string, string> ParametersForCyclops)
         {
             RCalls = new GenericRCalls(this);
-            m_WorkflowHandler = new WorkflowHandler(this);
+            ModuleLoader = new WorkflowHandler(this);
             RCalls.InstantiateR();
             CyclopsParameters = ParametersForCyclops;
 
@@ -151,7 +130,7 @@ namespace Cyclops
             if (CyclopsParameters.ContainsKey("CyclopsWorkflowName"))
             {
 
-                m_WorkflowHandler.InputWorkflowFileName =
+                ModuleLoader.InputWorkflowFileName =
                     CyclopsParameters["CyclopsWorkflowName"];
             }
             else
@@ -168,7 +147,7 @@ namespace Cyclops
         public CyclopsModel(string XMLWorkflow, string WorkDirectory)
         {
             RCalls = new GenericRCalls(this);
-            m_WorkflowHandler = new WorkflowHandler(this)
+            ModuleLoader = new WorkflowHandler(this)
             {
                 InputWorkflowFileName = XMLWorkflow
             };
@@ -227,15 +206,15 @@ namespace Cyclops
         #endregion
 
         #region Methods
-       
+
         /// <summary>
         /// Main method to run the Cyclops Workflow
         /// </summary>
         /// <returns>True, if the workflow completes successfully</returns>
         public bool Run()
         {
-            if (m_WorkflowHandler.Count > 0)
-                return m_WorkflowHandler.RunWorkflow();
+            if (ModuleLoader.Count > 0)
+                return ModuleLoader.RunWorkflow();
             else
             {
                 LogWarning("No modules were detected during the Workflow Run()");
@@ -245,7 +224,7 @@ namespace Cyclops
 
         public bool WriteOutWorkflow(string FileName, WorkflowType OutputWorkflowType)
         {
-            return m_WorkflowHandler.WriteWorkflow(FileName, OutputWorkflowType);
+            return ModuleLoader.WriteWorkflow(FileName, OutputWorkflowType);
         }
 
         /// <summary>
@@ -255,22 +234,22 @@ namespace Cyclops
         public bool TestMethod()
         {
             var b_Successful = true;
-                        
+
             try
             {
-	            const string s_Module = "MissedCleavageSummary";
-	            Console.WriteLine(s_Module);
+                const string s_Module = "MissedCleavageSummary";
+                Console.WriteLine(s_Module);
             }
             catch (Exception ex)
             {
                 LogError("Exception caught while creating modules: " + ex.Message);
                 b_Successful = false;
-            } 
+            }
             return b_Successful;
         }
 
 
-        
+
         #endregion
     }
 }

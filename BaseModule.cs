@@ -4,16 +4,16 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
@@ -21,8 +21,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
-using System.Reflection;
 using System.Xml;
 
 namespace Cyclops
@@ -31,48 +29,30 @@ namespace Cyclops
     {
         #region Members
 
-        private string m_ModuleName = "", m_Description = "";
-        private Dictionary<string, string> d_Parameters;
         private DataModules.BaseDataModule bdm_ParentModule;
-        private int m_StepNumber = 0;
+
         #endregion
 
         #region Properties
         /// <summary>
         /// Name of the module
         /// </summary>
-        public string ModuleName
-        {
-            get { return m_ModuleName; }
-            set { m_ModuleName = value; }
-        }
+        public string ModuleName { get; set; } = "";
 
         /// <summary>
         /// Description of the module
         /// </summary>
-        public string Description
-        {
-            get { return m_Description; }
-            set { m_Description = value; }
-        }
-        
+        public string Description { get; set; } = "";
+
         /// <summary>
         /// Parameters that can be used by the module
         /// </summary>
-        public Dictionary<string, string> Parameters
-        {
-            get { return d_Parameters; }
-            set { d_Parameters = value; }
-        }
+        public Dictionary<string, string> Parameters { get; set; }
 
         /// <summary>
         /// Number of the module in order supplied to Cyclops
         /// </summary>
-        public int StepNumber
-        {
-            get { return m_StepNumber; }
-            set { m_StepNumber = value; }
-        }
+        public int StepNumber { get; set; } = 0;
 
         /// <summary>
         /// Instance of the Model Class
@@ -165,7 +145,7 @@ namespace Cyclops
         }
 
         /// <summary>
-        /// Generates a random temporary table name 
+        /// Generates a random temporary table name
         /// </summary>
         /// <param name="Prefix">Prefix appended to random name</param>
         /// <returns>random name for a temporary table</returns>

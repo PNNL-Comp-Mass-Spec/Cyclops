@@ -30,7 +30,6 @@ namespace Cyclops
     {
         #region Members
 
-        private Dictionary<string, string> m_Parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         #endregion
 
         #region Properties
@@ -46,14 +45,10 @@ namespace Cyclops
         public string WorkFlowFileName { get; set; }
 
         /// <summary>
-        /// Parameters to pass to Cyclops. These are the main parameter to 
+        /// Parameters to pass to Cyclops. These are the main parameter to
         /// run Cyclops, not the individual modules
         /// </summary>
-        public Dictionary<string, string> Parameters
-        {
-            get { return m_Parameters; }
-            set { m_Parameters = value; }
-        }
+        public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Path to SQLite database that contains the table to

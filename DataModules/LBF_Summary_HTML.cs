@@ -4,16 +4,16 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
@@ -21,8 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO; 
-using System.Linq;
+using System.IO;
 using System.Text;
 
 namespace Cyclops.DataModules
@@ -43,9 +42,7 @@ namespace Cyclops.DataModules
         private DataTable m_Overlap = new DataTable("LBF");
 
         private bool m_LR = false, m_CT = false;
-        private Dictionary<string, string>
-            m_FileNameVault = new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Required parameters to run LBF_Summary_HTML Module
         /// </summary>
@@ -56,11 +53,9 @@ namespace Cyclops.DataModules
         #endregion
 
         #region Properties
-        public Dictionary<string, string> FileNameVault
-        {
-            get { return m_FileNameVault; }
-            set { m_FileNameVault = value; }
-        }
+        public Dictionary<string, string> FileNameVault { get; set; } = new Dictionary<string, string>(
+            StringComparer.OrdinalIgnoreCase);
+
         #endregion
 
         #region Constructors
@@ -122,7 +117,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -194,7 +189,7 @@ namespace Cyclops.DataModules
             bool b_Successful = true;
 
             AddDefaultValues2FileNameVault();
-            
+
             WriteCssFile();
 
             #region Datasets Page
@@ -380,7 +375,7 @@ namespace Cyclops.DataModules
             sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
             sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
             sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
-            
+
             sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
             sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
             sb_Scripts.Append(HtmlFileHandler.GetNavTable(NavBar));
@@ -528,7 +523,7 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteQCHTMLPage(List<HtmlLinkNode> NavBar)
         {
-            bool b_ContainsTrypticPeptideSummary =     
+            bool b_ContainsTrypticPeptideSummary =
                 Model.ModuleLoader.SQLiteDatabase.TableExists(m_TypticTableSummaryName);
 
             NavBar.Add(new HtmlLinkNode("LBF Summary", "sum", true));
@@ -538,7 +533,7 @@ namespace Cyclops.DataModules
             StringBuilder sb_Scripts = new StringBuilder();
             sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
             sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
-            
+
             sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
             sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
             sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
@@ -582,7 +577,7 @@ namespace Cyclops.DataModules
 
             sb_Scripts.Append("</DIV>\n");
             sb_Scripts.Append(HtmlFileHandler.GetEndBodyEndHtml());
-                        
+
             StreamWriter sw = new StreamWriter(Path.Combine(
                 m_WorkingDirectory, FileNameVault["QcHtmlFileName"]));
             sw.WriteLine(sb_Scripts);
@@ -651,7 +646,7 @@ namespace Cyclops.DataModules
 
             sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
             sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
-            
+
             sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
             sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
             sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
@@ -755,7 +750,7 @@ namespace Cyclops.DataModules
             StringBuilder sb_Scripts = new StringBuilder();
             sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
             sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
-            
+
             sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
             sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
             sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
@@ -824,7 +819,7 @@ namespace Cyclops.DataModules
             sb_Scripts.Append("</DIV>\n");
 
             sb_Scripts.Append(HtmlFileHandler.GetEndBodyEndHtml());
-            
+
             StreamWriter sw = new StreamWriter(Path.Combine(
                 m_WorkingDirectory, FileNameVault["CorrelationHtmlFileName"]));
             sw.WriteLine(sb_Scripts);
@@ -859,7 +854,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>
