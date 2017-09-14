@@ -44,9 +44,9 @@ namespace CyclopsTest
                 Console.WriteLine("Initializing the CyclopsController");
                 var cyclops = new CyclopsController(d_Params);
 
-                cyclops.ErrorEvent += cyclops_ErrorEvent;
-                cyclops.WarningEvent += cyclops_WarningEvent;
-                cyclops.MessageEvent += cyclops_MessageEvent;
+                cyclops.ErrorEvent += Cyclops_ErrorEvent;
+                cyclops.WarningEvent += Cyclops_WarningEvent;
+                cyclops.StatusEvent += Cyclops_StatusEvent;
 
                 Console.WriteLine("Running the workflow against the Results.db3 file in " + workingDirectory.FullName);
                 var success = cyclops.Run();
@@ -56,24 +56,24 @@ namespace CyclopsTest
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error running Cyclops: " + ex.Message);
+                PRISM.ConsoleMsgUtils.ShowError("Error running Cyclops: " + ex.Message, ex);
             }
 
         }
 
-        static void cyclops_ErrorEvent(object sender, MessageEventArgs e)
+        private static void Cyclops_ErrorEvent(string message, Exception ex)
         {
-            Console.WriteLine("Error: " + e.Message + " (step " + e.Step + ", module " + e.Module + ")");
+            PRISM.ConsoleMsgUtils.ShowError(message, ex);
         }
 
-        static void cyclops_WarningEvent(object sender, MessageEventArgs e)
+        private static void Cyclops_WarningEvent(string message)
         {
-            Console.WriteLine("Warning: " + e.Message + " (step " + e.Step + ", module " + e.Module + ")");
+            PRISM.ConsoleMsgUtils.ShowWarning(message);
         }
 
-        static void cyclops_MessageEvent(object sender, MessageEventArgs e)
+        private static void Cyclops_StatusEvent(string message)
         {
-            Console.WriteLine(e.Message + " (step " + e.Step + ", module " + e.Module + ")");
+            Console.WriteLine(message);
         }
 
     }

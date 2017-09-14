@@ -26,7 +26,7 @@ namespace Cyclops
     /// <summary>
     /// Controller class that interacts with and runs Cyclops
     /// </summary>
-    public class CyclopsController
+    public class CyclopsController : PRISM.clsEventNotifier
     {
         #region Members
 
@@ -91,9 +91,7 @@ namespace Cyclops
                 OperationsDatabasePath = OperationsDatabasePath
             };
 
-            cyclops.ErrorEvent += CyclopsEngineErrorEvent;
-            cyclops.WarningEvent += CyclopsEngineWarningEvent;
-            cyclops.MessageEvent += CyclopsEngineMessageEvent;
+            RegisterEvents(cyclops);
 
             if (string.IsNullOrEmpty(WorkingDirectory) &&
                 Parameters.ContainsKey("workDir"))
@@ -105,37 +103,6 @@ namespace Cyclops
 
             var success = cyclops.Run();
             return success;
-        }
-  
-        #endregion
-
-        #region "Event Delegates and Classes"
-
-        public event MessageEventHandler ErrorEvent;
-        public event MessageEventHandler WarningEvent;
-        public event MessageEventHandler MessageEvent;
-
-        public delegate void MessageEventHandler(object sender, MessageEventArgs e);
-        #endregion
-
-        #region EventHandlers
-
-        private void CyclopsEngineErrorEvent(object sender, MessageEventArgs e)
-        {
-            if (ErrorEvent != null)
-                ErrorEvent(this, e);
-        }
-
-        private void CyclopsEngineWarningEvent(object sender, MessageEventArgs e)
-        {
-            if (WarningEvent != null)
-                WarningEvent(this, e);
-        }
-
-        private void CyclopsEngineMessageEvent(object sender, MessageEventArgs e)
-        {            
-              if (MessageEvent != null)
-                MessageEvent(this, e);
         }
 
         #endregion

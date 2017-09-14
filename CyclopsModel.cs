@@ -20,13 +20,14 @@
 
 using System;
 using System.Collections.Generic;
+using PRISM;
 
 namespace Cyclops
 {
     /// <summary>
     /// Model class serves as the entry point for the Cyclops DLL
     /// </summary>
-    public class CyclopsModel : MessageEventBase
+    public class CyclopsModel : clsEventNotifier
     {
         #region Members
 
@@ -121,7 +122,7 @@ namespace Cyclops
             }
             else
             {
-                ReportError("Parameters passed into Cyclops did NOT contain a " +
+                OnErrorEvent("Parameters passed into Cyclops did NOT contain a " +
                     "working directory 'workDir'");
                 PipelineCurrentlySuccessful = false;
             }
@@ -134,12 +135,12 @@ namespace Cyclops
             }
             else
             {
-                ReportError("Parameters passed into Cyclops did NOT contain a " +
+                OnErrorEvent("Parameters passed into Cyclops did NOT contain a " +
                     "workflow file name 'CyclopsWorkflowName'");
                 PipelineCurrentlySuccessful = false;
             }
 
-            ReportMessage("Running Cyclops Version: " + CyclopsVersion);
+            OnStatusEvent("Running Cyclops Version: " + CyclopsVersion);
         }
 
 
@@ -152,55 +153,66 @@ namespace Cyclops
             };
             this.WorkDirectory = WorkDirectory;
             RCalls.InstantiateR();
-            ReportMessage("Running Cyclops Version: " + CyclopsVersion);
+            OnStatusEvent("Running Cyclops Version: " + CyclopsVersion);
         }
         #endregion
 
         #region Logging Methods
 
-        public void LogError(string Message)
+        private string FormatStatusMessage(string message, string module, int? step = null)
         {
-            ReportError(Message);
+            if (string.IsNullOrEmpty(module))
+                return message;
+
+            if (step == null)
+                return module + ": " + message;
+            else
+                return module + ", step " + step + ": " + message;
         }
 
-        public void LogError(string Message, string Module)
+        public void LogError(string message)
         {
-            ReportError(Message, Module);
+            OnErrorEvent(message);
         }
 
-        public void LogError(string Message, string Module, int Step)
+        public void LogError(string message, string module)
         {
-            ReportError(Message, Module, Step);
+            OnErrorEvent(FormatStatusMessage(message, module));
         }
 
-        public void LogWarning(string Message)
+        public void LogError(string message, string module, int step)
         {
-            ReportWarning(Message);
+            OnErrorEvent(FormatStatusMessage(message, module, step));
         }
 
-        public void LogWarning(string Message, string Module)
+        public void LogWarning(string message)
         {
-            ReportWarning(Message, Module);
+            OnWarningEvent(message);
         }
 
-        public void LogWarning(string Message, string Module, int Step)
+        public void LogWarning(string message, string module)
         {
-            ReportWarning(Message, Module, Step);
+            OnWarningEvent(FormatStatusMessage(message, module));
         }
 
-        public void LogMessage(string Message)
+        public void LogWarning(string message, string module, int step)
         {
-            ReportMessage(Message);
+            OnWarningEvent(FormatStatusMessage(message, module, step));
         }
 
-        public void LogMessage(string Message, string Module)
+        public void LogMessage(string message)
         {
-            ReportMessage(Message, Module);
+            OnStatusEvent(message);
         }
 
-        public void LogMessage(string Message, string Module, int Step)
+        public void LogMessage(string message, string module)
         {
-            ReportMessage(Message, Module, Step);
+            OnStatusEvent(FormatStatusMessage(message, module));
+        }
+
+        public void LogMessage(string message, string module, int step)
+        {
+            OnStatusEvent(FormatStatusMessage(message, module, step));
         }
         #endregion
 
