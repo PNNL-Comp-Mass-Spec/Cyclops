@@ -4,7 +4,7 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
@@ -116,7 +116,7 @@ namespace Cyclops
         /// </summary>
         /// <param name="Command">R Command to pass to the environment</param>
         /// <param name="SummaryStatement">Summary of the Command being issued, e.g. Name of Module</param>
-        /// <param name="Step">Module Number running the command</param>
+        /// <param name="Step">Step number for the command</param>
         /// <returns>True, if the command is issued successfully</returns>
         public bool Run(string Command, string SummaryStatement,
             int Step)
@@ -170,7 +170,7 @@ namespace Cyclops
         /// </summary>
         /// <param name="WorkspaceFileName">Full path to the RData file</param>
         /// <param name="Module">Name of module calling LoadRWorkspace</param>
-        /// <param name="Step">Module Number running LoadRWorkspace</param>
+        /// <param name="Step">Step number for the command</param>
         /// <returns>True, if loaded successfully</returns>
         public bool LoadRWorkspace(string WorkspaceFileName,
             string Module, int Step)
