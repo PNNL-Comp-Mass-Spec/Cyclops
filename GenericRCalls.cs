@@ -10,10 +10,10 @@
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
@@ -41,7 +41,7 @@ namespace Cyclops
     /// <summary>
     /// Generic class for making generic calls to the R workspace.
     /// </summary>
-    /// 
+    ///
     public class GenericRCalls
     {
         #region Members
@@ -79,7 +79,7 @@ namespace Cyclops
         public GenericRCalls(CyclopsModel CyclopsModel)
         {
             Model = CyclopsModel;
-        }        
+        }
         #endregion
 
         #region Instantiating R Environment
@@ -127,7 +127,7 @@ namespace Cyclops
             {
                 Model.LogMessage(Command, SummaryStatement, Step);
 
-                var se = engine.Evaluate(Command);                
+                var se = engine.Evaluate(Command);
             }
             catch (ParseException pe)
             {
@@ -197,7 +197,7 @@ namespace Cyclops
                 var df = engine.Evaluate("version").AsDataFrame();
                 foreach (var s in df.ColumnNames)
                 {
-                    d_Return.Add(s, df[0, s].ToString());       
+                    d_Return.Add(s, df[0, s].ToString());
                 }
             }
             catch (Exception ex)
@@ -300,7 +300,7 @@ namespace Cyclops
                 var cv = engine.Evaluate(s_RStatement).AsCharacter();
                 return cv[0];
             }
-            else 
+            else
                 return null;
         }
 
@@ -348,7 +348,7 @@ namespace Cyclops
                 b_Return = true;
             return b_Return;
         }
-        
+
         /// <summary>
         /// Installs a specified package into the R workspace
         /// </summary>
@@ -480,9 +480,9 @@ namespace Cyclops
                 l_Return.Add(s);
             }
 
-            return l_Return;  
+            return l_Return;
         }
-        
+
         /// <summary>
         /// Gets the Dimensions of a data.frame or matrix
         /// </summary>
@@ -511,22 +511,22 @@ namespace Cyclops
                         td.Columns = dim[1];
                     }
                 }
-            }            
+            }
 
             return td;
         }
 
         /// <summary>
-        /// Gets the standard information about an object in R, 
+        /// Gets the standard information about an object in R,
         /// including the dimensions and the type of object
         /// </summary>
-        /// <param name="ObjectName">Name of the object that you'd 
+        /// <param name="ObjectName">Name of the object that you'd
         /// like information for</param>
         /// <returns>Information about the object</returns>
         public TableInfo GetTableInfo(string ObjectName)
         {
             var td = GetDimensions(ObjectName);
-            td.ObjectType = GetClassOfObject(ObjectName);            
+            td.ObjectType = GetClassOfObject(ObjectName);
             return td;
         }
 
@@ -552,7 +552,7 @@ namespace Cyclops
         /// <returns>Number of rows</returns>
         public int GetNumberOfRowsInTable(string TableName,
             string ColumnName, string MinValue, string MaxValue)
-        {            
+        {
             var s_Filter = "";
 
             #region Construct the Filter
@@ -587,7 +587,7 @@ namespace Cyclops
                             ColumnName,
                             MaxValue);
                     }
-                }                
+                }
             }
             #endregion
 
@@ -738,7 +738,7 @@ namespace Cyclops
                 NameOfFirstColumn = "RowNames";
 
             var dt_Return = new DataTable();
-            
+
             if (GetClassOfObject(Table2Retrieve).Equals("data.frame"))
             {
                 var dataset = engine.Evaluate(Table2Retrieve).AsDataFrame();
@@ -773,7 +773,7 @@ namespace Cyclops
             }
             else if (GetClassOfObject(Table2Retrieve).Equals("matrix"))
             {
-                var dataset = engine.Evaluate("data.frame(" 
+                var dataset = engine.Evaluate("data.frame("
                     + Table2Retrieve + ")").AsDataFrame();
 
                 var dc_RowName = new DataColumn(NameOfFirstColumn);
@@ -852,7 +852,7 @@ namespace Cyclops
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered in GenericRCalls " +
-					"'SetDataFrame':\n" + ex.Message);
+                    "'SetDataFrame':\n" + ex.Message);
                 return false;
             }
 
@@ -879,8 +879,8 @@ namespace Cyclops
             }
             catch (Exception ex)
             {
-				// TODO : Handle this error
-				Console.WriteLine("Error in GenericRCalls->SetDataFrameRowNames: " + ex.Message);
+                // TODO : Handle this error
+                Console.WriteLine("Error in GenericRCalls->SetDataFrameRowNames: " + ex.Message);
                 return false;
             }
 
@@ -904,7 +904,7 @@ namespace Cyclops
             catch (Exception ex)
             {
                 // TODO : Handle this error
-				Console.WriteLine("Error in GenericRCalls->SetObject: " + ex.Message);
+                Console.WriteLine("Error in GenericRCalls->SetObject: " + ex.Message);
                 return false;
             }
 
@@ -934,7 +934,7 @@ namespace Cyclops
         }
 
         /// <summary>
-        /// Generates a random temporary table name 
+        /// Generates a random temporary table name
         /// </summary>
         /// <returns>random name for a temporary table</returns>
         public string GetTemporaryTableName()
@@ -943,7 +943,7 @@ namespace Cyclops
         }
 
         /// <summary>
-        /// Generates a random temporary table name 
+        /// Generates a random temporary table name
         /// </summary>
         /// <param name="Prefix">Prefix appended to random name</param>
         /// <returns>random name for a temporary table</returns>
@@ -952,7 +952,7 @@ namespace Cyclops
             return Prefix + GetRInstanceName();
         }
         #endregion
-        
+
         #region TestCases
         /// <summary>
         /// Tests the connection with R through RdotNET (http://rdotnet.codeplex.com/)
@@ -988,7 +988,7 @@ namespace Cyclops
 
             if (nv[0] > 0.09078 && nv[0] < 0.09076)
                 b_Successful = false;
-            
+
             return b_Successful;
         }
         #endregion

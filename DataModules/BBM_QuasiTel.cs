@@ -4,26 +4,22 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Cyclops.DataModules
 {
@@ -111,7 +107,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -168,7 +164,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 b_Successful = false;
             }
-            
+
 
             return b_Successful;
         }
@@ -184,27 +180,27 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey(
                 RequiredParameters.Fixed_Effect.ToString()))
             {
-				string s_FactorTable = Parameters[RequiredParameters.FactorTable.ToString()];
-				string s_FixedEffect = Parameters[RequiredParameters.Fixed_Effect.ToString()];
+                string s_FactorTable = Parameters[RequiredParameters.FactorTable.ToString()];
+                string s_FixedEffect = Parameters[RequiredParameters.Fixed_Effect.ToString()];
 
-				if (string.IsNullOrEmpty(s_FactorTable))
-				{
-					  Model.LogWarning("FactorTable parameter is empty; skipping QuasiTel" ,
+                if (string.IsNullOrEmpty(s_FactorTable))
+                {
+                      Model.LogWarning("FactorTable parameter is empty; skipping QuasiTel" ,
                         ModuleName, StepNumber);
-					return true;
-				}
+                    return true;
+                }
 
-				if (string.IsNullOrEmpty(s_FixedEffect))
-				{
-					Model.LogWarning("FixedEffect parameter is empty; skipping QuasiTel" ,
+                if (string.IsNullOrEmpty(s_FixedEffect))
+                {
+                    Model.LogWarning("FixedEffect parameter is empty; skipping QuasiTel" ,
                         ModuleName, StepNumber);
-					return true;
-				}
+                    return true;
+                }
 
 
                 if (!Model.RCalls.TableContainsColumn(
-				s_FactorTable,
-					s_FixedEffect))
+                s_FactorTable,
+                    s_FixedEffect))
                 {
                     Model.LogError(string.Format(
                         "Factor table ({0}) does not contain the specified " +
@@ -264,7 +260,7 @@ namespace Cyclops.DataModules
                             Parameters[RequiredParameters.FactorTable.ToString()],
                             Parameters[RequiredParameters.Fixed_Effect.ToString()],
                             Parameters[RequiredParameters.Theta.ToString()]);
-                        
+
                         b_Successful = Model.RCalls.Run(Command,
                             ModuleName, StepNumber);
                     }
@@ -302,7 +298,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

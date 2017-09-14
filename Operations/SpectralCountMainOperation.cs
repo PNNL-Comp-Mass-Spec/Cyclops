@@ -4,26 +4,22 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Cyclops.Operations
 {
@@ -46,30 +42,30 @@ namespace Cyclops.Operations
 
         #region Members
 
-	    private string m_SpectralCountTableName = "T_SpectralCountPipelineOperation";
+        private string m_SpectralCountTableName = "T_SpectralCountPipelineOperation";
 
-	    private const string m_ModuleName = "SpectralCountMainOperation";
+        private const string m_ModuleName = "SpectralCountMainOperation";
 
-	    private Dictionary<ScoTypes, string> m_SpectralCountTableNames;
+        private Dictionary<ScoTypes, string> m_SpectralCountTableNames;
 
         #endregion
 
         #region Properties
-        
+
         #endregion
 
         #region Constructors
         public SpectralCountMainOperation()
         {
             ModuleName = m_ModuleName;
-			Initialize();
+            Initialize();
         }
 
         public SpectralCountMainOperation(CyclopsModel CyclopsModel)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
-			Initialize();
+            Initialize();
         }
 
         public SpectralCountMainOperation(CyclopsModel CyclopsModel,
@@ -78,23 +74,23 @@ namespace Cyclops.Operations
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
             Parameters = OperationParameters;
-	        Initialize();
+            Initialize();
         }
         #endregion
 
         #region Methods
 
-		private void Initialize()
-		{
-			m_SpectralCountTableNames = new Dictionary<ScoTypes, string>
-			{
-				{ScoTypes.Standard,        "T_SpectralCountPipelineOperation"},
-				{ScoTypes.Iterator,        "T_SpectralCountIteratorPipelineOperation"},
-				{ScoTypes.Practice,        "T_PracticeOperation"},
-				{ScoTypes.ScoHtmlPractice, "T_Sco_HTML_Practice"}
-			};
+        private void Initialize()
+        {
+            m_SpectralCountTableNames = new Dictionary<ScoTypes, string>
+            {
+                {ScoTypes.Standard,        "T_SpectralCountPipelineOperation"},
+                {ScoTypes.Iterator,        "T_SpectralCountIteratorPipelineOperation"},
+                {ScoTypes.Practice,        "T_PracticeOperation"},
+                {ScoTypes.ScoHtmlPractice, "T_Sco_HTML_Practice"}
+            };
 
-		}
+        }
 
         /// <summary>
         /// Runs module and then child modules
@@ -171,7 +167,7 @@ namespace Cyclops.Operations
             {
                 case "standard":
                     m_SpectralCountTableName =
-                        m_SpectralCountTableNames[ScoTypes.Standard];                    
+                        m_SpectralCountTableNames[ScoTypes.Standard];
                     break;
                 case "iterator":
                     m_SpectralCountTableName =
@@ -197,7 +193,7 @@ namespace Cyclops.Operations
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public bool ConstructModules()
@@ -205,8 +201,8 @@ namespace Cyclops.Operations
             bool b_Successful = true;
 
             try
-            {                
-                WorkflowHandler wfh = new WorkflowHandler(Model);                
+            {
+                WorkflowHandler wfh = new WorkflowHandler(Model);
                 wfh.InputWorkflowFileName = OperationsDatabasePath;
                 wfh.WorkflowTableName = m_SpectralCountTableName;
                 b_Successful = wfh.ReadSQLiteWorkflow();
@@ -235,7 +231,7 @@ namespace Cyclops.Operations
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

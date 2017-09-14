@@ -4,16 +4,16 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
@@ -22,8 +22,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Cyclops.DataModules
 {
@@ -37,7 +35,7 @@ namespace Cyclops.DataModules
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
         private enum RequiredParameters
-        { 
+        {
             Source, Target, TableName, FileName, SeparatingCharacter
         }
 
@@ -118,7 +116,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -193,7 +191,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Checks that fields specific to database handling are present 
+        /// Checks that fields specific to database handling are present
         /// in the passed parameters
         /// </summary>
         /// <returns>True, if the parameters contain database specific params</returns>
@@ -355,7 +353,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 b_Successful = false;
             }
-            
+
             return b_Successful;
         }
 
@@ -373,7 +371,7 @@ namespace Cyclops.DataModules
             string Command = "";
             if (Parameters.ContainsKey("IncludeRowNames"))
             {
-                b_IncludeRowNames = Convert.ToBoolean(Parameters["IncludeRowNames"]);                
+                b_IncludeRowNames = Convert.ToBoolean(Parameters["IncludeRowNames"]);
             }
 
             if (b_IncludeRowNames)
@@ -382,14 +380,14 @@ namespace Cyclops.DataModules
                     "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
                     "sepChar=\"{3}\")",
                     Parameters[RequiredParameters.TableName.ToString()],
-                    Model.WorkDirectory + "/" + 
+                    Model.WorkDirectory + "/" +
                         Parameters[RequiredParameters.FileName.ToString()],
                     Parameters["RownamesColumnHeader"],
                     Delimiter);
             }
             else
             {
-                string s_FilePath = Model.WorkDirectory + "/" + 
+                string s_FilePath = Model.WorkDirectory + "/" +
                         Parameters[RequiredParameters.FileName.ToString()];
                 s_FilePath = s_FilePath.Replace("\\", "/");
 
@@ -521,7 +519,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

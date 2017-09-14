@@ -4,16 +4,16 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
@@ -27,7 +27,7 @@ using System.IO;
 namespace Cyclops
 {
     /// <summary>
-    /// Wrapper class to make it easier to work with SQLite Databases 
+    /// Wrapper class to make it easier to work with SQLite Databases
     /// </summary>
     public class SQLiteHandler : DatabaseHandler
     {
@@ -37,9 +37,9 @@ namespace Cyclops
             "AS", "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN",
             "BY", "CASCADE", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "COMMIT",
             "CONFLICT", "CONSTRAINT", "CREATE", "CROSS", "CURRENT_DATE", "CURRENT_TIME",
-            "CURRENT_TIMESTAMP", "DATABASE", "DEFAULT", "DEFERRABLE", "DEFERRED", 
+            "CURRENT_TIMESTAMP", "DATABASE", "DEFAULT", "DEFERRABLE", "DEFERRED",
             "DELETE", "DESC", "DETACH", "DISTINCT", "DROP", "EACH", "ELSE", "END",
-            "ESCAPE", "EXCEPT", "EXCLUSIVE", "EXISTS", "EXPLAIN", "FAIL", "FOR", 
+            "ESCAPE", "EXCEPT", "EXCLUSIVE", "EXISTS", "EXPLAIN", "FAIL", "FOR",
             "FOREIGN", "FROM", "FULL", "GLOB", "GROUP", "HAVING", "IF", "IGNORE",
             "IMMEDIATE", "IN", "INDEX", "INDEXED", "INITIALLY", "INNER", "INSERT",
             "INSTEAD", "INTERSECT", "INTO", "IS", "ISNULL", "JOIN", "KEY", "LEFT",
@@ -162,12 +162,12 @@ namespace Cyclops
             s_Command += string.Join(", ", l_FieldType);
 
             s_Command += ");";
-            
+
             return s_Command;
         }
 
         /// <summary>
-        /// Formats a column name if it is an existing SQLite Keyword by 
+        /// Formats a column name if it is an existing SQLite Keyword by
         /// adding quotes around the string
         /// </summary>
         /// <param name="ColumnName">ColumnName of a DataTable field</param>
@@ -234,7 +234,7 @@ namespace Cyclops
             }
             catch (Exception ex)
             {
-				Console.WriteLine("Error in FillTable: " + ex.Message);
+                Console.WriteLine("Error in FillTable: " + ex.Message);
                 b_Successful = false;
             }
 
@@ -297,7 +297,7 @@ namespace Cyclops
             var b_Successful = true;
 
             if (DatabaseFileName == null)
-                return false; 
+                return false;
 
             if (OverwriteExistingDatabase)
                 SQLiteConnection.CreateFile(DatabaseFileName);
@@ -318,7 +318,7 @@ namespace Cyclops
         /// will create delete existing SQLite database and create a blank one
         /// in its place</param>
         /// <returns>True, if the function completes successfully</returns>
-        public bool CreateDatabase(string FileNameOfDatabase, 
+        public bool CreateDatabase(string FileNameOfDatabase,
             bool OverwriteExistingDatabase)
         {
             DatabaseFileName = FileNameOfDatabase;
@@ -362,7 +362,7 @@ namespace Cyclops
             }
             catch (Exception ex)
             {
-				Console.WriteLine("Error in WriteDataTableToDatabase: " + ex.Message);
+                Console.WriteLine("Error in WriteDataTableToDatabase: " + ex.Message);
                 b_Successful = false;
             }
             finally
@@ -418,7 +418,7 @@ namespace Cyclops
         public override bool TableExists(string TableName)
         {
             if (DatabaseFileName == null)
-                return false; 
+                return false;
 
             var dt_Tables = GetDatabaseInformation();
             foreach (DataRow dr in dt_Tables.Rows)
@@ -436,7 +436,7 @@ namespace Cyclops
         public override DataTable GetDatabaseInformation()
         {
             if (DatabaseFileName == null)
-                return null; 
+                return null;
 
             var dt_Info = new DataTable();
             var s_Command =
@@ -462,7 +462,7 @@ namespace Cyclops
             }
             catch (Exception ex)
             {
-				Console.WriteLine("Error in GetDatabaseInformation: " + ex.Message);
+                Console.WriteLine("Error in GetDatabaseInformation: " + ex.Message);
                 return null;
             }
             return dt_Info;
@@ -496,7 +496,7 @@ namespace Cyclops
         public override List<string> GetListOfTablesInDatabase()
         {
             if (DatabaseFileName == null)
-                return null; 
+                return null;
 
             var l_Tables = new List<string>();
 
@@ -511,7 +511,7 @@ namespace Cyclops
             }
             catch (Exception ex)
             {
-				Console.WriteLine("Error in GetListOfTablesInDatabase: " + ex.Message);
+                Console.WriteLine("Error in GetListOfTablesInDatabase: " + ex.Message);
                 return null;
             }
 
@@ -528,7 +528,7 @@ namespace Cyclops
         public override bool CreateIndex(string Table, string Column, string IndexName)
         {
             if (DatabaseFileName == null)
-                return false; 
+                return false;
 
             var b_Successful = true;
 
@@ -564,12 +564,12 @@ namespace Cyclops
             }
             catch (IOException ex)
             {
-				Console.WriteLine("IOException in WriteDataTableToDatabase: " + ex.Message);
+                Console.WriteLine("IOException in WriteDataTableToDatabase: " + ex.Message);
                 b_Successful = false;
             }
             catch (Exception ex)
             {
-				Console.WriteLine("Error in CreateIndex: " + ex.Message);
+                Console.WriteLine("Error in CreateIndex: " + ex.Message);
                 b_Successful = false;
             }
 
@@ -584,7 +584,7 @@ namespace Cyclops
         public override DataTable SelectTable(string Command)
         {
             if (DatabaseFileName == null)
-                return null; 
+                return null;
 
             var dt_Return = new DataTable();
 
@@ -611,12 +611,12 @@ namespace Cyclops
             }
             catch (IOException ex)
             {
-				Console.WriteLine("IOException in SelecTable: " + ex.Message);
+                Console.WriteLine("IOException in SelecTable: " + ex.Message);
                 return null;
             }
             catch (Exception ex)
             {
-				Console.WriteLine("Error in SelectTable: " + ex.Message);
+                Console.WriteLine("Error in SelectTable: " + ex.Message);
                 return null;
             }
 
@@ -631,10 +631,10 @@ namespace Cyclops
         public override bool DropTable(string TableName)
         {
             if (DatabaseFileName == null)
-                return false; 
+                return false;
 
             var b_Successful = true;
-            
+
             if (TableExists(TableName))
             {
                 var s_Command = "DROP TABLE " + TableName;
@@ -646,7 +646,7 @@ namespace Cyclops
                         DataSource = DatabaseFileName
                     };
 
-					using (var conn = new SQLiteConnection(connStr.ToString(), true))
+                    using (var conn = new SQLiteConnection(connStr.ToString(), true))
                     {
                         conn.Open();
 
@@ -661,7 +661,7 @@ namespace Cyclops
                 }
                 catch (Exception ex)
                 {
-					Console.WriteLine("Error in DropTable: " + ex.Message);
+                    Console.WriteLine("Error in DropTable: " + ex.Message);
                     b_Successful = false;
                 }
             }
@@ -677,7 +677,7 @@ namespace Cyclops
         public override DataTable GetTable(string TableName)
         {
             if (DatabaseFileName == null)
-                return null; 
+                return null;
 
             var dt_Return = new DataTable();
 
@@ -690,7 +690,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-				using (var conn = new SQLiteConnection(connStr.ToString(), true))
+                using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
@@ -708,12 +708,12 @@ namespace Cyclops
             }
             catch (IOException ex)
             {
-				Console.WriteLine("IOException in GetTable: " + ex.Message);
+                Console.WriteLine("IOException in GetTable: " + ex.Message);
                 return null;
             }
             catch (Exception ex)
             {
-				Console.WriteLine("Error in GetTable: " + ex.Message);
+                Console.WriteLine("Error in GetTable: " + ex.Message);
                 return null;
             }
 
@@ -728,7 +728,7 @@ namespace Cyclops
         public override bool RunNonQuery(string Command)
         {
             if (string.IsNullOrEmpty(DatabaseFileName))
-                return false; 
+                return false;
 
             var b_Successful = true;
             var dt_Return = new DataTable();
@@ -740,7 +740,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-				using (var conn = new SQLiteConnection(connStr.ToString(), true))
+                using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
@@ -754,12 +754,12 @@ namespace Cyclops
             }
             catch (IOException ex)
             {
-				Console.WriteLine("IOException in RunNonQuery: " + ex.Message);
+                Console.WriteLine("IOException in RunNonQuery: " + ex.Message);
                 b_Successful = false;
             }
             catch (Exception ex)
             {
-				Console.WriteLine("Error in RunNonQuery: " + ex.Message);
+                Console.WriteLine("Error in RunNonQuery: " + ex.Message);
                 b_Successful = false;
             }
 
@@ -774,12 +774,12 @@ namespace Cyclops
         public List<string> GetColumnNames(string TableName)
         {
             if (string.IsNullOrEmpty(DatabaseFileName))
-                return null; 
+                return null;
 
             var ColumnNames = new List<string>();
             var Command = string.Format(
                 "SELECT * FROM {0} LIMIT 1",
-                TableName);            
+                TableName);
 
             try
             {
@@ -788,7 +788,7 @@ namespace Cyclops
                     DataSource = DatabaseFileName
                 };
 
-				using (var conn = new SQLiteConnection(connStr.ToString(), true))
+                using (var conn = new SQLiteConnection(connStr.ToString(), true))
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
@@ -806,7 +806,7 @@ namespace Cyclops
             catch (Exception ex)
             {
                 // TODO : Handle exception
-				Console.WriteLine("Error in GetColumnNames: " + ex.Message);
+                Console.WriteLine("Error in GetColumnNames: " + ex.Message);
                 return null;
             }
 

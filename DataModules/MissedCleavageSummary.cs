@@ -4,16 +4,16 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
@@ -23,9 +23,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
-
-
 
 namespace Cyclops.DataModules
 {
@@ -35,14 +32,14 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
-        private enum RequiredParameters { InputTableName, 
+        private enum RequiredParameters { InputTableName,
             NewTableName, FactorColumn }
 
         private string m_ModuleName = "MissedCleavageSummary",
             m_Description = "",
             m_InputFileName = "Results.db3";
 
-        private SQLiteHandler sql = 
+        private SQLiteHandler sql =
             new SQLiteHandler();
 
         private Dictionary<int, int> dict_Cleavages = new Dictionary<int, int>();
@@ -111,7 +108,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -138,7 +135,7 @@ namespace Cyclops.DataModules
 
             //if (Parameters.ContainsKey(RequiredParameters.InputTableName.ToString()))
             //    m_InputFileName = Parameters[RequiredParameters.InputTableName.ToString()];
-            
+
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
@@ -173,7 +170,7 @@ namespace Cyclops.DataModules
 
                 if (Parameters[RequiredParameters.FactorColumn.ToString()].Equals("*"))
                 {
-                    List<string> l_Columns = 
+                    List<string> l_Columns =
                         sql.GetColumnNames(
                         Parameters[RequiredParameters.InputTableName.ToString()]);
                     string s_Columns = Utilities.MiscellaneousFunctions.Concatenate(l_Columns, ",", false);
@@ -212,7 +209,7 @@ namespace Cyclops.DataModules
                     {
                         s_Peptide = dr[Parameters[
                         RequiredParameters.FactorColumn.ToString()]].ToString();
-                        s_Peptide = s_Peptide.Substring(0, s_Peptide.Length - 1); // remove the last residue                        
+                        s_Peptide = s_Peptide.Substring(0, s_Peptide.Length - 1); // remove the last residue
                     }
 
                     // count the number of missed cleavages in the peptide (with last residue removed)
@@ -269,7 +266,7 @@ namespace Cyclops.DataModules
         private bool DropExistingTable()
         {
             bool b_Successful = true;
-            
+
             if (sql.TableExists(Parameters[RequiredParameters.NewTableName.ToString()]))
             {
                 b_Successful = sql.DropTable(Parameters[RequiredParameters.NewTableName.ToString()]);

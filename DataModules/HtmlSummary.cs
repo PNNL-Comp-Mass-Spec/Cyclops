@@ -4,25 +4,23 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Cyclops.DataModules
@@ -31,13 +29,13 @@ namespace Cyclops.DataModules
     {
         #region Members
 
-	    private const string m_ModuleName = "HtmlSummary";
+        private const string m_ModuleName = "HtmlSummary";
 
-	    private const string m_Description = "";
+        private const string m_Description = "";
 
-	    private string m_DatabaseFileName = "Results.db3";
+        private string m_DatabaseFileName = "Results.db3";
 
-	    /// <summary>
+        /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
@@ -108,7 +106,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -195,7 +193,7 @@ namespace Cyclops.DataModules
             List<HtmlLinkNode> l_NavBarNodes = new List<HtmlLinkNode>();
 
             l_NavBarNodes.Add(new HtmlLinkNode(
-                "Home", 
+                "Home",
                 Parameters[RequiredParameters.FileName.ToString()],
                 false));
             l_NavBarNodes.Add(new HtmlLinkNode(
@@ -227,7 +225,7 @@ namespace Cyclops.DataModules
             sb_Datasets.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
             StreamWriter sw_Datasets = new StreamWriter(Path.Combine(
-                Model.WorkDirectory, 
+                Model.WorkDirectory,
                 s_DatasetsFileName));
             sw_Datasets.Write(sb_Datasets);
             sw_Datasets.Close();
@@ -307,7 +305,7 @@ namespace Cyclops.DataModules
 
             // TODO : Write the html out to the file
             StreamWriter sw = new StreamWriter(Path.Combine(
-                Model.WorkDirectory, 
+                Model.WorkDirectory,
                 Parameters[RequiredParameters.FileName.ToString()]));
             sw.Write(sb_HTML);
             sw.Close();
@@ -351,7 +349,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>

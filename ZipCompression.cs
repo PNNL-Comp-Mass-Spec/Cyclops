@@ -4,30 +4,29 @@
  * E-mail: joseph.brown@pnnl.gov
  * Website: http://omics.pnl.gov/software
  * -----------------------------------------------------
- * 
+ *
  * Notice: This computer software was prepared by Battelle Memorial Institute,
  * hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
  * Department of Energy (DOE).  All rights in the computer software are reserved
  * by DOE on behalf of the United States Government and the Contractor as
  * provided in the Contract.
- * 
+ *
  * NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY WARRANTY, EXPRESS OR
  * IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.
- * 
+ *
  * This notice including this sentence must appear on any copies of this computer
  * software.
  * -----------------------------------------------------*/
 
 using System;
 using System.IO;
-
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace Cyclops
 {
     public static class ZipCompression
-    {        
+    {
         #region Methods
         /// <summary>
         /// Compresses the files in the nominated folder, and creates a zip file on disk named as outPathname.
@@ -55,7 +54,7 @@ namespace Cyclops
             zipStream.IsStreamOwner = true;	// Makes the Close also Close the underlying stream
             zipStream.Close();
         }
-        
+
         /// <summary>
         /// Recurses down the folder structure
         /// </summary>
@@ -80,7 +79,7 @@ namespace Cyclops
                     DateTime = fi.LastWriteTime,
                     Size = fi.Length
                 };
-                
+
 
                 // Specifying the AESKeySize triggers AES encryption. Allowable values are 0 (off), 128 or 256.
                 //   newEntry.AESKeySize = 256;

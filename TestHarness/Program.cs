@@ -21,22 +21,22 @@ namespace CyclopsTest
             var workingDirectory = new DirectoryInfo(@"..\..\Docs");
 
             var baseToolRunner = new AnalysisManagerBase.clsAnalysisToolRunnerBase();
-            
+
             var rProgLoc = baseToolRunner.GetRPathFromWindowsRegistry();
             Console.WriteLine("Using R at " + rProgLoc);
 
             var d_Params = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-				{
+                {
 
-					{"Job", "1299605"},
-					{"RDLL", rProgLoc},
-					{"CyclopsWorkflowName", "ITQ_ExportOperation.xml"},
-					{"workDir", workingDirectory.FullName},
-					{"Consolidation_Factor", ""},
-					{"Fixed_Effect", ""},
-					{"RunProteinProphet", "false"},
-					{"orgdbdir", @"C:\DMS_Temp_Org"}
-				};
+                    {"Job", "1299605"},
+                    {"RDLL", rProgLoc},
+                    {"CyclopsWorkflowName", "ITQ_ExportOperation.xml"},
+                    {"workDir", workingDirectory.FullName},
+                    {"Consolidation_Factor", ""},
+                    {"Fixed_Effect", ""},
+                    {"RunProteinProphet", "false"},
+                    {"orgdbdir", @"C:\DMS_Temp_Org"}
+                };
 
 
             try
