@@ -36,9 +36,9 @@ namespace Cyclops.DataModules
             NewTableName
         }
 
-        private string m_ModuleName = "ExportTable",
-            m_Description = "",
-            m_DatabaseFileName = "Results.db3";
+        private string m_ModuleName = "ExportTable";
+        private string m_Description = "";
+        private string m_DatabaseFileName = "Results.db3";
 
         private bool m_DatabaseFound = false;
 
@@ -75,8 +75,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public ExportTable(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public ExportTable(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -97,8 +96,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = ExportFunction();
@@ -137,8 +135,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -152,30 +149,25 @@ namespace Cyclops.DataModules
                     sql.DatabaseFileName = Parameters["DatabaseFileName"];
                     m_DatabaseFound = true;
                 }
-                else if (File.Exists(Path.Combine(Model.WorkDirectory,
-                    Parameters["DatabaseFileName"])))
+                else if (File.Exists(Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"])))
                 {
                     m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory,
-                    Parameters["DatabaseFileName"]);
+                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"]);
                     m_DatabaseFound = true;
                 }
             }
             else
             {
-                if (File.Exists(Path.Combine(Model.WorkDirectory,
-                    "Results.db3")))
+                if (File.Exists(Path.Combine(Model.WorkDirectory, "Results.db3")))
                 {
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory,
-                    "Results.db3");
+                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
                     m_DatabaseFound = true;
                 }
             }
 
             if (!m_DatabaseFound)
             {
-                Model.LogError("Unable to establish successful database connection!",
-                    ModuleName, StepNumber);
+                Model.LogError("Unable to establish successful database connection!", ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -195,8 +187,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Database Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Database Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -328,8 +319,7 @@ namespace Cyclops.DataModules
                     Parameters[DatabaseTargetRequiredParameters.NewTableName.ToString()],
                     Parameters[RequiredParameters.TableName.ToString()]);
 
-                if (Model.RCalls.Run(Command,
-                        ModuleName, StepNumber))
+                if (Model.RCalls.Run(Command, ModuleName, StepNumber))
                 {
                     return DisconnectFromDatabaseFromR();
                 }
@@ -356,9 +346,8 @@ namespace Cyclops.DataModules
         /// <returns>True, if the file is exported successfully</returns>
         private bool ExportR_to_Text(string Delimiter)
         {
-            bool b_Successful = Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.TableName.ToString()]),
-                b_IncludeRowNames = false;
+            bool b_Successful = Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]);
+            bool b_IncludeRowNames = false;
 
             string Command = "";
             if (Parameters.ContainsKey("IncludeRowNames"))
@@ -372,8 +361,7 @@ namespace Cyclops.DataModules
                     "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
                     "sepChar=\"{3}\")",
                     Parameters[RequiredParameters.TableName.ToString()],
-                    Model.WorkDirectory + "/" +
-                        Parameters[RequiredParameters.FileName.ToString()],
+                    Model.WorkDirectory + "/" + Parameters[RequiredParameters.FileName.ToString()],
                     Parameters["RownamesColumnHeader"],
                     Delimiter);
             }
@@ -391,8 +379,7 @@ namespace Cyclops.DataModules
                     Delimiter);
             }
 
-            b_Successful = Model.RCalls.Run(Command,
-                ModuleName, StepNumber);
+            b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
 
             return b_Successful;
         }
@@ -414,25 +401,18 @@ namespace Cyclops.DataModules
                 DataTable dt = sql.GetTable(
                     Parameters[RequiredParameters.TableName.ToString()]);
 
+                var outputFilePath = Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]);
+                
                 switch (s_Type)
                 {
                     case "tsv":
-                        b_Successful = WriteDataTableToFile(dt,
-                            Path.Combine(Model.WorkDirectory,
-                                Parameters[RequiredParameters.FileName.ToString()]),
-                            "\t");
+                        b_Successful = WriteDataTableToFile(dt, outputFilePath, "\t");
                         break;
                     case "txt":
-                        b_Successful = WriteDataTableToFile(dt,
-                            Path.Combine(Model.WorkDirectory,
-                                Parameters[RequiredParameters.FileName.ToString()]),
-                            "\t");
+                        b_Successful = WriteDataTableToFile(dt, outputFilePath, "\t");
                         break;
                     case "csv":
-                        b_Successful = WriteDataTableToFile(dt,
-                            Path.Combine(Model.WorkDirectory,
-                            Parameters[RequiredParameters.FileName.ToString()]),
-                            ",");
+                        b_Successful = WriteDataTableToFile(dt, outputFilePath, ",");
                         break;
                 }
             }
@@ -456,8 +436,7 @@ namespace Cyclops.DataModules
         /// <param name="FileName">File name and path to save the DataTable to</param>
         /// <param name="Delimiter">Delimits the data in the file</param>
         /// <returns>True, if the DataTable is written out successfully</returns>
-        private bool WriteDataTableToFile(DataTable Table,
-            string FileName, string Delimiter)
+        private bool WriteDataTableToFile(DataTable Table, string FileName, string Delimiter)
         {
             bool b_Successful = true;
 
@@ -546,8 +525,7 @@ namespace Cyclops.DataModules
                                 "con <- dbConnect(m, dbname = \"{0}\")",
                                     s_Database);
 
-                return Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                return Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             else
             {
@@ -566,8 +544,7 @@ namespace Cyclops.DataModules
         {
             string Command = "terminated <- dbDisconnect(con)";
 
-            bool b_Successful = Model.RCalls.Run(Command,
-                ModuleName, StepNumber);
+            bool b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
 
             if (b_Successful)
                 b_Successful = Model.RCalls.AssessBoolean("terminated");
@@ -575,8 +552,7 @@ namespace Cyclops.DataModules
             if (b_Successful)
             {
                 Command = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             else
             {

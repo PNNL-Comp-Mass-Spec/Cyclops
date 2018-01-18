@@ -19,13 +19,15 @@ namespace Cyclops.DataModules
     public class BarPlot : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BarPlot",
-            m_Description = "";
+        private string m_ModuleName = "BarPlot";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
-        { TableName, PlotFileName, DataColumns,
+        { 
+            TableName, PlotFileName, DataColumns,
         }
 
         #endregion
@@ -77,8 +79,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public BarPlot(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public BarPlot(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -136,8 +137,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }

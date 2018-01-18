@@ -43,14 +43,12 @@ namespace Cyclops.Operations
         /// <param name="TypeName">Name of the module type</param>
         /// <param name="TheModel">CyclopsModel</param>
         /// <returns>An Operation Module</returns>
-        public static BaseOperationModule Create(string TypeName,
-            CyclopsModel TheModel, Dictionary<string, string> TheParameters)
+        public static BaseOperationModule Create(string TypeName, CyclopsModel TheModel, Dictionary<string, string> TheParameters)
         {
             Type derivedType = null;
             if (sTypeMap.TryGetValue(TypeName, out derivedType))
             {
-                return System.Activator.CreateInstance(derivedType,
-                    TheModel, TheParameters) as BaseOperationModule;
+                return System.Activator.CreateInstance(derivedType, TheModel, TheParameters) as BaseOperationModule;
             }
             return null;
         }
@@ -77,9 +75,7 @@ namespace Cyclops.Operations
 
                 if (derivedObject != null)
                 {
-                    typeMap.Add(
-                        derivedObject.GetTypeName(),
-                        derivedObject.GetType());
+                    typeMap.Add(derivedObject.GetTypeName(), derivedObject.GetType());
                 }
             }
 

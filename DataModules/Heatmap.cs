@@ -19,25 +19,26 @@ namespace Cyclops.DataModules
     public class Heatmap : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Heatmap",
-            m_Description = "",
-            m_PValueThreshold = "0.01",
-            m_ClusterRows = "FALSE",
-            m_ClusterColumns = "FALSE",
-            m_RemoveNA = "TRUE",
-            m_NumberOfTopMostAbundant = "200",
-            m_PlotFileType = "png",
-            m_Distance = "NULL",
-            m_HClust = "NULL",
-            m_Scale = "c('row')",
-            m_ColorPalette = "c('green', 'black', 'red')",
-            m_ColorDegree = "20",
-            m_MinColorScale = "-1",
-            m_MaxColorScale = "1",
-            m_NaColor = "gray";
 
-        private bool m_ZeroFill = false,
-            m_ShowRowNames = false;
+        private string m_ModuleName = "Heatmap";
+        private string m_Description = "";
+        private string m_PValueThreshold = "0.01";
+        private string m_ClusterRows = "FALSE";
+        private string m_ClusterColumns = "FALSE";
+        private string m_RemoveNA = "TRUE";
+        private string m_NumberOfTopMostAbundant = "200";
+        private string m_PlotFileType = "png";
+        private string m_Distance = "NULL";
+        private string m_HClust = "NULL";
+        private string m_Scale = "c('row')";
+        private string m_ColorPalette = "c('green', 'black', 'red')";
+        private string m_ColorDegree = "20";
+        private string m_MinColorScale = "-1";
+        private string m_MaxColorScale = "1";
+        private string m_NaColor = "gray";
+
+        private bool m_ZeroFill = false;
+        private bool m_ShowRowNames = false;
 
         /// <summary>
         /// Required parameters to run Heatmap Module
@@ -83,8 +84,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public Heatmap(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public Heatmap(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -105,8 +105,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running Heatmap",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running Heatmap", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = HeatmapFunction();
@@ -145,8 +144,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -171,8 +169,7 @@ namespace Cyclops.DataModules
                 {
                     if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                     {
-                        Model.LogWarning("Required Field Missing: " + s,
-                            ModuleName, StepNumber);
+                        Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                         b_Successful = false;
                         return b_Successful;
                     }
@@ -329,15 +326,14 @@ namespace Cyclops.DataModules
 
             string s_TmpFilterTable = GetTemporaryTableName("TmpFilterPval_");
 
-            Dictionary<string, string> d_FilterTableParam = new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase);
-            d_FilterTableParam.Add("InputTableName",
-                Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]);
-            d_FilterTableParam.Add("NewTableName", s_TmpFilterTable);
-            d_FilterTableParam.Add("ColumnName",
-                Parameters[FilteredRequiredParameters.PValueColumn.ToString()]);
-            d_FilterTableParam.Add("Operation", "<=");
-            d_FilterTableParam.Add("Value", m_PValueThreshold);
+            Dictionary<string, string> d_FilterTableParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {"InputTableName", Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]},
+                {"NewTableName", s_TmpFilterTable},
+                {"ColumnName", Parameters[FilteredRequiredParameters.PValueColumn.ToString()]},
+                {"Operation", "<="},
+                {"Value", m_PValueThreshold}
+            };
 
             FilterTable ft = new FilterTable(Model, d_FilterTableParam);
             ft.StepNumber = StepNumber;
@@ -345,16 +341,16 @@ namespace Cyclops.DataModules
 
             if (b_Successful)
             {
-                Dictionary<string, string> d_MergeParam = new Dictionary<string, string>(
-                    StringComparer.OrdinalIgnoreCase);
-                d_MergeParam.Add("NewTableName", s_TmpFilterTable);
-                d_MergeParam.Add("XTable", s_TmpFilterTable);
-                d_MergeParam.Add("YTable",
-                    Parameters[RequiredParameters.TableName.ToString()]);
-                d_MergeParam.Add("XLink", "row.names");
-                d_MergeParam.Add("YLink", "row.names");
-                d_MergeParam.Add("AllX", "TRUE");
-                d_MergeParam.Add("AllY", "FALSE");
+                Dictionary<string, string> d_MergeParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    {"NewTableName", s_TmpFilterTable},
+                    {"XTable", s_TmpFilterTable},
+                    {"YTable", Parameters[RequiredParameters.TableName.ToString()]},
+                    {"XLink", "row.names"},
+                    {"YLink", "row.names"},
+                    {"AllX", "TRUE"},
+                    {"AllY", "FALSE"}
+                };
 
                 Merge m = new Merge(Model, d_MergeParam);
                 m.StepNumber = StepNumber;
@@ -362,8 +358,7 @@ namespace Cyclops.DataModules
             }
             else
             {
-                Model.LogError("Error running FilterTable within the Heatmap Module!",
-                    ModuleName, StepNumber);
+                Model.LogError("Error running FilterTable within the Heatmap Module!", ModuleName, StepNumber);
                 return false;
             }
 
@@ -376,8 +371,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
@@ -427,19 +421,13 @@ namespace Cyclops.DataModules
             switch (m_PlotFileType.ToLower())
             {
                 case "png":
-                    Command += string.Format(
-                        "CairoPNG(filename='{0}')\n",
-                        plotFilePathForR);
+                    Command += string.Format("CairoPNG(filename='{0}')\n", plotFilePathForR);
                     break;
                 case "svg":
-                    Command += string.Format(
-                        "svg(filename='{0}')\n",
-                        plotFilePathForR);
+                    Command += string.Format("svg(filename='{0}')\n", plotFilePathForR);
                     break;
                 case "ps":
-                    Command += string.Format(
-                        "cairo_ps(filename='{0}')\n",
-                        plotFilePathForR);
+                    Command += string.Format("cairo_ps(filename='{0}')\n", plotFilePathForR);
                     break;
             }
 
@@ -491,8 +479,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

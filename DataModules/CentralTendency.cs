@@ -18,8 +18,9 @@ namespace Cyclops.DataModules
     public class CentralTendency : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "CentralTendency",
-            m_Description = "";
+        private string m_ModuleName = "CentralTendency";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run CentralTendency Module
         /// </summary>
@@ -27,6 +28,7 @@ namespace Cyclops.DataModules
         {
             NewTableName, InputTableName, MeanCenter, Center
         }
+        
         #endregion
 
         #region Properties
@@ -59,8 +61,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public CentralTendency(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public CentralTendency(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -81,8 +82,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     Model.PipelineCurrentlySuccessful = CentralTendencyFunction();
@@ -121,8 +121,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -157,8 +156,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

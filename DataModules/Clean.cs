@@ -21,14 +21,15 @@ namespace Cyclops.DataModules
     public class Clean : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Clean",
-            m_Description = "";
+        private string m_ModuleName = "Clean";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run Clean Module
         /// </summary>
         private enum RequiredParameters
-        {
-        }
+        { }
+        
         #endregion
 
         #region Properties
@@ -61,8 +62,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public Clean(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public Clean(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -83,8 +83,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = CleanFunction();
@@ -123,8 +122,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -144,8 +142,7 @@ namespace Cyclops.DataModules
             string Command = "rm(list=objects2delete)\nrm(objects2delete)";
             try
             {
-                Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

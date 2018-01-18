@@ -19,16 +19,17 @@ namespace Cyclops.DataModules
     public class Hexbin : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Hexbin",
-            m_Description = "";
+        private string m_ModuleName = "Hexbin";
+        private string m_Description = "";
+            
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
         {
-            TableName, XColumn, YColumn, Image, PlotFileName, Bins,
-            AbsLogX, AbsLogY,
+            TableName, XColumn, YColumn, Image, PlotFileName, Bins, AbsLogX, AbsLogY
         }
+        
         #endregion
 
         #region Properties
@@ -61,8 +62,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public Hexbin(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public Hexbin(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -120,8 +120,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }

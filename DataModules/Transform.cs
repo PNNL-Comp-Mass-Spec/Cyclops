@@ -18,8 +18,9 @@ namespace Cyclops.DataModules
     public class Transform : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Transform",
-            m_Description = "Scales, adds, and/or log transforms the data";
+        private string m_ModuleName = "Transform";
+        private string m_Description = "Scales, adds, and/or log transforms the data";
+        
         /// <summary>
         /// Required parameters to run Transform Module
         /// </summary>
@@ -27,6 +28,7 @@ namespace Cyclops.DataModules
         {
             InputTableName, NewTableName
         }
+        
         #endregion
 
         #region Properties
@@ -59,8 +61,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public Transform(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public Transform(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -81,8 +82,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = TransformFunction();
@@ -125,8 +125,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -149,26 +148,25 @@ namespace Cyclops.DataModules
             {
                 Command = string.Format(
                     "{0} <- log((data.matrix({1})+{2})*{3},{4})",
-                        Parameters[RequiredParameters.NewTableName.ToString()],
-                        Parameters[RequiredParameters.InputTableName.ToString()],
-                        Parameters.ContainsKey("add") ? Parameters["add"] : "0",
-                        Parameters.ContainsKey("scale") ? Parameters["scale"] : "1",
-                        Parameters["logBase"]);
+                    Parameters[RequiredParameters.NewTableName.ToString()],
+                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters.ContainsKey("add") ? Parameters["add"] : "0",
+                    Parameters.ContainsKey("scale") ? Parameters["scale"] : "1",
+                    Parameters["logBase"]);
             }
             else
             {
                 Command = string.Format(
                     "{0} <- ({1}+{2})*{3}",
-                        Parameters[RequiredParameters.NewTableName.ToString()],
-                        Parameters[RequiredParameters.InputTableName.ToString()],
-                        Parameters.ContainsKey("add") ? Parameters["add"] : "0",
-                        Parameters.ContainsKey("scale") ? Parameters["scale"] : "1");
+                    Parameters[RequiredParameters.NewTableName.ToString()],
+                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters.ContainsKey("add") ? Parameters["add"] : "0",
+                    Parameters.ContainsKey("scale") ? Parameters["scale"] : "1");
             }
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

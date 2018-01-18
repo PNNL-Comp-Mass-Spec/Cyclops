@@ -18,24 +18,28 @@ namespace Cyclops.DataModules
     public class FilterByPeptideProteinCount : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "FilterByPeptideProteinCount",
-            m_Description = "",
-            m_MaxProtValue = "NULL",
-            m_MinProtValue = "NULL",
-            m_MaxPepValue = "NULL",
-            m_MinPepValue = "NULL";
+        private string m_ModuleName = "FilterByPeptideProteinCount";
+        private string m_Description = "";
+        private string m_MaxProtValue = "NULL";
+        private string m_MinProtValue = "NULL";
+        private string m_MaxPepValue = "NULL";
+        private string m_MinPepValue = "NULL";
+            
         /// <summary>
         /// Required parameters to run FilterByPeptideProteinCount Module
         /// </summary>
         private enum RequiredParameters
         {
-            NewTableName, InputTableName, NewRowMetadataTableName,
+            NewTableName, 
+            InputTableName, 
+            NewRowMetadataTableName,
             RowMetadataTable,
             ProteinColumn, // designates the protein column in the RowMetadataTable
             PeptideColumn, // designates the peptides column in the RowMetadataTable (corresponds to the rownames in the T_Data table)
             ProteinInfo_ProteinCol, // designates the protein count column in the RowMetadataTable
             ProteinInfo_PeptideCol // designates the peptide count column in the RowMetadataTable
         }
+        
         #endregion
 
         #region Properties
@@ -68,8 +72,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public FilterByPeptideProteinCount(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public FilterByPeptideProteinCount(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -90,8 +93,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running FilterByPeptideProteinCount",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running FilterByPeptideProteinCount", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = FilterByPeptideProteinCountFunction();
@@ -130,8 +132,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -144,8 +145,7 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("ERROR 'InputTableName' object, " +
                     Parameters[RequiredParameters.InputTableName.ToString()] +
-                    ", not present in R environment!", ModuleName,
-                    StepNumber);
+                    ", not present in R environment!", ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -155,8 +155,8 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("ERROR 'RowMetadataTable' object, " +
                     Parameters[RequiredParameters.RowMetadataTable.ToString()] +
-                    ", not present in R environment!", ModuleName,
-                    StepNumber);
+                    ", not present in R environment!", 
+                    ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -170,9 +170,8 @@ namespace Cyclops.DataModules
                     ", does not contain the 'ProteinInfo_ProteinCol' column: " +
                     Parameters[RequiredParameters.ProteinInfo_ProteinCol.ToString()] +
                     "! This column designates the protein count within the " +
-                    "RowMetadataTable.",
-                    ModuleName,
-                    StepNumber);
+                    "RowMetadataTable.", 
+                    ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -187,8 +186,7 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.ProteinInfo_PeptideCol.ToString()] +
                     "! This column designates the peptide count within the " +
                     "RowMetadataTable.",
-                    ModuleName,
-                    StepNumber);
+                    ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -204,8 +202,7 @@ namespace Cyclops.DataModules
                     "! This column designates the peptide within the " +
                     "RowMetadataTable, that correspond to the rownames in " +
                     "the InputTableName (data table).",
-                    ModuleName,
-                    StepNumber);
+                    ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -220,8 +217,7 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.ProteinColumn.ToString()] +
                     "! This column designates the proteins within the " +
                     "RowMetadataTable.",
-                    ModuleName,
-                    StepNumber);
+                    ModuleName, StepNumber);
                 b_Successful = false;
             }
             #endregion
@@ -307,8 +303,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

@@ -24,12 +24,14 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
-        private enum RequiredParameters { InputTableName,
-            NewTableName, FactorColumn }
+        private enum RequiredParameters 
+        { 
+            InputTableName, NewTableName, FactorColumn 
+        }
 
-        private string m_ModuleName = "MissedCleavageSummary",
-            m_Description = "",
-            m_InputFileName = "Results.db3";
+        private string m_ModuleName = "MissedCleavageSummary";
+        private string m_Description = "";
+        private string m_InputFileName = "Results.db3";
 
         private SQLiteHandler sql =
             new SQLiteHandler();
@@ -67,8 +69,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public MissedCleavageSummary(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public MissedCleavageSummary(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -89,8 +90,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = MissedCleavageSummaryFunction();
@@ -132,8 +132,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -306,8 +305,7 @@ namespace Cyclops.DataModules
                 b_Successful = sql.WriteDataTableToDatabase(
                    dt_MissedCleavages);
 
-                b_Successful = Model.RCalls.WriteDataTableToR(dt_MissedCleavages,
-                    dt_MissedCleavages.TableName);
+                b_Successful = Model.RCalls.WriteDataTableToR(dt_MissedCleavages, dt_MissedCleavages.TableName);
             }
             catch (Exception ex)
             {

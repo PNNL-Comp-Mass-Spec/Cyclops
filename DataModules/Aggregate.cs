@@ -21,11 +21,12 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
-        private enum RequiredParameters { NewTableName,
-            InputTableName, Margin, Function }
+        private enum RequiredParameters { 
+            NewTableName, InputTableName, Margin, Function 
+        }
 
-        private string m_ModuleName = "Aggregate",
-            m_Description = "";
+        private string m_ModuleName = "Aggregate";
+        private string m_Description = "";
         #endregion
 
         #region Properties
@@ -58,8 +59,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="DataParameters">Data Parameters</param>
-        public Aggregate(CyclopsModel CyclopsModel,
-            Dictionary<string, string> DataParameters)
+        public Aggregate(CyclopsModel CyclopsModel, Dictionary<string, string> DataParameters)
         {
             Description = m_Description;
             ModuleName = m_ModuleName;
@@ -80,8 +80,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = AggregateData();
@@ -120,8 +119,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }

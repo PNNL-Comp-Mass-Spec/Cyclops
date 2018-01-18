@@ -19,9 +19,12 @@ namespace Cyclops.DataModules
     public class Histogram : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Histogram",
-            m_Description = "",
-                       m_Main = "", m_XLabel = "", m_YLabel = "";
+        private string m_ModuleName = "Histogram";
+        private string m_Description = "";
+        private string m_Main = "";
+        private string m_XLabel = "";
+        private string m_YLabel = "";
+
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
@@ -66,8 +69,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public Histogram(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public Histogram(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -125,8 +127,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -213,8 +214,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

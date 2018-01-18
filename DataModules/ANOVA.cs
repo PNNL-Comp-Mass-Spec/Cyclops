@@ -18,9 +18,10 @@ namespace Cyclops.DataModules
     public class ANOVA : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "ANOVA",
-            m_Description = "";
+        private string m_ModuleName = "ANOVA";
+        private string m_Description = "";
         private bool m_RemoveFirstColumn = false;
+        
         /// <summary>
         /// Required parameters to run ANOVA Module
         /// </summary>
@@ -84,8 +85,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public ANOVA(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public ANOVA(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -106,8 +106,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = ANOVAFunction();
@@ -154,8 +153,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -230,8 +228,8 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = "",
-                s_TmpInputTable = GetTemporaryTableName("tmpInputAnova_");
+            string Command = "";
+            string s_TmpInputTable = GetTemporaryTableName("tmpInputAnova_");
 
             Command = string.Format(
                             "options(warn=-1)\n" +
@@ -256,8 +254,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

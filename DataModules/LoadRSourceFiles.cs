@@ -22,28 +22,29 @@ namespace Cyclops.DataModules
     public class LoadRSourceFiles : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "LoadRSourceFiles",
-            m_Description = "";
+        private string m_ModuleName = "LoadRSourceFiles";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
         private enum RequiredParameters
-        {
-        }
+        { }
 
         private readonly string[] m_PackagesToLoad = new string[]
         {
-            "Cairo"
-            , "gplots"
-            , "grDevices"
-            , "Hmisc"
-            , "lme4"
-            , "moments"
-            , "outliers"
-            , "pcaPP"
-            , "reshape"
-            , "RSQLite"
+            "Cairo",
+            "gplots",
+            "grDevices",
+            "Hmisc",
+            "lme4",
+            "moments",
+            "outliers",
+            "pcaPP",
+            "reshape",
+            "RSQLite"
         };
+        
         #endregion
 
         #region Properties
@@ -76,8 +77,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="DataParameters">Parameters to run module</param>
-        public LoadRSourceFiles(CyclopsModel CyclopsModel,
-            Dictionary<string, string> DataParameters)
+        public LoadRSourceFiles(CyclopsModel CyclopsModel, Dictionary<string, string> DataParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -98,8 +98,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                 {
@@ -146,8 +145,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -212,8 +210,7 @@ namespace Cyclops.DataModules
                             var Command = string.Format(
                                 "source('{0}')\n",
                                 s.Replace("\\", "/"));
-                            b_Successful = Model.RCalls.Run(Command,
-                                ModuleName, StepNumber);
+                            b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
                         }
                         if (!b_Successful)
                         {
@@ -224,8 +221,7 @@ namespace Cyclops.DataModules
                     }
                 }
 
-                Model.RCalls.Run("objects2delete <- ls()\n",
-                    ModuleName, StepNumber);
+                Model.RCalls.Run("objects2delete <- ls()\n", ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
@@ -304,8 +300,7 @@ namespace Cyclops.DataModules
             var Command = "";
             foreach (var s in m_PackagesToLoad)
             {
-                Command += string.Format("require({0})\n",
-                    s);
+                Command += string.Format("require({0})\n", s);
             }
 
             return Model.RCalls.Run(Command, ModuleName, StepNumber);

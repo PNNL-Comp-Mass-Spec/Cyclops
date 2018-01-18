@@ -18,13 +18,15 @@ namespace Cyclops.DataModules
     public class QuasiTel : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "QuasiTel",
-            m_Description = "";
+        private string m_ModuleName = "QuasiTel";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run QuasiTel Module
         /// </summary>
         private enum RequiredParameters
-        { NewTableName, InputTableName, Fixed_Effect, FactorTable
+        { 
+            NewTableName, InputTableName, Fixed_Effect, FactorTable
         }
 
         private string m_MergeColumn = "Alias"; // default value of MergeColumn
@@ -60,8 +62,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public QuasiTel(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public QuasiTel(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -82,8 +83,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     Model.PipelineCurrentlySuccessful = QuasiTelFunction();
@@ -122,8 +122,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -174,15 +173,13 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string s_TmpDataTable = GetTemporaryTableName("tmpQuasitelData_"),
-                s_TmpFactorTable = GetTemporaryTableName("tmpQuasitelFactor_"),
-                s_TmpFactor1 = GetTemporaryTableName("tmpQuasiFactor1_"),
-                s_TmpFactor2 = GetTemporaryTableName("tmpQuasiFactor2_"),
-                s_FactorComplete =
-                    Parameters[RequiredParameters.FactorTable.ToString()] +
-                    "[,\"" +
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]",
-                s_TmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            string s_TmpDataTable = GetTemporaryTableName("tmpQuasitelData_");
+            string s_TmpFactorTable = GetTemporaryTableName("tmpQuasitelFactor_");
+            string s_TmpFactor1 = GetTemporaryTableName("tmpQuasiFactor1_");
+            string s_TmpFactor2 = GetTemporaryTableName("tmpQuasiFactor2_");
+            string s_FactorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
+                                      Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
+            string s_TmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
 
             try
             {
@@ -190,11 +187,10 @@ namespace Cyclops.DataModules
 
                 if (Parameters.ContainsKey("removePeptideColumn"))
                 {
-                    Command += string.Format("{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
-                    Parameters[RequiredParameters.InputTableName.ToString()]);
-                    s_TmpInputTableName =
-                        s_TmpInputTableName +
-                        "_tmpT";
+                    Command += string.Format(
+                        "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
+                        Parameters[RequiredParameters.InputTableName.ToString()]);
+                    s_TmpInputTableName = s_TmpInputTableName + "_tmpT";
                 }
 
                 b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
@@ -209,11 +205,8 @@ namespace Cyclops.DataModules
 
                 b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
 
-                List<string> l_Factors = Model.RCalls.GetColumnNames(
-                    s_TmpInputTableName,
-                    true);
-                int i_FactorCnt = Model.RCalls.GetLengthOfVector(
-                    s_FactorComplete);
+                List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
+                int i_FactorCnt = Model.RCalls.GetLengthOfVector(s_FactorComplete);
                 if (l_Factors.Count == i_FactorCnt && b_Successful)
                 {
                     // setup the pairwise comparisons
@@ -276,8 +269,7 @@ namespace Cyclops.DataModules
                                 s_TmpFactor1,
                                 s_TmpFactor2);
 
-                            b_Successful = Model.RCalls.Run(
-                                Command, ModuleName, StepNumber);
+                            b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
                         }
                     }
                 }

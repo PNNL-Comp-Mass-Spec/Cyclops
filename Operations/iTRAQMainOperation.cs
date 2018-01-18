@@ -27,12 +27,12 @@ namespace Cyclops.Operations
         {
             Type
         }
+        
         #endregion
 
         #region Members
-        private string
-            m_iTraqTableName = "T_iTRAQ_PipelineOperation",
-            m_ModuleName = "iTRAQMainOperation";
+        private string m_iTraqTableName = "T_iTRAQ_PipelineOperation";
+        private string m_ModuleName = "iTRAQMainOperation";
 
         private Dictionary<iTraqTypes, string> m_iTraqTableNames;
         #endregion
@@ -55,8 +55,7 @@ namespace Cyclops.Operations
             Initialize();
         }
 
-        public iTRAQMainOperation(CyclopsModel CyclopsModel,
-            Dictionary<string, string> OperationParameters)
+        public iTRAQMainOperation(CyclopsModel CyclopsModel, Dictionary<string, string> OperationParameters)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
@@ -87,8 +86,7 @@ namespace Cyclops.Operations
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful =
@@ -111,8 +109,7 @@ namespace Cyclops.Operations
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }

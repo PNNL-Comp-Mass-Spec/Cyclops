@@ -18,13 +18,15 @@ namespace Cyclops.DataModules
     public class BetaBinomialModel : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BetaBinomialModel",
-            m_Description = "";
+        private string m_ModuleName = "BetaBinomialModel";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run BetaBinomialModel Module
         /// </summary>
         private enum RequiredParameters
-        { NewTableName, InputTableName, Theta, Fixed_Effect, FactorTable
+        { 
+            NewTableName, InputTableName, Theta, Fixed_Effect, FactorTable
         }
 
         private string m_MergeColumn = "Alias"; // default value of MergeColumn
@@ -60,8 +62,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public BetaBinomialModel(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public BetaBinomialModel(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -82,8 +83,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = BetaBinomialModelFunction();
@@ -122,8 +122,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -174,12 +173,10 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string s_TmpTable = Model.RCalls.GetTemporaryTableName("tmpBBMTable_"),
-                s_FactorComplete =
-                    Parameters[RequiredParameters.FactorTable.ToString()] +
-                    "[,\"" +
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]",
-                s_TmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            string s_TmpTable = Model.RCalls.GetTemporaryTableName("tmpBBMTable_");
+            string s_FactorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
+                                      Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
+            string s_TmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
 
             try
             {
@@ -187,11 +184,10 @@ namespace Cyclops.DataModules
 
                 if (Parameters.ContainsKey("removePeptideColumn"))
                 {
-                    Command += string.Format("{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
-                    Parameters[RequiredParameters.InputTableName.ToString()]);
-                    s_TmpInputTableName =
-                        s_TmpInputTableName +
-                        "_tmpT";
+                    Command += string.Format(
+                        "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
+                        Parameters[RequiredParameters.InputTableName.ToString()]);
+                    s_TmpInputTableName = s_TmpInputTableName + "_tmpT";
                 }
 
                 b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
@@ -204,9 +200,7 @@ namespace Cyclops.DataModules
                     m_MergeColumn,
                     "tmp_OrgFactor4BBM_");
 
-                List<string> l_Factors = Model.RCalls.GetColumnNames(
-                    s_TmpInputTableName,
-                    true);
+                List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
                 int i_FactorCnt = Model.RCalls.GetLengthOfVector(
                     s_FactorComplete);
                 if (l_Factors.Count == i_FactorCnt && b_Successful)
@@ -231,8 +225,7 @@ namespace Cyclops.DataModules
                         Command += string.Format("rm({0})\n",
                             s_TmpInputTableName);
 
-                    b_Successful = Model.RCalls.Run(Command,
-                        ModuleName, StepNumber);
+                    b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
                 }
                 else
                 {

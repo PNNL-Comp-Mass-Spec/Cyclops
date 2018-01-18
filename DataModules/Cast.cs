@@ -18,14 +18,15 @@ namespace Cyclops.DataModules
     public class Cast : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Cast",
-            m_Description = "";
+        private string m_ModuleName = "Cast";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run Cast Module
         /// </summary>
         private enum RequiredParameters
-        {
-        }
+        { }
+        
         #endregion
 
         #region Properties
@@ -58,8 +59,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public Cast(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public Cast(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -80,8 +80,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = CastFunction();
@@ -120,8 +119,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }

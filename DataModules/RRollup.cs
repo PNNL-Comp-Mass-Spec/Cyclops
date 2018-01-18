@@ -18,17 +18,17 @@ namespace Cyclops.DataModules
     public class RRollup : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "RRollup",
-            m_Description = "",
-            m_MinimumPresence = "1",
-            m_Mode = "median",
-            m_ProteinInfo_ProteinColumn = "1",
-            m_ProteinInfo_PeptideColumn = "2",
-            m_MinimumOverlap = "2",
-            m_OneHitWonders = "FALSE",
-            m_GrubbsPValue = "0.05",
-            m_GminPCount = "5",
-            m_Center = "FALSE";
+        private string m_ModuleName = "RRollup";
+        private string m_Description = "";
+        private string m_MinimumPresence = "1";
+        private string m_Mode = "median";
+        private string m_ProteinInfo_ProteinColumn = "1";
+        private string m_ProteinInfo_PeptideColumn = "2";
+        private string m_MinimumOverlap = "2";
+        private string m_OneHitWonders = "FALSE";
+        private string m_GrubbsPValue = "0.05";
+        private string m_GminPCount = "5";
+        private string m_Center = "FALSE";
 
         /// <summary>
         /// Required parameters to run RRollup Module
@@ -37,6 +37,7 @@ namespace Cyclops.DataModules
         {
             NewTableName, InputTableName, ProteinInfoTable
         }
+
         #endregion
 
         #region Properties
@@ -69,8 +70,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public RRollup(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public RRollup(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -91,8 +91,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running RRollup",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running RRollup", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = RRollupFunction();
@@ -131,8 +130,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -196,8 +194,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

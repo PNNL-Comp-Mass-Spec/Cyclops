@@ -18,8 +18,9 @@ namespace Cyclops.DataModules
     public class CleanDataAndColumnFactors : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "CleanDataAndColumnFactors",
-            m_Description = "";
+        private string m_ModuleName = "CleanDataAndColumnFactors";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run CleanDataAndColumnFactors Module
         /// </summary>
@@ -27,6 +28,7 @@ namespace Cyclops.DataModules
         {
             InputTableName, FactorTable, FactorColumn
         }
+        
         #endregion
 
         #region Properties
@@ -65,8 +67,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public CleanDataAndColumnFactors(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public CleanDataAndColumnFactors(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -87,8 +88,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running CleanDataAndColumnFactors",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running CleanDataAndColumnFactors", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = CleanDataAndColumnFactorsFunction();
@@ -127,8 +127,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -249,7 +248,8 @@ namespace Cyclops.DataModules
         /// <param name="ColumnMetadataFactor">Column in the Column Metadata table that maps to the datasets</param>
         /// <returns>True, if the method completes successfully</returns>
         public bool AreDataColumnLengthAndColumnMetadataRowsEqual(
-            string DataTableName, string ColumnMetadataTableName,
+            string DataTableName, 
+            string ColumnMetadataTableName,
             string ColumnMetadataFactor)
         {
             bool b_Successful = true;
@@ -263,8 +263,7 @@ namespace Cyclops.DataModules
             if (td_Data.Columns != td_ColumnMetadata.Rows)
             {
                 b_Successful = ModifyFactorAndDataTables(
-                    DataTableName, ColumnMetadataTableName,
-                    ColumnMetadataFactor);
+                    DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
             }
             else
             {
@@ -282,8 +281,7 @@ namespace Cyclops.DataModules
                 else
                 {
                     b_Successful = ModifyFactorAndDataTables(
-                        DataTableName, ColumnMetadataTableName,
-                        ColumnMetadataFactor);
+                        DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
                 }
             }
 
@@ -299,24 +297,24 @@ namespace Cyclops.DataModules
         /// <param name="ColumnMetadataFactor">Column in the Column Metadata table that maps to the datasets</param>
         /// <returns>True if the method completes successfully</returns>
         public bool ModifyFactorAndDataTables(
-            string DataTableName, string ColumnMetadataTableName,
+            string DataTableName, 
+            string ColumnMetadataTableName,
             string ColumnMetadataFactor)
         {
             bool b_Successful = true;
 
             string Command = string.Format(
-                            "{0} <- merge(x=cbind({1}=colnames({2}))," +
-                            "y={0}, by.x=\"{1}\", by.y=\"{1}\"," +
-                            "all.y=F, all.x=F)\n\n" +
-                            "{2} <- {2}[,which(colnames({2})%in%{0}${1})]\n",
-                            ColumnMetadataTableName,
-                            ColumnMetadataFactor,
-                            DataTableName);
+                "{0} <- merge(x=cbind({1}=colnames({2}))," +
+                "y={0}, by.x=\"{1}\", by.y=\"{1}\"," +
+                "all.y=F, all.x=F)\n\n" +
+                "{2} <- {2}[,which(colnames({2})%in%{0}${1})]\n",
+                ColumnMetadataTableName,
+                ColumnMetadataFactor,
+                DataTableName);
 
             try
             {
-                b_Successful = Model.RCalls.Run(
-                    Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

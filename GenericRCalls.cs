@@ -110,8 +110,7 @@ namespace Cyclops
         /// <param name="SummaryStatement">Summary of the Command being issued, e.g. Name of Module</param>
         /// <param name="Step">Step number for the command</param>
         /// <returns>True, if the command is issued successfully</returns>
-        public bool Run(string Command, string SummaryStatement,
-            int Step)
+        public bool Run(string Command, string SummaryStatement, int Step)
         {
             var b_Successful = true;
 
@@ -164,14 +163,11 @@ namespace Cyclops
         /// <param name="Module">Name of module calling LoadRWorkspace</param>
         /// <param name="Step">Step number for the command</param>
         /// <returns>True, if loaded successfully</returns>
-        public bool LoadRWorkspace(string WorkspaceFileName,
-            string Module, int Step)
+        public bool LoadRWorkspace(string WorkspaceFileName, string Module, int Step)
         {
             var filePathForR = ConvertToRCompatiblePath(WorkspaceFileName);
 
-            var Command = string.Format(
-                "load(\"{0}\")",
-                filePathForR);
+            var Command = string.Format("load(\"{0}\")", filePathForR);
 
             return Run(Command, Module, Step);
         }
@@ -264,8 +260,7 @@ namespace Cyclops
             {
                 try
                 {
-                    engine.Evaluate(string.Format("rm({0})\n",
-                        Object2Remove));
+                    engine.Evaluate(string.Format("rm({0})\n", Object2Remove));
                 }
                 catch (Exception ex)
                 {
@@ -372,8 +367,7 @@ namespace Cyclops
         public bool IsPackageInstalled(string Package)
         {
             var b_Return = false;
-            var s_RStatement = string.Format("jnbIsPackageInstalled('{0}')",
-                Package);
+            var s_RStatement = string.Format("jnbIsPackageInstalled('{0}')", Package);
             var cv = engine.Evaluate(s_RStatement).AsCharacter();
             if (cv[0].ToUpper().Equals("TRUE"))
                 b_Return = true;
@@ -389,8 +383,7 @@ namespace Cyclops
         {
             var b_Successful = true;
 
-            var Command = string.Format("save.image(file=\"{0}\")",
-                FileName);
+            var Command = string.Format("save.image(file=\"{0}\")", FileName);
             Command = Command.Replace("\\", "/");
             try
             {
@@ -418,8 +411,7 @@ namespace Cyclops
             if (GetClassOfObject(ObjectName).Equals("data.frame") ||
                 GetClassOfObject(ObjectName).Equals("matrix"))
             {
-                var cv = engine.Evaluate(string.Format("rownames({0})",
-                    ObjectName)).AsCharacter();
+                var cv = engine.Evaluate(string.Format("rownames({0})", ObjectName)).AsCharacter();
 
                 for (var i = 0; i < cv.Length; i++)
                     l_Return.Add(cv[i]);
@@ -451,8 +443,7 @@ namespace Cyclops
             if (GetClassOfObject(ObjectName).Equals("data.frame") ||
                 GetClassOfObject(ObjectName).Equals("matrix"))
             {
-                var cv = engine.Evaluate(string.Format("colnames({0})",
-                    ObjectName)).AsCharacter();
+                var cv = engine.Evaluate(string.Format("colnames({0})", ObjectName)).AsCharacter();
 
                 for (var i = 0; i < cv.Length; i++)
                 {
@@ -505,9 +496,7 @@ namespace Cyclops
                 if (GetClassOfObject(ObjectName).Equals("data.frame") ||
                     GetClassOfObject(ObjectName).Equals("matrix"))
                 {
-                    var dim = engine.Evaluate(
-                        string.Format("dim({0})\n",
-                        ObjectName)).AsInteger();
+                    var dim = engine.Evaluate(string.Format("dim({0})\n", ObjectName)).AsInteger();
                     if (dim.Length == 2)
                     {
                         td.Rows = dim[0];
@@ -561,8 +550,7 @@ namespace Cyclops
             #region Construct the Filter
             if (!string.IsNullOrEmpty(ColumnName))
             {
-                if (TableContainsColumn(TableName,
-                    ColumnName))
+                if (TableContainsColumn(TableName, ColumnName))
                 {
                     if (!string.IsNullOrEmpty(MinValue) &
                         !string.IsNullOrEmpty(MaxValue))
@@ -642,8 +630,7 @@ namespace Cyclops
         /// <returns>Length of Vector</returns>
         public int GetLengthOfVector(string Vector)
         {
-            var s_Command = string.Format("length({0})",
-                Vector);
+            var s_Command = string.Format("length({0})", Vector);
 
             var iv = engine.Evaluate(s_Command).AsInteger();
             return iv[0];
@@ -655,8 +642,7 @@ namespace Cyclops
         /// <param name="Table2Retrieve">Name of data.frame or matrix</param>
         /// <param name="IgnoreLs">If your table of interest is hidden within a list or object, set this to true</param>
         /// <returns>DataTable version of your data.frame or matrix</returns>
-        public DataTable GetDataTable(string Table2Retrieve,
-            bool IgnoreLs)
+        public DataTable GetDataTable(string Table2Retrieve, bool IgnoreLs)
         {
             var dt_Return = new DataTable();
 
@@ -819,8 +805,7 @@ namespace Cyclops
         /// <returns>True, if the new data.frame is created successfully</returns>
         public bool WriteDataTableToR(DataTable Table, string TableName)
         {
-            var Command = string.Format("{0} <- data.frame(",
-                    TableName);
+            var Command = string.Format("{0} <- data.frame(", TableName);
 
             for (var c = 0; c < Table.Columns.Count; c++)
             {

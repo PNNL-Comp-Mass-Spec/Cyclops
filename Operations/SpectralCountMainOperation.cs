@@ -30,6 +30,7 @@ namespace Cyclops.Operations
         {
             Type
         }
+        
         #endregion
 
         #region Members
@@ -60,8 +61,7 @@ namespace Cyclops.Operations
             Initialize();
         }
 
-        public SpectralCountMainOperation(CyclopsModel CyclopsModel,
-            Dictionary<string, string> OperationParameters)
+        public SpectralCountMainOperation(CyclopsModel CyclopsModel, Dictionary<string, string> OperationParameters)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
@@ -95,8 +95,7 @@ namespace Cyclops.Operations
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful =
@@ -119,8 +118,7 @@ namespace Cyclops.Operations
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }

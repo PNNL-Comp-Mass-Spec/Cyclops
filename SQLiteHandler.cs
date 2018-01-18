@@ -178,9 +178,7 @@ namespace Cyclops
         /// <param name="Conn">Full path to the SQLite database</param>
         /// <param name="Table">DataTable to insert into the database, TableName is used to name the table in the SQLite database</param>
         /// <returns>True, if the function completes successfully</returns>
-        private bool FillTable(
-            SQLiteConnection Conn,
-            DataTable Table)
+        private bool FillTable(SQLiteConnection Conn, DataTable Table)
         {
             var b_Successful = true;
 
@@ -239,9 +237,7 @@ namespace Cyclops
         /// <param name="Conn">Full path to the SQLite database</param>
         /// <param name="MainData">DataSet to enter into the database</param>
         /// <returns>True, if the function completes successfully</returns>
-        private bool FillTables(
-            SQLiteConnection Conn,
-            DataSet MainData)
+        private bool FillTables(SQLiteConnection Conn, DataSet MainData)
         {
 
             foreach (DataTable dt in MainData.Tables)
@@ -310,8 +306,7 @@ namespace Cyclops
         /// will create delete existing SQLite database and create a blank one
         /// in its place</param>
         /// <returns>True, if the function completes successfully</returns>
-        public bool CreateDatabase(string FileNameOfDatabase,
-            bool OverwriteExistingDatabase)
+        public bool CreateDatabase(string FileNameOfDatabase, bool OverwriteExistingDatabase)
         {
             DatabaseFileName = FileNameOfDatabase;
 
@@ -345,9 +340,7 @@ namespace Cyclops
                     retval = Cmd.ExecuteNonQuery();
                 }
 
-                var cmd_Table = new SQLiteCommand(
-                    SqliteCreateTableStatement(Table),
-                    Conn);
+                var cmd_Table = new SQLiteCommand(SqliteCreateTableStatement(Table), Conn);
                 retval = cmd_Table.ExecuteNonQuery();
 
                 FillTable(Conn, Table);
@@ -393,9 +386,7 @@ namespace Cyclops
         /// <param name="DatabasePath">Path to the database to commit to</param>
         /// <param name="MainData">the DataSet to commit to the SQLite database</param>
         /// <returns>True, if the data is committed successfully</returns>
-        public bool WriteDatasetToDatabase(
-            string DatabasePath,
-            DataSet MainData)
+        public bool WriteDatasetToDatabase(string DatabasePath, DataSet MainData)
         {
             DatabaseFileName = DatabasePath;
 

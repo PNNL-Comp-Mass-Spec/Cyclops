@@ -21,16 +21,17 @@ namespace Cyclops.DataModules
     public class FilterTable : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "FilterTable",
-            m_Description = "";
+        private string m_ModuleName = "FilterTable";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run FilterTable Module
         /// </summary>
         private enum RequiredParameters
         {
-            InputTableName, NewTableName, ColumnName,
-            Operation, Value
+            InputTableName, NewTableName, ColumnName, Operation, Value
         }
+        
         #endregion
 
         #region Properties
@@ -63,8 +64,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public FilterTable(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public FilterTable(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -85,8 +85,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running FilterTable",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running FilterTable", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = FilterTableFunction();
@@ -125,8 +124,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -163,8 +161,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

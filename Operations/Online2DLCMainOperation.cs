@@ -36,8 +36,7 @@ namespace Cyclops.Operations
             Model = CyclopsModel;
         }
 
-        public Online2DLCMainOperation(CyclopsModel CyclopsModel,
-            Dictionary<string, string> OperationParameters)
+        public Online2DLCMainOperation(CyclopsModel CyclopsModel, Dictionary<string, string> OperationParameters)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;

@@ -18,8 +18,9 @@ namespace Cyclops.DataModules
     public class SummarizeData : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "SummarizeData",
-            m_Description = "";
+        private string m_ModuleName = "SummarizeData";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run SummarizeData Module
         /// </summary>
@@ -27,6 +28,7 @@ namespace Cyclops.DataModules
         {
             NewTableName, InputTableName
         }
+        
         #endregion
 
         #region Properties
@@ -59,8 +61,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public SummarizeData(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public SummarizeData(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -81,8 +82,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = SummarizeDataFunction();
@@ -121,8 +121,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }

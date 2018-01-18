@@ -22,13 +22,14 @@ namespace Cyclops.DataModules
     public class MSStats : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "MSStats",
-            m_Description = "",
-            m_ColumnMetadataLink = "Alias",
-            m_Abundance = "Abundance",
-            m_AnovaModel = "fixed",
-            m_FeatureVar = "FALSE",
-            m_Progress = "FALSE";
+        private string m_ModuleName = "MSStats";
+        private string m_Description = "";
+        private string m_ColumnMetadataLink = "Alias";
+        private string m_Abundance = "Abundance";
+        private string m_AnovaModel = "fixed";
+        private string m_FeatureVar = "FALSE";
+        private string m_Progress = "FALSE";
+            
         /// <summary>
         /// Required parameters to run MSStats Module
         /// </summary>
@@ -38,6 +39,7 @@ namespace Cyclops.DataModules
             RowMetadataTable, ColumnMetadataTable, RowMetadataProteinColumn,
             RowMetadataPeptideColumn, BioRep, TechRep
         }
+        
         #endregion
 
         #region Properties
@@ -98,8 +100,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public MSStats(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public MSStats(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
@@ -119,8 +120,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running MSStats",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running MSStats", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = MSStatsFunction();
@@ -164,8 +164,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -194,8 +193,8 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string s_TmpTable4MSstats = GetTemporaryTableName("Tmp4MSstats_"),
-                s_TmpFitTable = GetTemporaryTableName("tmpFit_");
+            string s_TmpTable4MSstats = GetTemporaryTableName("Tmp4MSstats_");
+            string s_TmpFitTable = GetTemporaryTableName("tmpFit_");
 
             string Command = string.Format(
                 "{0} <- jnb_Prepare4MSstats(" +
@@ -244,8 +243,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception exc)
             {

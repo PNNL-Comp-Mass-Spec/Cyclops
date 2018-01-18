@@ -31,8 +31,10 @@ namespace Cyclops.DataModules
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
-        { FileName
+        { 
+            FileName
         }
+        
         private bool m_DatabaseFound;
         private enum HTMLFileType { Dataset, Index };
         private SQLiteHandler sql = new SQLiteHandler();
@@ -68,8 +70,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public HtmlSummary(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public HtmlSummary(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -127,8 +128,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -142,30 +142,25 @@ namespace Cyclops.DataModules
                     sql.DatabaseFileName = Parameters["DatabaseFileName"];
                     m_DatabaseFound = true;
                 }
-                else if (File.Exists(Path.Combine(Model.WorkDirectory,
-                    Parameters["DatabaseFileName"])))
+                else if (File.Exists(Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"])))
                 {
                     m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory,
-                    Parameters["DatabaseFileName"]);
+                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"]);
                     m_DatabaseFound = true;
                 }
             }
             else
             {
-                if (File.Exists(Path.Combine(Model.WorkDirectory,
-                    "Results.db3")))
+                if (File.Exists(Path.Combine(Model.WorkDirectory, "Results.db3")))
                 {
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory,
-                    "Results.db3");
+                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
                     m_DatabaseFound = true;
                 }
             }
 
             if (!m_DatabaseFound)
             {
-                Model.LogError("Unable to establish successful database connection!",
-                    ModuleName, StepNumber);
+                Model.LogError("Unable to establish successful database connection!", ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -180,14 +175,14 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string s_CssFileName = "styles.css", s_DatasetsFileName = "Datasets.html",
-                    s_QCFileName = "QC.html";
+            string s_CssFileName = "styles.css";
+            string s_DatasetsFileName = "Datasets.html";
+            string s_QCFileName = "QC.html";
+            
             List<HtmlLinkNode> l_NavBarNodes = new List<HtmlLinkNode>();
 
             l_NavBarNodes.Add(new HtmlLinkNode(
-                "Home",
-                Parameters[RequiredParameters.FileName.ToString()],
-                false));
+                "Home", Parameters[RequiredParameters.FileName.ToString()], false));
             l_NavBarNodes.Add(new HtmlLinkNode(
                 "Datasets", s_DatasetsFileName, false));
             l_NavBarNodes.Add(new HtmlLinkNode(
@@ -216,9 +211,7 @@ namespace Cyclops.DataModules
             sb_Datasets.Append("\t\t</DIV>\n");
             sb_Datasets.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter sw_Datasets = new StreamWriter(Path.Combine(
-                Model.WorkDirectory,
-                s_DatasetsFileName));
+            StreamWriter sw_Datasets = new StreamWriter(Path.Combine(Model.WorkDirectory, s_DatasetsFileName));
             sw_Datasets.Write(sb_Datasets);
             sw_Datasets.Close();
             sb_Datasets.Clear();
@@ -265,8 +258,7 @@ namespace Cyclops.DataModules
                 sql.GetTable("T_MAC_Trypticity_Summary"), null, null, null, null));
             sb_QC.Append("\t\t</DIV>\n");
 
-            StreamWriter sw_QC = new StreamWriter(Path.Combine(Model.WorkDirectory,
-                s_QCFileName));
+            StreamWriter sw_QC = new StreamWriter(Path.Combine(Model.WorkDirectory, s_QCFileName));
             sw_QC.WriteLine(sb_QC);
             sw_QC.Close();
 
@@ -296,9 +288,7 @@ namespace Cyclops.DataModules
 
 
             // TODO : Write the html out to the file
-            StreamWriter sw = new StreamWriter(Path.Combine(
-                Model.WorkDirectory,
-                Parameters[RequiredParameters.FileName.ToString()]));
+            StreamWriter sw = new StreamWriter(Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]));
             sw.Write(sb_HTML);
             sw.Close();
 
@@ -320,8 +310,7 @@ namespace Cyclops.DataModules
             {
                 case HTMLFileType.Dataset:
                     s_Body = HtmlFileHandler.GetDatasetTableHtml(
-                        Path.Combine(Model.WorkDirectory, m_DatabaseFileName), null,
-                            "table_header", "center", 0, 2, 4);
+                        Path.Combine(Model.WorkDirectory, m_DatabaseFileName), null, "table_header", "center", 0, 2, 4);
                     break;
                 case HTMLFileType.Index:
 

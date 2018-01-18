@@ -19,22 +19,23 @@ namespace Cyclops.DataModules
     public class BoxPlot : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BoxPlot",
-            m_Description = "",
-            m_DataColumns = "NULL",
-            m_ColorByFactor = "FALSE",
-            m_ColumnFactorTable = "NULL",
-            m_FactorColumn = "NULL",
-            m_Outliers = "TRUE",
-            m_Color = "cornflowerblue",
-            m_LabelScale = "0.8",
-            m_BoxWidth = "1",
-            m_ShowCount = "TRUE",
-            m_ShowLegend = "TRUE",
-            m_Stamp = "NULL",
-            m_DoYLim = "FALSE",
-            m_yMin = "NULL",
-            m_yMax = "NULL";
+        private string m_ModuleName = "BoxPlot";
+        private string m_Description = "";
+        private string m_DataColumns = "NULL";
+        private string m_ColorByFactor = "FALSE";
+        private string m_ColumnFactorTable = "NULL";
+        private string m_FactorColumn = "NULL";
+        private string m_Outliers = "TRUE";
+        private string m_Color = "cornflowerblue";
+        private string m_LabelScale = "0.8";
+        private string m_BoxWidth = "1";
+        private string m_ShowCount = "TRUE";
+        private string m_ShowLegend = "TRUE";
+        private string m_Stamp = "NULL";
+        private string m_DoYLim = "FALSE";
+        private string m_yMin = "NULL";
+        private string m_yMax = "NULL";
+        
         /// <summary>
         /// Required parameters to run BoxPlot Module
         /// </summary>
@@ -42,6 +43,7 @@ namespace Cyclops.DataModules
         {
             TableName, PlotFileName
         }
+        
         #endregion
 
         #region Properties
@@ -74,8 +76,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public BoxPlot(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public BoxPlot(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -96,8 +97,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running BoxPlot",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running BoxPlot", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = BoxPlotFunction();
@@ -136,8 +136,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -270,8 +269,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

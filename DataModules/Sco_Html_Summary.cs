@@ -25,15 +25,15 @@ namespace Cyclops.DataModules
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
-        {
-        }
+        { }
+        
         private enum HTMLFileType { Dataset, Index };
         #endregion
 
         #region Members
-        private string m_ModuleName = "Sco_HTML_Summary",
-            m_Description = "",
-            m_DatabaseFileName = "Results.db3";
+        private string m_ModuleName = "Sco_HTML_Summary";
+        private string m_Description = "";
+        private string m_DatabaseFileName = "Results.db3";
 
         private bool m_DatabaseFound = false;
         private SQLiteHandler sql = new SQLiteHandler();
@@ -70,8 +70,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public Sco_Html_Summary(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public Sco_Html_Summary(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -92,8 +91,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 AddDefaultValues2FileNameVault();
 
@@ -134,8 +132,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -155,32 +152,26 @@ namespace Cyclops.DataModules
                     sql.DatabaseFileName = Parameters["DatabaseFileName"];
                     m_DatabaseFound = true;
                 }
-                else if (File.Exists(Path.Combine(Model.WorkDirectory,
-                    Parameters["DatabaseFileName"])))
+                else if (File.Exists(Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"])))
                 {
                     m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory,
-                    Parameters["DatabaseFileName"]);
+                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"]);
                     m_DatabaseFound = true;
                 }
             }
             else
             {
-                if (File.Exists(Path.Combine(Model.WorkDirectory,
-                    "Results.db3")))
+                if (File.Exists(Path.Combine(Model.WorkDirectory, "Results.db3")))
                 {
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory,
-                    "Results.db3");
-                    Parameters.Add("DatabaseFileName",
-                        sql.DatabaseFileName);
+                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
+                    Parameters.Add("DatabaseFileName", sql.DatabaseFileName);
                     m_DatabaseFound = true;
                 }
             }
 
             if (!m_DatabaseFound)
             {
-                Model.LogError("Unable to establish successful database connection!",
-                    ModuleName, StepNumber);
+                Model.LogError("Unable to establish successful database connection!", ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -204,8 +195,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing " +
-                    "the Datasets HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Datasets HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -218,8 +208,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing " +
-                    "the Quality Control HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Quality Control HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -232,8 +221,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing " +
-                    "the Correlation HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Correlation HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -246,8 +234,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing " +
-                    "the Heatmaps HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Heatmaps HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -260,8 +247,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing " +
-                    "the Main HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Main HTML Summary Page: " + ex.ToString(),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -364,8 +350,7 @@ namespace Cyclops.DataModules
             sb_Datasets.Append("\t\t</DIV>\n");
             sb_Datasets.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter sw_Datasets = new StreamWriter(Path.Combine(Model.WorkDirectory,
-                FileNameVault["DatasetsHtmlFileName"]));
+            StreamWriter sw_Datasets = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["DatasetsHtmlFileName"]));
             sw_Datasets.Write(sb_Datasets);
             sw_Datasets.Close();
         }

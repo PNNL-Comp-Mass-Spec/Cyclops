@@ -141,14 +141,14 @@ namespace Cyclops
             if (string.IsNullOrEmpty(InputWorkflowFileName))
             {
                 Model.LogError("A workflow file must be supplied in order to read modules!",
-                    "WorkflowHandler: ReadWorkflow()", 0);
+                               "WorkflowHandler: ReadWorkflow()", 0);
                 return false;
             }
 
             if (!File.Exists(InputWorkflowFileName) && !File.Exists(Path.Combine(Model.WorkDirectory, InputWorkflowFileName)))
             {
-                Model.LogError("Cyclops cannot find the specified workflow file: " +
-                    InputWorkflowFileName, "WorkflowHandler: ReadWorkflow()", 0);
+                Model.LogError("Cyclops cannot find the specified workflow file: " + InputWorkflowFileName,
+                               "WorkflowHandler: ReadWorkflow()", 0);
                 return false;
             }
 
@@ -202,8 +202,7 @@ namespace Cyclops
             return ReadWorkflow();
         }
 
-        public bool ReadWorkflow(string TheWorkflowFileName, string TableName,
-            WorkflowType Type)
+        public bool ReadWorkflow(string TheWorkflowFileName, string TableName, WorkflowType Type)
         {
             InputWorkflowFileName = TheWorkflowFileName;
             WorkflowTableName = TableName;
@@ -320,7 +319,7 @@ namespace Cyclops
             return b_Successful;
         }
 
-        private void AddModulesToDataTables(DataModules.BaseDataModule Module)
+        private void AddModulesToDataTables(BaseModule Module)
         {
             foreach (var kvp in Module.Parameters)
             {
@@ -425,8 +424,7 @@ namespace Cyclops
             {
                 var r = i + 1;
                 var rows = workflowTableName.Select(
-                    string.Format("Step = {0}",
-                                  r));
+                    string.Format("Step = {0}", r));
                 var Param = GetParametersFromDataRows(rows, r);
                 var mi = GetModuleNameFromRows(rows, r);
 

@@ -25,11 +25,11 @@ namespace Cyclops.DataModules
         #endregion
 
         #region Members
-        private string m_ModuleName = "LBF_Summary_HTML",
-            m_Description = "",
-            m_TypticTableSummaryName = "T_MAC_Trypticity_Summary",
-            m_WorkingDirectory = "",
-            m_DatabaseName = "Results.db3";
+        private string m_ModuleName = "LBF_Summary_HTML";
+        private string m_Description = "";
+        private string m_TypticTableSummaryName = "T_MAC_Trypticity_Summary";
+        private string m_WorkingDirectory = "";
+        private string m_DatabaseName = "Results.db3";
 
         private DataTable m_Overlap = new DataTable("LBF");
 
@@ -42,6 +42,7 @@ namespace Cyclops.DataModules
         {
             FileName
         }
+
         #endregion
 
         #region Properties
@@ -76,8 +77,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public LBF_Summary_HTML(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public LBF_Summary_HTML(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -98,8 +98,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running LBF_Summary_HTML",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running LBF_Summary_HTML", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = LBF_Summary_HTMLFunction();
@@ -138,8 +137,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -151,15 +149,13 @@ namespace Cyclops.DataModules
                     m_WorkingDirectory = Parameters["WorkDir"];
                 else
                 {
-                    Model.LogError("Error in 'LBF_Summary_HTML', no 'WorkDir' supplied!",
-                        ModuleName, StepNumber);
+                    Model.LogError("Error in 'LBF_Summary_HTML', no 'WorkDir' supplied!", ModuleName, StepNumber);
                     b_Successful = false;
                 }
             }
             else if (b_Successful)
             {
-                Model.LogError("Error in 'LBF_Summary_HTML', no 'WorkDir' supplied!",
-                    ModuleName, StepNumber);
+                Model.LogError("Error in 'LBF_Summary_HTML', no 'WorkDir' supplied!", ModuleName, StepNumber);
                 b_Successful = false;
             }
 
@@ -391,31 +387,24 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteSummaryHTMLPage(List<HtmlLinkNode> NavBar)
         {
-            NavBar.Add(new HtmlLinkNode("Peptide Original",
-                    "pepOrig", true));
-            NavBar.Add(new HtmlLinkNode("Peptide Log2",
-                    "peplog2", true));
+            NavBar.Add(new HtmlLinkNode("Peptide Original", "pepOrig", true));
+            NavBar.Add(new HtmlLinkNode("Peptide Log2", "peplog2", true));
             if (m_CT)
             {
-                NavBar.Add(new HtmlLinkNode("Peptide CT",
-                        "pepCT", true));
+                NavBar.Add(new HtmlLinkNode("Peptide CT", "pepCT", true));
             }
             if (m_LR)
             {
-                NavBar.Add(new HtmlLinkNode("Peptide LR",
-                        "pepLR", true));
+                NavBar.Add(new HtmlLinkNode("Peptide LR", "pepLR", true));
             }
-            NavBar.Add(new HtmlLinkNode("RRollup Protein",
-                    "protRR", true));
+            NavBar.Add(new HtmlLinkNode("RRollup Protein", "protRR", true));
             if (m_CT)
             {
-                NavBar.Add(new HtmlLinkNode("RRollup CT Protein",
-                        "protRRCT", true));
+                NavBar.Add(new HtmlLinkNode("RRollup CT Protein", "protRRCT", true));
             }
             if (m_LR)
             {
-                NavBar.Add(new HtmlLinkNode("RRollup LR Protein",
-                        "protRRLR", true));
+                NavBar.Add(new HtmlLinkNode("RRollup LR Protein", "protRRLR", true));
             }
 
             StringBuilder sb_Scripts = new StringBuilder();

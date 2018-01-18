@@ -133,7 +133,8 @@ namespace Cyclops.DataModules
         /// <param name="NameOfColumnMetadataTable">The Column Metadata Table</param>
         /// <param name="FactorColumn">Name of the column that contains the factor of interest</param>
         /// <returns>Name of temporary table that has the organized factors</returns>
-        public string GetOrganizedFactorsVector(string NameOfDataTable,
+        public string GetOrganizedFactorsVector(
+            string NameOfDataTable,
             string NameOfColumnMetadataTable, string FactorColumn, int step,
             string yMergeColumn, string TempTablePrefix)
         {
@@ -150,9 +151,7 @@ namespace Cyclops.DataModules
                 yMergeColumn,
                 FactorColumn);
 
-            Model.RCalls.Run(s_RStatement,
-                "Organizing Factors Vector",
-                step);
+            Model.RCalls.Run(s_RStatement, "Organizing Factors Vector", step);
 
             return s_TmpTable;
         }
@@ -182,14 +181,15 @@ namespace Cyclops.DataModules
         /// <param name="TypeName">Name of the module type</param>
         /// <param name="TheModel">CyclopsModel</param>
         /// <returns>A Data Module</returns>
-        public static BaseDataModule Create(string TypeName,
-            CyclopsModel TheModel, Dictionary<string, string> TheParameters)
+        public static BaseDataModule Create(
+            string TypeName,
+            CyclopsModel TheModel, 
+            Dictionary<string, string> TheParameters)
         {
             Type derivedType = null;
             if (sTypeMap.TryGetValue(TypeName, out derivedType))
             {
-                return System.Activator.CreateInstance(derivedType,
-                    TheModel, TheParameters) as BaseDataModule;
+                return System.Activator.CreateInstance(derivedType, TheModel, TheParameters) as BaseDataModule;
             }
             return null;
         }
@@ -274,18 +274,14 @@ namespace Cyclops.DataModules
         {
             if (!string.IsNullOrEmpty(Model.RWorkEnvironment))
             {
-                Model.LogMessage("Saving current work environment...",
-                    ModuleName, StepNumber);
-                Model.RCalls.Run(string.Format("save.image('{0}')\n",
-                    Model.RWorkEnvironment), ModuleName, StepNumber);
+                Model.LogMessage("Saving current work environment...", ModuleName, StepNumber);
+                Model.RCalls.Run(string.Format("save.image('{0}')\n", Model.RWorkEnvironment), ModuleName, StepNumber);
             }
             else
             {
-                Model.LogMessage("Saving current work environment...",
-                    ModuleName, StepNumber);
+                Model.LogMessage("Saving current work environment...", ModuleName, StepNumber);
                 var s_SaveFileName = Path.Combine(Model.WorkDirectory, "Results.RData").Replace("\\", "/");
-                Model.RCalls.Run(string.Format("save.image('{0}')\n",
-                    s_SaveFileName), ModuleName, StepNumber);
+                Model.RCalls.Run(string.Format("save.image('{0}')\n", s_SaveFileName), ModuleName, StepNumber);
             }
         }
 

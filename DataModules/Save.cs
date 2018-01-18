@@ -22,11 +22,11 @@ namespace Cyclops.DataModules
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
         private enum RequiredParameters
-        {
-        }
+        { }
 
-        private string m_ModuleName = "Save",
-            m_Description = "";
+        private string m_ModuleName = "Save";
+        private string m_Description = "";
+        
         #endregion
 
         #region Properties
@@ -59,8 +59,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public Save(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public Save(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -81,8 +80,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = SaveFunction();
@@ -121,8 +119,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -172,8 +169,7 @@ namespace Cyclops.DataModules
 
                 s_FileName = s_FileName.Replace("\\", "/");
 
-                Model.LogMessage("Saving R environment to: " + s_FileName,
-                    ModuleName, StepNumber);
+                Model.LogMessage("Saving R environment to: " + s_FileName, ModuleName, StepNumber);
 
                 b_Successful = Model.RCalls.SaveEnvironment(s_FileName);
 

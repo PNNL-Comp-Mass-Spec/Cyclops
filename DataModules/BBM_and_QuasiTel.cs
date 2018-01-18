@@ -23,12 +23,13 @@ namespace Cyclops.DataModules
     {
         #region Members
         private string m_ModuleName = "BBM_and_QuasiTel";
+        
         /// <summary>
         /// Required parameters to run BBM_and_QuasiTel Module
         /// </summary>
         private enum RequiredParameters
-        { NewTableName, InputTableName, FactorTable, Fixed_Effect, 
-            Theta
+        { 
+            NewTableName, InputTableName, FactorTable, Fixed_Effect, Theta
         }
 
         private string m_MergeColumn = "Alias"; // default value of MergeColumn
@@ -62,8 +63,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public BBM_and_QuasiTel(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public BBM_and_QuasiTel(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
@@ -101,8 +101,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -116,8 +115,7 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified input table: " +
-                    Parameters[RequiredParameters.InputTableName.ToString()],
-                    ModuleName, StepNumber);
+                    Parameters[RequiredParameters.InputTableName.ToString()], ModuleName, StepNumber);
                 b_Successful = false;
             }
             if (!Model.RCalls.ContainsObject(
@@ -125,8 +123,7 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified factor table: " +
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    ModuleName, StepNumber);
+                    Parameters[RequiredParameters.FactorTable.ToString()], ModuleName, StepNumber);
                 b_Successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
@@ -154,12 +151,11 @@ namespace Cyclops.DataModules
             bool b_Successful = true;
 
             // TODO : Make it work
-            string s_TmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_"),
-                s_FactorComplete =
-                    Parameters[RequiredParameters.FactorTable.ToString()] +
-                    "[,\"" +
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]",
-                s_TmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            string s_TmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
+            string s_FactorComplete = Parameters[RequiredParameters.FactorTable.ToString()] +
+                                      "[,\"" +
+                                      Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
+            string s_TmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
 
             try
             {
@@ -167,17 +163,14 @@ namespace Cyclops.DataModules
 
                 if (Parameters.ContainsKey("removePeptideColumn"))
                 {
-                    Command += string.Format("{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
-                    Parameters[RequiredParameters.InputTableName.ToString()]);
-                    s_TmpInputTableName =
-                        s_TmpInputTableName +
-                        "_tmpT";
+                    Command += string.Format(
+                        "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
+                        Parameters[RequiredParameters.InputTableName.ToString()]);
+                    s_TmpInputTableName = s_TmpInputTableName + "_tmpT";
                 }
                 b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
 
-                List<string> l_Factors = Model.RCalls.GetColumnNames(
-                    s_TmpInputTableName,
-                    true);
+                List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
                 int i_FactorCnt = Model.RCalls.GetLengthOfVector(
                     s_FactorComplete);
                 if (l_Factors.Count == i_FactorCnt && b_Successful)
@@ -198,12 +191,10 @@ namespace Cyclops.DataModules
 
                     if (Parameters.ContainsKey("removePeptideColumn"))
                     {
-                        Command += string.Format("\nrm({0})\n",
-                            s_TmpInputTableName);
+                        Command += string.Format("\nrm({0})\n", s_TmpInputTableName);
                     }
 
-                    b_Successful = Model.RCalls.Run(Command,
-                        ModuleName, StepNumber);
+                    b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
                 }
                 else
                 {
@@ -217,8 +208,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception exc)
             {
-                Model.LogError("Exception encountered while performing " +
-                    "BBM and QuasiTel analyses:\n" + exc.ToString(),
+                Model.LogError("Exception encountered while performing BBM and QuasiTel analyses:\n" + exc.ToString(),
                     ModuleName, StepNumber);
                 b_Successful = false;
             }

@@ -18,14 +18,15 @@ namespace Cyclops.DataModules
     public class BBM_QuasiTel : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BBM_QuasiTel",
-            m_Description = "";
+        private string m_ModuleName = "BBM_QuasiTel";
+        private string m_Description = "";
+        
         /// <summary>
         /// Required parameters to run BBM_and_QuasiTel Module
         /// </summary>
         private enum RequiredParameters
-        { NewTableName, InputTableName, FactorTable, Fixed_Effect,
-            Theta
+        { 
+            NewTableName, InputTableName, FactorTable, Fixed_Effect, Theta
         }
 
         //private enum ParametersForBBMandQuasitel
@@ -66,8 +67,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public BBM_QuasiTel(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public BBM_QuasiTel(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -88,8 +88,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running " + ModuleName,
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = BBM_and_QuasiTelFunction();
@@ -128,8 +127,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogWarning("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -177,22 +175,18 @@ namespace Cyclops.DataModules
 
                 if (string.IsNullOrEmpty(s_FactorTable))
                 {
-                      Model.LogWarning("FactorTable parameter is empty; skipping QuasiTel" ,
-                        ModuleName, StepNumber);
+                      Model.LogWarning("FactorTable parameter is empty; skipping QuasiTel", ModuleName, StepNumber);
                     return true;
                 }
 
                 if (string.IsNullOrEmpty(s_FixedEffect))
                 {
-                    Model.LogWarning("FixedEffect parameter is empty; skipping QuasiTel" ,
-                        ModuleName, StepNumber);
+                    Model.LogWarning("FixedEffect parameter is empty; skipping QuasiTel", ModuleName, StepNumber);
                     return true;
                 }
 
 
-                if (!Model.RCalls.TableContainsColumn(
-                s_FactorTable,
-                    s_FixedEffect))
+                if (!Model.RCalls.TableContainsColumn(s_FactorTable, s_FixedEffect))
                 {
                     Model.LogError(string.Format(
                         "Factor table ({0}) does not contain the specified " +
@@ -205,11 +199,9 @@ namespace Cyclops.DataModules
 
 
                 // TODO : Make it work
-                string s_TmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_"),
-                    s_TmpInputTableName = GetTemporaryTableName("T_BBMQuasiInput_"),
-                    s_FactorComplete =
-                        Parameters[RequiredParameters.FactorTable.ToString()] +
-                        "[,'" +
+                string s_TmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
+                string s_TmpInputTableName = GetTemporaryTableName("T_BBMQuasiInput_");
+                string s_FactorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,'" +
                         Parameters[RequiredParameters.Fixed_Effect.ToString()] + "']";
 
                 try
@@ -218,25 +210,23 @@ namespace Cyclops.DataModules
 
                     if (Parameters.ContainsKey("removePeptideColumn"))
                     {
-                        Command += string.Format("{0} <- data.matrix({1}[,2:ncol({1})])\n",
-                        s_TmpInputTableName,
-                        Parameters[RequiredParameters.InputTableName.ToString()]);
+                        Command += string.Format(
+                            "{0} <- data.matrix({1}[,2:ncol({1})])\n", 
+                            s_TmpInputTableName,
+                            Parameters[RequiredParameters.InputTableName.ToString()]);
                     }
                     else
                     {
-                        Command += string.Format("{0} <- {1}\n",
+                        Command += string.Format(
+                            "{0} <- {1}\n",
                             s_TmpInputTableName,
                             Parameters[RequiredParameters.InputTableName.ToString()]);
                     }
 
-                    b_Successful = Model.RCalls.Run(Command,
-                        ModuleName, StepNumber);
+                    b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
 
-                    List<string> l_Factors = Model.RCalls.GetColumnNames(
-                        s_TmpInputTableName,
-                        true);
-                    int i_FactorCnt = Model.RCalls.GetLengthOfVector(
-                        s_FactorComplete);
+                    List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
+                    int i_FactorCnt = Model.RCalls.GetLengthOfVector(s_FactorComplete);
                     if (l_Factors.Count == i_FactorCnt && b_Successful)
                     {
                         Command = string.Format(
@@ -253,8 +243,7 @@ namespace Cyclops.DataModules
                             Parameters[RequiredParameters.Fixed_Effect.ToString()],
                             Parameters[RequiredParameters.Theta.ToString()]);
 
-                        b_Successful = Model.RCalls.Run(Command,
-                            ModuleName, StepNumber);
+                        b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
                     }
                     else
                     {

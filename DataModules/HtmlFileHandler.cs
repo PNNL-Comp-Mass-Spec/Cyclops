@@ -42,8 +42,7 @@ namespace Cyclops.DataModules
         /// <returns>HTML code</returns>
         public static string GetTitle(string Title)
         {
-            return string.Format("\t\t<TITLE>{0}</TITLE>\n",
-                Title);
+            return string.Format("\t\t<TITLE>{0}</TITLE>\n", Title);
         }
 
         /// <summary>
@@ -53,8 +52,7 @@ namespace Cyclops.DataModules
         /// <returns>HTML code</returns>
         public static string GetCSSLink(string CssFileName)
         {
-            return string.Format("\t\t<LINK rel='stylesheet' href='{0}'>\n",
-                CssFileName);
+            return string.Format("\t\t<LINK rel='stylesheet' href='{0}'>\n", CssFileName);
         }
 
         /// <summary>
@@ -365,7 +363,8 @@ namespace Cyclops.DataModules
         /// <param name="TabSpaces">Table tabspaces</param>
         /// <param name="CellPadding">Table cell padding</param>
         /// <returns>HTML code</returns>
-        public static string GetDatasetTableHtml(string DatabaseFileName, string Title,
+        public static string GetDatasetTableHtml(
+            string DatabaseFileName, string Title,
             string TitleStyle, string TableAlignment, int Border, int TabSpaces, int CellPadding)
         {
             string s_Tab = "\t", s_LineDelimiter = "\n";
@@ -385,7 +384,8 @@ namespace Cyclops.DataModules
             return s_Return;
         }
 
-        public static string GetSummaryTableHtml(DataTable Table, string Title,
+        public static string GetSummaryTableHtml(
+            DataTable Table, string Title,
             string TitleStyle, int Border, int TabSpaces, int CellPadding)
         {
             string s_Tab = "\t", s_LineDelimiter = "\n";
@@ -410,7 +410,8 @@ namespace Cyclops.DataModules
             return s_Return;
         }
 
-        public static string GetQCElement(string Title, string TitleStyle,
+        public static string GetQCElement(
+            string Title, string TitleStyle,
             string PictureFileName, DataTable Table, int Border,
             int TabSpaces, int CellPadding)
         {
@@ -483,8 +484,7 @@ namespace Cyclops.DataModules
         /// <param name="Width">Width of image, if null then set to 400</param>
         /// <param name="Height">Height of image, if null then set to 400</param>
         /// <returns>HTML code</returns>
-        public static string GetPictureCode(string PictureFileName,
-            bool AddPlotsDirectory, string CssCode, int? Width, int? Height)
+        public static string GetPictureCode(string PictureFileName, bool AddPlotsDirectory, string CssCode, int? Width, int? Height)
         {
             string s_Tab = "\t", s_LineDelimiter = "\n";
 

@@ -30,8 +30,8 @@ namespace Cyclops.DataModules
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
         private enum RequiredParameters
-        {
-        }
+        { }
+        
         #endregion
 
         #region Properties
@@ -62,8 +62,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="DataParameters">Parameters to run module</param>
-        public RSourceFileModule(CyclopsModel CyclopsModel,
-            Dictionary<string, string> DataParameters)
+        public RSourceFileModule(CyclopsModel CyclopsModel, Dictionary<string, string> DataParameters)
         {
             ModuleName = m_ModuleName;
             Model = CyclopsModel;
@@ -101,8 +100,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -157,8 +155,7 @@ namespace Cyclops.DataModules
                             string Command = string.Format(
                                 "source(\"{0}\")\n",
                                 s.Replace("\\", "/"));
-                            b_Successful = Model.RCalls.Run(Command,
-                                ModuleName, StepNumber);
+                            b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
                         }
                         if (!b_Successful)
                         {

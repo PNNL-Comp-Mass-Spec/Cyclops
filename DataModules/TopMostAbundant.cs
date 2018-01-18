@@ -18,9 +18,9 @@ namespace Cyclops.DataModules
     public class TopMostAbundant : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "TopMostAbundant",
-            m_Description = "",
-            m_Function = "median";
+        private string m_ModuleName = "TopMostAbundant";
+        private string m_Description = "";
+        private string m_Function = "median";
 
         private bool m_RemoveNAs = true;
         /// <summary>
@@ -30,6 +30,7 @@ namespace Cyclops.DataModules
         {
             InputTableName, NewTableName, NumberOfMostAbundant
         }
+        
         #endregion
 
         #region Properties
@@ -62,8 +63,7 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="ExportParameters">Export Parameters</param>
-        public TopMostAbundant(CyclopsModel CyclopsModel,
-            Dictionary<string, string> ExportParameters)
+        public TopMostAbundant(CyclopsModel CyclopsModel, Dictionary<string, string> ExportParameters)
         {
             ModuleName = m_ModuleName;
             Description = m_Description;
@@ -84,8 +84,7 @@ namespace Cyclops.DataModules
             {
                 Model.CurrentStepNumber = StepNumber;
 
-                Model.LogMessage("Running TopMostAbundant",
-                        ModuleName, StepNumber);
+                Model.LogMessage("Running TopMostAbundant", ModuleName, StepNumber);
 
                 if (CheckParameters())
                     b_Successful = TopMostAbundantFunction();
@@ -124,8 +123,7 @@ namespace Cyclops.DataModules
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
-                    Model.LogError("Required Field Missing: " + s,
-                        ModuleName, StepNumber);
+                    Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
                     b_Successful = false;
                     return b_Successful;
                 }
@@ -169,19 +167,18 @@ namespace Cyclops.DataModules
 
             string Command = string.Format(
                 "{0} <- cbind({1}, Median=apply({1}, MARGIN=1, FUN={2}, na.rm={3}))\n" +
-                    "{0} <- {0}[order({0}[,'Median'], decreasing=T),]\n" +
-                    "{0} <- {0}[,-grep('Median', colnames({0}))]\n" +
-                    "{0} <- {0}[1:{4},]\n",
-                    Parameters[RequiredParameters.NewTableName.ToString()],
-                    Parameters[RequiredParameters.InputTableName.ToString()],
-                    m_Function,
-                    m_RemoveNAs.ToString().ToUpper(),
-                    Parameters[RequiredParameters.NumberOfMostAbundant.ToString()]);
+                "{0} <- {0}[order({0}[,'Median'], decreasing=T),]\n" +
+                "{0} <- {0}[,-grep('Median', colnames({0}))]\n" +
+                "{0} <- {0}[1:{4},]\n",
+                Parameters[RequiredParameters.NewTableName.ToString()],
+                Parameters[RequiredParameters.InputTableName.ToString()],
+                m_Function,
+                m_RemoveNAs.ToString().ToUpper(),
+                Parameters[RequiredParameters.NumberOfMostAbundant.ToString()]);
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command,
-                    ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
