@@ -152,7 +152,7 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = string.Format(
+            string rCmd = string.Format(
                 "{0} <- {1}[{1}[,'{2}'] {3} {4},]\n",
                 Parameters[RequiredParameters.NewTableName.ToString()],
                 Parameters[RequiredParameters.InputTableName.ToString()],
@@ -161,7 +161,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

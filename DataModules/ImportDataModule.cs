@@ -300,13 +300,13 @@ namespace Cyclops.DataModules
 
                     try
                     {
-                        string s_Command = string.Format(
+                        string rCmd = string.Format(
                             "require(RSQLite)\n"
                             + "m <- dbDriver(\"SQLite\", max.con=25)\n"
                             + "con <- dbConnect(m, dbname = \"{0}\")\n"
                             , filePathForR);
 
-                        b_Successful = Model.RCalls.Run(s_Command, ModuleName, StepNumber);
+                        b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                     }
                     catch (IOException ioe)
                     {
@@ -438,7 +438,7 @@ namespace Cyclops.DataModules
         private bool GetTableFromSQLite()
         {
             bool b_Successful = true;
-            string s_Command = string.Format(
+            string rCmd = string.Format(
                 "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                 "{1} <- fetch(rt, n = -1)\n" +
                 "dbClearResult(rt)\n" +
@@ -448,7 +448,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(s_Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
@@ -470,7 +470,7 @@ namespace Cyclops.DataModules
             bool b_Successful = true;
             if (Parameters.ContainsKey("rownames"))
             {
-                string s_Command = string.Format(
+                string rCmd = string.Format(
                     "rownames({0}) <- {0}[,{1}]\n" +
                     "{0} <- {0}[,-{1}]",
                     Parameters[RequiredParameters.NewTableName.ToString()],
@@ -478,7 +478,7 @@ namespace Cyclops.DataModules
 
                 try
                 {
-                    b_Successful = Model.RCalls.Run(s_Command, ModuleName, StepNumber);
+                    b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                 }
                 catch (Exception ex)
                 {
@@ -532,11 +532,11 @@ namespace Cyclops.DataModules
             var inputFilePath = BuildAndValidatePath(Model.WorkDirectory, Parameters["inputFileName"]);
             var filePathForR = GenericRCalls.ConvertToRCompatiblePath(inputFilePath);
 
-            string s_Command = string.Format(
+            string rCmd = string.Format(
                 "{0} <- read.csv(file=\"{1}\")\n",
                 Parameters[RequiredParameters.NewTableName.ToString()], filePathForR);
 
-            return Model.RCalls.Run(s_Command, ModuleName, StepNumber);
+            return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
         }
 
         /// <summary>
@@ -556,12 +556,12 @@ namespace Cyclops.DataModules
             var inputFilePath = BuildAndValidatePath(Model.WorkDirectory, Parameters["inputFileName"]);
             var filePathForR = GenericRCalls.ConvertToRCompatiblePath(inputFilePath);
 
-            string s_Command = string.Format(
+            string rCmd = string.Format(
                 "{0} <- read.table(file=\"{1}\", sep=\"\\t\", header=T)\n",
                 Parameters[RequiredParameters.NewTableName.ToString()],
                 filePathForR);
 
-            return Model.RCalls.Run(s_Command, ModuleName, StepNumber);
+            return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
         }
         #endregion
     }

@@ -132,6 +132,9 @@ namespace Cyclops.DataModules
         /// <param name="NameOfDataTable">The Data Table</param>
         /// <param name="NameOfColumnMetadataTable">The Column Metadata Table</param>
         /// <param name="FactorColumn">Name of the column that contains the factor of interest</param>
+        /// <param name="step"></param>
+        /// <param name="yMergeColumn"></param>
+        /// <param name="TempTablePrefix"></param>
         /// <returns>Name of temporary table that has the organized factors</returns>
         public string GetOrganizedFactorsVector(
             string NameOfDataTable,
@@ -166,10 +169,9 @@ namespace Cyclops.DataModules
 
         public static BaseDataModule Create(string TypeName)
         {
-            Type derivedType;
-            if (sTypeMap.TryGetValue(TypeName, out derivedType))
+            if (sTypeMap.TryGetValue(TypeName, out var derivedType))
             {
-                return System.Activator.CreateInstance(derivedType)
+                return Activator.CreateInstance(derivedType)
                     as BaseDataModule;
             }
             return null;
@@ -180,16 +182,16 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="TypeName">Name of the module type</param>
         /// <param name="TheModel">CyclopsModel</param>
+        /// <param name="TheParameters"></param>
         /// <returns>A Data Module</returns>
         public static BaseDataModule Create(
             string TypeName,
-            CyclopsModel TheModel, 
+            CyclopsModel TheModel,
             Dictionary<string, string> TheParameters)
         {
-            Type derivedType = null;
-            if (sTypeMap.TryGetValue(TypeName, out derivedType))
+            if (sTypeMap.TryGetValue(TypeName, out var derivedType))
             {
-                return System.Activator.CreateInstance(derivedType, TheModel, TheParameters) as BaseDataModule;
+                return Activator.CreateInstance(derivedType, TheModel, TheParameters) as BaseDataModule;
             }
             return null;
         }
@@ -212,10 +214,7 @@ namespace Cyclops.DataModules
                     continue;
                 }
 
-                var derivedObject =
-                    System.Activator.CreateInstance(type) as BaseDataModule;
-
-                if (derivedObject != null)
+                if (Activator.CreateInstance(type) is BaseDataModule derivedObject)
                 {
                     typeMap.Add(
                         derivedObject.GetTypeName(),
@@ -247,10 +246,7 @@ namespace Cyclops.DataModules
                     continue;
                 }
 
-                var derivedObject =
-                    System.Activator.CreateInstance(type) as BaseDataModule;
-
-                if (derivedObject != null)
+                if (Activator.CreateInstance(type) is BaseDataModule derivedObject)
                 {
                     Names.Add(derivedObject.GetTypeName());
                 }

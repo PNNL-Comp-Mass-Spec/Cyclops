@@ -169,7 +169,7 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = string.Format("{0} <- LinReg_normalize(" +
+            string rCmd = string.Format("{0} <- LinReg_normalize(" +
                     "x={1}, factorTable={2}, factorCol=\"{3}\", " +
                     "reference={4})",
                     Parameters[RequiredParameters.NewTableName.ToString()],
@@ -180,7 +180,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

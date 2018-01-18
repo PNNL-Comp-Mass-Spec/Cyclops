@@ -183,17 +183,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                string Command = "";
+                string rCmd = "";
 
                 if (Parameters.ContainsKey("removePeptideColumn"))
                 {
-                    Command += string.Format(
+                    rCmd += string.Format(
                         "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
                         Parameters[RequiredParameters.InputTableName.ToString()]);
                     s_TmpInputTableName = s_TmpInputTableName + "_tmpT";
                 }
 
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
                 GetOrganizedFactorsVector(
                     s_TmpInputTableName,
@@ -203,7 +203,7 @@ namespace Cyclops.DataModules
                     m_MergeColumn,
                     "tmp_OrgFactor4BBM_");
 
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
                 List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
                 int i_FactorCnt = Model.RCalls.GetLengthOfVector(s_FactorComplete);
@@ -218,7 +218,7 @@ namespace Cyclops.DataModules
                                     l_Factors[i] + "_v_" + l_Factors[j];
 
                             // grab the variables
-                            Command = string.Format(
+                            rCmd = string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}' | {2} == '{4}', " +
                                 "select=c('Alias'))))\n",
@@ -228,25 +228,25 @@ namespace Cyclops.DataModules
                                 l_Factors[i],
                                 l_Factors[j]);
                             // grab the relevant data
-                            Command += string.Format(
+                            rCmd += string.Format(
                                 "{0} <- {1}[,which(colnames({1}) %in% {2})]\n",
                                 s_TmpDataTable,
                                 s_TmpInputTableName,
                                 s_TmpFactorTable);
                             // 0 out the null values
-                            Command += string.Format(
+                            rCmd += string.Format(
                                 "{0} <- data.matrix({0})\n" +
                                 "{0}[is.na({0})] <- 0\n",
                                 s_TmpDataTable);
                             // get the column names to pass in as factors
-                            Command += string.Format(
+                            rCmd += string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}', select=c('Alias'))))\n",
                                 s_TmpFactor1,
                                 Parameters[RequiredParameters.FactorTable.ToString()],
                                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
                                 l_Factors[i]);
-                            Command += string.Format(
+                            rCmd += string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}', select=c('Alias'))))\n",
                                 s_TmpFactor2,
@@ -254,14 +254,14 @@ namespace Cyclops.DataModules
                                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
                                 l_Factors[j]);
                             // run the analysis
-                            Command += string.Format(
+                            rCmd += string.Format(
                                 "{0} <- quasitel({1}, {2}, {3})\n",
                                 s_ComparisonTableName,
                                 s_TmpDataTable,
                                 s_TmpFactor1,
                                 s_TmpFactor2);
                             // remove temp tables
-                            Command += string.Format(
+                            rCmd += string.Format(
                                 "rm({0})\nrm({1})\n" +
                                 "rm({2})\nrm({3})\n",
                                 s_TmpDataTable,
@@ -269,7 +269,7 @@ namespace Cyclops.DataModules
                                 s_TmpFactor1,
                                 s_TmpFactor2);
 
-                            b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                            b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                         }
                     }
                 }

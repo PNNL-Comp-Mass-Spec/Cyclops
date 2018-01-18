@@ -86,10 +86,7 @@ namespace Cyclops
         /// <returns>True, if module has a parent</returns>
         public bool HasParent()
         {
-            if (bdm_ParentModule != null)
-                return true;
-            else
-                return false;
+            return bdm_ParentModule != null;
         }
 
         /// <summary>

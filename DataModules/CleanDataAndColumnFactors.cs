@@ -267,13 +267,13 @@ namespace Cyclops.DataModules
             }
             else
             {
-                string Command = string.Format(
+                string rCmd = string.Format(
                     "dim({0}[-which({0}${1}%in%colnames({2})),])[1] == 0",
                     ColumnMetadataTableName,
                     ColumnMetadataFactor,
                     DataTableName);
 
-                if (Model.RCalls.AssessBoolean(Command))
+                if (Model.RCalls.AssessBoolean(rCmd))
                 {
                     // Equal so good to go
                     return true;
@@ -303,7 +303,7 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = string.Format(
+            string rCmd = string.Format(
                 "{0} <- merge(x=cbind({1}=colnames({2}))," +
                 "y={0}, by.x=\"{1}\", by.y=\"{1}\"," +
                 "all.y=F, all.x=F)\n\n" +
@@ -314,7 +314,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

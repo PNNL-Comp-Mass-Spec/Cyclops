@@ -165,7 +165,7 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = string.Format(
+            string rCmd = string.Format(
                 "{0} <- cbind({1}, Median=apply({1}, MARGIN=1, FUN={2}, na.rm={3}))\n" +
                 "{0} <- {0}[order({0}[,'Median'], decreasing=T),]\n" +
                 "{0} <- {0}[,-grep('Median', colnames({0}))]\n" +
@@ -178,7 +178,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

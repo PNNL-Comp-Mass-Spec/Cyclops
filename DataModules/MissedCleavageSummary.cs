@@ -33,8 +33,7 @@ namespace Cyclops.DataModules
         private string m_Description = "";
         private string m_InputFileName = "Results.db3";
 
-        private SQLiteHandler sql =
-            new SQLiteHandler();
+        private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
 
         private Dictionary<int, int> dict_Cleavages = new Dictionary<int, int>();
         #endregion
@@ -141,7 +140,7 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey("DatabaseFileName"))
                 m_InputFileName = Parameters["DatabaseFileName"];
 
-            sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, m_InputFileName);
+            m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, m_InputFileName);
             return b_Successful;
         }
 
@@ -157,29 +156,30 @@ namespace Cyclops.DataModules
 
             if (b_Successful)
             {
-                string s_Command = "";
+                string sql;
 
                 if (Parameters[RequiredParameters.FactorColumn.ToString()].Equals("*"))
                 {
                     List<string> l_Columns =
-                        sql.GetColumnNames(
+                        m_SQLiteReader.GetColumnNames(
                         Parameters[RequiredParameters.InputTableName.ToString()]);
                     string s_Columns = Utilities.MiscellaneousFunctions.Concatenate(l_Columns, ",", false);
-                    s_Command = string.Format(
+
+                    sql = string.Format(
                          "SELECT {0} FROM {1} GROUP BY {0};",
                          s_Columns,
                          Parameters[RequiredParameters.InputTableName.ToString()]);
                 }
                 else // single column
                 {
-                    s_Command = string.Format(
+                    sql = string.Format(
                          "SELECT {0} FROM {1} GROUP BY {0} " +
                          "HAVING {0} NOT LIKE '';",
                          Parameters[RequiredParameters.FactorColumn.ToString()],
                          Parameters[RequiredParameters.InputTableName.ToString()]);
                 }
 
-                DataTable dt_Peptides = sql.SelectTable(s_Command);
+                DataTable dt_Peptides = m_SQLiteReader.SelectTable(sql);
 
                 foreach (DataRow dr in dt_Peptides.Rows)
                 {
@@ -258,9 +258,9 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            if (sql.TableExists(Parameters[RequiredParameters.NewTableName.ToString()]))
+            if (m_SQLiteReader.TableExists(Parameters[RequiredParameters.NewTableName.ToString()]))
             {
-                b_Successful = sql.DropTable(Parameters[RequiredParameters.NewTableName.ToString()]);
+                b_Successful = m_SQLiteReader.DropTable(Parameters[RequiredParameters.NewTableName.ToString()]);
 
             }
 
@@ -302,7 +302,7 @@ namespace Cyclops.DataModules
                 }
 
                 // save to database
-                b_Successful = sql.WriteDataTableToDatabase(
+                b_Successful = m_SQLiteReader.WriteDataTableToDatabase(
                    dt_MissedCleavages);
 
                 b_Successful = Model.RCalls.WriteDataTableToR(dt_MissedCleavages, dt_MissedCleavages.TableName);

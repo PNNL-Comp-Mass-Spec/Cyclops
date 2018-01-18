@@ -174,7 +174,7 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = string.Format("{0} <- RRollup.proteins(" +
+            string rCmd = string.Format("{0} <- RRollup.proteins(" +
                     "Data={1}, ProtInfo={2}, minPresence={3}, Mode=\"{4}\", " +
                     "protInfo_ProtCol={5}, protInfo_PepCol={6}, minOverlap={7}, " +
                     "oneHitWonders={8}, gpvalue={9}, gminPCount={10}, center={11})",
@@ -194,7 +194,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

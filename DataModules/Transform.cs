@@ -1,4 +1,5 @@
-﻿/* Written by Joseph N. Brown
+﻿
+/* Written by Joseph N. Brown
  * for the Department of Energy (PNNL, Richland, WA)
  * Battelle Memorial Institute
  * E-mail: proteomics@pnnl.gov
@@ -142,11 +143,11 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = "";
+            string rCmd;
 
             if (Parameters.ContainsKey("logBase"))
             {
-                Command = string.Format(
+                rCmd = string.Format(
                     "{0} <- log((data.matrix({1})+{2})*{3},{4})",
                     Parameters[RequiredParameters.NewTableName.ToString()],
                     Parameters[RequiredParameters.InputTableName.ToString()],
@@ -156,7 +157,7 @@ namespace Cyclops.DataModules
             }
             else
             {
-                Command = string.Format(
+                rCmd = string.Format(
                     "{0} <- ({1}+{2})*{3}",
                     Parameters[RequiredParameters.NewTableName.ToString()],
                     Parameters[RequiredParameters.InputTableName.ToString()],
@@ -166,12 +167,11 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while performing transformation:\n" +
-                    ex.ToString());
+                Model.LogError("Exception encountered while performing transformation:\n" + ex);
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }

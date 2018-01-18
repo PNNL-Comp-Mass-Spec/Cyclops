@@ -202,7 +202,7 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = "";
+            string rCmd = "";
 
             if (Parameters.ContainsKey("Mode"))
             {
@@ -210,7 +210,7 @@ namespace Cyclops.DataModules
                 {
                     case "iterator":
                         string s_TmpTable = GetTemporaryTableName("tmpBarPlot_");
-                        Command += string.Format("{0} <- " +
+                        rCmd += string.Format("{0} <- " +
                             "data.frame(Cleavage=c(\"Tryptic\", " +
                             "\"Partial\", \"NonTryptic\"), " +
                             "Frequency=c(sum({1}$Tryptic), " +
@@ -225,7 +225,7 @@ namespace Cyclops.DataModules
                 }
             }
 
-            Command += string.Format("plotBars(" +
+            rCmd += string.Format("plotBars(" +
                     "x={0}, Data.Column=\"{1}\", " +
                     "file=\"{2}\", " +
                     "bkground=\"{3}\", " +
@@ -261,7 +261,7 @@ namespace Cyclops.DataModules
             {
                 if (Parameters["Mode"].Equals("iterator"))
                 {
-                    Command += string.Format(
+                    rCmd += string.Format(
                         "rm({0})\n",
                         Parameters[RequiredParameters.TableName.ToString()]);
                 }
@@ -269,7 +269,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

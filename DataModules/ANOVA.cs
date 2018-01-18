@@ -228,10 +228,10 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = "";
+            string rCmd = "";
             string s_TmpInputTable = GetTemporaryTableName("tmpInputAnova_");
 
-            Command = string.Format(
+            rCmd = string.Format(
                             "options(warn=-1)\n" +
                             "{9} <- {1}\n" +
                             "{0} <- performAnova(Data={9}, FixedEffects='{2}', " +
@@ -254,7 +254,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

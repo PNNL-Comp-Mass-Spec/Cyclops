@@ -45,8 +45,7 @@ namespace Cyclops.Operations
         /// <returns>An Operation Module</returns>
         public static BaseOperationModule Create(string TypeName, CyclopsModel TheModel, Dictionary<string, string> TheParameters)
         {
-            Type derivedType = null;
-            if (sTypeMap.TryGetValue(TypeName, out derivedType))
+            if (sTypeMap.TryGetValue(TypeName, out var derivedType))
             {
                 return System.Activator.CreateInstance(derivedType, TheModel, TheParameters) as BaseOperationModule;
             }

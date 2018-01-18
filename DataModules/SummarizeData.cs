@@ -147,13 +147,13 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = string.Format("{0} <- jnb_Summarize({1})",
+            string rCmd = string.Format("{0} <- jnb_Summarize({1})",
                 Parameters[RequiredParameters.NewTableName.ToString()],
                 Parameters[RequiredParameters.InputTableName.ToString()]);
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

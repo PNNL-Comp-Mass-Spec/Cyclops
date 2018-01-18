@@ -206,30 +206,30 @@ namespace Cyclops.DataModules
 
                 try
                 {
-                    string Command = "";
+                    string rCmd = "";
 
                     if (Parameters.ContainsKey("removePeptideColumn"))
                     {
-                        Command += string.Format(
+                        rCmd += string.Format(
                             "{0} <- data.matrix({1}[,2:ncol({1})])\n", 
                             s_TmpInputTableName,
                             Parameters[RequiredParameters.InputTableName.ToString()]);
                     }
                     else
                     {
-                        Command += string.Format(
+                        rCmd += string.Format(
                             "{0} <- {1}\n",
                             s_TmpInputTableName,
                             Parameters[RequiredParameters.InputTableName.ToString()]);
                     }
 
-                    b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                    b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
                     List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
                     int i_FactorCnt = Model.RCalls.GetLengthOfVector(s_FactorComplete);
                     if (l_Factors.Count == i_FactorCnt && b_Successful)
                     {
-                        Command = string.Format(
+                        rCmd = string.Format(
                             "{0} <- jnb_BBM_and_QTel(" +
                             "tData={1}, " +
                             "colMetadata={2}, " +
@@ -243,7 +243,7 @@ namespace Cyclops.DataModules
                             Parameters[RequiredParameters.Fixed_Effect.ToString()],
                             Parameters[RequiredParameters.Theta.ToString()]);
 
-                        b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                        b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                     }
                     else
                     {

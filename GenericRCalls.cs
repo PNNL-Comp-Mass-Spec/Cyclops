@@ -106,50 +106,50 @@ namespace Cyclops
         /// <summary>
         /// Main call method to run a command in the R environment
         /// </summary>
-        /// <param name="Command">R Command to pass to the environment</param>
-        /// <param name="SummaryStatement">Summary of the Command being issued, e.g. Name of Module</param>
-        /// <param name="Step">Step number for the command</param>
+        /// <param name="rCmd">R Command to pass to the environment</param>
+        /// <param name="summaryStatement">Summary of the Command being issued, e.g. Name of Module</param>
+        /// <param name="step">Step number for the command</param>
         /// <returns>True, if the command is issued successfully</returns>
-        public bool Run(string Command, string SummaryStatement, int Step)
+        public bool Run(string rCmd, string summaryStatement, int step)
         {
             var b_Successful = true;
 
             try
             {
-                Model.LogMessage(Command, SummaryStatement, Step);
+                Model.LogMessage(rCmd, summaryStatement, step);
 
-                var se = engine.Evaluate(Command);
+                engine.Evaluate(rCmd);
             }
             catch (ParseException pe)
             {
                 Model.LogError("ParseException encountered while running command:\n" +
-                    Command + "\nParseException: " + pe.Message +
-                    "\nInnerException: " + pe.InnerException,
-                    SummaryStatement, Step);
+                               rCmd + "\nParseException: " + pe.Message +
+                               "\nInnerException: " + pe.InnerException,
+                               summaryStatement, step);
                 b_Successful = false;
             }
             catch (IOException ioe)
             {
                 Model.LogError("IOException encountered while running command:\n" +
-                    Command + "\nIOException: " + ioe.Message +
-                    "\nInnerException: " + ioe.InnerException,
-                    SummaryStatement, Step);
+                               rCmd + "\nIOException: " + ioe.Message +
+                               "\nInnerException: " + ioe.InnerException,
+                    summaryStatement, step);
                 b_Successful = false;
             }
             catch (AccessViolationException ave)
             {
                 Model.LogError("AccessViolationException encountered while running command:\n" +
-                    Command + "\nAccessViolationException: " + ave.Message +
-                    "\nInnerException: " + ave.InnerException,
-                    SummaryStatement, Step);
+                               rCmd + "\nAccessViolationException: " + ave.Message +
+                               "\nInnerException: " + ave.InnerException,
+                               summaryStatement, step);
                 b_Successful = false;
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running command:\n" +
-                    Command + "\nException: " + ex.Message +
-                    "\nInnerException: " + ex.InnerException,
-                    SummaryStatement, Step);
+                               rCmd + "\nException: " + ex.Message +
+                               "\nInnerException: " + ex.InnerException,
+                               summaryStatement, step);
                 b_Successful = false;
             }
 
@@ -167,9 +167,9 @@ namespace Cyclops
         {
             var filePathForR = ConvertToRCompatiblePath(WorkspaceFileName);
 
-            var Command = string.Format("load(\"{0}\")", filePathForR);
+            var rCmd = string.Format("load(\"{0}\")", filePathForR);
 
-            return Run(Command, Module, Step);
+            return Run(rCmd, Module, Step);
         }
 
         /// <summary>
@@ -205,13 +205,13 @@ namespace Cyclops
         /// <returns>List of all the objects in the R workspace</returns>
         public List<string> ls()
         {
-            var l_Objects = new List<string>();
+            var objectList = new List<string>();
 
-            var cv = engine.Evaluate("ls()").AsCharacter();
-            foreach (var s in cv)
-                l_Objects.Add(s);
+            var evalResult = engine.Evaluate("ls()").AsCharacter();
+            foreach (var s in evalResult)
+                objectList.Add(s);
 
-            return l_Objects;
+            return objectList;
         }
 
         /// <summary>
@@ -224,27 +224,17 @@ namespace Cyclops
             if (!ObjectName.Contains("$"))
             {
                 var l_Objects = ls();
-                if (l_Objects.Contains(ObjectName))
-                    return true;
-                else
-                    return false;
+                return l_Objects.Contains(ObjectName);
             }
-            else
+
+            var s_Split = ObjectName.Split('$');
+            if (s_Split.Length == 2)
             {
-                var s_Split = ObjectName.Split('$');
-                if (s_Split.Length == 2)
-                {
-                    var l_Objects = ls();
-                    if (l_Objects.Contains(s_Split[0]))
-                        return true;
-                    else
-                        return false;
-                }
-                else
-                {
-                    return false;
-                }
+                var l_Objects = ls();
+                return l_Objects.Contains(s_Split[0]);
             }
+
+            return false;
         }
 
         /// <summary>
@@ -284,12 +274,12 @@ namespace Cyclops
         {
             if (ContainsObject(ObjectName))
             {
-                var s_RStatement = string.Format("class({0})", ObjectName);
-                var cv = engine.Evaluate(s_RStatement).AsCharacter();
-                return cv[0];
+                var rCmd = string.Format("class({0})", ObjectName);
+                var evalResult = engine.Evaluate(rCmd).AsCharacter();
+                return evalResult[0];
             }
-            else
-                return null;
+
+            return null;
         }
 
         /// <summary>
@@ -309,8 +299,8 @@ namespace Cyclops
         public string GetWorkingDirectory()
         {
             var s_RStatement = "getwd()";
-            var cv = engine.Evaluate(s_RStatement).AsCharacter();
-            return cv[0];
+            var evalResult = engine.Evaluate(s_RStatement).AsCharacter();
+            return evalResult[0];
         }
 
         /// <summary>
@@ -323,13 +313,10 @@ namespace Cyclops
         {
             if (ContainsObject(ObjectName))
             {
-                if (GetClassOfObject(ObjectName).Equals(Class))
-                    return true;
-                else
-                    return false;
+                return GetClassOfObject(ObjectName).Equals(Class);
             }
-            else
-                return false;
+
+            return false;
         }
 
         /// <summary>
@@ -339,12 +326,9 @@ namespace Cyclops
         /// <returns>TRUE or FALSE</returns>
         public bool AssessBoolean(string RStatement)
         {
-            var b_Return = false;
 
-            var cv = engine.Evaluate(RStatement).AsCharacter();
-            if (cv[0].ToUpper().Equals("TRUE"))
-                b_Return = true;
-            return b_Return;
+            var evalResult = engine.Evaluate(RStatement).AsCharacter();
+            return evalResult[0].ToUpper().Equals("TRUE");
         }
 
         /// <summary>
@@ -366,33 +350,29 @@ namespace Cyclops
         /// <returns>>TRUE or FALSE</returns>
         public bool IsPackageInstalled(string Package)
         {
-            var b_Return = false;
             var s_RStatement = string.Format("jnbIsPackageInstalled('{0}')", Package);
-            var cv = engine.Evaluate(s_RStatement).AsCharacter();
-            if (cv[0].ToUpper().Equals("TRUE"))
-                b_Return = true;
-            return b_Return;
+            var evalResult = engine.Evaluate(s_RStatement).AsCharacter();
+            return evalResult[0].ToUpper().Equals("TRUE");
         }
 
         /// <summary>
         /// Quick way to save your work environment
         /// </summary>
-        /// <param name="FileName">Name of the file you'd like to save the environment as</param>
+        /// <param name="filePath">Name of the file you'd like to save the environment as</param>
         /// <returns>True, if the R environment is saved successfully</returns>
-        public bool SaveEnvironment(string FileName)
+        public bool SaveEnvironment(string filePath)
         {
             var b_Successful = true;
 
-            var Command = string.Format("save.image(file=\"{0}\")", FileName);
-            Command = Command.Replace("\\", "/");
+            var rCmd = string.Format("save.image(file=\"{0}\")", GenericRCalls.ConvertToRCompatiblePath(filePath));
+
             try
             {
-                engine.Evaluate(Command);
+                engine.Evaluate(rCmd);
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while Saving R " +
-                    "environment:\n" + ex.Message);
+                Model.LogError("Exception encountered while Saving R environment:\n" + ex.Message);
                 b_Successful = false;
             }
 
@@ -406,18 +386,17 @@ namespace Cyclops
         /// <returns>List of the rownames</returns>
         public List<string> GetRowNames(string ObjectName)
         {
-            var l_Return = new List<string>();
+            var rowNames = new List<string>();
 
             if (GetClassOfObject(ObjectName).Equals("data.frame") ||
                 GetClassOfObject(ObjectName).Equals("matrix"))
             {
-                var cv = engine.Evaluate(string.Format("rownames({0})", ObjectName)).AsCharacter();
+                var matrixRows = engine.Evaluate(string.Format("rownames({0})", ObjectName)).AsCharacter();
 
-                for (var i = 0; i < cv.Length; i++)
-                    l_Return.Add(cv[i]);
+                rowNames.AddRange(matrixRows);
             }
 
-            return l_Return;
+            return rowNames;
         }
 
         /// <summary>
@@ -438,26 +417,26 @@ namespace Cyclops
         /// <returns>Column Names</returns>
         public List<string> GetColumnNames(string ObjectName, bool Unique)
         {
-            var l_Columns = new List<string>();
+            var columnList = new List<string>();
 
             if (GetClassOfObject(ObjectName).Equals("data.frame") ||
                 GetClassOfObject(ObjectName).Equals("matrix"))
             {
-                var cv = engine.Evaluate(string.Format("colnames({0})", ObjectName)).AsCharacter();
+                var matrixColumns = engine.Evaluate(string.Format("colnames({0})", ObjectName)).AsCharacter();
 
-                for (var i = 0; i < cv.Length; i++)
+                foreach (var column in matrixColumns)
                 {
                     if (Unique)
                     {
-                        if (!l_Columns.Contains(cv[i]))
-                            l_Columns.Add(cv[i]);
+                        if (!columnList.Contains(column))
+                            columnList.Add(column);
                     }
                     else
-                        l_Columns.Add(cv[i]);
+                        columnList.Add(column);
                 }
             }
 
-            return l_Columns;
+            return columnList;
         }
 
         /// <summary>
@@ -467,14 +446,15 @@ namespace Cyclops
         /// <returns>List of strings in the returned Vector</returns>
         public List<string> GetCharacterVector(string Vector)
         {
-            var l_Return = new List<string>();
-            var cv = engine.Evaluate(Vector).AsCharacter();
-            foreach (var s in cv)
+            var stringList = new List<string>();
+            var evalResult = engine.Evaluate(Vector).AsCharacter();
+
+            foreach (var s in evalResult)
             {
-                l_Return.Add(s);
+                stringList.Add(s);
             }
 
-            return l_Return;
+            return stringList;
         }
 
         /// <summary>
@@ -582,15 +562,15 @@ namespace Cyclops
             }
             #endregion
 
-            var iv = engine.Evaluate(
+            var evalResult = engine.Evaluate(
                     string.Format("nrow({0}{1})\n",
                     TableName,
                     !string.IsNullOrEmpty(s_Filter) ? s_Filter : "")).AsInteger();
 
-            if (iv.Length > 0)
-                return iv[0];
-            else
-                return 0;
+            if (evalResult.Length > 0)
+                return evalResult[0];
+
+            return 0;
         }
 
         /// <summary>
@@ -630,10 +610,10 @@ namespace Cyclops
         /// <returns>Length of Vector</returns>
         public int GetLengthOfVector(string Vector)
         {
-            var s_Command = string.Format("length({0})", Vector);
+            var rCmd = string.Format("length({0})", Vector);
 
-            var iv = engine.Evaluate(s_Command).AsInteger();
-            return iv[0];
+            var evalResult = engine.Evaluate(rCmd).AsInteger();
+            return evalResult[0];
         }
 
         /// <summary>
@@ -805,37 +785,37 @@ namespace Cyclops
         /// <returns>True, if the new data.frame is created successfully</returns>
         public bool WriteDataTableToR(DataTable Table, string TableName)
         {
-            var Command = string.Format("{0} <- data.frame(", TableName);
+            var rCmd = string.Format("{0} <- data.frame(", TableName);
 
             for (var c = 0; c < Table.Columns.Count; c++)
             {
-                Command += "\"" + Table.Columns[c].ColumnName + "\"=c(\"";
+                rCmd += "\"" + Table.Columns[c].ColumnName + "\"=c(\"";
 
                 for (var r = 0; r < Table.Rows.Count; r++)
                 {
                     if (r < Table.Rows.Count - 1)
                     {
-                        Command += Table.Rows[r][c] + "\",\"";
+                        rCmd += Table.Rows[r][c] + "\",\"";
                     }
                     else
                     {
-                        Command += Table.Rows[r][c] + "\")";
+                        rCmd += Table.Rows[r][c] + "\")";
                     }
                 }
 
                 if (c < Table.Columns.Count - 1)
                 {
-                    Command += ",";
+                    rCmd += ",";
                 }
                 else
                 {
-                    Command += ")";
+                    rCmd += ")";
                 }
             }
 
             try
             {
-                engine.Evaluate(Command);
+                engine.Evaluate(rCmd);
             }
             catch (Exception ex)
             {
@@ -886,8 +866,8 @@ namespace Cyclops
 
             try
             {
-                var Command = ObjectName + " <- " + Value;
-                engine.Evaluate(Command);
+                var rCmd = ObjectName + " <- " + Value;
+                engine.Evaluate(rCmd);
             }
             catch (Exception ex)
             {

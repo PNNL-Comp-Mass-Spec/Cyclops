@@ -26,61 +26,61 @@ namespace Cyclops
         /// automatically overwrites any existing file
         /// </summary>
         /// <returns>True, if the function completes successfully</returns>
-        abstract public bool CreateDatabase();
+        public abstract bool CreateDatabase();
 
         /// <summary>
         /// Gets the table information regarding the database
         /// </summary>
         /// <returns>Datatable of all the information</returns>
-        abstract public DataTable GetDatabaseInformation();
+        public abstract DataTable GetDatabaseInformation();
 
         /// <summary>
         /// Retrieves all tables from the database
         /// </summary>
         /// <returns>Database is stored in a DataSet</returns>
-        abstract public DataSet GetDatabase();
+        public abstract DataSet GetDatabase();
 
         /// <summary>
         /// Commits the tables within a DataSet to the database
         /// </summary>
         /// <param name="MainData">DataSet to commit to the database</param>
         /// <returns>True, if the data is committed successfully</returns>
-        abstract public bool WriteDatasetToDatabase(DataSet MainData);
+        public abstract bool WriteDatasetToDatabase(DataSet MainData);
 
         /// <summary>
         /// Determines if a table is present in the database or not
         /// </summary>
         /// <param name="TableName">Name of table</param>
         /// <returns>True if table is present, otherwise false</returns>
-        abstract public bool TableExists(string TableName);
+        public abstract bool TableExists(string TableName);
 
         /// <summary>
         /// Retrieves a table from the database and returns it as a DataTable
         /// </summary>
         /// <param name="TableName">Name of table to retrieve</param>
         /// <returns>Table from Database</returns>
-        abstract public DataTable GetTable(string TableName);
+        public abstract DataTable GetTable(string TableName);
 
         /// <summary>
         /// Selects a table from a given query
         /// </summary>
-        /// <param name="Command">SQL query to generate the table that is returned</param>
+        /// <param name="sql">SQL query to generate the table that is returned</param>
         /// <returns>Table generated from the supplied SQL query, null if query fails</returns>
-        abstract public DataTable SelectTable(string Command);
+        public abstract DataTable SelectTable(string sql);
 
         /// <summary>
         /// Useful method to execute a NonQuery on the Database
         /// </summary>
-        /// <param name="Command">SQL command to issue</param>
+        /// <param name="sql">SQL command to issue</param>
         /// <returns>True, if the SQL statement completed successfully</returns>
-        abstract public bool RunNonQuery(string Command);
+        public abstract bool RunNonQuery(string sql);
 
         /// <summary>
         /// If a table exists in the database, this will remove the table
         /// </summary>
         /// <param name="TableName">Name of table to delete</param>
         /// <returns>True, if table is dropped successfully</returns>
-        abstract public bool DropTable(string TableName);
+        public abstract bool DropTable(string TableName);
 
         /// <summary>
         /// Creates an index in the database
@@ -89,14 +89,14 @@ namespace Cyclops
         /// <param name="Column">Name of Column to index within the table</param>
         /// <param name="IndexName">Name of index</param>
         /// <returns>True, if index is created successfully</returns>
-        abstract public bool CreateIndex(
+        public abstract bool CreateIndex(
             string Table, string Column, string IndexName);
 
         /// <summary>
         /// Gets a list of the table names in the database
         /// </summary>
         /// <returns>List of tables names in the SQLite database</returns>
-        abstract public List<string> GetListOfTablesInDatabase();
+        public abstract List<string> GetListOfTablesInDatabase();
         #endregion
     }
 }

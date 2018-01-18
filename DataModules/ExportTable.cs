@@ -309,17 +309,17 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            string Command = "";
+            string rCmd = "";
 
             if (ConnectToSQLiteDatabaseFromR())
             {
-                Command = string.Format(
+                rCmd = string.Format(
                     "dbWriteTable(" +
                     "conn=con, name=\"{0}\", value=data.frame({1}))",
                     Parameters[DatabaseTargetRequiredParameters.NewTableName.ToString()],
                     Parameters[RequiredParameters.TableName.ToString()]);
 
-                if (Model.RCalls.Run(Command, ModuleName, StepNumber))
+                if (Model.RCalls.Run(rCmd, ModuleName, StepNumber))
                 {
                     return DisconnectFromDatabaseFromR();
                 }
@@ -349,7 +349,7 @@ namespace Cyclops.DataModules
             bool b_Successful = Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]);
             bool b_IncludeRowNames = false;
 
-            string Command = "";
+            string rCmd = "";
             if (Parameters.ContainsKey("IncludeRowNames"))
             {
                 b_IncludeRowNames = Convert.ToBoolean(Parameters["IncludeRowNames"]);
@@ -357,7 +357,7 @@ namespace Cyclops.DataModules
 
             if (b_IncludeRowNames)
             {
-                Command = string.Format("jnb_Write(df={0}, " +
+                rCmd = string.Format("jnb_Write(df={0}, " +
                     "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
                     "sepChar=\"{3}\")",
                     Parameters[RequiredParameters.TableName.ToString()],
@@ -371,7 +371,7 @@ namespace Cyclops.DataModules
                         Parameters[RequiredParameters.FileName.ToString()];
                 s_FilePath = s_FilePath.Replace("\\", "/");
 
-                Command = string.Format("jnb_Write(df={0}, " +
+                rCmd = string.Format("jnb_Write(df={0}, " +
                     "fileName=\"{1}\", row.names=FALSE, " +
                     "sepChar=\"{2}\")",
                     Parameters[RequiredParameters.TableName.ToString()],
@@ -379,7 +379,7 @@ namespace Cyclops.DataModules
                     Delimiter);
             }
 
-            b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+            b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
             return b_Successful;
         }
@@ -519,13 +519,13 @@ namespace Cyclops.DataModules
             {
                 string s_Database = Path.Combine(Model.WorkDirectory,
                     m_DatabaseFileName).Replace("\\", "/"),
-                Command = string.Format(
+                       rCmd = string.Format(
                                 "require(RSQLite)\n" +
                                 "m <- dbDriver(\"SQLite\", max.con=25)\n" +
                                 "con <- dbConnect(m, dbname = \"{0}\")",
                                     s_Database);
 
-                return Model.RCalls.Run(Command, ModuleName, StepNumber);
+                return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             else
             {
@@ -542,17 +542,17 @@ namespace Cyclops.DataModules
         /// </summary>
         public bool DisconnectFromDatabaseFromR()
         {
-            string Command = "terminated <- dbDisconnect(con)";
+            string rCmdDisconnect = "terminated <- dbDisconnect(con)";
 
-            bool b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+            bool b_Successful = Model.RCalls.Run(rCmdDisconnect, ModuleName, StepNumber);
 
             if (b_Successful)
                 b_Successful = Model.RCalls.AssessBoolean("terminated");
 
             if (b_Successful)
             {
-                Command = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                var rCmdTerminate = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
+                b_Successful = Model.RCalls.Run(rCmdTerminate, ModuleName, StepNumber);
             }
             else
             {

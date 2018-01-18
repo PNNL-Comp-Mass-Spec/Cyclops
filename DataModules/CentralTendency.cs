@@ -147,7 +147,7 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = string.Format("{0} <- MeanCenter.Div(" +
+            string rCmd = string.Format("{0} <- MeanCenter.Div(" +
                     "Data={1}, Mean={2}, centerZero={3})",
                     Parameters[RequiredParameters.NewTableName.ToString()],
                     Parameters[RequiredParameters.InputTableName.ToString()],
@@ -156,7 +156,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

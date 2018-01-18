@@ -233,8 +233,8 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string s_TmpTable = GetTemporaryTableName("tmpBoxPlot_"),
-                Command = string.Format(
+            string s_TmpTable = GetTemporaryTableName("tmpBoxPlot_");
+            string rCmd = string.Format(
                 "Boxplots(x={0}, Columns={1}, " +
                 "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
                 "colorFactorName={5}, " +
@@ -269,7 +269,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

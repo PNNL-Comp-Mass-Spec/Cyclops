@@ -147,13 +147,13 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = string.Format(
+            string rCmd = string.Format(
                 "load('{0}')\n",
                 Parameters[RequiredParameters.InputFileName.ToString()].Replace("\\", "/"));
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
                 if (b_Successful)
                     Model.RWorkEnvironment = Parameters[

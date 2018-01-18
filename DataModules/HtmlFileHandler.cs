@@ -452,14 +452,16 @@ namespace Cyclops.DataModules
         /// <returns>Selected columns from Column Metadata table</returns>
         private static DataTable GetDatasetInfo(string DatabaseFileName, string TableName)
         {
-            SQLiteHandler sql = new SQLiteHandler();
-            sql.DatabaseFileName = DatabaseFileName;
-            string Command = string.Format(
+            SQLiteHandler sqlHandler = new SQLiteHandler {
+                DatabaseFileName = DatabaseFileName
+            };
+
+            string sql = string.Format(
                 "Select Alias, Dataset, Dataset_ID FROM {0} ORDER BY Alias",
                 TableName);
-            if (sql.TableExists(TableName))
+            if (sqlHandler.TableExists(TableName))
             {
-                return sql.SelectTable(Command);
+                return sqlHandler.SelectTable(sql);
             }
             else
                 return null;

@@ -207,10 +207,10 @@ namespace Cyclops.DataModules
 
                         if (b_Successful)
                         {
-                            var Command = string.Format(
+                            var rCmd = string.Format(
                                 "source('{0}')\n",
                                 s.Replace("\\", "/"));
-                            b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                            b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                         }
                         if (!b_Successful)
                         {
@@ -297,13 +297,13 @@ namespace Cyclops.DataModules
         /// <returns>True, if packages are loaded successfully</returns>
         private bool LoadLibraries()
         {
-            var Command = "";
+            var rCmd = "";
             foreach (var s in m_PackagesToLoad)
             {
-                Command += string.Format("require({0})\n", s);
+                rCmd += string.Format("require({0})\n", s);
             }
 
-            return Model.RCalls.Run(Command, ModuleName, StepNumber);
+            return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
         }
         #endregion
     }

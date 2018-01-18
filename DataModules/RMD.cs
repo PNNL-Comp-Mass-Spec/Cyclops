@@ -187,7 +187,7 @@ namespace Cyclops.DataModules
 
             string s_TmpTable = GetTemporaryTableName("tmpRMD_");
 
-            string Command = string.Format(
+            string rCmd = string.Format(
                 "{0} <- DetectOutliers(" +
                 "data={1}, " +
                 "class=as.numeric({2}${3}), " +
@@ -202,7 +202,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

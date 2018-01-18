@@ -179,12 +179,14 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = "require(grDevices)\nrequire(gplots)\n";
+            string rCmd = "require(grDevices)\nrequire(gplots)\n";
 
-            switch (Parameters[RequiredParameters.Image.ToString()].ToLower())
+            var imageType = Parameters[RequiredParameters.Image.ToString()];
+
+            switch (imageType.ToLower())
             {
                 case "esp":
-                    Command += string.Format("postscript(filename='{0}', width={1}," +
+                    rCmd += string.Format("postscript(filename='{0}', width={1}," +
                         "height={2}, pointsize={3})\n",
                         Model.WorkDirectory.Replace("\\", "/") + "/" + PlotFileName,
                         Width,
@@ -192,7 +194,7 @@ namespace Cyclops.DataModules
                         PointSize);
                     break;
                 case "png":
-                    Command += string.Format("png(filename='{0}', width={1}," +
+                    rCmd += string.Format("png(filename='{0}', width={1}," +
                         "height={2}, pointsize={3})\n",
                         Model.WorkDirectory.Replace("\\", "/") + "/" + PlotFileName,
                         Width,
@@ -200,27 +202,30 @@ namespace Cyclops.DataModules
                         PointSize);
                     break;
                 case "jpg":
-                    Command += string.Format("jpg(filename='{0}', width={1}," +
+                    rCmd += string.Format("jpg(filename='{0}', width={1}," +
                         "height={2}, pointsize={3})\n",
                         Model.WorkDirectory.Replace("\\", "/") + "/" + PlotFileName,
                         Width,
                         Height,
                         PointSize);
                     break;
+
+                default:
+                    Model.LogError("Unsupported image type for heatmap: " + imageType);
+                    return false;
             }
 
-            Command += GetHeatmapStatement();
+            rCmd += GetHeatmapStatement();
 
-            Command += "dev.off()\n";
+            rCmd += "dev.off()\n";
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while creating a " +
-                    "Correlation Heatmap:\n" + ex.ToString());
+                Model.LogError("Exception encountered while creating a Correlation Heatmap:\n" + ex);
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }
@@ -239,7 +244,7 @@ namespace Cyclops.DataModules
             bool SkipFirstColumn = Convert.ToBoolean(
                 Parameters[RequiredParameters.SkipTheFirstColumn.ToString()]);
 
-            string Command = string.Format(
+            string rCmd = string.Format(
                 "require(Hmisc)\n" +
                 "{0} <- rcorr(data.matrix({1}{2}){3})\n" +
                 "{4} <- list(cor={0}, n={0}$n, prob={0}$P)\n" +
@@ -253,7 +258,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

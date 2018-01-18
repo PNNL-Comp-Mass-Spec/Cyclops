@@ -180,17 +180,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                string Command = "require(BetaBinomial)\n";
+                string rCmd = "require(BetaBinomial)\n";
 
                 if (Parameters.ContainsKey("removePeptideColumn"))
                 {
-                    Command += string.Format(
+                    rCmd += string.Format(
                         "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
                         Parameters[RequiredParameters.InputTableName.ToString()]);
                     s_TmpInputTableName = s_TmpInputTableName + "_tmpT";
                 }
 
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
                 GetOrganizedFactorsVector(
                     s_TmpInputTableName,
@@ -205,7 +205,7 @@ namespace Cyclops.DataModules
                     s_FactorComplete);
                 if (l_Factors.Count == i_FactorCnt && b_Successful)
                 {
-                    Command = string.Format(
+                    rCmd = string.Format(
                         "{1} <- data.matrix({1})\n" +
                         "{1}[is.na({1})] <- 0\n" +
                         "sink('')\n" +
@@ -222,10 +222,9 @@ namespace Cyclops.DataModules
                         s_TmpTable);
 
                     if (Parameters.ContainsKey("removePeptideColumn"))
-                        Command += string.Format("rm({0})\n",
-                            s_TmpInputTableName);
+                        rCmd += string.Format("rm({0})\n", s_TmpInputTableName);
 
-                    b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                    b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                 }
                 else
                 {

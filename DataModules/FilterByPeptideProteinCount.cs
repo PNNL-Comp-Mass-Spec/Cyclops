@@ -257,7 +257,7 @@ namespace Cyclops.DataModules
             bool b_Successful = true;
 
             string s_TmpTable = GetTemporaryTableName("T_FilterPepProtCnt_"),
-                Command = string.Format(
+                   rCmd = string.Format(
                     "if (!is.null({0})) {{\n" +
                     "\t{1} <- {0}$DataTable\n" +
                     "\t{2} <- {0}$RowMetaData\n" +
@@ -303,7 +303,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                Model.RCalls.Run(Command, ModuleName, StepNumber);
+                Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

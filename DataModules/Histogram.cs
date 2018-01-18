@@ -192,12 +192,12 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = "";
+            string rcmd = "";
 
             switch (HistogramType.ToLower())
             {
                 case "standard":
-                    Command = string.Format("plot_hist(Data={0}, " +
+                    rcmd = string.Format("plot_hist(Data={0}, " +
                          "file=\"{1}\", Data.Columns='{2}', " +
                          "IMGwidth={3}, " +
                          "IMGheight={4}, FNTsize={5}, colF=\"{6}\", colB=\"{7}\")",
@@ -214,12 +214,12 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rcmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing " +
-                    "Histogram:\n" + ex.ToString(), ModuleName, StepNumber);
+                    "Histogram:\n" + ex, ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 b_Successful = false;
             }

@@ -136,7 +136,7 @@ namespace Cyclops
         /// <returns>SQL Command for creating the table</returns>
         private string SqliteCreateTableStatement(DataTable Table)
         {
-            var s_Command = string.Format(
+            var sql = string.Format(
                 "CREATE TABLE {0} (",
                 Table.TableName);
 
@@ -151,11 +151,11 @@ namespace Cyclops
                 l_FieldType.Add(s_FieldType);
             }
 
-            s_Command += string.Join(", ", l_FieldType);
+            sql += string.Join(", ", l_FieldType);
 
-            s_Command += ");";
+            sql += ");";
 
-            return s_Command;
+            return sql;
         }
 
         /// <summary>
@@ -334,10 +334,10 @@ namespace Cyclops
 
                 if (TableExists(Table.TableName))
                 {
-                    var Cmd = new SQLiteCommand(string.Format(
+                    var cmd = new SQLiteCommand(string.Format(
                         "DROP TABLE IF EXISTS {0};",
                         Table.TableName), Conn);
-                    retval = Cmd.ExecuteNonQuery();
+                    retval = cmd.ExecuteNonQuery();
                 }
 
                 var cmd_Table = new SQLiteCommand(SqliteCreateTableStatement(Table), Conn);
@@ -422,9 +422,7 @@ namespace Cyclops
                 return null;
 
             var dt_Info = new DataTable();
-            var s_Command =
-            "SELECT * FROM " +
-            "sqlite_master WHERE type='table'";
+            var sql = "SELECT * FROM sqlite_master WHERE type='table'";
 
             try
             {
@@ -437,7 +435,7 @@ namespace Cyclops
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
-                    cmd.CommandText = s_Command;
+                    cmd.CommandText = sql;
                     var reader = cmd.ExecuteReader();
                     dt_Info.Load(reader);
                     conn.Close();
@@ -520,15 +518,15 @@ namespace Cyclops
                 if (string.IsNullOrEmpty(IndexName))
                     IndexName = "idx_" + Table + "_" + Column;
 
-                var s_Command = string.Format(
+                var sql = string.Format(
                     "CREATE INDEX {0} ON {1}({2});",
                     IndexName,
                     Table,
                     Column);
 
-                //traceLog.Info("SQLite Handler Creating Index: " + s_Command);
+                //traceLog.Info("SQLite Handler Creating Index: " + sql);
 
-                var connStr = new SQLiteConnectionStringBuilder()
+                var connStr = new SQLiteConnectionStringBuilder
                 {
                     DataSource = DatabaseFileName
                 };
@@ -537,10 +535,7 @@ namespace Cyclops
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
-                    cmd.CommandText = s_Command;
-
-                    cmd = conn.CreateCommand();
-                    cmd.CommandText = s_Command;
+                    cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
                     conn.Close();
                 }
@@ -562,9 +557,9 @@ namespace Cyclops
         /// <summary>
         /// Selects a table from a given query
         /// </summary>
-        /// <param name="Command">SQLite query to generate the table that is returned</param>
+        /// <param name="sql">SQLite query to generate the table that is returned</param>
         /// <returns>Table generated from the supplied SQLite query, null if query fails</returns>
-        public override DataTable SelectTable(string Command)
+        public override DataTable SelectTable(string sql)
         {
             if (DatabaseFileName == null)
                 return null;
@@ -582,10 +577,8 @@ namespace Cyclops
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
-                    cmd.CommandText = Command;
+                    cmd.CommandText = sql;
 
-                    cmd = conn.CreateCommand();
-                    cmd.CommandText = Command;
                     var reader = cmd.ExecuteReader();
                     dt_Return.Load(reader);
                     conn.Close();
@@ -620,7 +613,7 @@ namespace Cyclops
 
             if (TableExists(TableName))
             {
-                var s_Command = "DROP TABLE " + TableName;
+                var sql = "DROP TABLE " + TableName;
 
                 try
                 {
@@ -634,7 +627,8 @@ namespace Cyclops
                         conn.Open();
 
                         var cmd = conn.CreateCommand();
-                        cmd.CommandText = s_Command;
+                        cmd.CommandText = sql;
+
                         var i = cmd.ExecuteNonQuery();
                         Console.WriteLine("Returned: " + i);
                         conn.Close();
@@ -664,7 +658,7 @@ namespace Cyclops
 
             var dt_Return = new DataTable();
 
-            var Command = string.Format("SELECT * FROM {0};", TableName);
+            var sql = string.Format("SELECT * FROM {0};", TableName);
 
             try
             {
@@ -677,10 +671,8 @@ namespace Cyclops
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
-                    cmd.CommandText = Command;
+                    cmd.CommandText = sql;
 
-                    cmd = conn.CreateCommand();
-                    cmd.CommandText = Command;
                     //SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
                     //da.Fill(dt_Return);
                     var reader = cmd.ExecuteReader();
@@ -706,9 +698,9 @@ namespace Cyclops
         /// <summary>
         /// Useful method to execute a NonQuery on the Database
         /// </summary>
-        /// <param name="Command">SQL command to issue</param>
+        /// <param name="sql">SQL command to issue</param>
         /// <returns>True, if the SQL statement completed successfully</returns>
-        public override bool RunNonQuery(string Command)
+        public override bool RunNonQuery(string sql)
         {
             if (string.IsNullOrEmpty(DatabaseFileName))
                 return false;
@@ -727,7 +719,7 @@ namespace Cyclops
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
-                    cmd.CommandText = Command;
+                    cmd.CommandText = sql;
 
                     var reader = cmd.ExecuteReader();
                     dt_Return.Load(reader);
@@ -760,7 +752,7 @@ namespace Cyclops
                 return null;
 
             var ColumnNames = new List<string>();
-            var Command = string.Format(
+            var sql = string.Format(
                 "SELECT * FROM {0} LIMIT 1",
                 TableName);
 
@@ -775,7 +767,7 @@ namespace Cyclops
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
-                    cmd.CommandText = Command;
+                    cmd.CommandText = sql;
 
                     var reader = cmd.ExecuteReader();
                     var dt = new DataTable();

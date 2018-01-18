@@ -362,7 +362,7 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            string Command = string.Format(
+            string rCmd = string.Format(
                     "rownames({0}) <- {0}[,1]\n" +
                     "{0} <- {0}[,-1]\n",
                     s_TmpFilterTable);
@@ -371,7 +371,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
@@ -411,7 +411,7 @@ namespace Cyclops.DataModules
 
             CheckForPlotsDirectory();
 
-            string Command = "";
+            string rCmd = "";
             var plotFileName = Parameters[RequiredParameters.PlotFileName.ToString()];
             var plotfilePath = Path.Combine(Model.WorkDirectory, "Plots", plotFileName);
             var s_MatrixFileName = "hm_" + Path.GetFileNameWithoutExtension(plotFileName);
@@ -421,18 +421,22 @@ namespace Cyclops.DataModules
             switch (m_PlotFileType.ToLower())
             {
                 case "png":
-                    Command += string.Format("CairoPNG(filename='{0}')\n", plotFilePathForR);
+                    rCmd += string.Format("CairoPNG(filename='{0}')\n", plotFilePathForR);
                     break;
                 case "svg":
-                    Command += string.Format("svg(filename='{0}')\n", plotFilePathForR);
+                    rCmd += string.Format("svg(filename='{0}')\n", plotFilePathForR);
                     break;
                 case "ps":
-                    Command += string.Format("cairo_ps(filename='{0}')\n", plotFilePathForR);
+                    rCmd += string.Format("cairo_ps(filename='{0}')\n", plotFilePathForR);
                     break;
+                default:
+                    Model.LogError("Unsupported plot type: " + m_PlotFileType,
+                                   ModuleName, StepNumber);
+                    return false;
             }
 
             // Setup heatmap.2 parameters
-            Command += string.Format(
+            rCmd += string.Format(
                 "col <- colorRampPalette({0})\n" +
                 "cmap <- col({1})\n" +
                 "colscale <- seq({2}, {3}, length={1}+1)\n"
@@ -441,7 +445,7 @@ namespace Cyclops.DataModules
                 , m_MinColorScale
                 , m_MaxColorScale);
 
-            Command += string.Format(
+            rCmd += string.Format(
                 "{0} <- heatmap.2(" +
                 "x=data.matrix({1}), " +
                 "Rowv={2}, " +
@@ -474,12 +478,11 @@ namespace Cyclops.DataModules
                 , Main
             );
 
-
-            Command += "dev.off()\n";
+            rCmd += "dev.off()\n";
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
@@ -500,12 +503,14 @@ namespace Cyclops.DataModules
             if (m_ClusterColumns.ToUpper().StartsWith("T") &&
                 m_ClusterRows.ToUpper().StartsWith("T"))
                 return "c('both')";
-            else if (m_ClusterRows.ToUpper().StartsWith("T"))
+
+            if (m_ClusterRows.ToUpper().StartsWith("T"))
                 return "c('row')";
-            else if (m_ClusterColumns.ToUpper().StartsWith("T"))
+
+            if (m_ClusterColumns.ToUpper().StartsWith("T"))
                 return "c('column')";
-            else
-                return "c('none')";
+
+            return "c('none')";
         }
 
         /// <summary>

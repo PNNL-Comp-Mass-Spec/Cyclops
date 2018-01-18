@@ -139,10 +139,10 @@ namespace Cyclops.DataModules
         {
             bool b_Successful = true;
 
-            string Command = "rm(list=objects2delete)\nrm(objects2delete)";
+            string rCmd = "rm(list=objects2delete)\nrm(objects2delete)";
             try
             {
-                Model.RCalls.Run(Command, ModuleName, StepNumber);
+                Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

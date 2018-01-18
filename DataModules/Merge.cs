@@ -174,7 +174,7 @@ namespace Cyclops.DataModules
             bool b_Successful = true;
 
             // Construct the R statement
-            string Command = string.Format("{0} <- merge(x={1}," +
+            string rCmd = string.Format("{0} <- merge(x={1}," +
                 "y={2}, by.x=\"{3}\", by.y=\"{4}\", all.x={5}, all.y={6})",
                 Parameters[RequiredParameters.NewTableName.ToString()],
                 Parameters[RequiredParameters.XTable.ToString()],
@@ -186,7 +186,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
