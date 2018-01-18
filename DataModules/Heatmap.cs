@@ -425,33 +425,33 @@ namespace Cyclops.DataModules
 
             CheckForPlotsDirectory();
 
-            string Command = "",
-                s_FileName = Path.Combine(Model.WorkDirectory,
-                    "Plots", Parameters[RequiredParameters.PlotFileName.ToString()]),
-                s_MatrixFileName = "hm_" + Path.GetFileNameWithoutExtension(s_FileName);
+            string Command = "";
+            var plotFileName = Parameters[RequiredParameters.PlotFileName.ToString()];
+            var plotfilePath = Path.Combine(Model.WorkDirectory, "Plots", plotFileName);
+            var s_MatrixFileName = "hm_" + Path.GetFileNameWithoutExtension(plotFileName);
 
-            s_FileName = s_FileName.Replace('\\', '/');
+            var plotFilePathForR = GenericRCalls.ConvertToRCompatiblePath(plotfilePath);
 
             switch (m_PlotFileType.ToLower())
             {
                 case "png":
                     Command += string.Format(
                         "CairoPNG(filename='{0}')\n",
-                        s_FileName);
+                        plotFilePathForR);
                     break;
                 case "svg":
                     Command += string.Format(
                         "svg(filename='{0}')\n",
-                        s_FileName);
+                        plotFilePathForR);
                     break;
                 case "ps":
                     Command += string.Format(
                         "cairo_ps(filename='{0}')\n",
-                        s_FileName);
+                        plotFilePathForR);
                     break;
             }
 
-            /// Setup heatmap.2 parameters
+            // Setup heatmap.2 parameters
             Command += string.Format(
                 "col <- colorRampPalette({0})\n" +
                 "cmap <- col({1})\n" +

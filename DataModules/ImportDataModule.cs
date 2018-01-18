@@ -268,6 +268,26 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
+        /// Append the filename to the directory path, using the system's directory separator character
+        /// </summary>
+        /// <param name="directoryPath"></param>
+        /// <param name="fileName"></param>
+        /// <returns>New file path</returns>
+        /// <remarks>replaces invalid path separators with teh system's directory separator character</remarks>
+        private string BuildAndValidatePath(string directoryPath, string fileName)
+        {
+            var filePath = Path.Combine(directoryPath, fileName);
+
+            if (Path.DirectorySeparatorChar == '\\' && filePath.Contains("/"))
+                return filePath.Replace('/', '\\');
+
+            if (Path.DirectorySeparatorChar == '/' && filePath.Contains(@"\"))
+                return filePath.Replace('\\', '/');
+
+            return filePath;
+        }
+       
+        /// <summary>
         /// Connects R environment to a SQLite database
         /// </summary>
         /// <returns>True, if connection established successfully</returns>
@@ -277,24 +297,25 @@ namespace Cyclops.DataModules
 
             if (CheckSQLiteRequiredParameters())
             {
-                string s_InputFileName = "";
+                string inputFilePath;
+
                 if (Parameters.ContainsKey("inputFileName"))
-                    s_InputFileName = Model.WorkDirectory + "/" +
-                        Parameters["inputFileName"];
+                    inputFilePath = BuildAndValidatePath(Model.WorkDirectory, Parameters["inputFileName"]);
                 else
-                    s_InputFileName = Model.WorkDirectory + "/Results.db3";
+                    inputFilePath = BuildAndValidatePath(Model.WorkDirectory, "Results.db3");
 
-                s_InputFileName = s_InputFileName.Replace('\\', '/');
-
-                if (File.Exists(s_InputFileName))
+                if (File.Exists(inputFilePath))
                 {
+                    // R requires forward slashes in paths
+                    var filePathForR = GenericRCalls.ConvertToRCompatiblePath(inputFilePath);
+
                     try
                     {
                         string s_Command = string.Format(
                             "require(RSQLite)\n"
                             + "m <- dbDriver(\"SQLite\", max.con=25)\n"
                             + "con <- dbConnect(m, dbname = \"{0}\")\n"
-                            , s_InputFileName);
+                            , filePathForR);
 
                         b_Successful = Model.RCalls.Run(
                             s_Command, ModuleName, StepNumber);
@@ -525,14 +546,13 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            string s_InputFileName = Model.WorkDirectory + "/" +
-                Parameters["inputFileName"];
-            s_InputFileName = s_InputFileName.Replace('\\', '/');
+            var inputFilePath = BuildAndValidatePath(Model.WorkDirectory, Parameters["inputFileName"]);
+            var filePathForR = GenericRCalls.ConvertToRCompatiblePath(inputFilePath);
 
             string s_Command = string.Format("{0} <- read.csv(" +
                             "file=\"{1}\")\n",
                             Parameters[RequiredParameters.NewTableName.ToString()],
-                            s_InputFileName);
+                                             filePathForR);
 
             return Model.RCalls.Run(s_Command,
                 ModuleName,
@@ -553,14 +573,13 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            string s_InputFileName = Model.WorkDirectory + "/" +
-                Parameters["inputFileName"];
-            s_InputFileName = s_InputFileName.Replace('\\', '/');
+            var inputFilePath = BuildAndValidatePath(Model.WorkDirectory, Parameters["inputFileName"]);
+            var filePathForR = GenericRCalls.ConvertToRCompatiblePath(inputFilePath);
 
             string s_Command = string.Format("{0} <- read.table(" +
                             "file=\"{1}\", sep=\"\\t\", header=T)\n",
                             Parameters[RequiredParameters.NewTableName.ToString()],
-                            s_InputFileName);
+                            filePathForR);
 
             return Model.RCalls.Run(s_Command,
                 ModuleName,
