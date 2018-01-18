@@ -595,6 +595,21 @@ namespace Cyclops.DataModules
 
             return b_Successful;
         }
+
+        public override string ToString()
+        {
+            if (Parameters.TryGetValue(RequiredParameters.TableName.ToString(), out var tableName))
+            {
+                if (!Parameters.TryGetValue(RequiredParameters.FileName.ToString(), out var fileName))
+                {
+                    fileName = "??";
+                }
+                return string.Format("ExportTable: {0} -> {1}", tableName, fileName);
+            }
+
+            return base.ToString();
+        }
+
         #endregion
     }
 }
