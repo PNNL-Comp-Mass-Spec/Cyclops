@@ -103,7 +103,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Library\ICSharpCode.SharpZipLib.dll" />
-    <Content Include="MyToDoChecklist.txt" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
