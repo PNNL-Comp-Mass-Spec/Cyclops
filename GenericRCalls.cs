@@ -175,10 +175,11 @@ namespace Cyclops
         public bool LoadRWorkspace(string WorkspaceFileName,
             string Module, int Step)
         {
-            WorkspaceFileName = WorkspaceFileName.Replace('\\', '/');
+            var filePathForR = ConvertToRCompatiblePath(WorkspaceFileName);
+
             var Command = string.Format(
-                        "load(\"{0}\")",
-                        WorkspaceFileName);
+                "load(\"{0}\")",
+                filePathForR);
 
             return Run(Command, Module, Step);
         }
@@ -302,6 +303,16 @@ namespace Cyclops
             }
             else
                 return null;
+        }
+
+        /// <summary>
+        /// Replace any backslash characters in the file path with forward slash characters
+        /// </summary>
+        /// <param name="inputFilePath"></param>
+        /// <returns></returns>
+        public static string ConvertToRCompatiblePath(string inputFilePath)
+        {
+            return inputFilePath.Replace('\\', '/');
         }
 
         /// <summary>
