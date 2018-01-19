@@ -1,0 +1,5 @@
+<Cyclops>
+	<Module Type="Operation" Name="SpectralCountMainOperation" Step="1">
+		<Parameter key="Type" value="Iterator" />
+	</Module>
+</Cyclops>

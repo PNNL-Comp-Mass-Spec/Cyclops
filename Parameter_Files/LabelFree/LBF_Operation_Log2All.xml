@@ -1,0 +1,5 @@
+<Cyclops>
+	<Module Type="Operation" Name="LabelFreeMainOperation" Step="1">
+		<Parameter key="Type" value="Log2All" />
+	</Module>
+</Cyclops>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<software type="Cyclops">
+  <operation id="Online2DLCMainOperation" type="Standard">
+	<parameters>
+	</parameters>
+  </operation>
+</software>

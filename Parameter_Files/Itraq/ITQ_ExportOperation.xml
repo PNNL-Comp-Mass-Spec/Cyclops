@@ -1,0 +1,5 @@
+<Cyclops>
+	<Module Type="Operation" Name="iTRAQMainOperation" Step="1">
+		<Parameter key="Type" value="Standard" />
+	</Module>
+</Cyclops>
