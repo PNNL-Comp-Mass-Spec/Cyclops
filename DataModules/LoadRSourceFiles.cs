@@ -238,7 +238,7 @@ namespace Cyclops.DataModules
         /// beginning of each ".R" file, so just need to
         /// clean it up before reading it.
         /// </summary>
-        /// <param name="FileName">Name of file to clean</param>
+        /// <param name="filePath">Name of file to clean</param>
         /// <returns>True, if the file is cleaned successfully</returns>
         private bool CleanRSourceFile(string filePath)
         {
@@ -250,10 +250,14 @@ namespace Cyclops.DataModules
                 var content = sr.ReadToEnd();
                 sr.Close();
 
-                content.Replace("ï»¿", "");
-                var sw = new StreamWriter(filePath);
-                sw.Write(content);
-                sw.Close();
+                var newContent = content.Replace("ï»¿", "");
+
+                if (!string.Equals(content, newContent))
+                {
+                    var sw = new StreamWriter(filePath);
+                    sw.Write(newContent);
+                    sw.Close();
+                }
             }
             catch (IOException ex)
             {
