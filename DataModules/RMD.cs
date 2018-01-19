@@ -18,9 +18,9 @@ namespace Cyclops.DataModules
     public class RMD : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "RMD";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "RMD";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run RMD Module
         /// </summary>
@@ -29,7 +29,7 @@ namespace Cyclops.DataModules
             NewTableName, InputTableName, OutlierTableName,
             FactorTable, BioRep, ConsolidateFactor
         }
-        
+
         #endregion
 
         #region Properties
@@ -77,8 +77,6 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
-
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -89,7 +87,7 @@ namespace Cyclops.DataModules
                     Model.PipelineCurrentlySuccessful = RMDFunction();
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -99,9 +97,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -116,15 +114,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -183,11 +180,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the RMD function completes successfully</returns>
         public bool RMDFunction()
         {
-            bool successful = true;
+            var tTable = GetTemporaryTableName("tmpRMD_");
 
-            string tTable = GetTemporaryTableName("tmpRMD_");
-
-            string rCmd = string.Format(
+            var rCmd = string.Format(
                 "{0} <- DetectOutliers(" +
                 "data={1}, " +
                 "class=as.numeric({2}${3}), " +
@@ -202,18 +197,18 @@ namespace Cyclops.DataModules
 
             try
             {
-                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                var successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                return successful;
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
-                    "RMD Analysis: " + ex.ToString(), ModuleName,
+                    "RMD Analysis: " + ex, ModuleName,
                     StepNumber);
                 SaveCurrentREnvironment();
-                successful = false;
+                return false;
             }
 
-            return successful;
         }
 
         /// <summary>

@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -26,17 +27,16 @@ namespace Cyclops.DataModules
         /// </summary>
         private enum RequiredParameters
         { }
-        
+
         private enum HTMLFileType { Dataset, Index };
         #endregion
 
         #region Members
-        private string m_ModuleName = "Sco_HTML_Summary";
-        private string m_Description = "";
-        private string m_DatabaseFileName = "Results.db3";
+        private readonly string m_ModuleName = "Sco_HTML_Summary";
+        private readonly string m_Description = "";
 
-        private bool m_DatabaseFound = false;
-        private SQLiteHandler sql = new SQLiteHandler();
+        private bool m_DatabaseFound;
+        private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
         #endregion
 
         #region Properties
@@ -85,7 +85,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -109,9 +109,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -126,15 +126,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -146,16 +145,15 @@ namespace Cyclops.DataModules
 
             if (Parameters.ContainsKey("DatabaseFileName"))
             {
-                if (File.Exists(Parameters["DatabaseFileName"]))
+                var databaseFile = Parameters["DatabaseFileName"];
+                if (File.Exists(databaseFile))
                 {
-                    m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Parameters["DatabaseFileName"];
+                    m_SQLiteReader.DatabaseFileName = databaseFile;
                     m_DatabaseFound = true;
                 }
-                else if (File.Exists(Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"])))
+                else if (File.Exists(Path.Combine(Model.WorkDirectory, databaseFile)))
                 {
-                    m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"]);
+                    m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, databaseFile);
                     m_DatabaseFound = true;
                 }
             }
@@ -163,8 +161,8 @@ namespace Cyclops.DataModules
             {
                 if (File.Exists(Path.Combine(Model.WorkDirectory, "Results.db3")))
                 {
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
-                    Parameters.Add("DatabaseFileName", sql.DatabaseFileName);
+                    m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
+                    Parameters.Add("DatabaseFileName", m_SQLiteReader.DatabaseFileName);
                     m_DatabaseFound = true;
                 }
             }
@@ -184,8 +182,6 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool Sco_Html_SummaryFunction()
         {
-            bool successful = true;
-
             WriteCssFile();
 
             #region Datasets Page
@@ -195,7 +191,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing the Datasets HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Datasets HTML Summary Page: " + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -208,7 +204,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing the Quality Control HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Quality Control HTML Summary Page: " + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -221,7 +217,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing the Correlation HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Correlation HTML Summary Page: " + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -234,7 +230,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing the Heatmaps HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Heatmaps HTML Summary Page: " + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -247,25 +243,27 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while constructing the Main HTML Summary Page: " + ex.ToString(),
+                Model.LogError("Exception encountered while constructing the Main HTML Summary Page: " + ex,
                     ModuleName, StepNumber);
                 return false;
             }
             #endregion
 
-            return successful;
+            return true;
         }
 
 
         private List<HtmlLinkNode> GetOriginalNavBar()
         {
-            List<HtmlLinkNode> navBarNodes = new List<HtmlLinkNode>();
+            var navBarNodes = new List<HtmlLinkNode>
+            {
+                new HtmlLinkNode("Home", FileNameVault["MainFileName"], false),
+                new HtmlLinkNode("Datasets", FileNameVault["DatasetsHtmlFileName"], false),
+                new HtmlLinkNode("QC Plots", FileNameVault["QcHtmlFileName"], false),
+                new HtmlLinkNode("Correlation Heatmaps", FileNameVault["CorrelationHtmlFileName"], false),
+                new HtmlLinkNode("Protein Heatmaps", FileNameVault["HeatmapsFileName"], false)
+            };
 
-            navBarNodes.Add(new HtmlLinkNode("Home", FileNameVault["MainFileName"], false));
-            navBarNodes.Add(new HtmlLinkNode("Datasets", FileNameVault["DatasetsHtmlFileName"], false));
-            navBarNodes.Add(new HtmlLinkNode("QC Plots", FileNameVault["QcHtmlFileName"], false));
-            navBarNodes.Add(new HtmlLinkNode("Correlation Heatmaps", FileNameVault["CorrelationHtmlFileName"], false));
-            navBarNodes.Add(new HtmlLinkNode("Protein Heatmaps", FileNameVault["HeatmapsFileName"], false));
 
             return navBarNodes;
         }
@@ -319,7 +317,7 @@ namespace Cyclops.DataModules
         /// </summary>
         private void WriteCssFile()
         {
-            using (StreamWriter cssWriter = File.AppendText(Path.Combine(Model.WorkDirectory, FileNameVault["CssFileName"])))
+            using (var cssWriter = File.AppendText(Path.Combine(Model.WorkDirectory, FileNameVault["CssFileName"])))
             {
                 cssWriter.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.NavBar, 160));
                 cssWriter.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.LeftIndent, 160));
@@ -330,7 +328,7 @@ namespace Cyclops.DataModules
         private void WriteDatasetsPage(List<HtmlLinkNode> NavBar)
         {
             // Construct and write-out the Datasets Page
-            StringBuilder datasetHtml = new StringBuilder();
+            var datasetHtml = new StringBuilder();
 
             datasetHtml.Append(HtmlFileHandler.GetHtmlHeader());
             datasetHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
@@ -345,7 +343,7 @@ namespace Cyclops.DataModules
             datasetHtml.Append("\t\t</DIV>\n");
             datasetHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter datasetWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["DatasetsHtmlFileName"]));
+            var datasetWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["DatasetsHtmlFileName"]));
             datasetWriter.Write(datasetHtml);
             datasetWriter.Close();
         }
@@ -357,7 +355,7 @@ namespace Cyclops.DataModules
         private void WriteQCHTMLPage(List<HtmlLinkNode> NavBar)
         {
             // Construct and write-out the QC Page
-            StringBuilder qcHtml = new StringBuilder();
+            var qcHtml = new StringBuilder();
 
             NavBar.Add(new HtmlLinkNode("Summary", "sum", true));
             NavBar.Add(new HtmlLinkNode("Missed Cleavages", "mc", true));
@@ -382,7 +380,7 @@ namespace Cyclops.DataModules
             qcHtml.Append(HtmlFileHandler.GetQCElement("Spectral Count Summary"
                 , "table_header"
                 , FileNameVault["SpectralCountSummaryFigureFileName"]
-                , sql.GetTable("T_MAC_SpecCnt_Summary")
+                , m_SQLiteReader.GetTable("T_MAC_SpecCnt_Summary")
                 , 1, 1, 1));
             qcHtml.Append("\t\t</DIV>\n");
 
@@ -395,7 +393,7 @@ namespace Cyclops.DataModules
                     "Missed Cleavage Summary"
                     , "table_header"
                     , FileNameVault["MissedCleavageSummaryFigureFileName"]
-                    , sql.GetTable("T_MissedCleavageSummary")
+                    , m_SQLiteReader.GetTable("T_MissedCleavageSummary")
                     , 1, 1, 1));
             }
             if (File.Exists(Path.Combine(Model.WorkDirectory, "Plots",
@@ -436,7 +434,7 @@ namespace Cyclops.DataModules
                 "Tryptic Peptide Summary"
                 , "table_header"
                 , FileNameVault["TrypticPeptideSummaryFigureFileName"]
-                , sql.GetTable("T_MAC_Trypticity_Summary")
+                , m_SQLiteReader.GetTable("T_MAC_Trypticity_Summary")
                 , 1, 1, 1));
 
             // Hexbin plot
@@ -475,7 +473,7 @@ namespace Cyclops.DataModules
             qcHtml.Append("\t</DIV>\n");
             qcHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter qcWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["QcHtmlFileName"]));
+            var qcWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["QcHtmlFileName"]));
             qcWriter.WriteLine(qcHtml);
             qcWriter.Close();
         }
@@ -486,7 +484,7 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteCorrelationHeatmapHTMLPage(List<HtmlLinkNode> NavBar)
         {
-            StringBuilder heatmapHtml = new StringBuilder();
+            var heatmapHtml = new StringBuilder();
 
             NavBar.Add(new HtmlLinkNode("Correlation", "ch", true));
 
@@ -504,28 +502,28 @@ namespace Cyclops.DataModules
             heatmapHtml.Append("\t\t<A NAME='ch'/A>\n");
             heatmapHtml.Append("\t\t<P ID='table_header'>Correlation Heatmap</P>\n");
 
-            string correlationHeatMapFile = Path.Combine(Model.WorkDirectory, "Plots", FileNameVault["SpectralCountsCorrelationHeatmapFigureFileName"]);
+            var correlationHeatMapFile = Path.Combine(Model.WorkDirectory, "Plots", FileNameVault["SpectralCountsCorrelationHeatmapFigureFileName"]);
             if (File.Exists(correlationHeatMapFile))
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["SpectralCountsCorrelationHeatmapFigureFileName"],
                     true, "pos_left", null, null));
-                    
+
             var heatMap10PercentFdr = Path.Combine(Model.WorkDirectory, "Plots",
-                FileNameVault["SpectralCountsCorrelationHeatmap10percentFdrFigureFileName"]);                
+                FileNameVault["SpectralCountsCorrelationHeatmap10percentFdrFigureFileName"]);
             if (File.Exists(heatMap10PercentFdr))
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["SpectralCountsCorrelationHeatmap10percentFdrFigureFileName"],
                     true, "pos_left", null, null));
-                    
+
             var heatMap05PercentFdr = Path.Combine(Model.WorkDirectory, "Plots",
-                FileNameVault["SpectralCountsCorrelationHeatmap05percentFdrFigureFileName"]);                
+                FileNameVault["SpectralCountsCorrelationHeatmap05percentFdrFigureFileName"]);
             if (File.Exists(heatMap05PercentFdr))
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["SpectralCountsCorrelationHeatmap05percentFdrFigureFileName"],
                     true, "pos_left", null, null));
-                    
+
             var heatMap01PercentFdr = Path.Combine(Model.WorkDirectory, "Plots",
-                FileNameVault["SpectralCountsCorrelationHeatmap01percentFdrFigureFileName"]);                
+                FileNameVault["SpectralCountsCorrelationHeatmap01percentFdrFigureFileName"]);
             if (File.Exists(heatMap01PercentFdr))
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["SpectralCountsCorrelationHeatmap01percentFdrFigureFileName"],
@@ -534,7 +532,7 @@ namespace Cyclops.DataModules
             heatmapHtml.Append("\t</DIV>\n");
             heatmapHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter heatmapWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["CorrelationHtmlFileName"]));
+            var heatmapWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["CorrelationHtmlFileName"]));
             heatmapWriter.Write(heatmapHtml);
             heatmapWriter.Close();
         }
@@ -542,7 +540,7 @@ namespace Cyclops.DataModules
 
         private void WriteHeatmapsPage(List<HtmlLinkNode> NavBar)
         {
-            StringBuilder heatmapsHtml = new StringBuilder();
+            var heatmapsHtml = new StringBuilder();
             heatmapsHtml.Append(HtmlFileHandler.GetHtmlHeader());
             heatmapsHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
             heatmapsHtml.Append(WriteHtmlScripts());
@@ -582,7 +580,7 @@ namespace Cyclops.DataModules
             heatmapsHtml.Append("\t</DIV>\n");
             heatmapsHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter heatmapsWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["HeatmapsFileName"]));
+            var heatmapsWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["HeatmapsFileName"]));
             heatmapsWriter.Write(heatmapsHtml);
             heatmapsWriter.Close();
         }
@@ -594,7 +592,7 @@ namespace Cyclops.DataModules
         private void WriteMainHTMLPage(List<HtmlLinkNode> NavBar)
         {
             // Construct and write-out the main html summary page
-            StringBuilder mainHtml = new StringBuilder();
+            var mainHtml = new StringBuilder();
 
             mainHtml.Append(HtmlFileHandler.GetHtmlHeader());
             mainHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
@@ -608,8 +606,8 @@ namespace Cyclops.DataModules
             mainHtml.Append("\t<DIV ID='main_content'>\n");
             //mainHtml.Append("\t\t<P ID='table_header'>Analysis Summary Statistics</P>\n");
 
-            DataTable specCntSummary = GetSpectralCountSummary();
-            DataTable specCntStatSummary = GetSpectralCountStatSummary();
+            var specCntSummary = GetSpectralCountSummary();
+            var specCntStatSummary = GetSpectralCountStatSummary();
 
             mainHtml.Append("\t\t" +
                 HtmlFileHandler.GetSummaryTableHtml(
@@ -626,14 +624,14 @@ namespace Cyclops.DataModules
             mainHtml.Append("\t</DIV>\n");
             mainHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter htmlWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["MainFileName"]));
+            var htmlWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, FileNameVault["MainFileName"]));
             htmlWriter.Write(mainHtml);
             htmlWriter.Close();
         }
 
         private StringBuilder WriteHtmlScripts()
         {
-            StringBuilder scriptData = new StringBuilder();
+            var scriptData = new StringBuilder();
             // TODO: Build Script
 
             return scriptData;
@@ -641,7 +639,7 @@ namespace Cyclops.DataModules
 
         private string WriteHtmlBody(HTMLFileType TheHTMLFileType)
         {
-            string body = "";
+            var body = "";
             switch (TheHTMLFileType)
             {
                 case HTMLFileType.Dataset:
@@ -672,15 +670,15 @@ namespace Cyclops.DataModules
 
         private DataTable GetSpectralCountSummary()
         {
-            DataTable outTable = new DataTable();
+            var outTable = new DataTable();
 
-            DataColumn fdrDataColumn = new DataColumn("FDR");
+            var fdrDataColumn = new DataColumn("FDR");
             outTable.Columns.Add(fdrDataColumn);
-            
-            DataColumn peptidesDataColumn = new DataColumn("Unique Peptides");
+
+            var peptidesDataColumn = new DataColumn("Unique Peptides");
             outTable.Columns.Add(peptidesDataColumn);
-            
-            DataColumn proteinsDataColumn = new DataColumn("Unique Proteins");
+
+            var proteinsDataColumn = new DataColumn("Unique Proteins");
             outTable.Columns.Add(proteinsDataColumn);
 
             try
@@ -688,8 +686,8 @@ namespace Cyclops.DataModules
                 if (Model.RCalls.ContainsObject(
                     FileNameVault["RowMetadataTable10FDR"]))
                 {
-                    List<string> unqPep = new List<string>();
-                    List<string> unqProt = new List<string>();
+                    var unqPep = new List<string>();
+                    var unqProt = new List<string>();
 
                     if (Model.RCalls.TableContainsColumn(
                         FileNameVault["RowMetadataTable10FDR"],
@@ -723,7 +721,7 @@ namespace Cyclops.DataModules
                             FileNameVault["RowMetadataTableAltProteinColumnName"]));
                     }
 
-                    DataRow fdrRow = outTable.NewRow();
+                    var fdrRow = outTable.NewRow();
                     fdrRow["FDR"] = 10;
                     fdrRow["Unique Peptides"] = unqPep[0];
                     fdrRow["Unique Proteins"] = unqProt[0];
@@ -733,8 +731,8 @@ namespace Cyclops.DataModules
                 if (Model.RCalls.ContainsObject(
                     FileNameVault["RowMetadataTable05FDR"]))
                 {
-                    List<string> unqPep = new List<string>();
-                    List<string> unqProt = new List<string>();
+                    var unqPep = new List<string>();
+                    var unqProt = new List<string>();
                     // Peptides
                     if (Model.RCalls.TableContainsColumn(
                         FileNameVault["RowMetadataTable05FDR"],
@@ -769,7 +767,7 @@ namespace Cyclops.DataModules
                                 FileNameVault["RowMetadataTableAltProteinColumnName"]));
                     }
 
-                    DataRow fdrRow = outTable.NewRow();
+                    var fdrRow = outTable.NewRow();
                     fdrRow["FDR"] = 5;
                     fdrRow["Unique Peptides"] = unqPep[0];
                     fdrRow["Unique Proteins"] = unqProt[0];
@@ -779,8 +777,8 @@ namespace Cyclops.DataModules
                 if (Model.RCalls.ContainsObject(
                     FileNameVault["RowMetadataTable01FDR"]))
                 {
-                    List<string> unqPep = new List<string>();
-                    List<string> unqProt = new List<string>();
+                    var unqPep = new List<string>();
+                    var unqProt = new List<string>();
                     // Peptides
                     if (Model.RCalls.TableContainsColumn(
                         FileNameVault["RowMetadataTable01FDR"],
@@ -815,7 +813,7 @@ namespace Cyclops.DataModules
                             FileNameVault["RowMetadataTableAltProteinColumnName"]));
                     }
 
-                    DataRow fdrRow = outTable.NewRow();
+                    var fdrRow = outTable.NewRow();
                     fdrRow["FDR"] = 1;
                     fdrRow["Unique Peptides"] = unqPep[0];
                     fdrRow["Unique Proteins"] = unqProt[0];
@@ -825,7 +823,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered within " +
-                    "GetSpectralCountSummary(): " + ex.ToString(),
+                    "GetSpectralCountSummary(): " + ex,
                     ModuleName, StepNumber);
                 return null;
             }
@@ -835,12 +833,12 @@ namespace Cyclops.DataModules
 
         private DataTable GetSpectralCountStatSummary()
         {
-            DataTable outTable = new DataTable();
+            var outTable = new DataTable();
 
-            DataColumn fdrDataColumn = new DataColumn("P-value");
+            var fdrDataColumn = new DataColumn("P-value");
             outTable.Columns.Add(fdrDataColumn);
-            
-            DataColumn proteinsDataColumn = new DataColumn("Proteins");
+
+            var proteinsDataColumn = new DataColumn("Proteins");
             outTable.Columns.Add(proteinsDataColumn);
 
             try
@@ -853,26 +851,26 @@ namespace Cyclops.DataModules
                         FileNameVault["BBM_Pvals"]))
                     {
                         // P-value 0.05
-                        DataRow dataRow05 = outTable.NewRow();
-                        double pVal = 0.05;
+                        var dataRow05 = outTable.NewRow();
+                        var pVal = 0.05;
 
-                        int protCount = Model.RCalls.GetNumberOfRowsInTable(
+                        var protCount = Model.RCalls.GetNumberOfRowsInTable(
                             FileNameVault["BbmResultsFdr01"],
                             FileNameVault["BBM_Pvals"],
-                            null, pVal.ToString());
+                            null, pVal.ToString(CultureInfo.InvariantCulture));
 
                         dataRow05["P-value"] = "< " + pVal;
                         dataRow05["Proteins"] = protCount;
                         outTable.Rows.Add(dataRow05);
 
                         // P-value 0.01
-                        DataRow dataRow01 = outTable.NewRow();
+                        var dataRow01 = outTable.NewRow();
                         pVal = 0.01;
 
                         protCount = Model.RCalls.GetNumberOfRowsInTable(
                             FileNameVault["BbmResultsFdr01"],
                             FileNameVault["BBM_Pvals"],
-                            null, pVal.ToString());
+                            null, pVal.ToString(CultureInfo.InvariantCulture));
 
                         dataRow01["P-value"] = "< " + pVal;
                         dataRow01["Proteins"] = protCount;
@@ -884,7 +882,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered within " +
-                    "GetSpectralCountStatSummary(): " + ex.ToString(),
+                    "GetSpectralCountStatSummary(): " + ex,
                     ModuleName, StepNumber);
                 return null;
             }

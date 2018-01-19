@@ -18,8 +18,8 @@ namespace Cyclops.DataModules
     public class TopMostAbundant : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "TopMostAbundant";
-        private string m_Description = "";
+        private readonly string m_ModuleName = "TopMostAbundant";
+        private readonly string m_Description = "";
         private string m_Function = "median";
 
         private bool m_RemoveNAs = true;
@@ -30,7 +30,7 @@ namespace Cyclops.DataModules
         {
             InputTableName, NewTableName, NumberOfMostAbundant
         }
-        
+
         #endregion
 
         #region Properties
@@ -78,7 +78,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -100,9 +100,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -117,21 +117,17 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
-
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            if (successful &&
-                !Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(
+                    Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("Error: R environment does not contain the " +
                     "input table: " +
@@ -140,21 +136,19 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            if (successful &&
-                Parameters.ContainsKey("Function"))
+            if (Parameters.ContainsKey("Function"))
             {
                 if (!string.IsNullOrEmpty(Parameters["Function"]))
                     m_Function = Parameters["Function"];
             }
 
-            if (successful &&
-                Parameters.ContainsKey("RemoveNA"))
+            if (Parameters.ContainsKey("RemoveNA"))
             {
                 if (!string.IsNullOrEmpty(Parameters["RemoveNA"]))
                     m_RemoveNAs = Convert.ToBoolean(Parameters["RemoveNA"]);
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -163,9 +157,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool TopMostAbundantFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string rCmd = string.Format(
+            var rCmd = string.Format(
                 "{0} <- cbind({1}, Median=apply({1}, MARGIN=1, FUN={2}, na.rm={3}))\n" +
                 "{0} <- {0}[order({0}[,'Median'], decreasing=T),]\n" +
                 "{0} <- {0}[,-grep('Median', colnames({0}))]\n" +
@@ -182,8 +176,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered: " +
-                    ex.ToString(),
+                Model.LogError("Exception encountered: " + ex,
                     ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 successful = false;

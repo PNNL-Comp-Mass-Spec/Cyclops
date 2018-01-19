@@ -21,12 +21,12 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
-        private enum RequiredParameters { 
-            NewTableName, InputTableName, Margin, Function 
+        private enum RequiredParameters {
+            NewTableName, InputTableName, Margin, Function
         }
 
-        private string m_ModuleName = "Aggregate";
-        private string m_Description = "";
+        private readonly string m_ModuleName = "Aggregate";
+        private readonly string m_Description = "";
         #endregion
 
         #region Properties
@@ -74,7 +74,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -96,9 +96,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -113,15 +113,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -163,8 +162,6 @@ namespace Cyclops.DataModules
         /// <returns></returns>
         public bool AggregateData()
         {
-            bool successful = true;
-
             try
             {
                 if (Model.RCalls.ContainsObject(
@@ -175,12 +172,12 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                string errorMessage = "Exception thrown while Aggregating Data:\n" +
-                    ex.ToString() + "\n";
+                var errorMessage = "Exception thrown while Aggregating Data:\n" +
+                    ex + "\n";
                 Model.LogError(errorMessage, ModuleName, StepNumber);
             }
 
-            return successful;
+            return true;
         }
         #endregion
     }

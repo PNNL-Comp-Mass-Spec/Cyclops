@@ -17,7 +17,7 @@ namespace Cyclops.Operations
     public class Online2DLCMainOperation : BaseOperationModule
     {
         #region Members
-        private string m_ModuleName = "Online2DLCMainOperation";
+        private readonly string m_ModuleName = "Online2DLCMainOperation";
         #endregion
 
         #region Properties

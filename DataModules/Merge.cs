@@ -18,9 +18,9 @@ namespace Cyclops.DataModules
     public class Merge : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Merge";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "Merge";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run Merge Module
         /// </summary>
@@ -28,7 +28,7 @@ namespace Cyclops.DataModules
         {
             NewTableName, XTable, YTable, XLink, YLink, AllX, AllY
         }
-        
+
         #endregion
 
         #region Properties
@@ -76,8 +76,6 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
-
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -88,7 +86,7 @@ namespace Cyclops.DataModules
                     Model.PipelineCurrentlySuccessful = MergeFunction();
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -98,9 +96,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -115,15 +113,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -171,10 +168,10 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool MergeFunction()
         {
-            bool successful = true;
+            bool successful;
 
             // Construct the R statement
-            string rCmd = string.Format("{0} <- merge(x={1}," +
+            var rCmd = string.Format("{0} <- merge(x={1}," +
                 "y={2}, by.x=\"{3}\", by.y=\"{4}\", all.x={5}, all.y={6})",
                 Parameters[RequiredParameters.NewTableName.ToString()],
                 Parameters[RequiredParameters.XTable.ToString()],
@@ -190,8 +187,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while performing merge:\n" +
-                    ex.ToString());
+                Model.LogError("Exception encountered while performing merge:\n" + ex);
                 SaveCurrentREnvironment();
                 successful = false;
             }

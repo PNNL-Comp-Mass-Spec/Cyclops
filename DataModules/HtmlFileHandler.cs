@@ -90,10 +90,11 @@ namespace Cyclops.DataModules
         /// Generates the code for the CSS file
         /// </summary>
         /// <param name="style">Indicates the type of css code you want</param>
+        /// <param name="internalNavTop"></param>
         /// <returns>CSS code</returns>
-        public static string GetCSS(CssStyle style, int InternalNavTop)
+        public static string GetCSS(CssStyle style, int internalNavTop)
         {
-            StringBuilder css = new StringBuilder();
+            var css = new StringBuilder();
 
             switch (style)
             {
@@ -139,7 +140,7 @@ namespace Cyclops.DataModules
                         "}}{0}",
                         '\n',
                         '\t',
-                        InternalNavTop));
+                         internalNavTop));
 
                     css.Append("ul#interal_nav li {\n" +
                         '\t' + "display:table-row;\n" +
@@ -251,15 +252,15 @@ namespace Cyclops.DataModules
 
         public static string GetNavBar(List<HtmlLinkNode> NavBar, string NavBarAlignment)
         {
-            string htmlText = "";
-            string styleType = "main_content";
+            var htmlText = "";
+            var styleType = "main_content";
 
             // Write out navigation bar
             //htmlText += string.Format('\t' + "<{0}>\n", NavBarAlignment);
             //htmlText += '\t' + '\t' + "<NAV>\n";
             htmlText += '\t' + '\t' + '\t' + "<UL ID='list-nav'>\n";
 
-            foreach (HtmlLinkNode n in NavBar)
+            foreach (var n in NavBar)
             {
                 if (!n.IsInternalLink)
                 {
@@ -274,7 +275,7 @@ namespace Cyclops.DataModules
             htmlText += '\t' + '\t' + '\t' + "</UL>\n";
             htmlText += '\t' + '\t' + '\t' + "<UL ID='interal_nav'>\n";
 
-            foreach (HtmlLinkNode n in NavBar)
+            foreach (var n in NavBar)
             {
                 if (n.IsInternalLink)
                 {
@@ -297,15 +298,13 @@ namespace Cyclops.DataModules
 
         public static string GetNavTable(List<HtmlLinkNode> NavTable)
         {
-            string htmlText = "";
+            var htmlText = string.Format("{0}{0}<DIV>{1}" +
+                                         "{0}{0}{0}<TABLE align='left' ID='nav_table'>{1}"
+                                         , '\t'
+                                         , '\n'
+            );
 
-            htmlText = string.Format("{0}{0}<DIV>{1}" +
-                "{0}{0}{0}<TABLE align='left' ID='nav_table'>{1}"
-                , '\t'
-                , '\n'
-                );
-
-            foreach (HtmlLinkNode n in NavTable)
+            foreach (var n in NavTable)
             {
                 if (!n.IsInternalLink)
                 {
@@ -323,7 +322,7 @@ namespace Cyclops.DataModules
                 }
             }
 
-            foreach (HtmlLinkNode n in NavTable)
+            foreach (var n in NavTable)
             {
                 if (n.IsInternalLink)
                 {
@@ -366,14 +365,14 @@ namespace Cyclops.DataModules
             string databaseFileName, string title,
             string titleStyle, string tableAlignment, int border, int tabSpaces, int cellPadding)
         {
-            string htmlText = string.Format(
+            var htmlText = string.Format(
                 "{0}{0}{0}<DIV>{1}" +
                 "{0}{0}{0}{0}<P ID='{3}'>{2}</P>{1}"
                 , '\t'
                 , '\n'
                 , !string.IsNullOrEmpty(title) ? title : "Datasets used in the Analysis"
                 , titleStyle);
-            DataTable datasets = GetDatasetInfo(databaseFileName);
+            var datasets = GetDatasetInfo(databaseFileName);
             htmlText += GetTableHtml(datasets, tableAlignment, border, tabSpaces, cellPadding);
             htmlText += string.Format("{0}{0}{0}</DIV>{1}"
                 , '\t'
@@ -385,7 +384,7 @@ namespace Cyclops.DataModules
             DataTable Table, string Title,
             string TitleStyle, int Border, int TabSpaces, int CellPadding)
         {
-            string htmlText = string.Format(
+            var htmlText = string.Format(
                 "{0}{0}{0}<DIV>{1}" +
                 "{0}{0}{0}{0}<P ID='{3}'>{2}</P>{1}"
                 , '\t'
@@ -410,7 +409,7 @@ namespace Cyclops.DataModules
             string PictureFileName, DataTable Table, int Border,
             int TabSpaces, int CellPadding)
         {
-            string htmlText = string.Format("{0}{0}{0}<DIV>{1}" +
+            var htmlText = string.Format("{0}{0}{0}<DIV>{1}" +
                 "{0}{0}{0}{0}<P ID='{3}'>{2}</P>{1}" +
                 "{0}{0}{0}{0}<TABLE>{1}" +
                 "{0}{0}{0}{0}{0}<TR>{1}" +
@@ -440,35 +439,24 @@ namespace Cyclops.DataModules
         /// Retrieve Dataset information from the Column Metadata table in the database,
         /// including Alias, Dataset, and Dataset_ID
         /// </summary>
-        /// <param name="DatabaseFileName">Full path to the Results.DB3 file</param>
-        /// <param name="TableName">Name of the Column Metadata table</param>
+        /// <param name="databaseFileName">Full path to the Results.DB3 file</param>
+        /// <param name="tableName">Name of the Column Metadata table</param>
         /// <returns>Selected columns from Column Metadata table</returns>
-        private static DataTable GetDatasetInfo(string DatabaseFileName, string TableName)
+        private static DataTable GetDatasetInfo(string databaseFileName, string tableName = "t_factors")
         {
-            SQLiteHandler sqlHandler = new SQLiteHandler {
-                DatabaseFileName = DatabaseFileName
+            var sqlLiteReader = new SQLiteHandler {
+                DatabaseFileName = databaseFileName
             };
 
-            string sql = string.Format(
+            var sql = string.Format(
                 "Select Alias, Dataset, Dataset_ID FROM {0} ORDER BY Alias",
-                TableName);
-            if (sqlHandler.TableExists(TableName))
+                tableName);
+            if (sqlLiteReader.TableExists(tableName))
             {
-                return sqlHandler.SelectTable(sql);
+                return sqlLiteReader.SelectTable(sql);
             }
-            else
-                return null;
-        }
 
-        /// <summary>
-        /// Retrieve Dataset information from the 't_factors' table in the database,
-        /// including Alias, Dataset, and Dataset_ID
-        /// </summary>
-        /// <param name="DatabaseFileName">Full path to the Results.DB3 file</param>
-        /// <returns></returns>
-        private static DataTable GetDatasetInfo(string DatabaseFileName)
-        {
-            return GetDatasetInfo(DatabaseFileName, "t_factors");
+            return null;
         }
 
         /// <summary>
@@ -511,21 +499,22 @@ namespace Cyclops.DataModules
         /// <param name="table">Table to display</param>
         /// <param name="alignment">How to align the table on the page, eg. left, center, right</param>
         /// <param name="border">Size of border</param>
-        /// <param name="TabSpaces">Number of tab spaces before the table tag</param>
+        /// <param name="tabSpaces">Number of tab spaces before the table tag</param>
+        /// <param name="cellPadding"></param>
         /// <returns></returns>
         public static string GetTableHtml(DataTable table, string alignment, int? border, int? tabSpaces, int? cellPadding)
         {
-            string tableTabs = "";
-            string rowHtml = "";
+            var tableTabs = "";
+            var rowHtml = "";
 
-            for (int i = 0; i < tabSpaces; i++)
+            for (var i = 0; i < tabSpaces; i++)
             {
                 tableTabs += '\t';
                 rowHtml += '\t';
             }
             rowHtml += '\t';
 
-            string htmlText = string.Format(
+            var htmlText = string.Format(
                 tableTabs + "<TABLE {0}border='{1}' " +
                 "CELLPADDING={2}>" +
                 '\n',
@@ -543,7 +532,7 @@ namespace Cyclops.DataModules
             }
             htmlText += "</TR>\n" + rowHtml + "</THEAD>\n";
 
-            int rowNum = 0;
+            var rowNum = 0;
             foreach (DataRow r in table.Rows)
             {
                 rowNum++;
@@ -551,9 +540,9 @@ namespace Cyclops.DataModules
                     htmlText += rowHtml + "<TR bgcolor='lightblue'>";
                 else
                     htmlText += rowHtml + "<TR>";
-                for (int c = 0; c < table.Columns.Count; c++)
+                for (var c = 0; c < table.Columns.Count; c++)
                 {
-                    htmlText += "<TD><P align='center'>" + r[c].ToString() + "</P></TD>";
+                    htmlText += "<TD><P align='center'>" + r[c] + "</P></TD>";
                 }
                 htmlText += "</TR>\n";
             }

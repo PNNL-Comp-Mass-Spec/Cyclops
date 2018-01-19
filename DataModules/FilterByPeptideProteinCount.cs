@@ -18,20 +18,20 @@ namespace Cyclops.DataModules
     public class FilterByPeptideProteinCount : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "FilterByPeptideProteinCount";
-        private string m_Description = "";
+        private readonly string m_ModuleName = "FilterByPeptideProteinCount";
+        private readonly string m_Description = "";
         private string m_MaxProtValue = "NULL";
         private string m_MinProtValue = "NULL";
         private string m_MaxPepValue = "NULL";
         private string m_MinPepValue = "NULL";
-            
+
         /// <summary>
         /// Required parameters to run FilterByPeptideProteinCount Module
         /// </summary>
         private enum RequiredParameters
         {
-            NewTableName, 
-            InputTableName, 
+            NewTableName,
+            InputTableName,
             NewRowMetadataTableName,
             RowMetadataTable,
             ProteinColumn, // designates the protein column in the RowMetadataTable
@@ -39,7 +39,7 @@ namespace Cyclops.DataModules
             ProteinInfo_ProteinCol, // designates the protein count column in the RowMetadataTable
             ProteinInfo_PeptideCol // designates the peptide count column in the RowMetadataTable
         }
-        
+
         #endregion
 
         #region Properties
@@ -87,7 +87,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -109,9 +109,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -126,21 +126,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
             #region Check R Environment For Objects
-            if (successful &&
-                !Model.RCalls.ContainsObject(
+            if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("ERROR 'InputTableName' object, " +
@@ -155,7 +153,7 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("ERROR 'RowMetadataTable' object, " +
                     Parameters[RequiredParameters.RowMetadataTable.ToString()] +
-                    ", not present in R environment!", 
+                    ", not present in R environment!",
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -170,7 +168,7 @@ namespace Cyclops.DataModules
                     ", does not contain the 'ProteinInfo_ProteinCol' column: " +
                     Parameters[RequiredParameters.ProteinInfo_ProteinCol.ToString()] +
                     "! This column designates the protein count within the " +
-                    "RowMetadataTable.", 
+                    "RowMetadataTable.",
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -254,7 +252,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool FilterByPeptideProteinCountFunction()
         {
-            bool successful = true;
+            var successful = true;
 
             string tTable = GetTemporaryTableName("T_FilterPepProtCnt_"),
                    rCmd = string.Format(
@@ -280,10 +278,10 @@ namespace Cyclops.DataModules
                     "MaxPepValue={10}, " +
                     "MinPepValue={11})\n\n" +
 
-                    "if (!is.null({0}) {\n" +
+                    "if (!is.null({0}) {{\n" +
                     "{1} <- {0}$DataTable\n" +
                     "{12} <- {0}$RowMetaData\n" +
-                    "}\n" +
+                    "}}\n" +
                     "rm({0})\n\n",
 
                     tTable,
@@ -309,7 +307,7 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("Exception encountered while " +
                     "running 'FilterByPeptideProteinCountFunction': " +
-                    ex.ToString(), ModuleName, StepNumber);
+                    ex, ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 successful = false;
             }

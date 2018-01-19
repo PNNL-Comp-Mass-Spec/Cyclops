@@ -18,9 +18,9 @@ namespace Cyclops.DataModules
     public class SummarizeData : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "SummarizeData";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "SummarizeData";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run SummarizeData Module
         /// </summary>
@@ -28,7 +28,7 @@ namespace Cyclops.DataModules
         {
             NewTableName, InputTableName
         }
-        
+
         #endregion
 
         #region Properties
@@ -76,7 +76,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -98,9 +98,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -115,15 +115,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -145,9 +144,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool SummarizeDataFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string rCmd = string.Format("{0} <- jnb_Summarize({1})",
+            var rCmd = string.Format("{0} <- jnb_Summarize({1})",
                 Parameters[RequiredParameters.NewTableName.ToString()],
                 Parameters[RequiredParameters.InputTableName.ToString()]);
 
@@ -157,8 +156,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while performing summarize data:\n" +
-                    ex.ToString());
+                Model.LogError("Exception encountered while performing summarize data:\n" + ex);
                 SaveCurrentREnvironment();
                 successful = false;
             }

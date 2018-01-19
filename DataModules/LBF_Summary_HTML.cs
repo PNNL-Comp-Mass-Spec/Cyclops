@@ -12,7 +12,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Text;
 
@@ -25,15 +24,16 @@ namespace Cyclops.DataModules
         #endregion
 
         #region Members
-        private string m_ModuleName = "LBF_Summary_HTML";
-        private string m_Description = "";
-        private string m_TypticTableSummaryName = "T_MAC_Trypticity_Summary";
+        private readonly string m_ModuleName = "LBF_Summary_HTML";
+        private readonly string m_Description = "";
+        private readonly string m_TypticTableSummaryName = "T_MAC_Trypticity_Summary";
         private string m_WorkingDirectory = "";
         private string m_DatabaseName = "Results.db3";
 
-        private DataTable m_Overlap = new DataTable("LBF");
+        // private DataTable m_Overlap = new DataTable("LBF");
 
-        private bool m_LR = false, m_CT = false;
+        private bool m_LR;
+        private bool m_CT;
 
         /// <summary>
         /// Required parameters to run LBF_Summary_HTML Module
@@ -92,7 +92,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -114,9 +114,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -131,19 +131,18 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            if (Parameters.ContainsKey("WorkDir") && successful)
+            if (Parameters.ContainsKey("WorkDir"))
             {
                 if (!string.IsNullOrEmpty(Parameters["WorkDir"]))
                     m_WorkingDirectory = Parameters["WorkDir"];
@@ -153,7 +152,7 @@ namespace Cyclops.DataModules
                     successful = false;
                 }
             }
-            else if (successful)
+            else
             {
                 Model.LogError("Error in 'LBF_Summary_HTML', no 'WorkDir' supplied!", ModuleName, StepNumber);
                 successful = false;
@@ -174,8 +173,6 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool LBF_Summary_HTMLFunction()
         {
-            bool successful = true;
-
             AddDefaultValues2FileNameVault();
 
             WriteCssFile();
@@ -188,8 +185,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
-                    "constructing and writing Datasets HTML Page:\n" +
-                    ex.ToString(),
+                    "constructing and writing Datasets HTML Page:\n" + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -203,8 +199,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
-                    "constructing and writing Summary HTML Page:\n" +
-                    ex.ToString(),
+                    "constructing and writing Summary HTML Page:\n" + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -218,8 +213,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
-                    "constructing and writing QC HTML Page:\n" +
-                    ex.ToString(),
+                    "constructing and writing QC HTML Page:\n" + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -233,8 +227,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
-                    "constructing and writing Boxplot HTML Page:\n" +
-                    ex.ToString(),
+                    "constructing and writing Boxplot HTML Page:\n" + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -248,8 +241,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
-                    "constructing and writing Correlation Heatmap HTML Page:\n" +
-                    ex.ToString(),
+                    "constructing and writing Correlation Heatmap HTML Page:\n" + ex,
                     ModuleName, StepNumber);
                 return false;
             }
@@ -263,32 +255,33 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while " +
-                    "constructing and writing Main HTML Page:\n" +
-                    ex.ToString(),
+                    "constructing and writing Main HTML Page:\n" + ex,
                     ModuleName, StepNumber);
                 return false;
             }
             #endregion
 
-            return successful;
+            return true;
         }
 
         private List<HtmlLinkNode> GetOriginalNavBar()
         {
-            List<HtmlLinkNode> navBarNodes = new List<HtmlLinkNode>();
+            var navBarNodes = new List<HtmlLinkNode>
+            {
+                new HtmlLinkNode(
+                    "Home", Parameters[RequiredParameters.FileName.ToString()], false),
+                new HtmlLinkNode(
+                    "Datasets", FileNameVault["DatasetsHtmlFileName"], false),
+                new HtmlLinkNode(
+                    "Summary Tables", FileNameVault["SummaryTableHtmlFileName"], false),
+                new HtmlLinkNode(
+                    "QC Plots", FileNameVault["QcHtmlFileName"], false),
+                new HtmlLinkNode(
+                    "Box Plots", FileNameVault["BoxPlotHtmlFileName"], false),
+                new HtmlLinkNode(
+                    "Correlation Heatmaps", FileNameVault["CorrelationHtmlFileName"], false)
+            };
 
-            navBarNodes.Add(new HtmlLinkNode(
-                "Home", Parameters[RequiredParameters.FileName.ToString()], false));
-            navBarNodes.Add(new HtmlLinkNode(
-                "Datasets", FileNameVault["DatasetsHtmlFileName"], false));
-            navBarNodes.Add(new HtmlLinkNode(
-                "Summary Tables", FileNameVault["SummaryTableHtmlFileName"], false));
-            navBarNodes.Add(new HtmlLinkNode(
-                "QC Plots", FileNameVault["QcHtmlFileName"], false));
-            navBarNodes.Add(new HtmlLinkNode(
-                "Box Plots", FileNameVault["BoxPlotHtmlFileName"], false));
-            navBarNodes.Add(new HtmlLinkNode(
-                "Correlation Heatmaps", FileNameVault["CorrelationHtmlFileName"], false));
 
             return navBarNodes;
         }
@@ -296,6 +289,7 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Sets the boolean values that indicate if normalization algrithms have been run.
         /// </summary>
+        [Obsolete("Unused")]
         private void SetLRandCTflags()
         {
             m_LR = Model.RCalls.ContainsObject("LR_Log_T_Data");
@@ -344,7 +338,7 @@ namespace Cyclops.DataModules
         /// </summary>
         private void WriteCssFile()
         {
-            using (StreamWriter sw = File.AppendText(Path.Combine(m_WorkingDirectory, FileNameVault["CssFileName"])))
+            using (var sw = File.AppendText(Path.Combine(m_WorkingDirectory, FileNameVault["CssFileName"])))
             {
                 sw.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.NavBar, 250));
                 sw.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.LeftIndent, 250));
@@ -358,7 +352,7 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteDatasetsPage(List<HtmlLinkNode> NavBar)
         {
-            StringBuilder scriptHtml = new StringBuilder();
+            var scriptHtml = new StringBuilder();
 
             scriptHtml.Append(HtmlFileHandler.GetHtmlHeader());
             scriptHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
@@ -375,7 +369,7 @@ namespace Cyclops.DataModules
             scriptHtml.Append("</DIV>\n");
             scriptHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter htmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["DatasetsHtmlFileName"]));
+            var htmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["DatasetsHtmlFileName"]));
             htmlWriter.WriteLine(scriptHtml);
             htmlWriter.Close();
         }
@@ -406,7 +400,7 @@ namespace Cyclops.DataModules
                 NavBar.Add(new HtmlLinkNode("RRollup LR Protein", "protRRLR", true));
             }
 
-            StringBuilder summaryHtml = new StringBuilder();
+            var summaryHtml = new StringBuilder();
             summaryHtml.Append(HtmlFileHandler.GetHtmlHeader());
             summaryHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
             summaryHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
@@ -491,7 +485,7 @@ namespace Cyclops.DataModules
 
             summaryHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter summaryWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["SummaryTableHtmlFileName"]));
+            var summaryWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["SummaryTableHtmlFileName"]));
             summaryWriter.Write(summaryHtml);
             summaryWriter.Close();
         }
@@ -502,14 +496,14 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteQCHTMLPage(List<HtmlLinkNode> NavBar)
         {
-            bool containsTrypticPeptideSummary =
+            var containsTrypticPeptideSummary =
                 Model.ModuleLoader.SQLiteDatabase.TableExists(m_TypticTableSummaryName);
 
             NavBar.Add(new HtmlLinkNode("LBF Summary", "sum", true));
             NavBar.Add(new HtmlLinkNode("Missed Cleavages", "mc", true));
             NavBar.Add(new HtmlLinkNode("Tryptic Peptides", "tp", true));
 
-            StringBuilder qcHtml = new StringBuilder();
+            var qcHtml = new StringBuilder();
             qcHtml.Append(HtmlFileHandler.GetHtmlHeader());
             qcHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
@@ -557,7 +551,7 @@ namespace Cyclops.DataModules
             qcHtml.Append("</DIV>\n");
             qcHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter qcHtmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["QcHtmlFileName"]));
+            var qcHtmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["QcHtmlFileName"]));
             qcHtmlWriter.WriteLine(qcHtml);
             qcHtmlWriter.Close();
         }
@@ -568,7 +562,7 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteMainHTMLPage(List<HtmlLinkNode> NavBar)
         {
-            StringBuilder mainHtml = new StringBuilder();
+            var mainHtml = new StringBuilder();
             mainHtml.Append(HtmlFileHandler.GetHtmlHeader());
             mainHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
@@ -587,7 +581,7 @@ namespace Cyclops.DataModules
 
             mainHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter htmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["MainFileName"]));
+            var htmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["MainFileName"]));
             htmlWriter.WriteLine(mainHtml);
             htmlWriter.Close();
         }
@@ -617,7 +611,7 @@ namespace Cyclops.DataModules
                 NavBar.Add(new HtmlLinkNode("Prot CT Boxplot", "protctbp", true));
             }
 
-            StringBuilder boxPlotHtml = new StringBuilder();
+            var boxPlotHtml = new StringBuilder();
 
             boxPlotHtml.Append(HtmlFileHandler.GetHtmlHeader());
             boxPlotHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
@@ -691,7 +685,7 @@ namespace Cyclops.DataModules
 
             boxPlotHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter boxPlotWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["BoxPlotHtmlFileName"]));
+            var boxPlotWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["BoxPlotHtmlFileName"]));
             boxPlotWriter.WriteLine(boxPlotHtml);
             boxPlotWriter.Close();
         }
@@ -721,7 +715,7 @@ namespace Cyclops.DataModules
                 NavBar.Add(new HtmlLinkNode("Prot CT Corr", "protctch", true));
             }
 
-            StringBuilder heatmapHtml = new StringBuilder();
+            var heatmapHtml = new StringBuilder();
             heatmapHtml.Append(HtmlFileHandler.GetHtmlHeader());
             heatmapHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
@@ -794,14 +788,14 @@ namespace Cyclops.DataModules
 
             heatmapHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter heatmapWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["CorrelationHtmlFileName"]));
+            var heatmapWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["CorrelationHtmlFileName"]));
             heatmapWriter.WriteLine(heatmapHtml);
             heatmapWriter.Close();
         }
 
         private string WriteHtmlBody(HTMLFileType htmlFileType)
         {
-            string body = "";
+            var body = "";
             switch (htmlFileType)
             {
                 case HTMLFileType.Dataset:

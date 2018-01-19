@@ -18,14 +18,14 @@ namespace Cyclops.DataModules
     public class QuasiTel : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "QuasiTel";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "QuasiTel";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run QuasiTel Module
         /// </summary>
         private enum RequiredParameters
-        { 
+        {
             NewTableName, InputTableName, Fixed_Effect, FactorTable
         }
 
@@ -77,8 +77,6 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
-
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;
@@ -89,7 +87,7 @@ namespace Cyclops.DataModules
                     Model.PipelineCurrentlySuccessful = QuasiTelFunction();
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -99,9 +97,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -116,15 +114,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -171,19 +168,19 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool QuasiTelFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string tDataTable = GetTemporaryTableName("tmpQuasitelData_");
-            string tFactorTable = GetTemporaryTableName("tmpQuasitelFactor_");
-            string tFactor1 = GetTemporaryTableName("tmpQuasiFactor1_");
-            string tFactor2 = GetTemporaryTableName("tmpQuasiFactor2_");
-            string factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
-                                      Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
-            string tInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            var tmpDataTable = GetTemporaryTableName("tmpQuasitelData_");
+            var tmpFactorTable = GetTemporaryTableName("tmpQuasitelFactor_");
+            var tmpFactor1 = GetTemporaryTableName("tmpQuasiFactor1_");
+            var tmpFactor2 = GetTemporaryTableName("tmpQuasiFactor2_");
+            var factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
+                                 Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
+            var tInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
 
             try
             {
-                string rCmd = "";
+                var rCmd = "";
 
                 if (Parameters.ContainsKey("removePeptideColumn"))
                 {
@@ -193,7 +190,7 @@ namespace Cyclops.DataModules
                     tInputTableName = tInputTableName + "_tmpT";
                 }
 
-                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
                 GetOrganizedFactorsVector(
                     tInputTableName,
@@ -205,16 +202,16 @@ namespace Cyclops.DataModules
 
                 successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
-                List<string> factorList = Model.RCalls.GetColumnNames(tInputTableName, true);
-                int factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
+                var factorList = Model.RCalls.GetColumnNames(tInputTableName, true);
+                var factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
                 if (factorList.Count == factorCount && successful)
                 {
                     // setup the pairwise comparisons
-                    for (int i = 0; i < factorList.Count - 1; i++)
+                    for (var i = 0; i < factorList.Count - 1; i++)
                     {
-                        for (int j = 1; j < factorList.Count; j++)
+                        for (var j = 1; j < factorList.Count; j++)
                         {
-                            string comparisonTableName = "QuasiTel_" +
+                            var comparisonTableName = "QuasiTel_" +
                                     factorList[i] + "_v_" + factorList[j];
 
                             // grab the variables
@@ -222,7 +219,7 @@ namespace Cyclops.DataModules
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}' | {2} == '{4}', " +
                                 "select=c('Alias'))))\n",
-                                tFactorTable,
+                                tmpFactorTable,
                                 Parameters[RequiredParameters.FactorTable.ToString()],
                                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
                                 factorList[i],
@@ -230,26 +227,26 @@ namespace Cyclops.DataModules
                             // grab the relevant data
                             rCmd += string.Format(
                                 "{0} <- {1}[,which(colnames({1}) %in% {2})]\n",
-                                tDataTable,
+                                tmpDataTable,
                                 tInputTableName,
-                                tFactorTable);
+                                tmpFactorTable);
                             // 0 out the null values
                             rCmd += string.Format(
                                 "{0} <- data.matrix({0})\n" +
                                 "{0}[is.na({0})] <- 0\n",
-                                tDataTable);
+                                tmpDataTable);
                             // get the column names to pass in as factors
                             rCmd += string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}', select=c('Alias'))))\n",
-                                tFactor1,
+                                tmpFactor1,
                                 Parameters[RequiredParameters.FactorTable.ToString()],
                                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
                                 factorList[i]);
                             rCmd += string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}', select=c('Alias'))))\n",
-                                tFactor2,
+                                tmpFactor2,
                                 Parameters[RequiredParameters.FactorTable.ToString()],
                                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
                                 factorList[j]);
@@ -257,17 +254,17 @@ namespace Cyclops.DataModules
                             rCmd += string.Format(
                                 "{0} <- quasitel({1}, {2}, {3})\n",
                                 comparisonTableName,
-                                tDataTable,
-                                tFactor1,
-                                tFactor2);
+                                tmpDataTable,
+                                tmpFactor1,
+                                tmpFactor2);
                             // remove temp tables
                             rCmd += string.Format(
                                 "rm({0})\nrm({1})\n" +
                                 "rm({2})\nrm({3})\n",
-                                tDataTable,
-                                tFactorTable,
-                                tFactor1,
-                                tFactor2);
+                                tmpDataTable,
+                                tmpFactorTable,
+                                tmpFactor1,
+                                tmpFactor2);
 
                             successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                         }
@@ -287,7 +284,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing QuasiTel:\n" +
-                    ex.ToString(), ModuleName, StepNumber);
+                    ex, ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 successful = false;
             }

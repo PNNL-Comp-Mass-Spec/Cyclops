@@ -18,15 +18,15 @@ namespace Cyclops.DataModules
     public class Cast : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Cast";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "Cast";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run Cast Module
         /// </summary>
         private enum RequiredParameters
         { }
-        
+
         #endregion
 
         #region Properties
@@ -74,7 +74,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -96,9 +96,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -113,24 +113,21 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
-
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            return successful;
+            return true;
         }
 
         public bool CastFunction()
         {
-            bool successful = true;
+            var successful = true;
 
             // TODO : Make it work
 

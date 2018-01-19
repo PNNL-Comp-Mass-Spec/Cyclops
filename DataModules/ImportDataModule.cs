@@ -32,8 +32,8 @@ namespace Cyclops.DataModules
             InputTableName
         };
 
-        private string m_ModuleName = "Import";
-        private string m_Description = "";
+        private readonly string m_ModuleName = "Import";
+        private readonly string m_Description = "";
 
         #endregion
 
@@ -82,7 +82,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -104,9 +104,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -121,25 +121,22 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
-
             if (string.IsNullOrEmpty(Model.WorkDirectory))
             {
                 Model.LogError("Required Working Directory is Missing", ModuleName, StepNumber);
                 return false;
             }
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            return successful;
+            return true;
         }
 
         protected override string GetDefaultValue()
@@ -191,9 +188,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessSQLiteImport()
         {
-            bool successful = false;
-
-            successful = ConnectToSQLiteDatabase();
+            var successful = ConnectToSQLiteDatabase();
 
             if (successful)
                 successful = ImportSQLiteTable();
@@ -210,9 +205,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessCSVImport()
         {
-            bool successful = false;
-
-            successful = ImportCSVFile();
+            var successful = ImportCSVFile();
 
             return successful;
         }
@@ -223,9 +216,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessTSVImport()
         {
-            bool successful = false;
-
-            successful = ImportTSVFile();
+            var successful = ImportTSVFile();
 
             return successful;
         }
@@ -236,11 +227,8 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessSQLServerImport()
         {
-            bool successful = false;
-
             // TODO
-
-            return successful;
+            return false;
         }
 
         /// <summary>
@@ -249,11 +237,8 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessAccessImport()
         {
-            bool successful = false;
-
             // TODO
-
-            return successful;
+            return false;
         }
 
         /// <summary>
@@ -282,7 +267,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if connection established successfully</returns>
         private bool ConnectToSQLiteDatabase()
         {
-            bool successful = false;
+            var successful = false;
 
             if (CheckSQLiteRequiredParameters())
             {
@@ -300,7 +285,7 @@ namespace Cyclops.DataModules
 
                     try
                     {
-                        string rCmd = string.Format(
+                        var rCmd = string.Format(
                             "require(RSQLite)\n"
                             + "m <- dbDriver(\"SQLite\", max.con=25)\n"
                             + "con <- dbConnect(m, dbname = \"{0}\")\n"
@@ -312,7 +297,7 @@ namespace Cyclops.DataModules
                     {
                         Model.LogError("IOException encountered while " +
                             "connecting to SQLite database:\n" +
-                            ioe.ToString() + "\nInnerException: " +
+                            ioe + "\nInnerException: " +
                             ioe.InnerException, ModuleName, StepNumber);
                         SaveCurrentREnvironment();
                         successful = false;
@@ -321,7 +306,7 @@ namespace Cyclops.DataModules
                     {
                         Model.LogError("StackOverflowException encountered while " +
                             "connecting to SQLite database:\n" +
-                            soe.ToString() + "\nInnerException: " +
+                            soe + "\nInnerException: " +
                             soe.InnerException, ModuleName, StepNumber);
                         SaveCurrentREnvironment();
                         successful = false;
@@ -330,7 +315,7 @@ namespace Cyclops.DataModules
                     {
                         Model.LogError("Exception encountered while " +
                             "connecting to SQLite database:\n" +
-                            ex.ToString() + "\nInnerException: " +
+                            ex + "\nInnerException: " +
                             ex.InnerException, ModuleName, StepNumber);
                         SaveCurrentREnvironment();
                         successful = false;
@@ -348,20 +333,17 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public bool CheckSQLiteRequiredParameters()
         {
-            bool successful = true;
-
-            foreach (string s in Enum.GetNames(typeof(DatabaseRequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(DatabaseRequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s))
                 {
                     Model.LogError("Required Field Missing for SQLite data import: " +
                         s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -392,11 +374,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ImportSQLiteDataTable()
         {
-            bool successful = true;
+            GetTableFromSQLite();
 
-            successful = GetTableFromSQLite();
-
-            successful = SetTableRowNames();
+            var successful = SetTableRowNames();
 
             return successful;
         }
@@ -407,11 +387,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ImportSQLiteColumnMetadataTable()
         {
-            bool successful = true;
+            GetTableFromSQLite();
 
-            successful = GetTableFromSQLite();
-
-            successful = SetTableRowNames();
+            var successful = SetTableRowNames();
 
             return successful;
         }
@@ -422,11 +400,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ImportSQLiteRowMetadataTable()
         {
-            bool successful = true;
+            GetTableFromSQLite();
 
-            successful = GetTableFromSQLite();
-
-            successful = SetTableRowNames();
+            var successful = SetTableRowNames();
 
             return successful;
         }
@@ -437,8 +413,8 @@ namespace Cyclops.DataModules
         /// <returns>True, if the table imports successfully</returns>
         private bool GetTableFromSQLite()
         {
-            bool successful = true;
-            string rCmd = string.Format(
+            bool successful;
+            var rCmd = string.Format(
                 "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                 "{1} <- fetch(rt, n = -1)\n" +
                 "dbClearResult(rt)\n" +
@@ -467,10 +443,10 @@ namespace Cyclops.DataModules
         /// <returns>True, if rownames are set successfully</returns>
         private bool SetTableRowNames()
         {
-            bool successful = true;
+            var successful = true;
             if (Parameters.ContainsKey("rownames"))
             {
-                string rCmd = string.Format(
+                var rCmd = string.Format(
                     "rownames({0}) <- {0}[,{1}]\n" +
                     "{0} <- {0}[,-{1}]",
                     Parameters[RequiredParameters.NewTableName.ToString()],
@@ -497,9 +473,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if disconnection finishes successfully</returns>
         private bool DisconnectFromDatabase()
         {
-            bool successful = false;
+            bool successful;
 
-            string rCmd = "terminated <- dbDisconnect(con)";
+            var rCmd = "terminated <- dbDisconnect(con)";
 
             if (Model.RCalls.Run(rCmd, ModuleName, StepNumber))
                 successful = true;
@@ -532,7 +508,7 @@ namespace Cyclops.DataModules
             var inputFilePath = BuildAndValidatePath(Model.WorkDirectory, Parameters["inputFileName"]);
             var filePathForR = GenericRCalls.ConvertToRCompatiblePath(inputFilePath);
 
-            string rCmd = string.Format(
+            var rCmd = string.Format(
                 "{0} <- read.csv(file=\"{1}\")\n",
                 Parameters[RequiredParameters.NewTableName.ToString()], filePathForR);
 
@@ -556,7 +532,7 @@ namespace Cyclops.DataModules
             var inputFilePath = BuildAndValidatePath(Model.WorkDirectory, Parameters["inputFileName"]);
             var filePathForR = GenericRCalls.ConvertToRCompatiblePath(inputFilePath);
 
-            string rCmd = string.Format(
+            var rCmd = string.Format(
                 "{0} <- read.table(file=\"{1}\", sep=\"\\t\", header=T)\n",
                 Parameters[RequiredParameters.NewTableName.ToString()],
                 filePathForR);

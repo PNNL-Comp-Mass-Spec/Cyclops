@@ -91,6 +91,7 @@ namespace Cyclops
         /// </summary>
         /// <param name="MicrosoftDataType">Microsoft data type string</param>
         /// <returns>DbType</returns>
+        [Obsolete("Unused")]
         private DbType GetDatabaseType(string MicrosoftDataType)
         {
             var db = new DbType();
@@ -198,7 +199,7 @@ namespace Cyclops
                             string.Join(", ", columnNames),
                             string.Join(", @", columnNames));
 
-                        foreach (var item in columnNames)
+                        foreach (var unused in columnNames)
                         {
                             var param = cmd.CreateParameter();
                             cmd.Parameters.Add(param);
@@ -237,6 +238,7 @@ namespace Cyclops
         /// <param name="Conn">Full path to the SQLite database</param>
         /// <param name="MainData">DataSet to enter into the database</param>
         /// <returns>True, if the function completes successfully</returns>
+        [Obsolete("Unused")]
         private bool FillTables(SQLiteConnection Conn, DataSet MainData)
         {
 
@@ -325,8 +327,6 @@ namespace Cyclops
 
             var conn = new SQLiteConnection("Data Source=" + DatabaseFileName, true);
 
-            var retval = 0;
-
             try
             {
                 conn.Open();
@@ -337,11 +337,11 @@ namespace Cyclops
                     var cmdDropIfExists = new SQLiteCommand(string.Format(
                         "DROP TABLE IF EXISTS {0};",
                         Table.TableName), conn);
-                    retval = cmdDropIfExists.ExecuteNonQuery();
+                    cmdDropIfExists.ExecuteNonQuery();
                 }
 
                 var cmdCreateTable = new SQLiteCommand(SqliteCreateTableStatement(Table), conn);
-                retval = cmdCreateTable.ExecuteNonQuery();
+                cmdCreateTable.ExecuteNonQuery();
 
                 FillTable(conn, Table);
             }

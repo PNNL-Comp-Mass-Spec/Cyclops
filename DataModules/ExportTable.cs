@@ -36,13 +36,13 @@ namespace Cyclops.DataModules
             NewTableName
         }
 
-        private string m_ModuleName = "ExportTable";
-        private string m_Description = "";
+        private readonly string m_ModuleName = "ExportTable";
+        private readonly string m_Description = "";
         private string m_DatabaseFileName = "Results.db3";
 
-        private bool m_DatabaseFound = false;
+        private bool m_DatabaseFound;
 
-        private SQLiteHandler sql = new SQLiteHandler();
+        private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
         #endregion
 
         #region Properties
@@ -90,7 +90,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -112,9 +112,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -129,15 +129,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -146,13 +145,13 @@ namespace Cyclops.DataModules
                 if (File.Exists(Parameters["DatabaseFileName"]))
                 {
                     m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Parameters["DatabaseFileName"];
+                    m_SQLiteReader.DatabaseFileName = Parameters["DatabaseFileName"];
                     m_DatabaseFound = true;
                 }
                 else if (File.Exists(Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"])))
                 {
                     m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"]);
+                    m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"]);
                     m_DatabaseFound = true;
                 }
             }
@@ -160,7 +159,7 @@ namespace Cyclops.DataModules
             {
                 if (File.Exists(Path.Combine(Model.WorkDirectory, "Results.db3")))
                 {
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
+                    m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
                     m_DatabaseFound = true;
                 }
             }
@@ -181,15 +180,14 @@ namespace Cyclops.DataModules
         /// <returns>True, if the parameters contain database specific params</returns>
         public bool CheckDatabaseTargetParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(DatabaseTargetRequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(DatabaseTargetRequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Database Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -202,7 +200,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the export is successful</returns>
         public bool ExportFunction()
         {
-            bool successful = true;
+            var successful = true;
 
             switch (Parameters[RequiredParameters.Source.ToString()].ToUpper())
             {
@@ -222,17 +220,15 @@ namespace Cyclops.DataModules
                 case "SQLITE":
                     if (m_DatabaseFound)
                     {
-                        if (sql.TableExists(Parameters[RequiredParameters.TableName.ToString()]))
+                        if (m_SQLiteReader.TableExists(Parameters[RequiredParameters.TableName.ToString()]))
                             return ExportFromSQLite();
-                        else
-                        {
-                            Model.LogWarning(string.Format(
-                                "Warning Table, {0}, was not found in the SQLite database, {1}, for " +
-                                "export! Note that table names are case-sensitive.",
-                                Parameters[RequiredParameters.TableName.ToString()],
-                                m_DatabaseFileName),
-                                ModuleName, StepNumber);
-                        }
+
+                        Model.LogWarning(string.Format(
+                                             "Warning Table, {0}, was not found in the SQLite database, {1}, for " +
+                                             "export! Note that table names are case-sensitive.",
+                                             Parameters[RequiredParameters.TableName.ToString()],
+                                             m_DatabaseFileName),
+                                         ModuleName, StepNumber);
                     }
                     else
                     {
@@ -253,7 +249,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the export is successful</returns>
         private bool ExportFromR()
         {
-            bool successful = true;
+            var successful = true;
 
             /// TODO : Export from R
             switch (Parameters[RequiredParameters.Target.ToString()].ToUpper())
@@ -279,10 +275,10 @@ namespace Cyclops.DataModules
                     successful = ExportR_to_Text("\t");
                     break;
                 case "ACCESS":
-                    /// TODO : Implement R to Access Export :(*
+                    // TODO : Implement R to Access Export :(*
                     break;
                 case "SQLSERVER":
-                    /// TODO : Implement R to SQL Server Export :(*
+                    // TODO : Implement R to SQL Server Export :(*
                     break;
             }
 
@@ -295,7 +291,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the export is successful</returns>
         private bool ExportR_to_SQLite()
         {
-            bool successful = Model.RCalls.ContainsObject(
+            var successful = Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.TableName.ToString()]);
 
             if (!successful)
@@ -309,7 +305,7 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            string rCmd = "";
+            var rCmd = "";
 
             if (ConnectToSQLiteDatabaseFromR())
             {
@@ -346,10 +342,10 @@ namespace Cyclops.DataModules
         /// <returns>True, if the file is exported successfully</returns>
         private bool ExportR_to_Text(string Delimiter)
         {
-            bool successful = Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]);
-            bool includeRowNames = false;
+            var successful = Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]);
+            var includeRowNames = false;
 
-            string rCmd = "";
+            var rCmd = "";
             if (Parameters.ContainsKey("IncludeRowNames"))
             {
                 includeRowNames = Convert.ToBoolean(Parameters["IncludeRowNames"]);
@@ -367,7 +363,7 @@ namespace Cyclops.DataModules
             }
             else
             {
-                string filePath = Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]);
+                var filePath = Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]);
                 var filePathForR = GenericRCalls.ConvertToRCompatiblePath(filePath);
 
                 rCmd = string.Format("jnb_Write(df={0}, " +
@@ -389,19 +385,19 @@ namespace Cyclops.DataModules
         /// <returns>True, if the export is successful</returns>
         private bool ExportFromSQLite()
         {
-            bool successful = true;
+            var successful = true;
 
-            string targetType = Parameters[RequiredParameters.Target.ToString()].ToLower();
+            var targetType = Parameters[RequiredParameters.Target.ToString()].ToLower();
 
             if (targetType.Equals("tsv") ||
                 targetType.Equals("txt") ||
                 targetType.Equals("csv"))
             {
-                DataTable dt = sql.GetTable(
+                var dt = m_SQLiteReader.GetTable(
                     Parameters[RequiredParameters.TableName.ToString()]);
 
                 var outputFilePath = Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]);
-                
+
                 switch (targetType)
                 {
                     case "tsv":
@@ -437,13 +433,13 @@ namespace Cyclops.DataModules
         /// <returns>True, if the DataTable is written out successfully</returns>
         private bool WriteDataTableToFile(DataTable table, string filePath, string delimiter)
         {
-            bool successful = true;
+            var successful = true;
 
             try
             {
-                StreamWriter sw = new StreamWriter(filePath);
-                List<string> columnNames = new List<string>();
-                
+                var sw = new StreamWriter(filePath);
+                var columnNames = new List<string>();
+
                 foreach (DataColumn dc in table.Columns)
                     columnNames.Add(dc.ColumnName);
 
@@ -451,9 +447,9 @@ namespace Cyclops.DataModules
 
                 foreach (DataRow dr in table.Rows)
                 {
-                    List<string> rowData = new List<string>();
-                    
-                    foreach (string columnName in columnNames)
+                    var rowData = new List<string>();
+
+                    foreach (var columnName in columnNames)
                     {
                         rowData.Add(dr[columnName].ToString());
                     }
@@ -516,11 +512,11 @@ namespace Cyclops.DataModules
         protected bool ConnectToSQLiteDatabaseFromR()
         {
             var databasePath = Path.Combine(Model.WorkDirectory, m_DatabaseFileName);
-            
+
             if (m_DatabaseFound)
             {
-                string databasePathForR = GenericRCalls.ConvertToRCompatiblePath(databasePath);
-                
+                var databasePathForR = GenericRCalls.ConvertToRCompatiblePath(databasePath);
+
                 var rCmd = string.Format(
                         "require(RSQLite)\n" +
                         "m <- dbDriver(\"SQLite\", max.con=25)\n" +
@@ -544,9 +540,9 @@ namespace Cyclops.DataModules
         /// </summary>
         public bool DisconnectFromDatabaseFromR()
         {
-            string rCmdDisconnect = "terminated <- dbDisconnect(con)";
+            var rCmdDisconnect = "terminated <- dbDisconnect(con)";
 
-            bool successful = Model.RCalls.Run(rCmdDisconnect, ModuleName, StepNumber);
+            var successful = Model.RCalls.Run(rCmdDisconnect, ModuleName, StepNumber);
 
             if (successful)
                 successful = Model.RCalls.AssessBoolean("terminated");

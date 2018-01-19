@@ -524,10 +524,10 @@ namespace Cyclops
             return Param;
         }
 
-        private strModuleInfo GetModuleNameFromRows(DataRow[] rows, int step)
+        private strModuleInfo GetModuleNameFromRows(IReadOnlyList<DataRow> rows, int step)
         {
             var mi = new strModuleInfo();
-            if (rows.Length > 0)
+            if (rows.Count > 0)
             {
                 mi.ModuleName = rows[0]["Module"].ToString();
             }
@@ -885,11 +885,7 @@ namespace Cyclops
         // Create the OnPropertyChanged method to raise the event
         protected void OnPropertyChanged(string name)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         #endregion
     }

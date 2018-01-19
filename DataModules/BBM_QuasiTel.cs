@@ -18,14 +18,14 @@ namespace Cyclops.DataModules
     public class BBM_QuasiTel : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BBM_QuasiTel";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "BBM_QuasiTel";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run BBM_and_QuasiTel Module
         /// </summary>
         private enum RequiredParameters
-        { 
+        {
             NewTableName, InputTableName, FactorTable, Fixed_Effect, Theta
         }
 
@@ -34,7 +34,7 @@ namespace Cyclops.DataModules
         //    Fixed_Effect
         //}
 
-        private string m_MergeColumn = "Alias"; // default value of MergeColumn
+        // private string m_MergeColumn = "Alias"; // default value of MergeColumn
         #endregion
 
         #region Properties
@@ -82,7 +82,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -104,9 +104,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -121,20 +121,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            if (Parameters.ContainsKey("MergeColumn"))
-                m_MergeColumn = Parameters["MergeColumn"];
+            //if (Parameters.ContainsKey("MergeColumn"))
+            //    m_MergeColumn = Parameters["MergeColumn"];
 
             if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.InputTableName.ToString()]))
@@ -165,13 +164,13 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool BBM_and_QuasiTelFunction()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Parameters.ContainsKey(
                 RequiredParameters.Fixed_Effect.ToString()))
             {
-                string factorTable = Parameters[RequiredParameters.FactorTable.ToString()];
-                string fixedEffect = Parameters[RequiredParameters.Fixed_Effect.ToString()];
+                var factorTable = Parameters[RequiredParameters.FactorTable.ToString()];
+                var fixedEffect = Parameters[RequiredParameters.Fixed_Effect.ToString()];
 
                 if (string.IsNullOrEmpty(factorTable))
                 {
@@ -199,19 +198,19 @@ namespace Cyclops.DataModules
 
 
                 // TODO : Make it work
-                string tmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
-                string tmpInputTableName = GetTemporaryTableName("T_BBMQuasiInput_");
-                string factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,'" +
+                // var tmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
+                var tmpInputTableName = GetTemporaryTableName("T_BBMQuasiInput_");
+                var factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,'" +
                         Parameters[RequiredParameters.Fixed_Effect.ToString()] + "']";
 
                 try
                 {
-                    string rCmd = "";
+                    var rCmd = "";
 
                     if (Parameters.ContainsKey("removePeptideColumn"))
                     {
                         rCmd += string.Format(
-                            "{0} <- data.matrix({1}[,2:ncol({1})])\n", 
+                            "{0} <- data.matrix({1}[,2:ncol({1})])\n",
                             tmpInputTableName,
                             Parameters[RequiredParameters.InputTableName.ToString()]);
                     }
@@ -225,8 +224,8 @@ namespace Cyclops.DataModules
 
                     successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
-                    List<string> factorList = Model.RCalls.GetColumnNames(tmpInputTableName, true);
-                    int factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
+                    var factorList = Model.RCalls.GetColumnNames(tmpInputTableName, true);
+                    var factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
                     if (factorList.Count == factorCount && successful)
                     {
                         rCmd = string.Format(
@@ -259,7 +258,7 @@ namespace Cyclops.DataModules
                 catch (Exception ex)
                 {
                     Model.LogError("Exception encountered while performing " +
-                        "BBM and QuasiTel analyses:\n" + ex.ToString(),
+                        "BBM and QuasiTel analyses:\n" + ex,
                         ModuleName, StepNumber);
                     SaveCurrentREnvironment();
                     successful = false;

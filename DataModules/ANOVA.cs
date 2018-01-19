@@ -18,22 +18,16 @@ namespace Cyclops.DataModules
     public class ANOVA : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "ANOVA";
-        private string m_Description = "";
-        private bool m_RemoveFirstColumn = false;
-        
+        private readonly string m_ModuleName = "ANOVA";
+        private readonly string m_Description = "";
+        private bool m_RemoveFirstColumn;
+
         /// <summary>
         /// Required parameters to run ANOVA Module
         /// </summary>
         private enum RequiredParameters
         {
             NewTableName, InputTableName, Mode, FactorTable, Fixed_Effect
-        }
-
-        private enum MSstatRequiredParameters
-        {
-            RowMetadataTable, ColumnMetadataTable, RowMetadataProteinColumn,
-            RowMetadataPeptideColumn, BioRep, NewProteinQuantTable
         }
 
         /// <summary>
@@ -100,7 +94,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -122,9 +116,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -146,20 +140,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            if (successful && !Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(
+                    Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("Error in ANOVA function: " +
                     "the R environment does not contain the " +
@@ -173,7 +166,7 @@ namespace Cyclops.DataModules
                 m_RemoveFirstColumn = Convert.ToBoolean(Parameters["RemovePeptideColumn"]);
 
 
-            /// Get Random Effect if passed in
+            // Get Random Effect if passed in
             if (Parameters.ContainsKey(
                 AnovaParameters.Random_Effect.ToString()))
             {
@@ -182,7 +175,8 @@ namespace Cyclops.DataModules
                     RandomEffect = Parameters[
                         AnovaParameters.Random_Effect.ToString()];
             }
-            /// Get Interaction parameter
+
+            // Get Interaction parameter
             if (Parameters.ContainsKey(
                 AnovaParameters.Interaction.ToString()))
             {
@@ -190,7 +184,8 @@ namespace Cyclops.DataModules
                     Parameters[AnovaParameters.Interaction.ToString()]))
                     Interaction = Parameters[AnovaParameters.Interaction.ToString()];
             }
-            /// Get Threshold parameter
+
+            // Get Threshold parameter
             if (Parameters.ContainsKey(
                 AnovaParameters.Threshold.ToString()))
             {
@@ -198,7 +193,8 @@ namespace Cyclops.DataModules
                     Parameters[AnovaParameters.Threshold.ToString()]))
                     Threshold = Parameters[AnovaParameters.Threshold.ToString()];
             }
-            /// Get Unbalanced parameter
+
+            // Get Unbalanced parameter
             if (Parameters.ContainsKey(
                 AnovaParameters.Unbalanced.ToString()))
             {
@@ -207,7 +203,7 @@ namespace Cyclops.DataModules
                     Unbalanced = Parameters[AnovaParameters.Unbalanced.ToString()];
             }
 
-            /// Get REML parameter
+            // Get REML parameter
             if (Parameters.ContainsKey(
                 AnovaParameters.UseREML.ToString()))
             {
@@ -225,31 +221,30 @@ namespace Cyclops.DataModules
         /// <returns>True, if the ANOVA completes successfully</returns>
         public bool ANOVAFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string rCmd = "";
-            string tmpInputTable = GetTemporaryTableName("tmpInputAnova_");
+            var tmpInputTable = GetTemporaryTableName("tmpInputAnova_");
 
-            rCmd = string.Format(
-                            "options(warn=-1)\n" +
-                            "{9} <- {1}\n" +
-                            "{0} <- performAnova(Data={9}, FixedEffects='{2}', " +
-                            "RandomEffects={3}, interact={4}, " +
-                            "unbalanced={5}, useREML={6}, Factors=t({7}), " +
-                            "thres={8})\n" +
-                            "rm({9})\n\n",
-                            Parameters[RequiredParameters.NewTableName.ToString()],
-                            m_RemoveFirstColumn ?
-                                Parameters[RequiredParameters.InputTableName.ToString()] + "[,-1]" :
-                                Parameters[RequiredParameters.InputTableName.ToString()],
-                            Parameters[RequiredParameters.Fixed_Effect.ToString()],
-                            RandomEffect.ToUpper(),
-                            Interaction.ToUpper(),
-                            Unbalanced.ToUpper(),
-                            UseREML.ToUpper(),
-                            Parameters[RequiredParameters.FactorTable.ToString()],
-                            Threshold.ToUpper(),
-                            tmpInputTable);
+            var rCmd = string.Format(
+                "options(warn=-1)\n" +
+                "{9} <- {1}\n" +
+                "{0} <- performAnova(Data={9}, FixedEffects='{2}', " +
+                "RandomEffects={3}, interact={4}, " +
+                "unbalanced={5}, useREML={6}, Factors=t({7}), " +
+                "thres={8})\n" +
+                "rm({9})\n\n",
+                Parameters[RequiredParameters.NewTableName.ToString()],
+                m_RemoveFirstColumn ?
+                    Parameters[RequiredParameters.InputTableName.ToString()] + "[,-1]" :
+                    Parameters[RequiredParameters.InputTableName.ToString()],
+                Parameters[RequiredParameters.Fixed_Effect.ToString()],
+                RandomEffect.ToUpper(),
+                Interaction.ToUpper(),
+                Unbalanced.ToUpper(),
+                UseREML.ToUpper(),
+                Parameters[RequiredParameters.FactorTable.ToString()],
+                Threshold.ToUpper(),
+                tmpInputTable);
 
             try
             {
@@ -258,7 +253,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running ANOVA:\n" +
-                    ex.ToString(), ModuleName, StepNumber);
+                    ex, ModuleName, StepNumber);
                 successful = false;
             }
 

@@ -19,8 +19,8 @@ namespace Cyclops.DataModules
     public class BoxPlot : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BoxPlot";
-        private string m_Description = "";
+        private readonly string m_ModuleName = "BoxPlot";
+        private readonly string m_Description = "";
         private string m_DataColumns = "NULL";
         private string m_ColorByFactor = "FALSE";
         private string m_ColumnFactorTable = "NULL";
@@ -35,7 +35,7 @@ namespace Cyclops.DataModules
         private string m_DoYLim = "FALSE";
         private string m_yMin = "NULL";
         private string m_yMax = "NULL";
-        
+
         /// <summary>
         /// Required parameters to run BoxPlot Module
         /// </summary>
@@ -43,7 +43,7 @@ namespace Cyclops.DataModules
         {
             TableName, PlotFileName
         }
-        
+
         #endregion
 
         #region Properties
@@ -91,7 +91,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -113,9 +113,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -130,15 +130,12 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
-
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -211,9 +208,9 @@ namespace Cyclops.DataModules
                 m_yMax = Parameters["yMax"];
             #endregion
 
-            if (Directory.Exists(Model.WorkDirectory) && successful)
+            if (Directory.Exists(Model.WorkDirectory))
             {
-                string s_PlotDirectory = Path.Combine(
+                var s_PlotDirectory = Path.Combine(
                     Model.WorkDirectory, "Plots").Replace("\\", "/");
                 if (!Directory.Exists(s_PlotDirectory))
                     Directory.CreateDirectory(s_PlotDirectory);
@@ -222,7 +219,7 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.PlotFileName.ToString()]).Replace("\\", "/");
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -231,10 +228,10 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool BoxPlotFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string tTable = GetTemporaryTableName("tmpBoxPlot_");
-            string rCmd = string.Format(
+            var tTable = GetTemporaryTableName("tmpBoxPlot_");
+            var rCmd = string.Format(
                 "Boxplots(x={0}, Columns={1}, " +
                 "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
                 "colorFactorName={5}, " +
@@ -274,7 +271,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while creating a " +
-                    "BoxPlot:\n" + ex.ToString());
+                    "BoxPlot:\n" + ex);
                 SaveCurrentREnvironment();
                 successful = false;
             }

@@ -18,17 +18,17 @@ namespace Cyclops.DataModules
     public class PValueAdjust : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "PValueAdjust";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "PValueAdjust";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run PValueAdjust Module
         /// </summary>
         private enum RequiredParameters
-        { 
+        {
             NewTableName, InputTableName
         }
-        
+
         #endregion
 
         #region Properties
@@ -76,7 +76,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -98,9 +98,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -115,15 +115,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -146,11 +145,8 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool PValueAdjustFunction()
         {
-            bool successful = true;
-
             // TODO : make R statement to adjust p-values
-
-            return successful;
+            return true;
         }
 
         /// <summary>

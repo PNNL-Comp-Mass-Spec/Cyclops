@@ -25,9 +25,9 @@ namespace Cyclops.DataModules
         private enum RequiredParameters
         { }
 
-        private string m_ModuleName = "Save";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "Save";
+        private readonly string m_Description = "";
+
         #endregion
 
         #region Properties
@@ -75,7 +75,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -97,9 +97,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -114,19 +114,16 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
-
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            return successful;
+            return true;
         }
 
         protected override string GetDefaultValue()
@@ -155,12 +152,12 @@ namespace Cyclops.DataModules
         /// <returns>True, if the R environment is saved successfully</returns>
         public bool SaveFunction()
         {
-            bool successful = true;
-            string defaultOutputFileName = "Results.RData";
-            string filePath;
+            bool successful;
+            var defaultOutputFileName = "Results.RData";
 
             try
             {
+                string filePath;
                 if (!string.IsNullOrEmpty(Model.WorkDirectory) &&
                     Parameters.ContainsKey("fileName"))
                     filePath = Path.Combine(Model.WorkDirectory, Parameters["fileName"]);
@@ -180,7 +177,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while Saving R Environment: " + ex.ToString());
+                Model.LogError("Exception encountered while Saving R Environment: " + ex);
                 successful = false;
             }
 

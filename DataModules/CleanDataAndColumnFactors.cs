@@ -18,9 +18,9 @@ namespace Cyclops.DataModules
     public class CleanDataAndColumnFactors : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "CleanDataAndColumnFactors";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "CleanDataAndColumnFactors";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run CleanDataAndColumnFactors Module
         /// </summary>
@@ -28,7 +28,7 @@ namespace Cyclops.DataModules
         {
             InputTableName, FactorTable, FactorColumn
         }
-        
+
         #endregion
 
         #region Properties
@@ -82,7 +82,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -104,9 +104,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -121,15 +121,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
 
                 if (successful &&
@@ -182,9 +181,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool CleanDataAndColumnFactorsFunction()
         {
-            bool successful = true;
-
-            string temporaryTableName = GetOrganizedFactorsVector(
+            var temporaryTableName = GetOrganizedFactorsVector(
                 Parameters[RequiredParameters.InputTableName.ToString()],
                 Parameters[RequiredParameters.FactorTable.ToString()],
                 Parameters[RequiredParameters.FactorColumn.ToString()],
@@ -200,7 +197,7 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            successful = AreDataColumnLengthAndColumnMetadataRowsEqual(
+            var successful = AreDataColumnLengthAndColumnMetadataRowsEqual(
                 Parameters[RequiredParameters.InputTableName.ToString()],
                 temporaryTableName,
                 Parameters[RequiredParameters.FactorColumn.ToString()]);
@@ -248,15 +245,15 @@ namespace Cyclops.DataModules
         /// <param name="ColumnMetadataFactor">Column in the Column Metadata table that maps to the datasets</param>
         /// <returns>True, if the method completes successfully</returns>
         public bool AreDataColumnLengthAndColumnMetadataRowsEqual(
-            string DataTableName, 
+            string DataTableName,
             string ColumnMetadataTableName,
             string ColumnMetadataFactor)
         {
-            bool successful = true;
+            bool successful;
 
-            TableInfo data = Model.RCalls.GetDimensions(DataTableName);
+            var data = Model.RCalls.GetDimensions(DataTableName);
 
-            TableInfo columnMetadata = Model.RCalls.GetDimensions(ColumnMetadataTableName);
+            var columnMetadata = Model.RCalls.GetDimensions(ColumnMetadataTableName);
 
             if (data.Columns != columnMetadata.Rows)
             {
@@ -264,7 +261,7 @@ namespace Cyclops.DataModules
             }
             else
             {
-                string rCmd = string.Format(
+                var rCmd = string.Format(
                     "dim({0}[-which({0}${1}%in%colnames({2})),])[1] == 0",
                     ColumnMetadataTableName,
                     ColumnMetadataFactor,
@@ -275,10 +272,8 @@ namespace Cyclops.DataModules
                     // Equal so good to go
                     return true;
                 }
-                else
-                {
-                    successful = ModifyFactorAndDataTables(DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
-                }
+
+                successful = ModifyFactorAndDataTables(DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
             }
 
             return successful;
@@ -293,13 +288,13 @@ namespace Cyclops.DataModules
         /// <param name="ColumnMetadataFactor">Column in the Column Metadata table that maps to the datasets</param>
         /// <returns>True if the method completes successfully</returns>
         public bool ModifyFactorAndDataTables(
-            string DataTableName, 
+            string DataTableName,
             string ColumnMetadataTableName,
             string ColumnMetadataFactor)
         {
-            bool successful = true;
+            bool successful;
 
-            string rCmd = string.Format(
+            var rCmd = string.Format(
                 "{0} <- merge(x=cbind({1}=colnames({2}))," +
                 "y={0}, by.x=\"{1}\", by.y=\"{1}\"," +
                 "all.y=F, all.x=F)\n\n" +
@@ -315,7 +310,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
-                    "'ModifyFactorAndDataTables': " + ex.ToString(),
+                    "'ModifyFactorAndDataTables': " + ex,
                     ModuleName, StepNumber);
                 successful = false;
             }

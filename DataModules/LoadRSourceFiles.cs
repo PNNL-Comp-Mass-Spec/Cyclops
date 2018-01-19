@@ -22,17 +22,16 @@ namespace Cyclops.DataModules
     public class LoadRSourceFiles : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "LoadRSourceFiles";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "LoadRSourceFiles";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
         private enum RequiredParameters
         { }
 
-        private readonly string[] m_PackagesToLoad = new string[]
-        {
+        private readonly string[] m_PackagesToLoad = {
             "Cairo",
             "gplots",
             "grDevices",
@@ -44,7 +43,7 @@ namespace Cyclops.DataModules
             "reshape",
             "RSQLite"
         };
-        
+
         #endregion
 
         #region Properties
@@ -139,19 +138,16 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            var successful = true;
-
             foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            return successful;
+            return true;
         }
 
         protected override string GetDefaultValue()
@@ -184,7 +180,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                var workDir = "";
+                string workDir;
                 if (!Parameters.ContainsKey("source"))
                 {
                     workDir = Path.Combine(
@@ -216,7 +212,7 @@ namespace Cyclops.DataModules
                         {
                             Model.LogError("Unsuccessful attempt to load R source file: " +
                                 s, ModuleName, StepNumber);
-                            return successful;
+                            return false;
                         }
                     }
                 }
@@ -226,7 +222,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while loading R source files: " +
-                    ex.ToString(), ModuleName, StepNumber);
+                    ex, ModuleName, StepNumber);
                 successful = false;
             }
 
@@ -286,7 +282,7 @@ namespace Cyclops.DataModules
                     catch (Exception ex)
                     {
                         Model.LogError("Exception encountered while installing " +
-                            "package: " + s + "\nException: " + ex.ToString());
+                            "package: " + s + "\nException: " + ex);
                         return false;
                     }
                 }

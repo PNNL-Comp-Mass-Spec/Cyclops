@@ -18,9 +18,9 @@ namespace Cyclops.DataModules
     public class LinearRegression : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "LinearRegression";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "LinearRegression";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run LinearRegression Module
         /// </summary>
@@ -28,7 +28,7 @@ namespace Cyclops.DataModules
         {
             NewTableName, InputTableName, FactorTable, ConsolidationFactor, Variable
         }
-        
+
         #endregion
 
         #region Properties
@@ -76,7 +76,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -98,9 +98,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -115,15 +115,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -136,7 +135,7 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            /// Check that the factorTable Exists
+            // Check that the factorTable Exists
             if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.FactorTable.ToString()]))
             {
                 Model.LogError(string.Format("Error encountered in LinearRegression, " +
@@ -146,7 +145,7 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            /// Check that the factorTable contains the ConsolidationFactor column
+            // Check that the factorTable contains the ConsolidationFactor column
             if (!Model.RCalls.TableContainsColumn(Parameters[RequiredParameters.FactorTable.ToString()],
                 Parameters[RequiredParameters.ConsolidationFactor.ToString()]))
             {
@@ -167,9 +166,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the linear regression completes successfully</returns>
         public bool LinearRegressionFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string rCmd = string.Format("{0} <- LinReg_normalize(" +
+            var rCmd = string.Format("{0} <- LinReg_normalize(" +
                     "x={1}, factorTable={2}, factorCol=\"{3}\", " +
                     "reference={4})",
                     Parameters[RequiredParameters.NewTableName.ToString()],
@@ -184,8 +183,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while performing linear regression:\n" +
-                    ex.ToString());
+                Model.LogError("Exception encountered while performing linear regression:\n" + ex);
                 SaveCurrentREnvironment();
                 successful = false;
             }

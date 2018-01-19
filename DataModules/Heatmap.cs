@@ -20,25 +20,24 @@ namespace Cyclops.DataModules
     {
         #region Members
 
-        private string m_ModuleName = "Heatmap";
-        private string m_Description = "";
+        private readonly string m_ModuleName = "Heatmap";
+        private readonly string m_Description = "";
         private string m_PValueThreshold = "0.01";
         private string m_ClusterRows = "FALSE";
         private string m_ClusterColumns = "FALSE";
-        private string m_RemoveNA = "TRUE";
-        private string m_NumberOfTopMostAbundant = "200";
+        private readonly string m_RemoveNA = "TRUE";
+        private readonly string m_NumberOfTopMostAbundant = "200";
         private string m_PlotFileType = "png";
         private string m_Distance = "NULL";
         private string m_HClust = "NULL";
-        private string m_Scale = "c('row')";
+        private readonly string m_Scale = "c('row')";
         private string m_ColorPalette = "c('green', 'black', 'red')";
         private string m_ColorDegree = "20";
         private string m_MinColorScale = "-1";
         private string m_MaxColorScale = "1";
         private string m_NaColor = "gray";
 
-        private bool m_ZeroFill = false;
-        private bool m_ShowRowNames = false;
+        private bool m_ShowRowNames;
 
         /// <summary>
         /// Required parameters to run Heatmap Module
@@ -99,7 +98,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -121,9 +120,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -138,21 +137,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
-            if (successful &&
-                !Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.TableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(
+                    Parameters[RequiredParameters.TableName.ToString()]))
             {
                 Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                     "The input table, " +
@@ -165,13 +162,12 @@ namespace Cyclops.DataModules
             if (successful &&
                 Parameters[RequiredParameters.Mode.ToString()].ToUpper().Equals("FILTERPVALS"))
             {
-                foreach (string s in Enum.GetNames(typeof(FilteredRequiredParameters)))
+                foreach (var s in Enum.GetNames(typeof(FilteredRequiredParameters)))
                 {
                     if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                     {
                         Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                        successful = false;
-                        return successful;
+                        return false;
                     }
                 }
 
@@ -181,9 +177,8 @@ namespace Cyclops.DataModules
                         m_PValueThreshold = Parameters["PValue"];
                 }
 
-                if (successful &&
-                    !Model.RCalls.ContainsObject(
-                    Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]))
+                if (!Model.RCalls.ContainsObject(
+                        Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]))
                 {
                     Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                         "Filter P-values was selected, but the significance table, " +
@@ -223,12 +218,14 @@ namespace Cyclops.DataModules
                     m_ClusterColumns = Parameters["HeatmapClusterColumns"].ToUpper();
             }
 
+            /*
             if (successful &&
                 Parameters.ContainsKey("ZeroReplacement"))
             {
                 if (!string.IsNullOrEmpty(Parameters["ZeroReplacement"]))
                     m_ZeroFill = Convert.ToBoolean(Parameters["ZeroReplacement"]);
             }
+            */
 
             if (successful &&
                 Parameters.ContainsKey("Distance"))
@@ -302,7 +299,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool HeatmapFunction()
         {
-            bool successful = true;
+            var successful = true;
 
             switch (Parameters[RequiredParameters.Mode.ToString()].ToLower())
             {
@@ -322,11 +319,9 @@ namespace Cyclops.DataModules
 
         public bool FilterSignificanceTableForPValues()
         {
-            bool successful = true;
+            var tFilterTable = GetTemporaryTableName("TmpFilterPval_");
 
-            string tFilterTable = GetTemporaryTableName("TmpFilterPval_");
-
-            Dictionary<string, string> filterTableParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            var filterTableParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 {"InputTableName", Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]},
                 {"NewTableName", tFilterTable},
@@ -335,13 +330,15 @@ namespace Cyclops.DataModules
                 {"Value", m_PValueThreshold}
             };
 
-            FilterTable ft = new FilterTable(Model, filterTableParam);
-            ft.StepNumber = StepNumber;
-            successful = ft.PerformOperation();
+            var ft = new FilterTable(Model, filterTableParam) {
+                StepNumber = StepNumber
+            };
+
+            var successful = ft.PerformOperation();
 
             if (successful)
             {
-                Dictionary<string, string> mergeParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                var mergeParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     {"NewTableName", tFilterTable},
                     {"XTable", tFilterTable},
@@ -352,9 +349,10 @@ namespace Cyclops.DataModules
                     {"AllY", "FALSE"}
                 };
 
-                Merge m = new Merge(Model, mergeParam);
-                m.StepNumber = StepNumber;
-                successful = m.PerformOperation();
+                var m = new Merge(Model, mergeParam) {
+                    StepNumber = StepNumber
+                };
+                m.PerformOperation();
             }
             else
             {
@@ -362,7 +360,7 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            string rCmd = string.Format(
+            var rCmd = string.Format(
                     "rownames({0}) <- {0}[,1]\n" +
                     "{0} <- {0}[,-1]\n",
                     tFilterTable);
@@ -384,20 +382,22 @@ namespace Cyclops.DataModules
             return successful;
         }
 
+        [Obsolete("Unused")]
         private bool GetTopMostAbundantProteins()
         {
-            bool successful = true;
+            var tMostAbundant = GetTemporaryTableName("TmpMostAbundant_");
 
-            string tMostAbundant = GetTemporaryTableName("TmpMostAbundant_");
+            var paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {"InputTableName", Parameters[RequiredParameters.TableName.ToString()]},
+                {"NewTableName", tMostAbundant},
+                {"NumberOfMostAbundant", m_NumberOfTopMostAbundant}
+            };
 
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            paramDictionary.Add("InputTableName", Parameters[RequiredParameters.TableName.ToString()]);
-            paramDictionary.Add("NewTableName", tMostAbundant);
-            paramDictionary.Add("NumberOfMostAbundant", m_NumberOfTopMostAbundant);
-
-            TopMostAbundant tma = new TopMostAbundant(Model, paramDictionary);
-            tma.StepNumber = StepNumber;
-            successful = tma.PerformOperation();
+            var tma = new TopMostAbundant(Model, paramDictionary) {
+                StepNumber = StepNumber
+            };
+            var successful = tma.PerformOperation();
 
             Parameters[RequiredParameters.TableName.ToString()] = tMostAbundant;
 
@@ -406,11 +406,11 @@ namespace Cyclops.DataModules
 
         public bool CreateHeatmap()
         {
-            bool successful = true;
+            bool successful;
 
             CheckForPlotsDirectory();
 
-            string rCmd = "";
+            var rCmd = "";
             var plotFileName = Parameters[RequiredParameters.PlotFileName.ToString()];
             var plotfilePath = Path.Combine(Model.WorkDirectory, "Plots", plotFileName);
             var matrixFileName = "hm_" + Path.GetFileNameWithoutExtension(plotFileName);
@@ -485,8 +485,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while performing Heatmap:\n" +
-                    ex.ToString());
+                Model.LogError("Exception encountered while performing Heatmap:\n" + ex);
                 SaveCurrentREnvironment();
                 successful = false;
             }

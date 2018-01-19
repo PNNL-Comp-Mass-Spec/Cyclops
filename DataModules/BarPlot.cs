@@ -19,14 +19,14 @@ namespace Cyclops.DataModules
     public class BarPlot : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BarPlot";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "BarPlot";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
-        { 
+        {
             TableName, PlotFileName, DataColumns,
         }
 
@@ -35,18 +35,9 @@ namespace Cyclops.DataModules
         #region Properties
         public string BarColor { get; set; } = "cornflowerblue";
 
-        public string Log
-        {
-            get
-            {
-                if (LogBase == null)
-                    return "FALSE";
-                else
-                    return "TRUE";
-            }
-        }
+        public string Log => LogBase == null ? "FALSE" : "TRUE";
 
-        public double? LogBase { get; set; } = null;
+        public double? LogBase { get; set; }
 
         public string Names { get; set; }
 
@@ -94,7 +85,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -114,9 +105,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -131,15 +122,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -183,11 +173,11 @@ namespace Cyclops.DataModules
 
             if (Directory.Exists(Model.WorkDirectory) && successful)
             {
-                string plotDirectory = Path.Combine(Model.WorkDirectory, "Plots").Replace("\\", "/");
-                
+                var plotDirectory = Path.Combine(Model.WorkDirectory, "Plots").Replace("\\", "/");
+
                 if (!Directory.Exists(plotDirectory))
                     Directory.CreateDirectory(plotDirectory);
-                
+
                 var plotFilePath = Path.Combine(plotDirectory, Parameters[RequiredParameters.PlotFileName.ToString()]);
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(plotFilePath);
             }
@@ -201,16 +191,16 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool BarPlotFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string rCmd = "";
+            var rCmd = "";
 
             if (Parameters.ContainsKey("Mode"))
             {
                 switch (Parameters["Mode"])
                 {
                     case "iterator":
-                        string tmpTable = GetTemporaryTableName("tmpBarPlot_");
+                        var tmpTable = GetTemporaryTableName("tmpBarPlot_");
                         rCmd += string.Format("{0} <- " +
                             "data.frame(Cleavage=c(\"Tryptic\", " +
                             "\"Partial\", \"NonTryptic\"), " +
@@ -273,8 +263,7 @@ namespace Cyclops.DataModules
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while creating a " +
-                    "BarPlot:\n" + ex.ToString());
+                Model.LogError("Exception encountered while creating a BarPlot:\n" + ex);
                 SaveCurrentREnvironment();
                 successful = false;
             }

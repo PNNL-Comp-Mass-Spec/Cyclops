@@ -31,13 +31,13 @@ namespace Cyclops.DataModules
         /// Required parameters to run Aggregate
         /// </summary>
         private enum RequiredParameters
-        { 
+        {
             FileName
         }
-        
+
         private bool m_DatabaseFound;
         private enum HTMLFileType { Dataset, Index };
-        private SQLiteHandler sql = new SQLiteHandler();
+        private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
         #endregion
 
         #region Properties
@@ -85,7 +85,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -105,9 +105,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -122,15 +122,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -139,13 +138,13 @@ namespace Cyclops.DataModules
                 if (File.Exists(Parameters["DatabaseFileName"]))
                 {
                     m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Parameters["DatabaseFileName"];
+                    m_SQLiteReader.DatabaseFileName = Parameters["DatabaseFileName"];
                     m_DatabaseFound = true;
                 }
                 else if (File.Exists(Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"])))
                 {
                     m_DatabaseFileName = Parameters["DatabaseFileName"];
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"]);
+                    m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, Parameters["DatabaseFileName"]);
                     m_DatabaseFound = true;
                 }
             }
@@ -153,7 +152,7 @@ namespace Cyclops.DataModules
             {
                 if (File.Exists(Path.Combine(Model.WorkDirectory, "Results.db3")))
                 {
-                    sql.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
+                    m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, "Results.db3");
                     m_DatabaseFound = true;
                 }
             }
@@ -173,22 +172,22 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool HtmlSummaryFunction()
         {
-            bool successful = true;
+            var cssFileName = "styles.css";
+            var datasetsFileName = "Datasets.html";
+            var qcFileName = "QC.html";
 
-            string cssFileName = "styles.css";
-            string datasetsFileName = "Datasets.html";
-            string qcFileName = "QC.html";
-            
-            List<HtmlLinkNode> navBarNodes = new List<HtmlLinkNode>();
+            var navBarNodes = new List<HtmlLinkNode>
+            {
+                new HtmlLinkNode(
+                    "Home", Parameters[RequiredParameters.FileName.ToString()], false),
+                new HtmlLinkNode(
+                    "Datasets", datasetsFileName, false),
+                new HtmlLinkNode(
+                    "QC Plots", qcFileName, false)
+            };
 
-            navBarNodes.Add(new HtmlLinkNode(
-                "Home", Parameters[RequiredParameters.FileName.ToString()], false));
-            navBarNodes.Add(new HtmlLinkNode(
-                "Datasets", datasetsFileName, false));
-            navBarNodes.Add(new HtmlLinkNode(
-                "QC Plots", qcFileName, false));
 
-            using (StreamWriter cssWriter = File.AppendText(Path.Combine(
+            using (var cssWriter = File.AppendText(Path.Combine(
                 Model.WorkDirectory, cssFileName)))
             {
                 cssWriter.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.NavBar, 160));
@@ -197,7 +196,7 @@ namespace Cyclops.DataModules
             }
 
             // Construct and write-out the Datasets Page
-            StringBuilder datasetHtml = new StringBuilder();
+            var datasetHtml = new StringBuilder();
 
             datasetHtml.Append(HtmlFileHandler.GetHtmlHeader());
             datasetHtml.Append(HtmlFileHandler.GetCSSLink(cssFileName));
@@ -211,17 +210,17 @@ namespace Cyclops.DataModules
             datasetHtml.Append("\t\t</DIV>\n");
             datasetHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter datasetHtmlWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, datasetsFileName));
+            var datasetHtmlWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, datasetsFileName));
             datasetHtmlWriter.Write(datasetHtml);
             datasetHtmlWriter.Close();
             datasetHtml.Clear();
 
             // Construct and write-out the QC Page
-            StringBuilder qcHtml = new StringBuilder();
+            var qcHtml = new StringBuilder();
 
-            HtmlLinkNode missedCleavages = new HtmlLinkNode("Missed Cleavages", "mc", true);
+            var missedCleavages = new HtmlLinkNode("Missed Cleavages", "mc", true);
             navBarNodes.Add(missedCleavages);
-            HtmlLinkNode trypticPeptides = new HtmlLinkNode("Tryptic Peptides", "tp", true);
+            var trypticPeptides = new HtmlLinkNode("Tryptic Peptides", "tp", true);
             navBarNodes.Add(trypticPeptides);
 
             qcHtml.Append(HtmlFileHandler.GetHtmlHeader());
@@ -237,7 +236,7 @@ namespace Cyclops.DataModules
                 "Spectral_Count_Summary.png", true, "pos_left", null, null));
             qcHtml.Append("\t\t<DIV ID='SpectralCount' style='position: absolute; left:700px; top:100px;'>\n");
             qcHtml.Append(HtmlFileHandler.GetTableHtml(
-                sql.GetTable("T_MAC_SpecCnt_Summary"), null, null, null, null));
+                              m_SQLiteReader.GetTable("T_MAC_SpecCnt_Summary"), null, null, null, null));
             qcHtml.Append("\t\t</DIV>\n");
 
             qcHtml.Append("\t\t<A NAME='mc'/A>\n");
@@ -246,7 +245,7 @@ namespace Cyclops.DataModules
                 "MissedCleavage_Summary.png", true, "pos_left", null, null));
             qcHtml.Append("\t\t<DIV ID='MissedCleavage' style='position: absolute; left:700px; top:560px;'>\n");
             qcHtml.Append(HtmlFileHandler.GetTableHtml(
-                sql.GetTable("T_MissedCleavageSummary"), null, null, null, null));
+                              m_SQLiteReader.GetTable("T_MissedCleavageSummary"), null, null, null, null));
             qcHtml.Append("\t\t</DIV>\n");
 
             qcHtml.Append("\t\t<A NAME='tp'/A>\n");
@@ -255,10 +254,10 @@ namespace Cyclops.DataModules
                 "Tryptic_Summary.png", true, "pos_left", null, null));
             qcHtml.Append("\t\t<DIV ID='TrypticCoverage' style='position: absolute; left:700px; top:1040px;'>\n");
             qcHtml.Append(HtmlFileHandler.GetTableHtml(
-                sql.GetTable("T_MAC_Trypticity_Summary"), null, null, null, null));
+                              m_SQLiteReader.GetTable("T_MAC_Trypticity_Summary"), null, null, null, null));
             qcHtml.Append("\t\t</DIV>\n");
 
-            StreamWriter qcWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, qcFileName));
+            var qcWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, qcFileName));
             qcWriter.WriteLine(qcHtml);
             qcWriter.Close();
 
@@ -266,7 +265,7 @@ namespace Cyclops.DataModules
             navBarNodes.Remove(trypticPeptides);
 
             // Construct and write-out the main html summary page
-            StringBuilder summaryHtml = new StringBuilder();
+            var summaryHtml = new StringBuilder();
 
             navBarNodes.Add(new HtmlLinkNode("Correlation", "ch", true));
 
@@ -284,16 +283,16 @@ namespace Cyclops.DataModules
 
             summaryHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter summaryWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]));
+            var summaryWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]));
             summaryWriter.Write(summaryHtml);
             summaryWriter.Close();
 
-            return successful;
+            return true;
         }
 
         private StringBuilder WriteHtmlScripts()
         {
-            StringBuilder returnScripts = new StringBuilder();
+            var returnScripts = new StringBuilder();
             // TODO: Build Script
 
             return returnScripts;
@@ -301,7 +300,7 @@ namespace Cyclops.DataModules
 
         private string WriteHtmlBody(HTMLFileType TheHTMLFileType)
         {
-            string body = "";
+            var body = "";
             switch (TheHTMLFileType)
             {
                 case HTMLFileType.Dataset:

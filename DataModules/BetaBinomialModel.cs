@@ -18,14 +18,14 @@ namespace Cyclops.DataModules
     public class BetaBinomialModel : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "BetaBinomialModel";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "BetaBinomialModel";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run BetaBinomialModel Module
         /// </summary>
         private enum RequiredParameters
-        { 
+        {
             NewTableName, InputTableName, Theta, Fixed_Effect, FactorTable
         }
 
@@ -77,7 +77,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -99,9 +99,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -116,15 +116,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -171,16 +170,16 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool BetaBinomialModelFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string tmpTable = Model.RCalls.GetTemporaryTableName("tmpBBMTable_");
-            string factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
+            var tmpTable = Model.RCalls.GetTemporaryTableName("tmpBBMTable_");
+            var factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
                                       Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
-            string tmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            var tmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
 
             try
             {
-                string rCmd = "require(BetaBinomial)\n";
+                var rCmd = "require(BetaBinomial)\n";
 
                 if (Parameters.ContainsKey("removePeptideColumn"))
                 {
@@ -200,8 +199,8 @@ namespace Cyclops.DataModules
                     m_MergeColumn,
                     "tmp_OrgFactor4BBM_");
 
-                List<string> factorList = Model.RCalls.GetColumnNames(tmpInputTableName, true);
-                int factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
+                var factorList = Model.RCalls.GetColumnNames(tmpInputTableName, true);
+                var factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
                 if (factorList.Count == factorCount && successful)
                 {
                     rCmd = string.Format(
@@ -239,7 +238,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing Beta-Binomial Model:\n" +
-                    ex.ToString(), ModuleName, StepNumber);
+                    ex, ModuleName, StepNumber);
                 SaveCurrentREnvironment();
                 successful = false;
             }

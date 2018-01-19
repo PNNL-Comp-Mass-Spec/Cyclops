@@ -32,7 +32,7 @@ namespace Cyclops.Operations
 		{
 			Type
 		}
-		
+
 		#endregion
 
 		#region Members
@@ -93,7 +93,7 @@ namespace Cyclops.Operations
 		/// </summary>
 		public override bool PerformOperation()
 		{
-			bool successful = true;
+			var successful = true;
 
 			if (Model.PipelineCurrentlySuccessful)
 			{
@@ -116,15 +116,12 @@ namespace Cyclops.Operations
 		/// Parameters</returns>
 		public override bool CheckParameters()
 		{
-			bool successful = true;
-
-			foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+		    foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
 			{
 				if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
 				{
 					Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-					successful = false;
-					return successful;
+					return false;
 				}
 			}
 
@@ -133,7 +130,7 @@ namespace Cyclops.Operations
 				OperationsDatabasePath = Parameters["DatabaseFileName"];
 			}
 
-			return successful;
+			return true;
 		}
 
 		/// <summary>
@@ -142,11 +139,9 @@ namespace Cyclops.Operations
 		/// <returns>True, if the operation completes successfully</returns>
 		public bool LabelFreeMainOperationFunction()
 		{
-			bool successful = true;
+		    SetTypes();
 
-			SetTypes();
-
-			successful = ConstructModules();
+			var successful = ConstructModules();
 
 			return successful;
 		}
@@ -196,14 +191,16 @@ namespace Cyclops.Operations
 		/// <returns></returns>
 		public bool ConstructModules()
 		{
-			bool successful = true;
+			bool successful;
 
 			try
 			{
-				WorkflowHandler wfh = new WorkflowHandler(Model);
-				wfh.InputWorkflowFileName = OperationsDatabasePath;
-				wfh.WorkflowTableName = m_LabelFreeTableName;
-				successful = wfh.ReadSQLiteWorkflow();
+			    var wfh = new WorkflowHandler(Model)
+			    {
+			        InputWorkflowFileName = OperationsDatabasePath,
+			        WorkflowTableName = m_LabelFreeTableName
+			    };
+			    successful = wfh.ReadSQLiteWorkflow();
 
 				if (successful)
 					Model.ModuleLoader = wfh;
@@ -211,8 +208,7 @@ namespace Cyclops.Operations
 			catch (Exception ex)
 			{
 				Model.LogError("Exception encounterd while running 'ConstructModules' " +
-					"for the LabelFree Operation:\n" +
-					ex.ToString(), ModuleName, StepNumber);
+					"for the LabelFree Operation:\n" + ex, ModuleName, StepNumber);
 				successful = false;
 			}
 

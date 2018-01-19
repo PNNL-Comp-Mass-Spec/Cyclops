@@ -158,8 +158,8 @@ namespace Cyclops
 
             if (step == null)
                 return module + ": " + message;
-            else
-                return module + ", step " + step + ": " + message;
+
+            return module + ", step " + step + ": " + message;
         }
 
         public void LogError(string message)
@@ -218,11 +218,9 @@ namespace Cyclops
         {
             if (ModuleLoader.Count > 0)
                 return ModuleLoader.RunWorkflow();
-            else
-            {
-                LogWarning("No modules were detected during the Workflow Run()");
-                return true;
-            }
+
+            LogWarning("No modules were detected during the Workflow Run()");
+            return true;
         }
 
         public bool WriteOutWorkflow(string FileName, WorkflowType OutputWorkflowType)

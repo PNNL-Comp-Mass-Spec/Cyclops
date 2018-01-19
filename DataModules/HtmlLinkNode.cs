@@ -31,12 +31,11 @@ namespace Cyclops.DataModules
         /// <summary>
         /// HtmlLinkNode module that assigns a Cyclops Model
         /// </summary>
-        /// <param name="CyclopsModel">Cyclops Model</param>
-        public HtmlLinkNode(string Title, string Link, bool IsInternalLink)
+        public HtmlLinkNode(string title, string link, bool isInternalLink)
         {
-            this.Title = Title;
-            this.Link = Link;
-            this.IsInternalLink = IsInternalLink;
+            this.Title = title;
+            this.Link = link;
+            this.IsInternalLink = isInternalLink;
         }
         #endregion
     }

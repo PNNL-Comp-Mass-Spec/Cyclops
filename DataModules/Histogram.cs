@@ -19,11 +19,8 @@ namespace Cyclops.DataModules
     public class Histogram : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "Histogram";
-        private string m_Description = "";
-        private string m_Main = "";
-        private string m_XLabel = "";
-        private string m_YLabel = "";
+        private readonly string m_ModuleName = "Histogram";
+        private readonly string m_Description = "";
 
         /// <summary>
         /// Required parameters to run Aggregate
@@ -84,7 +81,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -104,9 +101,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -121,15 +118,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -155,6 +151,7 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey("Width"))
                 Width = Convert.ToInt32(Parameters["Width"]);
 
+            /*
             if (Parameters.ContainsKey("Main"))
             {
                 if (!string.IsNullOrEmpty(Parameters["Main"]))
@@ -170,10 +167,11 @@ namespace Cyclops.DataModules
                 if (!string.IsNullOrEmpty(Parameters["YLabel"]))
                     m_YLabel = Parameters["YLabel"];
             }
+            */
 
             if (Directory.Exists(Model.WorkDirectory))
             {
-                string plotDirectory = Path.Combine(Model.WorkDirectory, "Plots");
+                var plotDirectory = Path.Combine(Model.WorkDirectory, "Plots");
                 if (!Directory.Exists(plotDirectory))
                     Directory.CreateDirectory(plotDirectory);
 
@@ -190,9 +188,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool HistogramFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string rcmd = "";
+            var rcmd = "";
 
             switch (HistogramType.ToLower())
             {

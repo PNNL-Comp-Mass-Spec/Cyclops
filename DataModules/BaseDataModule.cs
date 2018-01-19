@@ -33,7 +33,7 @@ namespace Cyclops.DataModules
         protected abstract string GetDefaultValue();
         protected abstract string GetTypeName();
         protected abstract string GetTypeDescription();
-        private static readonly Dictionary<string, Type> sTypeMap = CreateTypeMap();
+        private static readonly Dictionary<string, Type> mTypeMap = CreateTypeMap();
 
         #region Visualization Properties
 
@@ -93,15 +93,15 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Writes out Data modules to DataTable for export
         /// </summary>
-        /// <param name="Table">Table to add to</param>
+        /// <param name="table">Table to add to</param>
         /// <returns>DataTable of workflow modules</returns>
-        public override DataTable WriteModuleToDataTable(DataTable Table)
+        public override DataTable WriteModuleToDataTable(DataTable table)
         {
             if (Parameters.Count > 0)
             {
                 foreach (var kvp in Parameters)
                 {
-                    var dr = Table.NewRow();
+                    var dr = table.NewRow();
 
                     dr["Step"] = StepNumber;
                     dr["Module"] = ModuleName;
@@ -109,20 +109,20 @@ namespace Cyclops.DataModules
                     dr["Parameter"] = kvp.Key;
                     dr["Value"] = kvp.Value;
 
-                    Table.Rows.Add(dr);
+                    table.Rows.Add(dr);
                 }
             }
             else
             {
-                var dr = Table.NewRow();
+                var dr = table.NewRow();
 
                 dr["Step"] = StepNumber;
                 dr["Module"] = ModuleName;
                 dr["ModuleType"] = 1;
-                Table.Rows.Add(dr);
+                table.Rows.Add(dr);
             }
 
-            return Table;
+            return table;
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace Cyclops.DataModules
 
         public static BaseDataModule Create(string TypeName)
         {
-            if (sTypeMap.TryGetValue(TypeName, out var derivedType))
+            if (mTypeMap.TryGetValue(TypeName, out var derivedType))
             {
                 return Activator.CreateInstance(derivedType)
                     as BaseDataModule;
@@ -189,7 +189,7 @@ namespace Cyclops.DataModules
             CyclopsModel TheModel,
             Dictionary<string, string> TheParameters)
         {
-            if (sTypeMap.TryGetValue(TypeName, out var derivedType))
+            if (mTypeMap.TryGetValue(TypeName, out var derivedType))
             {
                 return Activator.CreateInstance(derivedType, TheModel, TheParameters) as BaseDataModule;
             }

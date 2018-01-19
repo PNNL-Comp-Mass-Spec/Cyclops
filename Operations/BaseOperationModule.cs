@@ -26,7 +26,7 @@ namespace Cyclops.Operations
 
         protected abstract string GetDefaultValue();
         protected abstract string GetTypeName();
-        private static Dictionary<string, Type> sTypeMap = CreateTypeMap();
+        private static readonly Dictionary<string, Type> mTypeMap = CreateTypeMap();
 
         /// <summary>
         /// Path to SQLite database that contains the table to
@@ -37,31 +37,32 @@ namespace Cyclops.Operations
         #endregion
 
         #region Methods
-        // <summary>
+
+        /// <summary>
         /// Instantiates a new type of Operations Module
         /// </summary>
-        /// <param name="TypeName">Name of the module type</param>
-        /// <param name="TheModel">CyclopsModel</param>
+        /// <param name="typeName">Name of the module type</param>
+        /// <param name="model">CyclopsModel</param>
+        /// <param name="parameters"></param>
         /// <returns>An Operation Module</returns>
-        public static BaseOperationModule Create(string TypeName, CyclopsModel TheModel, Dictionary<string, string> TheParameters)
+        public static BaseOperationModule Create(string typeName, CyclopsModel model, Dictionary<string, string> parameters)
         {
-            if (sTypeMap.TryGetValue(TypeName, out var derivedType))
+            if (mTypeMap.TryGetValue(typeName, out var derivedType))
             {
-                return System.Activator.CreateInstance(derivedType, TheModel, TheParameters) as BaseOperationModule;
+                return Activator.CreateInstance(derivedType, model, parameters) as BaseOperationModule;
             }
             return null;
         }
 
         private static Dictionary<string, Type> CreateTypeMap()
         {
-            Dictionary<string, Type> typeMap =
-                new Dictionary<string, Type>();
+            var typeMap = new Dictionary<string, Type>();
 
-            Assembly currAssembly = Assembly.GetExecutingAssembly();
+            var currAssembly = Assembly.GetExecutingAssembly();
 
-            Type baseType = typeof(BaseOperationModule);
+            var baseType = typeof(BaseOperationModule);
 
-            foreach (Type type in currAssembly.GetTypes())
+            foreach (var type in currAssembly.GetTypes())
             {
                 if (!type.IsClass || type.IsAbstract ||
                     !type.IsSubclassOf(baseType))
@@ -69,10 +70,7 @@ namespace Cyclops.Operations
                     continue;
                 }
 
-                BaseOperationModule derivedObject =
-                    System.Activator.CreateInstance(type) as BaseOperationModule;
-
-                if (derivedObject != null)
+                if (Activator.CreateInstance(type) is BaseOperationModule derivedObject)
                 {
                     typeMap.Add(derivedObject.GetTypeName(), derivedObject.GetType());
                 }

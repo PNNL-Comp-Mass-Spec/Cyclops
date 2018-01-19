@@ -18,12 +18,12 @@ namespace Cyclops.DataModules
     public class RRollup : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "RRollup";
-        private string m_Description = "";
+        private readonly string m_ModuleName = "RRollup";
+        private readonly string m_Description = "";
         private string m_MinimumPresence = "1";
         private string m_Mode = "median";
         private string m_ProteinInfo_ProteinColumn = "1";
-        private string m_ProteinInfo_PeptideColumn = "2";
+        private readonly string m_ProteinInfo_PeptideColumn = "2";
         private string m_MinimumOverlap = "2";
         private string m_OneHitWonders = "FALSE";
         private string m_GrubbsPValue = "0.05";
@@ -85,7 +85,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -107,9 +107,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -124,15 +124,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -172,9 +171,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool RRollupFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string rCmd = string.Format("{0} <- RRollup.proteins(" +
+            var rCmd = string.Format("{0} <- RRollup.proteins(" +
                     "Data={1}, ProtInfo={2}, minPresence={3}, Mode=\"{4}\", " +
                     "protInfo_ProtCol={5}, protInfo_PepCol={6}, minOverlap={7}, " +
                     "oneHitWonders={8}, gpvalue={9}, gminPCount={10}, center={11})",
@@ -199,7 +198,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
-                    "'RRollupFunction': " + ex.ToString(), ModuleName,
+                    "'RRollupFunction': " + ex, ModuleName,
                     StepNumber);
                 SaveCurrentREnvironment();
                 successful = false;

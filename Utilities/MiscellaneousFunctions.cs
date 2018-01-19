@@ -32,11 +32,9 @@ namespace Cyclops.Utilities
         /// <returns></returns>
         public static string Concatenate(List<string> MyList, string Sep, bool MakeRCompliant)
         {
-            string s_Return = "";
+            var s_Return = MakeRCompliant ? "c(" : "";
 
-            s_Return = MakeRCompliant ? "c(" : "";
-
-            foreach (string s in MyList)
+            foreach (var s in MyList)
             {
                 s_Return += MakeRCompliant ? "\"" + s + "\"" + Sep : s + Sep;
             }
@@ -57,34 +55,34 @@ namespace Cyclops.Utilities
         {
             try
             {
-                StreamWriter sw_Writer = new StreamWriter(FileName);
+                var sw_Writer = new StreamWriter(FileName);
 
                 // write the headers to the file
-                for (int columns = 0; columns < TheDataTable.Columns.Count; columns++)
+                for (var columns = 0; columns < TheDataTable.Columns.Count; columns++)
                 {
                     if ((TheDataTable.Columns.Count - 1) == columns)
                     {
-                        sw_Writer.Write(TheDataTable.Columns[columns].ToString() + "\n");
+                        sw_Writer.Write(TheDataTable.Columns[columns] + "\n");
                     }
                     else
                     {
-                        sw_Writer.Write(TheDataTable.Columns[columns].ToString() + "\t");
+                        sw_Writer.Write(TheDataTable.Columns[columns] + "\t");
                     }
                 }
 
                 // write the data to the file
-                for (int rows = 0; rows < TheDataTable.Rows.Count; rows++)
+                for (var rows = 0; rows < TheDataTable.Rows.Count; rows++)
                 {
-                    for (int columns = 0; columns < TheDataTable.Columns.Count; columns++)
+                    for (var columns = 0; columns < TheDataTable.Columns.Count; columns++)
                     {
                         if ((TheDataTable.Columns.Count - 1) == columns)
                         {
-                            sw_Writer.Write(TheDataTable.Rows[rows][columns].ToString()
+                            sw_Writer.Write(TheDataTable.Rows[rows][columns]
                                 + "\n");
                         }
                         else
                         {
-                            sw_Writer.Write(TheDataTable.Rows[rows][columns].ToString()
+                            sw_Writer.Write(TheDataTable.Rows[rows][columns]
                                 + "\t");
                         }
                     }

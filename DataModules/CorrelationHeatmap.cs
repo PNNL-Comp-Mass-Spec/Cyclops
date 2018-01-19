@@ -19,9 +19,9 @@ namespace Cyclops.DataModules
     public class CorrelationHeatmap : BaseDataModule
     {
         #region Members
-        private string m_ModuleName = "CorrelationHeatmap";
-        private string m_Description = "";
-        
+        private readonly string m_ModuleName = "CorrelationHeatmap";
+        private readonly string m_Description = "";
+
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
@@ -81,7 +81,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -108,9 +108,9 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 paramDictionary.Add(s, "");
             }
@@ -125,15 +125,14 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool successful = true;
+            var successful = true;
 
-            foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
+            foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    successful = false;
-                    return successful;
+                    return false;
                 }
             }
 
@@ -160,7 +159,7 @@ namespace Cyclops.DataModules
 
             if (Directory.Exists(Model.WorkDirectory))
             {
-                string plotDirectory = "Plots";
+                var plotDirectory = "Plots";
                 if (!Directory.Exists(plotDirectory))
                     Directory.CreateDirectory(plotDirectory);
 
@@ -177,9 +176,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool CorrelationHeatmapFunction()
         {
-            bool successful = true;
+            bool successful;
 
-            string rCmd = "require(grDevices)\nrequire(gplots)\n";
+            var rCmd = "require(grDevices)\nrequire(gplots)\n";
 
             var imageType = Parameters[RequiredParameters.Image.ToString()];
 
@@ -239,12 +238,12 @@ namespace Cyclops.DataModules
         /// <returns>True, if correlation analysis completes successfully</returns>
         private bool RunCorrelationAnalysis()
         {
-            bool successful = true;
-            string tTable = Model.RCalls.GetTemporaryTableName("T_CorrAnalysis_");
-            bool SkipFirstColumn = Convert.ToBoolean(
+            bool successful;
+            var tTable = Model.RCalls.GetTemporaryTableName("T_CorrAnalysis_");
+            var SkipFirstColumn = Convert.ToBoolean(
                 Parameters[RequiredParameters.SkipTheFirstColumn.ToString()]);
 
-            string rCmd = string.Format(
+            var rCmd = string.Format(
                 "require(Hmisc)\n" +
                 "{0} <- rcorr(data.matrix({1}{2}){3})\n" +
                 "{4} <- list(cor={0}, n={0}$n, prob={0}$P)\n" +
@@ -263,7 +262,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
-                    "'RunCorrelationAnalysis': " + ex.ToString(), ModuleName,
+                    "'RunCorrelationAnalysis': " + ex, ModuleName,
                     StepNumber);
                 SaveCurrentREnvironment();
                 successful = false;
@@ -278,7 +277,7 @@ namespace Cyclops.DataModules
         /// <returns>R Statement</returns>
         private string GetHeatmapStatement()
         {
-            string rCmd = "BlueRed <- colorRampPalette(c('blue', 'white', 'red'))\n";
+            var rCmd = "BlueRed <- colorRampPalette(c('blue', 'white', 'red'))\n";
             rCmd += "cmap <- BlueRed(20)\n";
             rCmd += string.Format("{0} <- heatmap.2(data.matrix({1}$cor[1]$r), " +
                 "main='{2}', " +

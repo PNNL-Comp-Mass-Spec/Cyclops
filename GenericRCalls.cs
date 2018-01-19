@@ -364,7 +364,7 @@ namespace Cyclops
         {
             var successful = true;
 
-            var rCmd = string.Format("save.image(file=\"{0}\")", GenericRCalls.ConvertToRCompatiblePath(filePath));
+            var rCmd = string.Format("save.image(file=\"{0}\")", ConvertToRCompatiblePath(filePath));
 
             try
             {
