@@ -99,7 +99,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -108,10 +108,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running Heatmap", ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = HeatmapFunction();
+                    successful = HeatmapFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -121,14 +121,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -138,19 +138,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.TableName.ToString()]))
             {
@@ -159,10 +159,10 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.TableName.ToString()] +
                     ", does not exist in the R work environment!",
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters[RequiredParameters.Mode.ToString()].ToUpper().Equals("FILTERPVALS"))
             {
                 foreach (string s in Enum.GetNames(typeof(FilteredRequiredParameters)))
@@ -170,8 +170,8 @@ namespace Cyclops.DataModules
                     if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                     {
                         Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                        b_Successful = false;
-                        return b_Successful;
+                        successful = false;
+                        return successful;
                     }
                 }
 
@@ -181,7 +181,7 @@ namespace Cyclops.DataModules
                         m_PValueThreshold = Parameters["PValue"];
                 }
 
-                if (b_Successful &&
+                if (successful &&
                     !Model.RCalls.ContainsObject(
                     Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]))
                 {
@@ -190,10 +190,10 @@ namespace Cyclops.DataModules
                         Parameters[FilteredRequiredParameters.SignificanceTable.ToString()] +
                         ", does not exist in the R work environment!",
                         ModuleName, StepNumber);
-                    b_Successful = false;
+                    successful = false;
                 }
 
-                if (b_Successful &&
+                if (successful &&
                     !Model.RCalls.TableContainsColumn(
                     Parameters[FilteredRequiredParameters.SignificanceTable.ToString()],
                     Parameters[FilteredRequiredParameters.PValueColumn.ToString()]))
@@ -205,95 +205,95 @@ namespace Cyclops.DataModules
                         Parameters[FilteredRequiredParameters.PValueColumn.ToString()] +
                         "!",
                         ModuleName, StepNumber);
-                    b_Successful = false;
+                    successful = false;
                 }
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("HeatmapClusterRows"))
             {
                 if (!string.IsNullOrEmpty(Parameters["HeatmapClusterRows"]))
                     m_ClusterRows = Parameters["HeatmapClusterRows"].ToUpper();
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("HeatmapClusterColumns"))
             {
                 if (!string.IsNullOrEmpty(Parameters["HeatmapClusterColumns"]))
                     m_ClusterColumns = Parameters["HeatmapClusterColumns"].ToUpper();
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("ZeroReplacement"))
             {
                 if (!string.IsNullOrEmpty(Parameters["ZeroReplacement"]))
                     m_ZeroFill = Convert.ToBoolean(Parameters["ZeroReplacement"]);
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("Distance"))
             {
                 if (!string.IsNullOrEmpty(Parameters["Distance"]))
                     m_Distance = Parameters["Distance"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("HClust"))
             {
                 if (!string.IsNullOrEmpty(Parameters["HClust"]))
                     m_HClust = Parameters["HClust"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("ColorPalette"))
             {
                 if (!string.IsNullOrEmpty(Parameters["ColorPalette"]))
                     m_ColorPalette = Parameters["ColorPalette"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("ColorDegree"))
             {
                 if (!string.IsNullOrEmpty(Parameters["ColorDegree"]))
                     m_ColorDegree = Parameters["ColorDegree"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("MinColorScale"))
             {
                 if (!string.IsNullOrEmpty(Parameters["MinColorScale"]))
                     m_MinColorScale = Parameters["MinColorScale"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("MaxColorScale"))
             {
                 if (!string.IsNullOrEmpty(Parameters["MaxColorScale"]))
                     m_MaxColorScale = Parameters["MaxColorScale"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("PlotFileType"))
             {
                 if (!string.IsNullOrEmpty(Parameters["PlotFileType"]))
                     m_PlotFileType = Parameters["PlotFileType"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("NA.Color"))
             {
                 if (!string.IsNullOrEmpty(Parameters["NA.Color"]))
                     m_NaColor = Parameters["NA.Color"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("ShowRowNames"))
             {
                 if (!string.IsNullOrEmpty(Parameters["ShowRowNames"]))
                     m_ShowRowNames = Convert.ToBoolean(Parameters["ShowRowNames"]);
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -302,49 +302,49 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool HeatmapFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             switch (Parameters[RequiredParameters.Mode.ToString()].ToLower())
             {
                 case "standard":
-                    b_Successful = CreateHeatmap();
+                    successful = CreateHeatmap();
                     break;
                 case "filterpvals":
-                    b_Successful = FilterSignificanceTableForPValues();
+                    successful = FilterSignificanceTableForPValues();
 
-                    if (b_Successful)
-                        b_Successful = CreateHeatmap();
+                    if (successful)
+                        successful = CreateHeatmap();
                     break;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         public bool FilterSignificanceTableForPValues()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            string s_TmpFilterTable = GetTemporaryTableName("TmpFilterPval_");
+            string tFilterTable = GetTemporaryTableName("TmpFilterPval_");
 
-            Dictionary<string, string> d_FilterTableParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            Dictionary<string, string> filterTableParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 {"InputTableName", Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]},
-                {"NewTableName", s_TmpFilterTable},
+                {"NewTableName", tFilterTable},
                 {"ColumnName", Parameters[FilteredRequiredParameters.PValueColumn.ToString()]},
                 {"Operation", "<="},
                 {"Value", m_PValueThreshold}
             };
 
-            FilterTable ft = new FilterTable(Model, d_FilterTableParam);
+            FilterTable ft = new FilterTable(Model, filterTableParam);
             ft.StepNumber = StepNumber;
-            b_Successful = ft.PerformOperation();
+            successful = ft.PerformOperation();
 
-            if (b_Successful)
+            if (successful)
             {
-                Dictionary<string, string> d_MergeParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                Dictionary<string, string> mergeParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    {"NewTableName", s_TmpFilterTable},
-                    {"XTable", s_TmpFilterTable},
+                    {"NewTableName", tFilterTable},
+                    {"XTable", tFilterTable},
                     {"YTable", Parameters[RequiredParameters.TableName.ToString()]},
                     {"XLink", "row.names"},
                     {"YLink", "row.names"},
@@ -352,9 +352,9 @@ namespace Cyclops.DataModules
                     {"AllY", "FALSE"}
                 };
 
-                Merge m = new Merge(Model, d_MergeParam);
+                Merge m = new Merge(Model, mergeParam);
                 m.StepNumber = StepNumber;
-                b_Successful = m.PerformOperation();
+                successful = m.PerformOperation();
             }
             else
             {
@@ -365,56 +365,55 @@ namespace Cyclops.DataModules
             string rCmd = string.Format(
                     "rownames({0}) <- {0}[,1]\n" +
                     "{0} <- {0}[,-1]\n",
-                    s_TmpFilterTable);
+                    tFilterTable);
 
-            Parameters[RequiredParameters.TableName.ToString()] = s_TmpFilterTable;
+            Parameters[RequiredParameters.TableName.ToString()] = tFilterTable;
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while filtering " +
                     "significance table for p-value threshold: " + ex.Message,
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         private bool GetTopMostAbundantProteins()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            string s_TmpMostAbundant = GetTemporaryTableName("TmpMostAbundant_");
+            string tMostAbundant = GetTemporaryTableName("TmpMostAbundant_");
 
-            Dictionary<string, string> d_Param = new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase);
-            d_Param.Add("InputTableName", Parameters[RequiredParameters.TableName.ToString()]);
-            d_Param.Add("NewTableName", s_TmpMostAbundant);
-            d_Param.Add("NumberOfMostAbundant", m_NumberOfTopMostAbundant);
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            paramDictionary.Add("InputTableName", Parameters[RequiredParameters.TableName.ToString()]);
+            paramDictionary.Add("NewTableName", tMostAbundant);
+            paramDictionary.Add("NumberOfMostAbundant", m_NumberOfTopMostAbundant);
 
-            TopMostAbundant tma = new TopMostAbundant(Model, d_Param);
+            TopMostAbundant tma = new TopMostAbundant(Model, paramDictionary);
             tma.StepNumber = StepNumber;
-            b_Successful = tma.PerformOperation();
+            successful = tma.PerformOperation();
 
-            Parameters[RequiredParameters.TableName.ToString()] = s_TmpMostAbundant;
+            Parameters[RequiredParameters.TableName.ToString()] = tMostAbundant;
 
-            return b_Successful;
+            return successful;
         }
 
         public bool CreateHeatmap()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             CheckForPlotsDirectory();
 
             string rCmd = "";
             var plotFileName = Parameters[RequiredParameters.PlotFileName.ToString()];
             var plotfilePath = Path.Combine(Model.WorkDirectory, "Plots", plotFileName);
-            var s_MatrixFileName = "hm_" + Path.GetFileNameWithoutExtension(plotFileName);
+            var matrixFileName = "hm_" + Path.GetFileNameWithoutExtension(plotFileName);
 
             var plotFilePathForR = GenericRCalls.ConvertToRCompatiblePath(plotfilePath);
 
@@ -462,7 +461,7 @@ namespace Cyclops.DataModules
                 "{10}" +
                 "main=paste('{11}', '\n', nrow({1}), 'Proteins'))\n" +
                 "{0} <- jnb_GetHeatmapMatrix({0})\n"
-                , s_MatrixFileName
+                , matrixFileName
                 , Parameters[RequiredParameters.TableName.ToString()]
                 , m_ClusterRows
                 , m_ClusterColumns
@@ -482,20 +481,20 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing Heatmap:\n" +
                     ex.ToString());
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            if (!b_Successful)
+            if (!successful)
                 SaveCurrentREnvironment();
 
-            return b_Successful;
+            return successful;
         }
 
         public string GetDendrogram()

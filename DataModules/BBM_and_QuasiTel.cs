@@ -95,15 +95,15 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -116,7 +116,7 @@ namespace Cyclops.DataModules
                 Model.LogError("R Environment does not contain the " +
                     "specified input table: " +
                     Parameters[RequiredParameters.InputTableName.ToString()], ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
             if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.FactorTable.ToString()]))
@@ -124,7 +124,7 @@ namespace Cyclops.DataModules
                 Model.LogError("R Environment does not contain the " +
                     "specified factor table: " +
                     Parameters[RequiredParameters.FactorTable.ToString()], ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
                 Parameters[RequiredParameters.FactorTable.ToString()],
@@ -136,10 +136,10 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     Parameters[RequiredParameters.Fixed_Effect.ToString()]),
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -148,34 +148,33 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool BBM_and_QuasiTelFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             // TODO : Make it work
-            string s_TmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
-            string s_FactorComplete = Parameters[RequiredParameters.FactorTable.ToString()] +
+            string tmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
+            string factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] +
                                       "[,\"" +
                                       Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
-            string s_TmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            string tmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
 
             try
             {
-                string Command = "require(BetaBinomial)\n";
+                string rCmdInitialize = "require(BetaBinomial)\n";
 
                 if (Parameters.ContainsKey("removePeptideColumn"))
                 {
-                    Command += string.Format(
+                    rCmdInitialize += string.Format(
                         "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
                         Parameters[RequiredParameters.InputTableName.ToString()]);
-                    s_TmpInputTableName = s_TmpInputTableName + "_tmpT";
+                    tmpInputTableName = tmpInputTableName + "_tmpT";
                 }
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmdInitialize, ModuleName, StepNumber);
 
-                List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
-                int i_FactorCnt = Model.RCalls.GetLengthOfVector(
-                    s_FactorComplete);
-                if (l_Factors.Count == i_FactorCnt && b_Successful)
+                List<string> factorList = Model.RCalls.GetColumnNames(tmpInputTableName, true);
+                int factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
+                if (factorList.Count == factorCount && successful)
                 {
-                    Command = string.Format(
+                    var rCmd = string.Format(
                         "{0} <- jnb_BBM_and_QTel(" +
                         "tData={1}, " +
                         "colMetadata={2}, " +
@@ -184,36 +183,36 @@ namespace Cyclops.DataModules
                         "sinkFileName='')\n" +
                         "rm({2})\n",
                         Parameters[RequiredParameters.NewTableName.ToString()],
-                        s_TmpInputTableName,
-                        s_TmpFactorTable,
+                        tmpInputTableName,
+                        tmpFactorTable,
                         Parameters[RequiredParameters.Fixed_Effect.ToString()],
                         Parameters[RequiredParameters.Theta.ToString()]);
 
                     if (Parameters.ContainsKey("removePeptideColumn"))
                     {
-                        Command += string.Format("\nrm({0})\n", s_TmpInputTableName);
+                        Command += string.Format("\nrm({0})\n", tmpInputTableName);
                     }
 
-                    b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                    successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                 }
                 else
                 {
                     Model.LogError(string.Format(
                             "ERROR BBM_and_QuasiTel class: Dimensions of spectral count table ({0}) " +
                             "do not match the dimensions of your factor vector ({1})",
-                            l_Factors.Count,
-                            i_FactorCnt));
-                    b_Successful = false;
+                            factorList.Count,
+                            factorCount));
+                    successful = false;
                 }
             }
             catch (Exception exc)
             {
                 Model.LogError("Exception encountered while performing BBM and QuasiTel analyses:\n" + exc.ToString(),
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

@@ -77,7 +77,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -89,7 +89,7 @@ namespace Cyclops.DataModules
                     Model.PipelineCurrentlySuccessful = QuasiTelFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -99,14 +99,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -116,15 +116,15 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -138,7 +138,7 @@ namespace Cyclops.DataModules
                     "specified input table: " +
                     Parameters[RequiredParameters.InputTableName.ToString()],
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
             if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.FactorTable.ToString()]))
@@ -147,7 +147,7 @@ namespace Cyclops.DataModules
                     "specified factor table: " +
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
                 Parameters[RequiredParameters.FactorTable.ToString()],
@@ -159,10 +159,10 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     Parameters[RequiredParameters.Fixed_Effect.ToString()]),
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -171,15 +171,15 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool QuasiTelFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            string s_TmpDataTable = GetTemporaryTableName("tmpQuasitelData_");
-            string s_TmpFactorTable = GetTemporaryTableName("tmpQuasitelFactor_");
-            string s_TmpFactor1 = GetTemporaryTableName("tmpQuasiFactor1_");
-            string s_TmpFactor2 = GetTemporaryTableName("tmpQuasiFactor2_");
-            string s_FactorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
+            string tDataTable = GetTemporaryTableName("tmpQuasitelData_");
+            string tFactorTable = GetTemporaryTableName("tmpQuasitelFactor_");
+            string tFactor1 = GetTemporaryTableName("tmpQuasiFactor1_");
+            string tFactor2 = GetTemporaryTableName("tmpQuasiFactor2_");
+            string factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
                                       Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
-            string s_TmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            string tInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
 
             try
             {
@@ -190,86 +190,86 @@ namespace Cyclops.DataModules
                     rCmd += string.Format(
                         "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
                         Parameters[RequiredParameters.InputTableName.ToString()]);
-                    s_TmpInputTableName = s_TmpInputTableName + "_tmpT";
+                    tInputTableName = tInputTableName + "_tmpT";
                 }
 
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
                 GetOrganizedFactorsVector(
-                    s_TmpInputTableName,
+                    tInputTableName,
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     Parameters[RequiredParameters.Fixed_Effect.ToString()],
                     StepNumber,
                     m_MergeColumn,
                     "tmp_OrgFactor4BBM_");
 
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
-                List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
-                int i_FactorCnt = Model.RCalls.GetLengthOfVector(s_FactorComplete);
-                if (l_Factors.Count == i_FactorCnt && b_Successful)
+                List<string> factorList = Model.RCalls.GetColumnNames(tInputTableName, true);
+                int factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
+                if (factorList.Count == factorCount && successful)
                 {
                     // setup the pairwise comparisons
-                    for (int i = 0; i < l_Factors.Count - 1; i++)
+                    for (int i = 0; i < factorList.Count - 1; i++)
                     {
-                        for (int j = 1; j < l_Factors.Count; j++)
+                        for (int j = 1; j < factorList.Count; j++)
                         {
-                            string s_ComparisonTableName = "QuasiTel_" +
-                                    l_Factors[i] + "_v_" + l_Factors[j];
+                            string comparisonTableName = "QuasiTel_" +
+                                    factorList[i] + "_v_" + factorList[j];
 
                             // grab the variables
                             rCmd = string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}' | {2} == '{4}', " +
                                 "select=c('Alias'))))\n",
-                                s_TmpFactorTable,
+                                tFactorTable,
                                 Parameters[RequiredParameters.FactorTable.ToString()],
                                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
-                                l_Factors[i],
-                                l_Factors[j]);
+                                factorList[i],
+                                factorList[j]);
                             // grab the relevant data
                             rCmd += string.Format(
                                 "{0} <- {1}[,which(colnames({1}) %in% {2})]\n",
-                                s_TmpDataTable,
-                                s_TmpInputTableName,
-                                s_TmpFactorTable);
+                                tDataTable,
+                                tInputTableName,
+                                tFactorTable);
                             // 0 out the null values
                             rCmd += string.Format(
                                 "{0} <- data.matrix({0})\n" +
                                 "{0}[is.na({0})] <- 0\n",
-                                s_TmpDataTable);
+                                tDataTable);
                             // get the column names to pass in as factors
                             rCmd += string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}', select=c('Alias'))))\n",
-                                s_TmpFactor1,
+                                tFactor1,
                                 Parameters[RequiredParameters.FactorTable.ToString()],
                                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
-                                l_Factors[i]);
+                                factorList[i]);
                             rCmd += string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}', select=c('Alias'))))\n",
-                                s_TmpFactor2,
+                                tFactor2,
                                 Parameters[RequiredParameters.FactorTable.ToString()],
                                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
-                                l_Factors[j]);
+                                factorList[j]);
                             // run the analysis
                             rCmd += string.Format(
                                 "{0} <- quasitel({1}, {2}, {3})\n",
-                                s_ComparisonTableName,
-                                s_TmpDataTable,
-                                s_TmpFactor1,
-                                s_TmpFactor2);
+                                comparisonTableName,
+                                tDataTable,
+                                tFactor1,
+                                tFactor2);
                             // remove temp tables
                             rCmd += string.Format(
                                 "rm({0})\nrm({1})\n" +
                                 "rm({2})\nrm({3})\n",
-                                s_TmpDataTable,
-                                s_TmpFactorTable,
-                                s_TmpFactor1,
-                                s_TmpFactor2);
+                                tDataTable,
+                                tFactorTable,
+                                tFactor1,
+                                tFactor2);
 
-                            b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                            successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                         }
                     }
                 }
@@ -278,10 +278,10 @@ namespace Cyclops.DataModules
                     Model.LogError(string.Format(
                             "ERROR QuasiTel class: Dimensions of spectral count table ({0}) " +
                             "do not match the dimensions of your factor vector ({1})",
-                            l_Factors.Count,
-                            i_FactorCnt));
+                            factorList.Count,
+                            factorCount));
                     SaveCurrentREnvironment();
-                    b_Successful = false;
+                    successful = false;
                 }
             }
             catch (Exception ex)
@@ -289,10 +289,10 @@ namespace Cyclops.DataModules
                 Model.LogError("Exception encountered while performing QuasiTel:\n" +
                     ex.ToString(), ModuleName, StepNumber);
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

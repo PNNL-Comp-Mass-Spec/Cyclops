@@ -111,7 +111,7 @@ namespace Cyclops
 
         private void AddDataColumnsToWorkflowTables()
         {
-            var d_ModuleTableColumnHeaders =
+            var moduleTableColumnHeaders =
                 new Dictionary<string, string>
                 {
                     {"Step", "System.Int32"},
@@ -120,11 +120,11 @@ namespace Cyclops
                     {"Value", "System.String"}
                 };
 
-            foreach (var kvp_Module in d_ModuleTableColumnHeaders)
+            foreach (var module in moduleTableColumnHeaders)
             {
-                var dc = new DataColumn(kvp_Module.Key)
+                var dc = new DataColumn(module.Key)
                 {
-                    DataType = Type.GetType(kvp_Module.Value)
+                    DataType = Type.GetType(module.Value)
                 };
                 m_ModulesTable.Columns.Add(dc);
             }
@@ -136,7 +136,7 @@ namespace Cyclops
         /// <returns>True, if the workflow is read successfully</returns>
         public bool ReadWorkflow()
         {
-            var b_Successful = true;
+            var successful = true;
 
             if (string.IsNullOrEmpty(InputWorkflowFileName))
             {
@@ -162,10 +162,10 @@ namespace Cyclops
             switch (InputWorkflowType)
             {
                 case WorkflowType.XML:
-                    b_Successful = ReadXMLWorkflow();
+                    successful = ReadXMLWorkflow();
                     break;
                 case WorkflowType.SQLite:
-                    b_Successful = ReadSQLiteWorkflow();
+                    successful = ReadSQLiteWorkflow();
                     break;
             }
 
@@ -181,7 +181,7 @@ namespace Cyclops
                 return false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace Cyclops
         /// <returns>True, if the modules are assembled correctly</returns>
         private bool ReadXMLWorkflow()
         {
-            var b_Successful = true;
+            var successful = true;
             var InputWorkflowFilePath = "";
 
             try
@@ -236,14 +236,14 @@ namespace Cyclops
 
                 var xml = new XmlDocument();
                 xml.Load(InputWorkflowFilePath);
-                var xnl_Modules = xml.SelectNodes("Cyclops/Module");
+                var moduleNodes = xml.SelectNodes("Cyclops/Module");
 
                 // Clear the LinkedList
                 Modules.Clear();
 
-                if (xnl_Modules != null)
+                if (moduleNodes != null)
                 {
-                    foreach (XmlNode xn in xnl_Modules)
+                    foreach (XmlNode xn in moduleNodes)
                     {
                         if (xn.Attributes != null)
                         {
@@ -291,14 +291,14 @@ namespace Cyclops
                                         om.OperationsDatabasePath =
                                             Model.OperationsDatabasePath;
                                     }
-                                    b_Successful = om.PerformOperation();
+                                    successful = om.PerformOperation();
                                     m_WorkflowContainsOperations = true;
 
                                     break;
                             }
                         }
 
-                        if (!b_Successful)
+                        if (!successful)
                             break;
                     }
                 }
@@ -307,29 +307,29 @@ namespace Cyclops
             {
                 Model.LogError("IOException thrown while reading XML Workflow file: \n" +
                     InputWorkflowFilePath + "\nIOException: " + ioe);
-                b_Successful = false;
+                successful = false;
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception thrown while reading XML Workflow file: \n" +
                     InputWorkflowFilePath + "\nException: " + ex);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
-        private void AddModulesToDataTables(BaseModule Module)
+        private void AddModulesToDataTables(BaseModule module)
         {
-            foreach (var kvp in Module.Parameters)
+            foreach (var param in module.Parameters)
             {
-                var dr_Module = m_ModulesTable.NewRow();
-                dr_Module["Step"] = Module.StepNumber;
-                dr_Module["Module"] = Module.ModuleName;
-                dr_Module["Parameter"] = kvp.Key;
-                dr_Module["Value"] = kvp.Value;
+                var moduleRow = m_ModulesTable.NewRow();
+                moduleRow["Step"] = module.StepNumber;
+                moduleRow["Module"] = module.ModuleName;
+                moduleRow["Parameter"] = param.Key;
+                moduleRow["Value"] = param.Value;
 
-                m_ModulesTable.Rows.Add(dr_Module);
+                m_ModulesTable.Rows.Add(moduleRow);
             }
         }
 
@@ -339,21 +339,20 @@ namespace Cyclops
         /// <returns>True, if the workflow completes successfully</returns>
         public bool RunWorkflow()
         {
-            var b_Successful = true;
+            var successful = true;
 
-            var i_Step = 1;
-            foreach (var bdm in Modules)
+            var step = 1;
+            foreach (var module in Modules)
             {
-                if (bdm != null)
-                    b_Successful = bdm.PerformOperation();
+                if (module != null)
+                    successful = module.PerformOperation();
                 else
-                    Model.LogError("Cyclops did not detect a module at step number: " +
-                        i_Step);
+                    Model.LogError("Cyclops did not detect a module at step number: " + step);
 
-                if (!b_Successful)
+                if (!successful)
                     return false;
 
-                i_Step++;
+                step++;
             }
 
             return true;
@@ -372,42 +371,41 @@ namespace Cyclops
 
         private Dictionary<string, string> GetXMLParameters(XmlNode Node)
         {
-            var d_Parameters = new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase);
-            var xnl_Parameters = Node.SelectNodes("Parameter");
+            var paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var parameters = Node.SelectNodes("Parameter");
 
-            if (xnl_Parameters != null)
+            if (parameters != null)
             {
-                foreach (XmlNode xn in xnl_Parameters)
+                foreach (XmlNode paramNode in parameters)
                 {
-                    if (xn.Attributes != null)
+                    if (paramNode.Attributes != null)
                     {
-                        d_Parameters.Add(xn.Attributes["key"].Value,
-                                         xn.Attributes["value"].Value);
+                        paramDictionary.Add(paramNode.Attributes["key"].Value,
+                                            paramNode.Attributes["value"].Value);
                     }
                 }
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         public bool ReadSQLiteWorkflow()
         {
-            bool b_Successful;
+            bool successful;
             try
             {
                 SQLiteDatabase.DatabaseFileName = InputWorkflowFileName;
-                var dt_Workflow = SQLiteDatabase.GetTable(WorkflowTableName);
+                var workflow = SQLiteDatabase.GetTable(WorkflowTableName);
 
-                b_Successful = ReadDataTableWorkflow(dt_Workflow);
+                successful = ReadDataTableWorkflow(workflow);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while reading SQLite workflow:\n" + ex);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         public bool ReadDataTableWorkflow(DataTable workflowTableName)
@@ -475,27 +473,27 @@ namespace Cyclops
         /// <returns>Max Steps, or null if intermediate steps are missing</returns>
         private int? GetMaximumStepsInWorkflowDataTable(DataTable Table)
         {
-            var i_MaxStepNumber = 0;
+            var maxStepNumber = 0;
 
-            var h_Steps = new HashSet<int>();
+            var stepList = new HashSet<int>();
 
             foreach (DataRow dr in Table.Rows)
             {
-                var s_Step = dr["Step"].ToString();
-                if (!string.IsNullOrEmpty(s_Step))
+                var step = dr["Step"].ToString();
+                if (!string.IsNullOrEmpty(step))
                 {
-                    var i = Convert.ToInt32(s_Step);
-                    if (!h_Steps.Contains(i))
-                        h_Steps.Add(i);
-                    if (i > i_MaxStepNumber)
-                        i_MaxStepNumber = i;
+                    var i = Convert.ToInt32(step);
+                    if (!stepList.Contains(i))
+                        stepList.Add(i);
+                    if (i > maxStepNumber)
+                        maxStepNumber = i;
                 }
             }
 
-            for (var i = 0; i < i_MaxStepNumber; i++)
+            for (var i = 0; i < maxStepNumber; i++)
             {
                 var j = i + 1;
-                if (!h_Steps.Contains(j))
+                if (!stepList.Contains(j))
                 {
                     Model.LogError(string.Format("ERROR: While reading workflow from " +
                         "SQLite database, {0}, Step number {1} was missing from " +
@@ -507,7 +505,7 @@ namespace Cyclops
                 }
             }
 
-            return i_MaxStepNumber;
+            return maxStepNumber;
         }
 
         private Dictionary<string, string> GetParametersFromDataRows(IEnumerable<DataRow> Rows, int stepNumber)
@@ -551,7 +549,7 @@ namespace Cyclops
         /// <returns>True, if the workflow modules are written out successfully</returns>
         public bool WriteWorkflow()
         {
-            var b_Successful = true;
+            var successful = true;
 
             if (Count > 0)
             {
@@ -571,10 +569,10 @@ namespace Cyclops
                 switch (OutputWorkflowType)
                 {
                     case WorkflowType.XML:
-                        b_Successful = WriteModulesOutAsXML();
+                        successful = WriteModulesOutAsXML();
                         break;
                     case WorkflowType.SQLite:
-                        b_Successful = WriteModulesOutToSQLite();
+                        successful = WriteModulesOutToSQLite();
                         break;
                 }
             }
@@ -584,7 +582,7 @@ namespace Cyclops
                 return false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
 
@@ -618,7 +616,7 @@ namespace Cyclops
         /// <returns>True, if the XML file is written correctly</returns>
         private bool WriteModulesOutAsXML()
         {
-            var b_Successful = true;
+            var successful = true;
 
             try
             {
@@ -647,20 +645,20 @@ namespace Cyclops
             catch (InvalidOperationException ioe)
             {
                 Model.LogError("InvalidOperationException thrown while writing XML Workflow:\n" + ioe);
-                b_Successful = false;
+                successful = false;
             }
             catch (IOException ie)
             {
                 Model.LogError("IOException thrown while writing XML Workflow:\n" + ie);
-                b_Successful = false;
+                successful = false;
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception thrown while writing XML Workflow:\n" + ex);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -671,10 +669,10 @@ namespace Cyclops
         /// <returns>True, if the table is exported successfully</returns>
         private bool WriteModulesOutToSQLite()
         {
-            var b_Successful = true;
+            var successful = true;
             try
             {
-                var d_Columns = new Dictionary<string, string>
+                var columnSpecs = new Dictionary<string, string>
                 {
                     {"Step", "System.Int32"},
                     {"Module", "System.String"},
@@ -682,32 +680,32 @@ namespace Cyclops
                     {"Value", "System.String"}
                 };
 
-                var dt_Workflow = new DataTable(WorkflowTableName);
-                foreach (var kvp in d_Columns)
+                var workflow = new DataTable(WorkflowTableName);
+                foreach (var columnSpec in columnSpecs)
                 {
-                    var dc = new DataColumn(kvp.Key)
+                    var newColumn = new DataColumn(columnSpec.Key)
                     {
-                        DataType = Type.GetType(kvp.Value)
+                        DataType = Type.GetType(columnSpec.Value)
                     };
-                    dt_Workflow.Columns.Add(dc);
+                    workflow.Columns.Add(newColumn);
                 }
 
-                foreach (var bdm in Modules)
+                foreach (var module in Modules)
                 {
-                    bdm.WriteModuleToDataTable(dt_Workflow);
+                    module.WriteModuleToDataTable(workflow);
                 }
 
                 SQLiteDatabase.DatabaseFileName = OutputWorkflowFileName;
                 SQLiteDatabase.CreateDatabase(OutputWorkflowFileName, false);
-                SQLiteDatabase.WriteDataTableToDatabase(dt_Workflow);
+                SQLiteDatabase.WriteDataTableToDatabase(workflow);
             }
             catch (Exception ex)
             {
                 Model.LogError("Error writing workflow out to SQLite database:\n" + ex);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -750,15 +748,15 @@ namespace Cyclops
         /// <returns>Maximum Step Number</returns>
         public int GetMaxStep()
         {
-            var i_Max = 0;
+            var maxStep = 0;
 
-            foreach (var m in Modules)
+            foreach (var module in Modules)
             {
-                if (m.StepNumber > i_Max)
-                    i_Max = m.StepNumber;
+                if (module.StepNumber > maxStep)
+                    maxStep = module.StepNumber;
             }
 
-            return i_Max;
+            return maxStep;
         }
 
         /// <summary>
@@ -768,16 +766,16 @@ namespace Cyclops
         public void RemoveModuleFromWorkflow(int StepNumber)
         {
             var node = Modules.First;
-            var b_Removed = false;
+            var removed = false;
             while (node != null)
             {
                 var NextNode = node.Next;
                 if (node.Value.StepNumber == StepNumber)
                 {
                     Modules.Remove(node);
-                    b_Removed = true;
+                    removed = true;
                 }
-                else if (b_Removed)
+                else if (removed)
                     node.Value.StepNumber--;
                 node = NextNode;
             }

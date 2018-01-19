@@ -76,7 +76,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -88,7 +88,7 @@ namespace Cyclops.DataModules
                     Model.PipelineCurrentlySuccessful = MergeFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -98,14 +98,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -115,15 +115,15 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -133,7 +133,7 @@ namespace Cyclops.DataModules
                 Model.LogError("ERROR R environment does not contain " +
                     "the X table: " + Parameters[
                     RequiredParameters.XTable.ToString()]);
-                b_Successful = false;
+                successful = false;
             }
             if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.YTable.ToString()]))
@@ -141,7 +141,7 @@ namespace Cyclops.DataModules
                 Model.LogError("ERROR R environment does not contain " +
                     "the Y table: " + Parameters[
                     RequiredParameters.YTable.ToString()]);
-                b_Successful = false;
+                successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
                 Parameters[RequiredParameters.XTable.ToString()],
@@ -150,7 +150,7 @@ namespace Cyclops.DataModules
                 Model.LogError("ERROR The X table does not contain " +
                     "the column: " + Parameters[
                     RequiredParameters.XLink.ToString()]);
-                b_Successful = false;
+                successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
                 Parameters[RequiredParameters.YTable.ToString()],
@@ -159,10 +159,10 @@ namespace Cyclops.DataModules
                 Model.LogError("ERROR The Y table does not contain " +
                     "the column: " + Parameters[
                     RequiredParameters.YLink.ToString()]);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool MergeFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             // Construct the R statement
             string rCmd = string.Format("{0} <- merge(x={1}," +
@@ -186,17 +186,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing merge:\n" +
                     ex.ToString());
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

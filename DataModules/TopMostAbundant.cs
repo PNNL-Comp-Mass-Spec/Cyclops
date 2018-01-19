@@ -78,7 +78,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -87,10 +87,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running TopMostAbundant", ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = TopMostAbundantFunction();
+                    successful = TopMostAbundantFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -100,14 +100,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -117,19 +117,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.InputTableName.ToString()]))
             {
@@ -140,21 +140,21 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("Function"))
             {
                 if (!string.IsNullOrEmpty(Parameters["Function"]))
                     m_Function = Parameters["Function"];
             }
 
-            if (b_Successful &&
+            if (successful &&
                 Parameters.ContainsKey("RemoveNA"))
             {
                 if (!string.IsNullOrEmpty(Parameters["RemoveNA"]))
                     m_RemoveNAs = Convert.ToBoolean(Parameters["RemoveNA"]);
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool TopMostAbundantFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             string rCmd = string.Format(
                 "{0} <- cbind({1}, Median=apply({1}, MARGIN=1, FUN={2}, na.rm={3}))\n" +
@@ -178,7 +178,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
@@ -186,10 +186,10 @@ namespace Cyclops.DataModules
                     ex.ToString(),
                     ModuleName, StepNumber);
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

@@ -60,30 +60,30 @@ namespace Cyclops
         /// <returns>Data type for SQLite database</returns>
         private string ConvertMS2SqliteDataType(string MicrosoftDataType)
         {
-            var s_Return = "";
+            var dataTypeName = "";
             switch (MicrosoftDataType)
             {
                 case "System.String":
-                    s_Return = "TEXT";
+                    dataTypeName = "TEXT";
                     break;
                 case "System.Int16":
-                    s_Return = "INTEGER";
+                    dataTypeName = "INTEGER";
                     break;
                 case "System.Int32":
-                    s_Return = "INTEGER";
+                    dataTypeName = "INTEGER";
                     break;
                 case "System.Int64":
-                    s_Return = "INTEGER";
+                    dataTypeName = "INTEGER";
                     break;
                 case "System.Double":
-                    s_Return = "DOUBLE";
+                    dataTypeName = "DOUBLE";
                     break;
                 case "System.Float":
-                    s_Return = "DOUBLE";
+                    dataTypeName = "DOUBLE";
                     break;
             }
 
-            return s_Return;
+            return dataTypeName;
         }
 
         /// <summary>
@@ -140,18 +140,18 @@ namespace Cyclops
                 "CREATE TABLE {0} (",
                 Table.TableName);
 
-            var l_FieldType = new List<string>();
+            var fileTypeList = new List<string>();
 
             foreach (DataColumn dc in Table.Columns)
             {
-                var s_FieldType = FormatDataColumnName(dc.ColumnName) + " ";
+                var fieldType = FormatDataColumnName(dc.ColumnName) + " ";
 
-                s_FieldType += ConvertMS2SqliteDataType(dc.DataType.FullName);
+                fieldType += ConvertMS2SqliteDataType(dc.DataType.FullName);
 
-                l_FieldType.Add(s_FieldType);
+                fileTypeList.Add(fieldType);
             }
 
-            sql += string.Join(", ", l_FieldType);
+            sql += string.Join(", ", fileTypeList);
 
             sql += ");";
 
@@ -180,7 +180,7 @@ namespace Cyclops
         /// <returns>True, if the function completes successfully</returns>
         private bool FillTable(SQLiteConnection Conn, DataTable Table)
         {
-            var b_Successful = true;
+            var successful = true;
 
             try
             {
@@ -188,17 +188,17 @@ namespace Cyclops
                 {
                     using (var cmd = Conn.CreateCommand())
                     {
-                        var l_Col = new List<string>();
+                        var columnNames = new List<string>();
                         foreach (DataColumn dc in Table.Columns)
-                            l_Col.Add(FormatDataColumnName(dc.ColumnName));
+                            columnNames.Add(FormatDataColumnName(dc.ColumnName));
 
                         cmd.CommandText = string.Format(
                             "INSERT INTO {0}({1}) VALUES (@{2});",
                             Table.TableName,
-                            string.Join(", ", l_Col),
-                            string.Join(", @", l_Col));
+                            string.Join(", ", columnNames),
+                            string.Join(", @", columnNames));
 
-                        foreach (var s in l_Col)
+                        foreach (var item in columnNames)
                         {
                             var param = cmd.CreateParameter();
                             cmd.Parameters.Add(param);
@@ -209,8 +209,8 @@ namespace Cyclops
                             var idx = 0;
                             foreach (SQLiteParameter p in cmd.Parameters)
                             {
-                                p.ParameterName = "@" + l_Col[idx];
-                                p.SourceColumn = l_Col[idx];
+                                p.ParameterName = "@" + columnNames[idx];
+                                p.SourceColumn = columnNames[idx];
                                 p.Value = dr[idx];
                                 idx++;
                             }
@@ -225,10 +225,10 @@ namespace Cyclops
             catch (Exception ex)
             {
                 Console.WriteLine("Error in FillTable: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -242,9 +242,9 @@ namespace Cyclops
 
             foreach (DataTable dt in MainData.Tables)
             {
-                var b_Successful = FillTable(Conn, dt);
+                var successful = FillTable(Conn, dt);
 
-                if (!b_Successful)
+                if (!successful)
                     return false;
             }
 
@@ -260,7 +260,7 @@ namespace Cyclops
         /// <returns>True, if the function completes successfully</returns>
         public override bool CreateDatabase()
         {
-            var b_Successful = true;
+            var successful = true;
 
             if (DatabaseFileName == null)
                 return false;
@@ -268,9 +268,9 @@ namespace Cyclops
             SQLiteConnection.CreateFile(DatabaseFileName);
 
             if (!File.Exists(DatabaseFileName))
-                b_Successful = false;
+                successful = false;
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace Cyclops
         /// <returns>True, if the function completes successfully</returns>
         public bool CreateDatabase(bool OverwriteExistingDatabase)
         {
-            var b_Successful = true;
+            var successful = true;
 
             if (DatabaseFileName == null)
                 return false;
@@ -293,9 +293,9 @@ namespace Cyclops
                 SQLiteConnection.CreateFile(DatabaseFileName);
 
             if (!File.Exists(DatabaseFileName))
-                b_Successful = false;
+                successful = false;
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -321,41 +321,41 @@ namespace Cyclops
         public bool WriteDataTableToDatabase(
             DataTable Table)
         {
-            var b_Successful = true;
+            var successful = true;
 
-            var Conn = new SQLiteConnection("Data Source=" + DatabaseFileName, true);
+            var conn = new SQLiteConnection("Data Source=" + DatabaseFileName, true);
 
             var retval = 0;
 
             try
             {
-                Conn.Open();
+                conn.Open();
 
 
                 if (TableExists(Table.TableName))
                 {
-                    var cmd = new SQLiteCommand(string.Format(
+                    var cmdDropIfExists = new SQLiteCommand(string.Format(
                         "DROP TABLE IF EXISTS {0};",
-                        Table.TableName), Conn);
-                    retval = cmd.ExecuteNonQuery();
+                        Table.TableName), conn);
+                    retval = cmdDropIfExists.ExecuteNonQuery();
                 }
 
-                var cmd_Table = new SQLiteCommand(SqliteCreateTableStatement(Table), Conn);
-                retval = cmd_Table.ExecuteNonQuery();
+                var cmdCreateTable = new SQLiteCommand(SqliteCreateTableStatement(Table), conn);
+                retval = cmdCreateTable.ExecuteNonQuery();
 
-                FillTable(Conn, Table);
+                FillTable(conn, Table);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error in WriteDataTableToDatabase: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
             finally
             {
-                Conn.Close();
+                conn.Close();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -371,9 +371,9 @@ namespace Cyclops
 
             foreach (DataTable dt in MainData.Tables)
             {
-                var b_Successful = WriteDataTableToDatabase(dt);
+                var successful = WriteDataTableToDatabase(dt);
 
-                if (!b_Successful)
+                if (!successful)
                     return false;
             }
 
@@ -396,32 +396,32 @@ namespace Cyclops
         /// <summary>
         /// Determines if a table is present in the database or not
         /// </summary>
-        /// <param name="TableName">Name of table</param>
+        /// <param name="tableName">Name of table</param>
         /// <returns>True if table is present, otherwise false</returns>
-        public override bool TableExists(string TableName)
+        public override bool TableExists(string tableName)
         {
             if (DatabaseFileName == null)
                 return false;
 
-            var dt_Tables = GetDatabaseInformation();
-            foreach (DataRow dr in dt_Tables.Rows)
+            var infoTable = GetDatabaseInformation();
+            foreach (DataRow dr in infoTable.Rows)
             {
-                if (dr["tbl_name"].ToString().Equals(TableName))
+                if (dr["tbl_name"].ToString().Equals(tableName, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
             return false;
         }
 
         /// <summary>
-        /// Gets the table information regarding the database from sqlite_master, such as table names etc.
+        /// Determine the names of the tables in the SQLite file
         /// </summary>
-        /// <returns>Datatable of all the information</returns>
+        /// <returns>Datatable with table names and table creation SQL (which includes column names and column types)</returns>
         public override DataTable GetDatabaseInformation()
         {
             if (DatabaseFileName == null)
                 return null;
 
-            var dt_Info = new DataTable();
+            var infoTable = new DataTable();
             var sql = "SELECT * FROM sqlite_master WHERE type='table'";
 
             try
@@ -437,7 +437,7 @@ namespace Cyclops
                     var cmd = conn.CreateCommand();
                     cmd.CommandText = sql;
                     var reader = cmd.ExecuteReader();
-                    dt_Info.Load(reader);
+                    infoTable.Load(reader);
                     conn.Close();
                 }
             }
@@ -446,13 +446,12 @@ namespace Cyclops
                 Console.WriteLine("Error in GetDatabaseInformation: " + ex.Message);
                 return null;
             }
-            return dt_Info;
+            return infoTable;
         }
 
 
         /// <summary>
-        /// Retrieves the entire database and stores it
-        /// as a DataSet
+        /// Retrieves the entire database and stores it as a DataSet
         /// </summary>
         /// <returns>DataSet containing all tables in the database</returns>
         public override DataSet GetDatabase()
@@ -460,11 +459,11 @@ namespace Cyclops
             var ds = new DataSet(
                 Path.GetFileNameWithoutExtension(DatabaseFileName));
 
-            var l_Tables = GetListOfTablesInDatabase();
+            var tableNames = GetListOfTablesInDatabase();
 
-            foreach (var s in l_Tables)
+            foreach (var tableName in tableNames)
             {
-                ds.Tables.Add(GetTable(s));
+                ds.Tables.Add(GetTable(tableName));
             }
 
             return ds;
@@ -479,15 +478,15 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return null;
 
-            var l_Tables = new List<string>();
+            var tableNames = new List<string>();
 
             try
             {
-                var dt_Info = GetDatabaseInformation();
+                var infoTable = GetDatabaseInformation();
 
-                foreach (DataRow dr in dt_Info.Rows)
+                foreach (DataRow dr in infoTable.Rows)
                 {
-                    l_Tables.Add(dr["tbl_name"].ToString());
+                    tableNames.Add(dr["tbl_name"].ToString());
                 }
             }
             catch (Exception ex)
@@ -496,7 +495,7 @@ namespace Cyclops
                 return null;
             }
 
-            return l_Tables;
+            return tableNames;
         }
 
         /// <summary>
@@ -511,7 +510,7 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return false;
 
-            var b_Successful = true;
+            var successful = true;
 
             try
             {
@@ -543,15 +542,15 @@ namespace Cyclops
             catch (IOException ex)
             {
                 Console.WriteLine("IOException in WriteDataTableToDatabase: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error in CreateIndex: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -564,7 +563,7 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return null;
 
-            var dt_Return = new DataTable();
+            var outTable = new DataTable();
 
             try
             {
@@ -580,7 +579,7 @@ namespace Cyclops
                     cmd.CommandText = sql;
 
                     var reader = cmd.ExecuteReader();
-                    dt_Return.Load(reader);
+                    outTable.Load(reader);
                     conn.Close();
                 }
 
@@ -596,7 +595,7 @@ namespace Cyclops
                 return null;
             }
 
-            return dt_Return;
+            return outTable;
         }
 
         /// <summary>
@@ -609,7 +608,7 @@ namespace Cyclops
             if (DatabaseFileName == null)
                 return false;
 
-            var b_Successful = true;
+            var successful = true;
 
             if (TableExists(TableName))
             {
@@ -639,26 +638,26 @@ namespace Cyclops
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error in DropTable: " + ex.Message);
-                    b_Successful = false;
+                    successful = false;
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
         /// Retrieves a table from the SQLite database and returns it as a DataTable
         /// </summary>
-        /// <param name="TableName">Name of table to retrieve</param>
+        /// <param name="tableName">Name of table to retrieve</param>
         /// <returns>Table from Database</returns>
-        public override DataTable GetTable(string TableName)
+        public override DataTable GetTable(string tableName)
         {
             if (DatabaseFileName == null)
                 return null;
 
-            var dt_Return = new DataTable();
+            var outTable = new DataTable();
 
-            var sql = string.Format("SELECT * FROM {0};", TableName);
+            var sql = string.Format("SELECT * FROM {0};", tableName);
 
             try
             {
@@ -674,9 +673,9 @@ namespace Cyclops
                     cmd.CommandText = sql;
 
                     //SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
-                    //da.Fill(dt_Return);
+                    //da.Fill(outTable);
                     var reader = cmd.ExecuteReader();
-                    dt_Return.Load(reader);
+                    outTable.Load(reader);
                     conn.Close();
                 }
 
@@ -692,7 +691,7 @@ namespace Cyclops
                 return null;
             }
 
-            return dt_Return;
+            return outTable;
         }
 
         /// <summary>
@@ -705,8 +704,8 @@ namespace Cyclops
             if (string.IsNullOrEmpty(DatabaseFileName))
                 return false;
 
-            var b_Successful = true;
-            var dt_Return = new DataTable();
+            var successful = true;
+            var outTable = new DataTable();
 
             try
             {
@@ -722,7 +721,7 @@ namespace Cyclops
                     cmd.CommandText = sql;
 
                     var reader = cmd.ExecuteReader();
-                    dt_Return.Load(reader);
+                    outTable.Load(reader);
                     conn.Close();
                 }
 
@@ -730,15 +729,15 @@ namespace Cyclops
             catch (IOException ex)
             {
                 Console.WriteLine("IOException in RunNonQuery: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error in RunNonQuery: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

@@ -92,7 +92,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            var b_Successful = true;
+            var successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -102,17 +102,17 @@ namespace Cyclops.DataModules
 
                 if (CheckParameters())
                 {
-                    b_Successful = Run_LoadRSourceFiles();
+                    successful = Run_LoadRSourceFiles();
 
-                    if (b_Successful)
-                        b_Successful = CheckThatRequiredPackagesAreInstalled();
+                    if (successful)
+                        successful = CheckThatRequiredPackagesAreInstalled();
 
-                    if (b_Successful)
-                        b_Successful = LoadLibraries();
+                    if (successful)
+                        successful = LoadLibraries();
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -122,14 +122,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            var d_Parameters = new Dictionary<string, string>();
+            var paramDictionary = new Dictionary<string, string>();
 
             foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -139,19 +139,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            var b_Successful = true;
+            var successful = true;
 
             foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         protected override string GetDefaultValue()
@@ -180,43 +180,43 @@ namespace Cyclops.DataModules
         /// <returns>True, if R source files are loaded successfully</returns>
         public bool Run_LoadRSourceFiles()
         {
-            var b_Successful = true;
+            var successful = true;
 
             try
             {
-                var s_WorkDir = "";
+                var workDir = "";
                 if (!Parameters.ContainsKey("source"))
                 {
-                    s_WorkDir = Path.Combine(
+                    workDir = Path.Combine(
                         Model.WorkDirectory, "R_Scripts");
                 }
                 else
-                    s_WorkDir = Parameters["source"];
+                    workDir = Parameters["source"];
 
                 Model.LogMessage(
                     string.Format("Preparing to load " +
                     "{0} R scripts into workspace...",
-                    Directory.GetFiles(s_WorkDir, "*.R").Length));
+                    Directory.GetFiles(workDir, "*.R").Length));
 
-                foreach (var s in Directory.GetFiles(s_WorkDir))
+                foreach (var s in Directory.GetFiles(workDir))
                 {
                     if (Path.GetExtension(s).ToUpper().Equals(".R"))
                     {
                         if (Parameters.ContainsKey("removeFirstCharacters"))
-                            b_Successful = CleanRSourceFile(s);
+                            successful = CleanRSourceFile(s);
 
-                        if (b_Successful)
+                        if (successful)
                         {
                             var rCmd = string.Format(
                                 "source('{0}')\n",
                                 s.Replace("\\", "/"));
-                            b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                            successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                         }
-                        if (!b_Successful)
+                        if (!successful)
                         {
                             Model.LogError("Unsuccessful attempt to load R source file: " +
                                 s, ModuleName, StepNumber);
-                            return b_Successful;
+                            return successful;
                         }
                     }
                 }
@@ -227,46 +227,46 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("Exception encountered while loading R source files: " +
                     ex.ToString(), ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
-        /// Visual Studios adds a 3 character format to the
+        /// Visual Studio adds a 3 character format to the
         /// beginning of each ".R" file, so just need to
         /// clean it up before reading it.
         /// </summary>
         /// <param name="FileName">Name of file to clean</param>
         /// <returns>True, if the file is cleaned successfully</returns>
-        private bool CleanRSourceFile(string FileName)
+        private bool CleanRSourceFile(string filePath)
         {
-            var b_Successful = true;
+            var successful = true;
 
             try
             {
-                var sr = new StreamReader(FileName);
-                var s_Content = sr.ReadToEnd();
+                var sr = new StreamReader(filePath);
+                var content = sr.ReadToEnd();
                 sr.Close();
-                //s_Content = s_Content.Remove(0, 2);
-                s_Content.Replace("ï»¿", "");
-                var sw = new StreamWriter(FileName);
-                sw.Write(s_Content);
+
+                content.Replace("ï»¿", "");
+                var sw = new StreamWriter(filePath);
+                sw.Write(content);
                 sw.Close();
             }
             catch (IOException ex)
             {
                 Console.WriteLine("IOException in ClearRSourceFile: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error in ClearRSourceFile: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         public bool CheckThatRequiredPackagesAreInstalled()

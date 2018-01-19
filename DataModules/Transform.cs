@@ -77,7 +77,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -86,10 +86,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = TransformFunction();
+                    successful = TransformFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -99,18 +99,18 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            d_Parameters.Add("Add", "0");
-            d_Parameters.Add("Scale", "1");
-            d_Parameters.Add("LogBase", "2");
+            paramDictionary.Add("Add", "0");
+            paramDictionary.Add("Scale", "1");
+            paramDictionary.Add("LogBase", "2");
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -120,19 +120,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the transformation completes successfully</returns>
         public bool TransformFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             string rCmd;
 
@@ -167,16 +167,16 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing transformation:\n" + ex);
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         protected override string GetDefaultValue()

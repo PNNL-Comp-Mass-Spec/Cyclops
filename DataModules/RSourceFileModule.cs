@@ -94,19 +94,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         protected override string GetDefaultValue()
@@ -125,43 +125,42 @@ namespace Cyclops.DataModules
         /// <returns>True, if R source files are loaded successfully</returns>
         public bool Run_LoadRSourceFiles()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             try
             {
-                string s_WorkDir = "";
+                string workDir = "";
                 if (!Parameters.ContainsKey("source"))
                 {
-                    s_WorkDir = Path.Combine(
-                        Model.WorkDirectory, "R_Scripts");
+                    workDir = Path.Combine(Model.WorkDirectory, "R_Scripts");
                 }
                 else
-                    s_WorkDir = Parameters["source"];
+                    workDir = Parameters["source"];
 
                 Model.LogMessage(
                     string.Format("Preparing to load " +
                     "{0} R scripts into workspace...",
-                    Directory.GetFiles(s_WorkDir, "*.R").Length));
+                    Directory.GetFiles(workDir, "*.R").Length));
 
-                foreach (string s in Directory.GetFiles(s_WorkDir))
+                foreach (string s in Directory.GetFiles(workDir))
                 {
                     if (Path.GetExtension(s).ToUpper().Equals(".R"))
                     {
                         if (Parameters.ContainsKey("removeFirstCharacters"))
-                            b_Successful = CleanRSourceFile(s);
+                            successful = CleanRSourceFile(s);
 
-                        if (b_Successful)
+                        if (successful)
                         {
                             string Command = string.Format(
                                 "source(\"{0}\")\n",
                                 s.Replace("\\", "/"));
-                            b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                            successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
                         }
-                        if (!b_Successful)
+                        if (!successful)
                         {
                             Model.LogError("Unsuccessful attempt to load R source file: " +
                                 s, ModuleName, StepNumber);
-                            return b_Successful;
+                            return successful;
                         }
                     }
                 }
@@ -170,10 +169,10 @@ namespace Cyclops.DataModules
             {
                 Model.LogError("Exception encountered while loading R source files: " +
                     exc.ToString(), ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -183,31 +182,31 @@ namespace Cyclops.DataModules
         /// </summary>
         /// <param name="FileName">Name of file to clean</param>
         /// <returns>True, if the file is cleaned successfully</returns>
-        private bool CleanRSourceFile(string FileName)
+        private bool CleanRSourceFile(string filePath)
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             try
             {
-                StreamReader sr = new StreamReader(FileName);
-                string s_Content = sr.ReadToEnd();
+                StreamReader sr = new StreamReader(filePath);
+                string content = sr.ReadToEnd();
                 sr.Close();
-                //s_Content = s_Content.Remove(0, 2);
-                s_Content.Replace("ï»¿", "");
-                StreamWriter sw = new StreamWriter(FileName);
-                sw.Write(s_Content);
+
+                content.Replace("ï»¿", "");
+                StreamWriter sw = new StreamWriter(filePath);
+                sw.Write(content);
                 sw.Close();
             }
             catch (IOException ioe)
             {
-                b_Successful = false;
+                successful = false;
             }
             catch (Exception exc)
             {
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
         #endregion
     }

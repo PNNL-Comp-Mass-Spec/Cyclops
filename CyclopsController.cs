@@ -89,8 +89,8 @@ namespace Cyclops
                 Parameters.ContainsKey("workDir"))
                 WorkingDirectory = Parameters["workDir"];
 
-            var b_Successful = cyclops.ModuleLoader.ReadWorkflow();
-            if (!b_Successful)
+            var successful = cyclops.ModuleLoader.ReadWorkflow();
+            if (!successful)
                 return false;
 
             var success = cyclops.Run();

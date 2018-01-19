@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Cyclops.DataModules
 {
@@ -74,7 +75,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -83,10 +84,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = SaveFunction();
+                    successful = SaveFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -96,14 +97,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -113,19 +114,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         protected override string GetDefaultValue()
@@ -154,36 +155,36 @@ namespace Cyclops.DataModules
         /// <returns>True, if the R environment is saved successfully</returns>
         public bool SaveFunction()
         {
-            bool b_Successful = true;
-            string s_DefaultOutputFileName = "Results.RData", s_FileName;
+            bool successful = true;
+            string defaultOutputFileName = "Results.RData";
+            string filePath;
 
             try
             {
                 if (!string.IsNullOrEmpty(Model.WorkDirectory) &&
                     Parameters.ContainsKey("fileName"))
-                    s_FileName = Model.WorkDirectory + "/" + Parameters["fileName"];
+                    filePath = Path.Combine(Model.WorkDirectory, Parameters["fileName"]);
                 else if (!string.IsNullOrEmpty(Model.WorkDirectory))
-                    s_FileName = Model.WorkDirectory + "/" + s_DefaultOutputFileName;
+                    filePath = Path.Combine(Model.WorkDirectory, defaultOutputFileName);
                 else
-                    s_FileName = s_DefaultOutputFileName;
+                    filePath = defaultOutputFileName;
 
-                s_FileName = s_FileName.Replace("\\", "/");
+                var filePathForR = GenericRCalls.ConvertToRCompatiblePath(filePath);
 
-                Model.LogMessage("Saving R environment to: " + s_FileName, ModuleName, StepNumber);
+                Model.LogMessage("Saving R environment to: " + filePathForR, ModuleName, StepNumber);
 
-                b_Successful = Model.RCalls.SaveEnvironment(s_FileName);
+                successful = Model.RCalls.SaveEnvironment(filePathForR);
 
-                if (b_Successful)
-                    Model.RWorkEnvironment = s_FileName;
+                if (successful)
+                    Model.RWorkEnvironment = filePathForR;
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encountered while Saving R Environment: " +
-                    ex.ToString());
-                b_Successful = false;
+                Model.LogError("Exception encountered while Saving R Environment: " + ex.ToString());
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
         #endregion
     }

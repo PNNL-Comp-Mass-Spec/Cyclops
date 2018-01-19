@@ -79,7 +79,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -88,10 +88,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running FilterTable", ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = FilterTableFunction();
+                    successful = FilterTableFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -101,14 +101,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -118,19 +118,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.InputTableName.ToString()]))
             {
@@ -138,10 +138,10 @@ namespace Cyclops.DataModules
                     "input table: " +
                     Parameters[RequiredParameters.InputTableName.ToString()],
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool FilterTableFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             string rCmd = string.Format(
                 "{0} <- {1}[{1}[,'{2}'] {3} {4},]\n",
@@ -161,17 +161,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while filtering " +
                     "table: " + Parameters[RequiredParameters.InputTableName.ToString()] + ": " + ex.Message,
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

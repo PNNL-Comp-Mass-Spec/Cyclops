@@ -35,7 +35,7 @@ namespace Cyclops.DataModules
 
         private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
 
-        private Dictionary<int, int> dict_Cleavages = new Dictionary<int, int>();
+        private Dictionary<int, int> m_Cleavages = new Dictionary<int, int>();
         #endregion
 
         #region Properties
@@ -83,7 +83,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -92,10 +92,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = MissedCleavageSummaryFunction();
+                    successful = MissedCleavageSummaryFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -105,14 +105,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             //if (Parameters.ContainsKey(RequiredParameters.InputTableName.ToString()))
             //    m_InputFileName = Parameters[RequiredParameters.InputTableName.ToString()];
@@ -132,8 +132,8 @@ namespace Cyclops.DataModules
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -141,7 +141,7 @@ namespace Cyclops.DataModules
                 m_InputFileName = Parameters["DatabaseFileName"];
 
             m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, m_InputFileName);
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -150,24 +150,24 @@ namespace Cyclops.DataModules
         /// <returns></returns>
         public bool MissedCleavageSummaryFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            b_Successful = DropExistingTable();
+            successful = DropExistingTable();
 
-            if (b_Successful)
+            if (successful)
             {
                 string sql;
 
                 if (Parameters[RequiredParameters.FactorColumn.ToString()].Equals("*"))
                 {
-                    List<string> l_Columns =
+                    List<string> columnNameList =
                         m_SQLiteReader.GetColumnNames(
                         Parameters[RequiredParameters.InputTableName.ToString()]);
-                    string s_Columns = Utilities.MiscellaneousFunctions.Concatenate(l_Columns, ",", false);
+                    string columnNames = Utilities.MiscellaneousFunctions.Concatenate(columnNameList, ",", false);
 
                     sql = string.Format(
                          "SELECT {0} FROM {1} GROUP BY {0};",
-                         s_Columns,
+                         columnNames,
                          Parameters[RequiredParameters.InputTableName.ToString()]);
                 }
                 else // single column
@@ -179,12 +179,12 @@ namespace Cyclops.DataModules
                          Parameters[RequiredParameters.InputTableName.ToString()]);
                 }
 
-                DataTable dt_Peptides = m_SQLiteReader.SelectTable(sql);
+                DataTable peptides = m_SQLiteReader.SelectTable(sql);
 
-                foreach (DataRow dr in dt_Peptides.Rows)
+                foreach (DataRow dr in peptides.Rows)
                 {
-                    string s_Peptide = "";
-                    int i_MissedCleavageCounter = 0;
+                    string peptide = "";
+                    int missedCleavageCounter = 0;
 
                     if (Parameters[
                         RequiredParameters.FactorColumn.ToString()].Equals("*"))
@@ -198,36 +198,36 @@ namespace Cyclops.DataModules
                     }
                     else
                     {
-                        s_Peptide = dr[Parameters[
+                        peptide = dr[Parameters[
                         RequiredParameters.FactorColumn.ToString()]].ToString();
-                        s_Peptide = s_Peptide.Substring(0, s_Peptide.Length - 1); // remove the last residue
+                        peptide = peptide.Substring(0, peptide.Length - 1); // remove the last residue
                     }
 
                     // count the number of missed cleavages in the peptide (with last residue removed)
-                    foreach (char c in s_Peptide)
+                    foreach (char residue in peptide)
                     {
-                        if (c.ToString().ToUpper().Equals("K") ||
-                            c.ToString().ToUpper().Equals("R"))
+                        if (residue.ToString().ToUpper().Equals("K") ||
+                            residue.ToString().ToUpper().Equals("R"))
                         {
-                            i_MissedCleavageCounter++;
+                            missedCleavageCounter++;
                         }
                     }
 
                     // update the dictionary
-                    if (dict_Cleavages.ContainsKey(i_MissedCleavageCounter))
+                    if (m_Cleavages.ContainsKey(missedCleavageCounter))
                     {
-                        dict_Cleavages[i_MissedCleavageCounter]++;
+                        m_Cleavages[missedCleavageCounter]++;
                     }
                     else
                     {
-                        dict_Cleavages.Add(i_MissedCleavageCounter, 1);
+                        m_Cleavages.Add(missedCleavageCounter, 1);
                     }
                 }
 
-                b_Successful = AddDictionaryResultsToRWorkspace();
+                successful = AddDictionaryResultsToRWorkspace();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         protected override string GetDefaultValue()
@@ -256,66 +256,61 @@ namespace Cyclops.DataModules
         /// <returns>True, if the table is dropped successfully</returns>
         private bool DropExistingTable()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (m_SQLiteReader.TableExists(Parameters[RequiredParameters.NewTableName.ToString()]))
             {
-                b_Successful = m_SQLiteReader.DropTable(Parameters[RequiredParameters.NewTableName.ToString()]);
+                successful = m_SQLiteReader.DropTable(Parameters[RequiredParameters.NewTableName.ToString()]);
 
             }
 
-            return b_Successful;
+            return successful;
         }
 
         private Dictionary<string, string> GetMissedCleavageTableStructure()
         {
-            Dictionary<string, string> d_Str = new Dictionary<string, string>();
-
-
-            return d_Str;
+            return new Dictionary<string, string>();
         }
 
         private bool AddDictionaryResultsToRWorkspace()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             try
             {
-                DataTable dt_MissedCleavages = new DataTable(
-                    Parameters[RequiredParameters.NewTableName.ToString()]);
-                DataColumn dc_MissedEvents = new DataColumn("MissedCleavageEvents");
-                dc_MissedEvents.DataType = System.Type.GetType("System.Int32");
-                dt_MissedCleavages.Columns.Add(dc_MissedEvents);
-                DataColumn dc_Frequency = new DataColumn("Frequency");
-                dc_Frequency.DataType = System.Type.GetType("System.Int32");
-                dt_MissedCleavages.Columns.Add(dc_Frequency);
+                DataTable missedCleavages = new DataTable(Parameters[RequiredParameters.NewTableName.ToString()]);
+                DataColumn missedEvents = new DataColumn("MissedCleavageEvents");
+                missedEvents.DataType = System.Type.GetType("System.Int32");
+                missedCleavages.Columns.Add(missedEvents);
+                DataColumn frequency = new DataColumn("Frequency");
+                frequency.DataType = System.Type.GetType("System.Int32");
+                missedCleavages.Columns.Add(frequency);
 
                 // Order by MissedCleavageEvents
-                dict_Cleavages = dict_Cleavages.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+                m_Cleavages = m_Cleavages.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
-                foreach (int i in dict_Cleavages.Keys)
+                foreach (int i in m_Cleavages.Keys)
                 {
-                    DataRow myRow = dt_MissedCleavages.NewRow();
+                    DataRow myRow = missedCleavages.NewRow();
                     myRow["MissedCleavageEvents"] = i;
-                    myRow["Frequency"] = dict_Cleavages[i];
-                    dt_MissedCleavages.Rows.Add(myRow);
+                    myRow["Frequency"] = m_Cleavages[i];
+                    missedCleavages.Rows.Add(myRow);
                 }
 
                 // save to database
-                b_Successful = m_SQLiteReader.WriteDataTableToDatabase(
-                   dt_MissedCleavages);
+                successful = m_SQLiteReader.WriteDataTableToDatabase(missedCleavages);
 
-                b_Successful = Model.RCalls.WriteDataTableToR(dt_MissedCleavages, dt_MissedCleavages.TableName);
+                successful = Model.RCalls.WriteDataTableToR(missedCleavages, missedCleavages.TableName);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while adding Missed Cleavage " +
                     "results to SQLite database and to R environment:\n" +
                     ex.ToString());
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
         #endregion
     }

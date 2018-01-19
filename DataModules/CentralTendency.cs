@@ -76,7 +76,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -88,7 +88,7 @@ namespace Cyclops.DataModules
                     Model.PipelineCurrentlySuccessful = CentralTendencyFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -98,14 +98,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -115,15 +115,15 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -133,10 +133,10 @@ namespace Cyclops.DataModules
                 Model.LogWarning("WARNING in Central Tendency: The R environment does " +
                     "not contain the input table, " +
                     Parameters[RequiredParameters.InputTableName.ToString()]);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the Central Tendency completes successfully</returns>
         public bool CentralTendencyFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             string rCmd = string.Format("{0} <- MeanCenter.Div(" +
                     "Data={1}, Mean={2}, centerZero={3})",
@@ -156,17 +156,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing central tendency:\n" +
                     ex.ToString());
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

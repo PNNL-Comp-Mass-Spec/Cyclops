@@ -100,7 +100,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -109,10 +109,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = ANOVAFunction();
+                    successful = ANOVAFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -122,22 +122,21 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>(
-                StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            d_Parameters.Add("Random_Effect", RandomEffect);
-            d_Parameters.Add("RowMetadataTable", "");
-            d_Parameters.Add("Interaction", Interaction);
-            d_Parameters.Add("Unbalanced", Unbalanced);
-            d_Parameters.Add("Threshold", Threshold);
-            d_Parameters.Add("UseREML", UseREML);
+            paramDictionary.Add("Random_Effect", RandomEffect);
+            paramDictionary.Add("RowMetadataTable", "");
+            paramDictionary.Add("Interaction", Interaction);
+            paramDictionary.Add("Unbalanced", Unbalanced);
+            paramDictionary.Add("Threshold", Threshold);
+            paramDictionary.Add("UseREML", UseREML);
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -147,19 +146,19 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            if (b_Successful && !Model.RCalls.ContainsObject(
+            if (successful && !Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("Error in ANOVA function: " +
@@ -167,7 +166,7 @@ namespace Cyclops.DataModules
                     "selected input table, '" +
                     Parameters[RequiredParameters.InputTableName.ToString()] +
                     "'.", ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
             if (Parameters.ContainsKey("RemovePeptideColumn"))
@@ -217,7 +216,7 @@ namespace Cyclops.DataModules
                     UseREML = Parameters[AnovaParameters.UseREML.ToString()];
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -226,10 +225,10 @@ namespace Cyclops.DataModules
         /// <returns>True, if the ANOVA completes successfully</returns>
         public bool ANOVAFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             string rCmd = "";
-            string s_TmpInputTable = GetTemporaryTableName("tmpInputAnova_");
+            string tmpInputTable = GetTemporaryTableName("tmpInputAnova_");
 
             rCmd = string.Format(
                             "options(warn=-1)\n" +
@@ -250,20 +249,20 @@ namespace Cyclops.DataModules
                             UseREML.ToUpper(),
                             Parameters[RequiredParameters.FactorTable.ToString()],
                             Threshold.ToUpper(),
-                            s_TmpInputTable);
+                            tmpInputTable);
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running ANOVA:\n" +
                     ex.ToString(), ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

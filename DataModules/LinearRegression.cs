@@ -76,7 +76,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -85,10 +85,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = LinearRegressionFunction();
+                    successful = LinearRegressionFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -98,14 +98,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -115,15 +115,15 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -133,7 +133,7 @@ namespace Cyclops.DataModules
                 Model.LogWarning("WARNING in Linear Regression: The R environment does " +
                     "not contain the input table, " +
                     Parameters[RequiredParameters.InputTableName.ToString()]);
-                b_Successful = false;
+                successful = false;
             }
 
             /// Check that the factorTable Exists
@@ -143,7 +143,7 @@ namespace Cyclops.DataModules
                     "{0} factor table was not found in the R environment.",
                     Parameters[RequiredParameters.FactorTable.ToString()]),
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
             /// Check that the factorTable contains the ConsolidationFactor column
@@ -155,10 +155,10 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     Parameters[RequiredParameters.ConsolidationFactor.ToString()]),
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the linear regression completes successfully</returns>
         public bool LinearRegressionFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             string rCmd = string.Format("{0} <- LinReg_normalize(" +
                     "x={1}, factorTable={2}, factorCol=\"{3}\", " +
@@ -180,17 +180,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while performing linear regression:\n" +
                     ex.ToString());
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

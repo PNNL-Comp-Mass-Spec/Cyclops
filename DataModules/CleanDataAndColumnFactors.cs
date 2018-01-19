@@ -82,7 +82,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -91,10 +91,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running CleanDataAndColumnFactors", ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = CleanDataAndColumnFactorsFunction();
+                    successful = CleanDataAndColumnFactorsFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -104,14 +104,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -121,18 +121,18 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
 
-                if (b_Successful &&
+                if (successful &&
                     !Model.RCalls.ContainsObject(
                     Parameters[RequiredParameters.InputTableName.ToString()]))
                 {
@@ -140,10 +140,10 @@ namespace Cyclops.DataModules
                         "does not contain the 'InputTableName': " +
                         Parameters[RequiredParameters.InputTableName.ToString()],
                         ModuleName, StepNumber);
-                    b_Successful = false;
+                    successful = false;
                 }
 
-                if (b_Successful &&
+                if (successful &&
                     !Model.RCalls.ContainsObject(
                     Parameters[RequiredParameters.FactorTable.ToString()]))
                 {
@@ -151,10 +151,10 @@ namespace Cyclops.DataModules
                         "does not contain the 'FactorTable': " +
                         Parameters[RequiredParameters.FactorTable.ToString()],
                         ModuleName, StepNumber);
-                    b_Successful = false;
+                    successful = false;
                 }
 
-                if (b_Successful &&
+                if (successful &&
                     !Model.RCalls.TableContainsColumn(
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     Parameters[RequiredParameters.FactorColumn.ToString()]))
@@ -165,15 +165,15 @@ namespace Cyclops.DataModules
                         ", does not contain the 'FactorColumn', " +
                         Parameters[RequiredParameters.FactorColumn.ToString()],
                         ModuleName, StepNumber);
-                    b_Successful = false;
+                    successful = false;
                 }
 
-                if (b_Successful &&
+                if (successful &&
                     Parameters.ContainsKey("MergeColumn"))
                     MergeColumn = Parameters["MergeColumn"];
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -182,9 +182,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool CleanDataAndColumnFactorsFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            string s_TemporaryTableName = GetOrganizedFactorsVector(
+            string temporaryTableName = GetOrganizedFactorsVector(
                 Parameters[RequiredParameters.InputTableName.ToString()],
                 Parameters[RequiredParameters.FactorTable.ToString()],
                 Parameters[RequiredParameters.FactorColumn.ToString()],
@@ -192,7 +192,7 @@ namespace Cyclops.DataModules
                 MergeColumn,
                 "T_Alias_");
 
-            if (string.IsNullOrEmpty(s_TemporaryTableName))
+            if (string.IsNullOrEmpty(temporaryTableName))
             {
                 Model.LogError("Error occurred while running: " +
                     "'GetOrganizedFactorsVector'!",
@@ -200,12 +200,12 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            b_Successful = AreDataColumnLengthAndColumnMetadataRowsEqual(
+            successful = AreDataColumnLengthAndColumnMetadataRowsEqual(
                 Parameters[RequiredParameters.InputTableName.ToString()],
-                s_TemporaryTableName,
+                temporaryTableName,
                 Parameters[RequiredParameters.FactorColumn.ToString()]);
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -252,18 +252,15 @@ namespace Cyclops.DataModules
             string ColumnMetadataTableName,
             string ColumnMetadataFactor)
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            TableInfo td_Data =
-                Model.RCalls.GetDimensions(DataTableName);
+            TableInfo data = Model.RCalls.GetDimensions(DataTableName);
 
-            TableInfo td_ColumnMetadata =
-                Model.RCalls.GetDimensions(ColumnMetadataTableName);
+            TableInfo columnMetadata = Model.RCalls.GetDimensions(ColumnMetadataTableName);
 
-            if (td_Data.Columns != td_ColumnMetadata.Rows)
+            if (data.Columns != columnMetadata.Rows)
             {
-                b_Successful = ModifyFactorAndDataTables(
-                    DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
+                successful = ModifyFactorAndDataTables(DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
             }
             else
             {
@@ -280,12 +277,11 @@ namespace Cyclops.DataModules
                 }
                 else
                 {
-                    b_Successful = ModifyFactorAndDataTables(
-                        DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
+                    successful = ModifyFactorAndDataTables(DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -301,7 +297,7 @@ namespace Cyclops.DataModules
             string ColumnMetadataTableName,
             string ColumnMetadataFactor)
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             string rCmd = string.Format(
                 "{0} <- merge(x=cbind({1}=colnames({2}))," +
@@ -314,17 +310,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
                     "'ModifyFactorAndDataTables': " + ex.ToString(),
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
         #endregion
     }

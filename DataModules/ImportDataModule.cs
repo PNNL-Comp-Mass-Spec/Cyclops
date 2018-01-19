@@ -82,7 +82,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -91,10 +91,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = ImportData();
+                    successful = ImportData();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -104,14 +104,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (string.IsNullOrEmpty(Model.WorkDirectory))
             {
@@ -134,12 +134,12 @@ namespace Cyclops.DataModules
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         protected override string GetDefaultValue()
@@ -191,17 +191,17 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessSQLiteImport()
         {
-            bool b_Successful = false;
+            bool successful = false;
 
-            b_Successful = ConnectToSQLiteDatabase();
+            successful = ConnectToSQLiteDatabase();
 
-            if (b_Successful)
-                b_Successful = ImportSQLiteTable();
+            if (successful)
+                successful = ImportSQLiteTable();
 
-            if (b_Successful)
-                b_Successful = DisconnectFromDatabase();
+            if (successful)
+                successful = DisconnectFromDatabase();
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -210,11 +210,11 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessCSVImport()
         {
-            bool b_Successful = false;
+            bool successful = false;
 
-            b_Successful = ImportCSVFile();
+            successful = ImportCSVFile();
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -223,11 +223,11 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessTSVImport()
         {
-            bool b_Successful = false;
+            bool successful = false;
 
-            b_Successful = ImportTSVFile();
+            successful = ImportTSVFile();
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -236,11 +236,11 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessSQLServerImport()
         {
-            bool b_Successful = false;
+            bool successful = false;
 
             // TODO
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -249,11 +249,11 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessAccessImport()
         {
-            bool b_Successful = false;
+            bool successful = false;
 
             // TODO
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if connection established successfully</returns>
         private bool ConnectToSQLiteDatabase()
         {
-            bool b_Successful = false;
+            bool successful = false;
 
             if (CheckSQLiteRequiredParameters())
             {
@@ -306,7 +306,7 @@ namespace Cyclops.DataModules
                             + "con <- dbConnect(m, dbname = \"{0}\")\n"
                             , filePathForR);
 
-                        b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                        successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                     }
                     catch (IOException ioe)
                     {
@@ -315,7 +315,7 @@ namespace Cyclops.DataModules
                             ioe.ToString() + "\nInnerException: " +
                             ioe.InnerException, ModuleName, StepNumber);
                         SaveCurrentREnvironment();
-                        b_Successful = false;
+                        successful = false;
                     }
                     catch (StackOverflowException soe)
                     {
@@ -324,7 +324,7 @@ namespace Cyclops.DataModules
                             soe.ToString() + "\nInnerException: " +
                             soe.InnerException, ModuleName, StepNumber);
                         SaveCurrentREnvironment();
-                        b_Successful = false;
+                        successful = false;
                     }
                     catch (Exception ex)
                     {
@@ -333,12 +333,12 @@ namespace Cyclops.DataModules
                             ex.ToString() + "\nInnerException: " +
                             ex.InnerException, ModuleName, StepNumber);
                         SaveCurrentREnvironment();
-                        b_Successful = false;
+                        successful = false;
                     }
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -348,7 +348,7 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public bool CheckSQLiteRequiredParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(DatabaseRequiredParameters)))
             {
@@ -356,12 +356,12 @@ namespace Cyclops.DataModules
                 {
                     Model.LogError("Required Field Missing for SQLite data import: " +
                         s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -392,13 +392,13 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ImportSQLiteDataTable()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            b_Successful = GetTableFromSQLite();
+            successful = GetTableFromSQLite();
 
-            b_Successful = SetTableRowNames();
+            successful = SetTableRowNames();
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -407,13 +407,13 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ImportSQLiteColumnMetadataTable()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            b_Successful = GetTableFromSQLite();
+            successful = GetTableFromSQLite();
 
-            b_Successful = SetTableRowNames();
+            successful = SetTableRowNames();
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -422,13 +422,13 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ImportSQLiteRowMetadataTable()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            b_Successful = GetTableFromSQLite();
+            successful = GetTableFromSQLite();
 
-            b_Successful = SetTableRowNames();
+            successful = SetTableRowNames();
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -437,7 +437,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the table imports successfully</returns>
         private bool GetTableFromSQLite()
         {
-            bool b_Successful = true;
+            bool successful = true;
             string rCmd = string.Format(
                 "rt <- dbSendQuery(con, \"SELECT * FROM {0}\")\n" +
                 "{1} <- fetch(rt, n = -1)\n" +
@@ -448,17 +448,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
                     "'GetTableFromSQLite': " + ex, ModuleName, StepNumber);
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -467,7 +467,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if rownames are set successfully</returns>
         private bool SetTableRowNames()
         {
-            bool b_Successful = true;
+            bool successful = true;
             if (Parameters.ContainsKey("rownames"))
             {
                 string rCmd = string.Format(
@@ -478,17 +478,17 @@ namespace Cyclops.DataModules
 
                 try
                 {
-                    b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                    successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                 }
                 catch (Exception ex)
                 {
                     Model.LogError("Exception encountered while running " +
                                    "'SetTableRowNames': " + ex, ModuleName, StepNumber);
                     SaveCurrentREnvironment();
-                    b_Successful = false;
+                    successful = false;
                 }
             }
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -497,22 +497,22 @@ namespace Cyclops.DataModules
         /// <returns>True, if disconnection finishes successfully</returns>
         private bool DisconnectFromDatabase()
         {
-            bool b_Successful = false;
+            bool successful = false;
 
-            string s_RStatement = "terminated <- dbDisconnect(con)";
+            string rCmd = "terminated <- dbDisconnect(con)";
 
-            if (Model.RCalls.Run(s_RStatement, ModuleName, StepNumber))
-                b_Successful = true;
+            if (Model.RCalls.Run(rCmd, ModuleName, StepNumber))
+                successful = true;
 
-            b_Successful = Model.RCalls.AssessBoolean("terminated");
+            successful = Model.RCalls.AssessBoolean("terminated");
 
-            if (b_Successful)
+            if (successful)
             {
-                s_RStatement = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                b_Successful = Model.RCalls.Run(s_RStatement, ModuleName, StepNumber);
+                rCmd = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

@@ -91,7 +91,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -100,10 +100,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running BoxPlot", ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = BoxPlotFunction();
+                    successful = BoxPlotFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -113,14 +113,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -130,15 +130,15 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -211,7 +211,7 @@ namespace Cyclops.DataModules
                 m_yMax = Parameters["yMax"];
             #endregion
 
-            if (Directory.Exists(Model.WorkDirectory) && b_Successful)
+            if (Directory.Exists(Model.WorkDirectory) && successful)
             {
                 string s_PlotDirectory = Path.Combine(
                     Model.WorkDirectory, "Plots").Replace("\\", "/");
@@ -222,7 +222,7 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.PlotFileName.ToString()]).Replace("\\", "/");
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -231,9 +231,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool BoxPlotFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            string s_TmpTable = GetTemporaryTableName("tmpBoxPlot_");
+            string tTable = GetTemporaryTableName("tmpBoxPlot_");
             string rCmd = string.Format(
                 "Boxplots(x={0}, Columns={1}, " +
                 "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
@@ -243,7 +243,7 @@ namespace Cyclops.DataModules
                 "do.ylim={14}, ymin={15}, ymax={16}, ylabel=\"{17}\", " +
                 "IMGwidth={18}, IMGheight={19}, FNTsize={20}, res={21})\n" +
                 "rm({0})\n",
-                s_TmpTable,
+                tTable,
                 m_DataColumns,
                 PlotFileName,
                 m_ColorByFactor,
@@ -269,17 +269,17 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while creating a " +
                     "BoxPlot:\n" + ex.ToString());
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

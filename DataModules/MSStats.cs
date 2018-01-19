@@ -114,7 +114,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -123,10 +123,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running MSStats", ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = MSStatsFunction();
+                    successful = MSStatsFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -136,19 +136,19 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            d_Parameters.Add("ColumnMetadataLink", ColumnMetadataLink);
-            d_Parameters.Add("Abundance", Abundance);
-            d_Parameters.Add("FeatureVar", FeatureVariance);
-            d_Parameters.Add("ReportProgress", ReportProgress);
+            paramDictionary.Add("ColumnMetadataLink", ColumnMetadataLink);
+            paramDictionary.Add("Abundance", Abundance);
+            paramDictionary.Add("FeatureVar", FeatureVariance);
+            paramDictionary.Add("ReportProgress", ReportProgress);
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -158,15 +158,15 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -182,7 +182,7 @@ namespace Cyclops.DataModules
                     m_Progress = Parameters["ReportProgress"].ToUpper();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -191,10 +191,10 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool MSStatsFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            string s_TmpTable4MSstats = GetTemporaryTableName("Tmp4MSstats_");
-            string s_TmpFitTable = GetTemporaryTableName("tmpFit_");
+            string tTable4MSstats = GetTemporaryTableName("Tmp4MSstats_");
+            string tFitTable = GetTemporaryTableName("tmpFit_");
 
             string Command = string.Format(
                 "{0} <- jnb_Prepare4MSstats(" +
@@ -223,7 +223,7 @@ namespace Cyclops.DataModules
                 "{15} <- cast({15}, {4}~{7})\n" +
                 "rownames({15}) <- {15}[,1]\n" +
                 "{15} <- {15}[,-1]\n\n",
-                s_TmpTable4MSstats,
+                tTable4MSstats,
                 Parameters[RequiredParameters.InputTableName.ToString()],
                 Parameters[RequiredParameters.RowMetadataTable.ToString()],
                 Parameters[RequiredParameters.ColumnMetadataTable.ToString()],
@@ -233,7 +233,7 @@ namespace Cyclops.DataModules
                 Parameters[RequiredParameters.BioRep.ToString()],
                 Parameters[RequiredParameters.TechRep.ToString()],
                 Parameters[RequiredParameters.Fixed_Effect.ToString()],
-                s_TmpFitTable,
+                tFitTable,
                 Abundance,
                 AnovaModel,
                 FeatureVariance,
@@ -243,16 +243,16 @@ namespace Cyclops.DataModules
 
             try
             {
-                b_Successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
+                successful = Model.RCalls.Run(Command, ModuleName, StepNumber);
             }
             catch (Exception exc)
             {
                 Model.LogError("Exception encountered while running MSstats:\n" +
                     exc.ToString(), ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

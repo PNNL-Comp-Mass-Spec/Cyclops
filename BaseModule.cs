@@ -21,7 +21,7 @@ namespace Cyclops
     {
         #region Members
 
-        private DataModules.BaseDataModule bdm_ParentModule;
+        private DataModules.BaseDataModule m_ParentModule;
 
         #endregion
 
@@ -86,7 +86,7 @@ namespace Cyclops
         /// <returns>True, if module has a parent</returns>
         public bool HasParent()
         {
-            return bdm_ParentModule != null;
+            return m_ParentModule != null;
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Cyclops
         /// <param name="Parent">Parent module (must be a BaseDataModule)</param>
         public void SetParent(DataModules.BaseDataModule Parent)
         {
-            bdm_ParentModule = Parent;
+            m_ParentModule = Parent;
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Cyclops
         /// <returns>Parent module</returns>
         public DataModules.BaseDataModule GetParent()
         {
-            return bdm_ParentModule;
+            return m_ParentModule;
         }
 
         /// <summary>

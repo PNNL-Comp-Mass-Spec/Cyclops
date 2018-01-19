@@ -87,7 +87,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -96,10 +96,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running FilterByPeptideProteinCount", ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = FilterByPeptideProteinCountFunction();
+                    successful = FilterByPeptideProteinCountFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -109,14 +109,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -126,30 +126,30 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
             #region Check R Environment For Objects
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("ERROR 'InputTableName' object, " +
                     Parameters[RequiredParameters.InputTableName.ToString()] +
                     ", not present in R environment!", ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.RowMetadataTable.ToString()]))
             {
@@ -157,10 +157,10 @@ namespace Cyclops.DataModules
                     Parameters[RequiredParameters.RowMetadataTable.ToString()] +
                     ", not present in R environment!", 
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.TableContainsColumn(
                 Parameters[RequiredParameters.RowMetadataTable.ToString()],
                 Parameters[RequiredParameters.ProteinInfo_ProteinCol.ToString()]))
@@ -172,10 +172,10 @@ namespace Cyclops.DataModules
                     "! This column designates the protein count within the " +
                     "RowMetadataTable.", 
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.TableContainsColumn(
                 Parameters[RequiredParameters.RowMetadataTable.ToString()],
                 Parameters[RequiredParameters.ProteinInfo_PeptideCol.ToString()]))
@@ -187,10 +187,10 @@ namespace Cyclops.DataModules
                     "! This column designates the peptide count within the " +
                     "RowMetadataTable.",
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.TableContainsColumn(
                 Parameters[RequiredParameters.RowMetadataTable.ToString()],
                 Parameters[RequiredParameters.PeptideColumn.ToString()]))
@@ -203,10 +203,10 @@ namespace Cyclops.DataModules
                     "RowMetadataTable, that correspond to the rownames in " +
                     "the InputTableName (data table).",
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            if (b_Successful &&
+            if (successful &&
                 !Model.RCalls.TableContainsColumn(
                 Parameters[RequiredParameters.RowMetadataTable.ToString()],
                 Parameters[RequiredParameters.ProteinColumn.ToString()]))
@@ -218,7 +218,7 @@ namespace Cyclops.DataModules
                     "! This column designates the proteins within the " +
                     "RowMetadataTable.",
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
             #endregion
 
@@ -245,7 +245,7 @@ namespace Cyclops.DataModules
             }
             #endregion
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -254,9 +254,9 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool FilterByPeptideProteinCountFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
-            string s_TmpTable = GetTemporaryTableName("T_FilterPepProtCnt_"),
+            string tTable = GetTemporaryTableName("T_FilterPepProtCnt_"),
                    rCmd = string.Format(
                     "if (!is.null({0})) {{\n" +
                     "\t{1} <- {0}$DataTable\n" +
@@ -286,7 +286,7 @@ namespace Cyclops.DataModules
                     "}\n" +
                     "rm({0})\n\n",
 
-                    s_TmpTable,
+                    tTable,
                     Parameters[RequiredParameters.NewTableName.ToString()],
                     Parameters[RequiredParameters.RowMetadataTable.ToString()],
                     Parameters[RequiredParameters.ProteinColumn.ToString()],
@@ -311,10 +311,10 @@ namespace Cyclops.DataModules
                     "running 'FilterByPeptideProteinCountFunction': " +
                     ex.ToString(), ModuleName, StepNumber);
                 SaveCurrentREnvironment();
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

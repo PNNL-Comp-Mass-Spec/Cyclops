@@ -141,22 +141,22 @@ namespace Cyclops.DataModules
             string NameOfColumnMetadataTable, string FactorColumn, int step,
             string yMergeColumn, string TempTablePrefix)
         {
-            var s_TmpTable = GetTemporaryTableName(TempTablePrefix);
+            var tmpTable = GetTemporaryTableName(TempTablePrefix);
 
-            var s_RStatement = string.Format(
+            var rCmd = string.Format(
                 "{0} <- cbind('{3}'=colnames({1}))\n" +
                 "{0} <- unique(merge(x={0}, y={2}[,c('{3}', '{4}')], " +
                 "by.x='{3}', " +
                 "by.y='{3}', all.x=T, all.y=F, sort=F))\n",
-                s_TmpTable,
+                tmpTable,
                 NameOfDataTable,
                 NameOfColumnMetadataTable,
                 yMergeColumn,
                 FactorColumn);
 
-            Model.RCalls.Run(s_RStatement, "Organizing Factors Vector", step);
+            Model.RCalls.Run(rCmd, "Organizing Factors Vector", step);
 
-            return s_TmpTable;
+            return tmpTable;
         }
 
         /// <summary>
@@ -257,9 +257,9 @@ namespace Cyclops.DataModules
 
         public void CheckForPlotsDirectory()
         {
-            var s_Dir = Path.Combine(Model.WorkDirectory, "Plots");
-            if (!Directory.Exists(s_Dir))
-                Directory.CreateDirectory(s_Dir);
+            var plotFolderPath = Path.Combine(Model.WorkDirectory, "Plots");
+            if (!Directory.Exists(plotFolderPath))
+                Directory.CreateDirectory(plotFolderPath);
         }
 
         /// <summary>
@@ -276,8 +276,8 @@ namespace Cyclops.DataModules
             else
             {
                 Model.LogMessage("Saving current work environment...", ModuleName, StepNumber);
-                var s_SaveFileName = Path.Combine(Model.WorkDirectory, "Results.RData").Replace("\\", "/");
-                Model.RCalls.Run(string.Format("save.image('{0}')\n", s_SaveFileName), ModuleName, StepNumber);
+                var saveFileName = Path.Combine(Model.WorkDirectory, "Results.RData").Replace("\\", "/");
+                Model.RCalls.Run(string.Format("save.image('{0}')\n", saveFileName), ModuleName, StepNumber);
             }
         }
 

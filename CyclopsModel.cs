@@ -236,19 +236,18 @@ namespace Cyclops
         /// <returns>True, if pipeline runs successfully</returns>
         public bool TestMethod()
         {
-            var b_Successful = true;
+            var successful = true;
 
             try
             {
-                const string s_Module = "MissedCleavageSummary";
-                Console.WriteLine(s_Module);
+                Console.WriteLine("MissedCleavageSummary");
             }
             catch (Exception ex)
             {
                 LogError("Exception caught while creating modules: " + ex.Message);
-                b_Successful = false;
+                successful = false;
             }
-            return b_Successful;
+            return successful;
         }
 
 

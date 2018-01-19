@@ -93,44 +93,43 @@ namespace Cyclops.DataModules
         /// <returns>CSS code</returns>
         public static string GetCSS(CssStyle style, int InternalNavTop)
         {
-            StringBuilder s_Return = new StringBuilder();
-            string s_Tab = "\t", s_LineDelimiter = "\n";
+            StringBuilder css = new StringBuilder();
 
             switch (style)
             {
                 case CssStyle.NavBar:
-                    s_Return.Append("ul#list-nav {" + s_LineDelimiter +
-                        s_Tab + "list-style:none;" + s_LineDelimiter +
-                        s_Tab + "top:70px;" + s_LineDelimiter +
-                        s_Tab + "margin:5px;" + s_LineDelimiter +
-                        s_Tab + "padding:0;" + s_LineDelimiter +
-                        s_Tab + "width:600px;" + s_LineDelimiter +
-                        s_Tab + "position:fixed;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter + s_LineDelimiter);
+                    css.Append("ul#list-nav {\n" +
+                        '\t' + "list-style:none;\n" +
+                        '\t' + "top:70px;\n" +
+                        '\t' + "margin:5px;\n" +
+                        '\t' + "padding:0;\n" +
+                        '\t' + "width:600px;\n" +
+                        '\t' + "position:fixed;\n" +
+                        "}\n\n");
 
-                    s_Return.Append("ul#list-nav li {" + s_LineDelimiter +
-                        s_Tab + "display:table-row;" + s_LineDelimiter +
-                        s_Tab + "font-weight:bold;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter + s_LineDelimiter);
+                    css.Append("ul#list-nav li {\n" +
+                        '\t' + "display:table-row;\n" +
+                        '\t' + "font-weight:bold;\n" +
+                        "}\n\n");
 
-                    s_Return.Append("ul#list-nav li a {" + s_LineDelimiter +
-                        s_Tab + "text-decoration:none;" + s_LineDelimiter +
-                        s_Tab + "padding:5px 0;" + s_LineDelimiter +
-                        s_Tab + "width:180px;" + s_LineDelimiter +
-                        s_Tab + "background:#0000FF;" + s_LineDelimiter +
-                        s_Tab + "color:#eee;" + s_LineDelimiter +
-                        s_Tab + "float:left;" + s_LineDelimiter +
-                        s_Tab + "text-align:center;" + s_LineDelimiter +
-                        s_Tab + "border-left:1px solid #fff;" + s_LineDelimiter +
-                        s_Tab + "display: inline;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter + s_LineDelimiter);
+                    css.Append("ul#list-nav li a {\n" +
+                        '\t' + "text-decoration:none;\n" +
+                        '\t' + "padding:5px 0;\n" +
+                        '\t' + "width:180px;\n" +
+                        '\t' + "background:#0000FF;\n" +
+                        '\t' + "color:#eee;\n" +
+                        '\t' + "float:left;\n" +
+                        '\t' + "text-align:center;\n" +
+                        '\t' + "border-left:1px solid #fff;\n" +
+                        '\t' + "display: inline;\n" +
+                        "}\n\n");
 
-                    s_Return.Append("ul#list-nav li a:hover {" + s_LineDelimiter +
-                        s_Tab + "background:#87CEFA;" + s_LineDelimiter +
-                        s_Tab + "color:#000" + s_LineDelimiter +
-                        "}" + s_LineDelimiter);
+                    css.Append("ul#list-nav li a:hover {\n" +
+                        '\t' + "background:#87CEFA;\n" +
+                        '\t' + "color:#000\n" +
+                        "}\n");
 
-                    s_Return.Append(string.Format("ul#interal_nav {{{0}" +
+                    css.Append(string.Format("ul#interal_nav {{{0}" +
                         "{1}list-style:none;{0}" +
                         "{1}top:{2}px;{0}" +
                         "{1}margin:5px;{0}" +
@@ -138,35 +137,35 @@ namespace Cyclops.DataModules
                         "{1}width:600px;{0}" +
                         "{1}position:fixed;{0}" +
                         "}}{0}",
-                        s_LineDelimiter,
-                        s_Tab,
+                        '\n',
+                        '\t',
                         InternalNavTop));
 
-                    s_Return.Append("ul#interal_nav li {" + s_LineDelimiter +
-                        s_Tab + "display:table-row;" + s_LineDelimiter +
-                        s_Tab + "font-weight:bold;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter);
+                    css.Append("ul#interal_nav li {\n" +
+                        '\t' + "display:table-row;\n" +
+                        '\t' + "font-weight:bold;\n" +
+                        "}\n");
 
-                    s_Return.Append("ul#interal_nav li a {" + s_LineDelimiter +
-                        s_Tab + "text-decoration:none;" + s_LineDelimiter +
-                        s_Tab + "padding:5px 0;" + s_LineDelimiter +
-                        s_Tab + "width:180px;" + s_LineDelimiter +
-                        s_Tab + "background:#FF0000;" + s_LineDelimiter +
-                        s_Tab + "color:#eee;" + s_LineDelimiter +
-                        s_Tab + "float:left;" + s_LineDelimiter +
-                        s_Tab + "text-align:center;" + s_LineDelimiter +
-                        s_Tab + "border-left:1px solid #fff;" + s_LineDelimiter +
-                        s_Tab + "display: inline;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter);
+                    css.Append("ul#interal_nav li a {\n" +
+                        '\t' + "text-decoration:none;\n" +
+                        '\t' + "padding:5px 0;\n" +
+                        '\t' + "width:180px;\n" +
+                        '\t' + "background:#FF0000;\n" +
+                        '\t' + "color:#eee;\n" +
+                        '\t' + "float:left;\n" +
+                        '\t' + "text-align:center;\n" +
+                        '\t' + "border-left:1px solid #fff;\n" +
+                        '\t' + "display: inline;\n" +
+                        "}\n");
 
-                    s_Return.Append("ul#interal_nav li a:hover {" + s_LineDelimiter +
-                        s_Tab + "background:#FF66FF;" + s_LineDelimiter +
-                        s_Tab + "color:#000" + s_LineDelimiter +
-                        "}" + s_LineDelimiter + s_LineDelimiter);
+                    css.Append("ul#interal_nav li a:hover {\n" +
+                        '\t' + "background:#FF66FF;\n" +
+                        '\t' + "color:#000\n" +
+                        "}\n\n");
 
 
                     // Build Nav Table
-                    s_Return.Append(string.Format(
+                    css.Append(string.Format(
                         "table#nav_table{0}" +
                         "{{{0}" +
                         "{1}width:200px;{0}" +
@@ -207,36 +206,36 @@ namespace Cyclops.DataModules
                         "{1}background:#FF66FF;{0}" +
                         "{1}color:#111{0}" +
                         "}}{0}{0}"
-                        , s_LineDelimiter
-                        , s_Tab));
+                        , '\n'
+                        , '\t'));
 
                     break;
                 case CssStyle.LeftIndent:
-                    s_Return.Append("#main_content" + s_LineDelimiter +
-                        "{" + s_LineDelimiter +
-                        s_Tab + "padding: 20px;" + s_LineDelimiter +
-                        s_Tab + "margin-left: 200px;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter);
+                    css.Append("#main_content\n" +
+                        "{\n" +
+                        '\t' + "padding: 20px;\n" +
+                        '\t' + "margin-left: 200px;\n" +
+                        "}\n");
                     break;
                 case CssStyle.Th:
-                    s_Return.Append("p#table_header {" + s_LineDelimiter +
-                        s_Tab + "text-align: left;" + s_LineDelimiter +
-                        s_Tab + "font-weight: bold;" + s_LineDelimiter +
-                        s_Tab + "font-size: 20px;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter);
-                    s_Return.Append("th" + s_LineDelimiter +
-                        "{" + s_LineDelimiter +
-                        s_Tab + "background-color:blue;" + s_LineDelimiter +
-                        s_Tab + "color:white;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter + s_LineDelimiter);
-                    s_Return.Append("table" + s_LineDelimiter +
-                        "{" + s_LineDelimiter +
-                        s_Tab + "border-collapse: collapse;" + s_LineDelimiter +
-                        "}" + s_LineDelimiter);
+                    css.Append("p#table_header {\n" +
+                        '\t' + "text-align: left;\n" +
+                        '\t' + "font-weight: bold;\n" +
+                        '\t' + "font-size: 20px;\n" +
+                        "}\n");
+                    css.Append("th\n" +
+                        "{\n" +
+                        '\t' + "background-color:blue;\n" +
+                        '\t' + "color:white;\n" +
+                        "}\n\n");
+                    css.Append("table\n" +
+                        "{\n" +
+                        '\t' + "border-collapse: collapse;\n" +
+                        "}\n");
                     break;
             }
 
-            return s_Return.ToString();
+            return css.ToString();
         }
 
         /// <summary>
@@ -245,81 +244,80 @@ namespace Cyclops.DataModules
         /// <returns></returns>
         public static string GetEndHeadStartBody()
         {
-            string s_Tab = "\t", s_LineDelimiter = "\n";
-
             return string.Format("{0}</HEAD>{1}{0}<BODY>{1}"
-                , s_Tab
-                , s_LineDelimiter);
+                , '\t'
+                , '\n');
         }
 
         public static string GetNavBar(List<HtmlLinkNode> NavBar, string NavBarAlignment)
         {
-            string s_Return = "", s_Tab = "\t", s_LineDelimiter = "\n", s_Style = "main_content";
+            string htmlText = "";
+            string styleType = "main_content";
 
             // Write out navigation bar
-            //s_Return += string.Format(s_Tab + "<{0}>" + s_LineDelimiter, NavBarAlignment);
-            //s_Return += s_Tab + s_Tab + "<NAV>" + s_LineDelimiter;
-            s_Return += s_Tab + s_Tab + s_Tab + "<UL ID='list-nav'>" + s_LineDelimiter;
+            //htmlText += string.Format('\t' + "<{0}>\n", NavBarAlignment);
+            //htmlText += '\t' + '\t' + "<NAV>\n";
+            htmlText += '\t' + '\t' + '\t' + "<UL ID='list-nav'>\n";
 
             foreach (HtmlLinkNode n in NavBar)
             {
                 if (!n.IsInternalLink)
                 {
-                    s_Return += string.Format(s_Tab + s_Tab + s_Tab + s_Tab +
-                        "<LI><A HREF='{0}{1}'>{2}</A>" + s_LineDelimiter,
+                    htmlText += string.Format('\t' + '\t' + '\t' + '\t' +
+                        "<LI><A HREF='{0}{1}'>{2}</A>\n",
                         n.IsInternalLink ? "#" : "",
                         n.Link,
                         n.Title);
                 }
             }
 
-            s_Return += s_Tab + s_Tab + s_Tab + "</UL>" + s_LineDelimiter;
-            s_Return += s_Tab + s_Tab + s_Tab + "<UL ID='interal_nav'>" + s_LineDelimiter;
+            htmlText += '\t' + '\t' + '\t' + "</UL>\n";
+            htmlText += '\t' + '\t' + '\t' + "<UL ID='interal_nav'>\n";
 
             foreach (HtmlLinkNode n in NavBar)
             {
                 if (n.IsInternalLink)
                 {
-                    s_Return += string.Format(s_Tab + s_Tab + s_Tab + s_Tab +
-                        "<LI><A HREF='{0}{1}'>{2}</A></LI>" + s_LineDelimiter,
+                    htmlText += string.Format('\t' + '\t' + '\t' + '\t' +
+                        "<LI><A HREF='{0}{1}'>{2}</A></LI>\n",
                         n.IsInternalLink ? "#" : "",
                         n.Link,
                         n.Title);
                 }
             }
 
-            s_Return += s_Tab + s_Tab + s_Tab + "</UL>" + s_LineDelimiter;
+            htmlText += '\t' + '\t' + '\t' + "</UL>\n";
 
-            s_Return += string.Format("<DIV ID='{0}'>{1}"
-                , s_Style
-                , s_LineDelimiter);
+            htmlText += string.Format("<DIV ID='{0}'>{1}"
+                , styleType
+                , '\n');
 
-            return s_Return;
+            return htmlText;
         }
 
         public static string GetNavTable(List<HtmlLinkNode> NavTable)
         {
-            string s_Return = "", s_Tab = "\t", s_LineDelimiter = "\n";
+            string htmlText = "";
 
-            s_Return = string.Format("{0}{0}<DIV>{1}" +
+            htmlText = string.Format("{0}{0}<DIV>{1}" +
                 "{0}{0}{0}<TABLE align='left' ID='nav_table'>{1}"
-                , s_Tab
-                , s_LineDelimiter
+                , '\t'
+                , '\n'
                 );
 
             foreach (HtmlLinkNode n in NavTable)
             {
                 if (!n.IsInternalLink)
                 {
-                    s_Return += string.Format("{0}{0}{0}{0}<TR ID='nav_table_main' " +
+                    htmlText += string.Format("{0}{0}{0}{0}<TR ID='nav_table_main' " +
                         "CELLPADDING=10 BORDER=0>{1}" +
                         "{0}{0}{0}{0}{0}<TD>" +
                         "<A HREF='{2}' ID='nav_table_main'>" +
                         "{3}</A>" +
                         "{0}{0}{0}{0}{0}</TD>{1}" +
                         "{0}{0}{0}{0}</TR>{1}"
-                        , s_Tab
-                        , s_LineDelimiter
+                        , '\t'
+                        , '\n'
                         , n.Link
                         , n.Title);
                 }
@@ -329,85 +327,82 @@ namespace Cyclops.DataModules
             {
                 if (n.IsInternalLink)
                 {
-                    s_Return += string.Format("{0}{0}{0}{0}<TR ID='nav_table_internal' " +
+                    htmlText += string.Format("{0}{0}{0}{0}<TR ID='nav_table_internal' " +
                         "CELLPADDING=10 BORDER=0>{1}" +
                         "{0}{0}{0}{0}{0}<TD>" +
                         "<A HREF='#{2}' ID='nav_table_main'>" +
                         "{3}</A>" +
                         "{0}{0}{0}{0}{0}</TD>{1}" +
                         "{0}{0}{0}{0}</TR>{1}"
-                        , s_Tab
-                        , s_LineDelimiter
+                        , '\t'
+                        , '\n'
                         , n.Link
                         , n.Title);
                 }
             }
 
-            s_Return += string.Format("{0}{0}{0}</TABLE>{1}" +
+            htmlText += string.Format("{0}{0}{0}</TABLE>{1}" +
                 "{0}{0}</DIV>{1}"
-                , s_Tab
-                , s_LineDelimiter
+                , '\t'
+                , '\n'
                 );
 
-            return s_Return;
+            return htmlText;
         }
 
 
         /// <summary>
         /// HTML code for the datasets table
         /// </summary>
-        /// <param name="DatabaseFileName">Full path to the Results.DB3 file</param>
-        /// <param name="Title">Title above the data table</param>
-        /// <param name="Alignment">Alignment of table in html page</param>
-        /// <param name="Border">Table border</param>
-        /// <param name="TabSpaces">Table tabspaces</param>
-        /// <param name="CellPadding">Table cell padding</param>
+        /// <param name="databaseFileName">Full path to the Results.DB3 file</param>
+        /// <param name="title">Title above the data table</param>
+        /// <param name="titleStyle"></param>
+        /// <param name="tableAlignment">Alignment of table in html page</param>
+        /// <param name="border">Table border</param>
+        /// <param name="tabSpaces">Table tabspaces</param>
+        /// <param name="cellPadding">Table cell padding</param>
         /// <returns>HTML code</returns>
         public static string GetDatasetTableHtml(
-            string DatabaseFileName, string Title,
-            string TitleStyle, string TableAlignment, int Border, int TabSpaces, int CellPadding)
+            string databaseFileName, string title,
+            string titleStyle, string tableAlignment, int border, int tabSpaces, int cellPadding)
         {
-            string s_Tab = "\t", s_LineDelimiter = "\n";
-
-            string s_Return = string.Format(
+            string htmlText = string.Format(
                 "{0}{0}{0}<DIV>{1}" +
                 "{0}{0}{0}{0}<P ID='{3}'>{2}</P>{1}"
-                , s_Tab
-                , s_LineDelimiter
-                , !string.IsNullOrEmpty(Title) ? Title : "Datasets used in the Analysis"
-                , TitleStyle);
-            DataTable dt_Datasets = GetDatasetInfo(DatabaseFileName);
-            s_Return += GetTableHtml(dt_Datasets, TableAlignment, Border, TabSpaces, CellPadding);
-            s_Return += string.Format("{0}{0}{0}</DIV>{1}"
-                , s_Tab
-                , s_LineDelimiter);
-            return s_Return;
+                , '\t'
+                , '\n'
+                , !string.IsNullOrEmpty(title) ? title : "Datasets used in the Analysis"
+                , titleStyle);
+            DataTable datasets = GetDatasetInfo(databaseFileName);
+            htmlText += GetTableHtml(datasets, tableAlignment, border, tabSpaces, cellPadding);
+            htmlText += string.Format("{0}{0}{0}</DIV>{1}"
+                , '\t'
+                , '\n');
+            return htmlText;
         }
 
         public static string GetSummaryTableHtml(
             DataTable Table, string Title,
             string TitleStyle, int Border, int TabSpaces, int CellPadding)
         {
-            string s_Tab = "\t", s_LineDelimiter = "\n";
-
-            string s_Return = string.Format(
+            string htmlText = string.Format(
                 "{0}{0}{0}<DIV>{1}" +
                 "{0}{0}{0}{0}<P ID='{3}'>{2}</P>{1}"
-                , s_Tab
-                , s_LineDelimiter
+                , '\t'
+                , '\n'
                 , !string.IsNullOrEmpty(Title) ? Title : "Summary Table"
                 , TitleStyle
                 );
 
             if (Table != null)
-                s_Return += GetTableHtml(Table, null, Border, TabSpaces, CellPadding);
+                htmlText += GetTableHtml(Table, null, Border, TabSpaces, CellPadding);
 
-            s_Return += string.Format(
+            htmlText += string.Format(
                 "{0}{0}{0}</DIV>{1}{0}{0}<BR>{1}"
-                , s_Tab
-                , s_LineDelimiter);
+                , '\t'
+                , '\n');
 
-            return s_Return;
+            return htmlText;
         }
 
         public static string GetQCElement(
@@ -415,9 +410,7 @@ namespace Cyclops.DataModules
             string PictureFileName, DataTable Table, int Border,
             int TabSpaces, int CellPadding)
         {
-            string s_Tab = "\t", s_LineDelimiter = "\n";
-
-            string s_Return = string.Format("{0}{0}{0}<DIV>{1}" +
+            string htmlText = string.Format("{0}{0}{0}<DIV>{1}" +
                 "{0}{0}{0}{0}<P ID='{3}'>{2}</P>{1}" +
                 "{0}{0}{0}{0}<TABLE>{1}" +
                 "{0}{0}{0}{0}{0}<TR>{1}" +
@@ -432,15 +425,15 @@ namespace Cyclops.DataModules
                 "{0}{0}{0}{0}{0}</TR>{1}" +
                 "{0}{0}{0}{0}</TABLE>{1}" +
                 "{0}{0}{0}</DIV>{1}"
-                , s_Tab
-                , s_LineDelimiter
+                , '\t'
+                , '\n'
                 , Title
                 , TitleStyle
                 , GetPictureCode(PictureFileName, true, "", null, null)
                 , GetTableHtml(Table, null, Border, TabSpaces, CellPadding)
                 );
 
-            return s_Return;
+            return htmlText;
         }
 
         /// <summary>
@@ -481,24 +474,23 @@ namespace Cyclops.DataModules
         /// <summary>
         /// Generic code to add a picture to the webpage
         /// </summary>
-        /// <param name="PictureFileName">Name of image file, e.g. MyHeatmap.png</param>
-        /// <param name="AddPlotsDirectory">Whether or not to add the 'Plots/' directory before image file name</param>
-        /// <param name="Width">Width of image, if null then set to 400</param>
-        /// <param name="Height">Height of image, if null then set to 400</param>
+        /// <param name="imageFileName">Name of image file, e.g. MyHeatmap.png</param>
+        /// <param name="addPlotsDirectory">Whether or not to add the 'Plots/' directory before image file name</param>
+        /// <param name="cssCode"></param>
+        /// <param name="width">Width of image, if null then set to 400</param>
+        /// <param name="height">Height of image, if null then set to 400</param>
         /// <returns>HTML code</returns>
-        public static string GetPictureCode(string PictureFileName, bool AddPlotsDirectory, string CssCode, int? Width, int? Height)
+        public static string GetPictureCode(string imageFileName, bool addPlotsDirectory, string cssCode, int? width, int? height)
         {
-            string s_Tab = "\t", s_LineDelimiter = "\n";
-
             return string.Format("{0}{0}{0}{0}<A {4}HREF='{2}{3}'>" +
                 "<IMG src='{2}{3}' width='{5}' height='{6}' /></A>{1}"
-                , s_Tab
-                , s_LineDelimiter
-                , AddPlotsDirectory ? "Plots/" : ""
-                , PictureFileName
-                , !string.IsNullOrEmpty(CssCode) ? "class='" + CssCode + "' " : ""
-                , Width != null ? Width.ToString() : "400"
-                , Height != null ? Height.ToString() : "400");
+                , '\t'
+                , '\n'
+                , addPlotsDirectory ? "Plots/" : ""
+                , imageFileName
+                , !string.IsNullOrEmpty(cssCode) ? "class='" + cssCode + "' " : ""
+                , width != null ? width.ToString() : "400"
+                , height != null ? height.ToString() : "400");
         }
 
         /// <summary>
@@ -507,66 +499,67 @@ namespace Cyclops.DataModules
         /// <returns></returns>
         public static string GetEndBodyEndHtml()
         {
-            string s_Tab = "\t", s_LineDelimiter = "\n";
             return string.Format("{0}{0}</DIV>{1}{0}</BODY>{1}</HTML>{1}"
-                , s_Tab
-                , s_LineDelimiter
+                , '\t'
+                , '\n'
                 );
         }
 
         /// <summary>
         /// Generates the html code to display a table on the webpage
         /// </summary>
-        /// <param name="Table">Table to display</param>
+        /// <param name="table">Table to display</param>
         /// <param name="alignment">How to align the table on the page, eg. left, center, right</param>
         /// <param name="border">Size of border</param>
         /// <param name="TabSpaces">Number of tab spaces before the table tag</param>
         /// <returns></returns>
-        public static string GetTableHtml(DataTable Table, string alignment, int? border, int? TabSpaces, int? CellPadding)
+        public static string GetTableHtml(DataTable table, string alignment, int? border, int? tabSpaces, int? cellPadding)
         {
-            string s_TableTabs = "", s_RowTabs = "", s_Tab = "\t", s_LineDelimiter = "\n";
+            string tableTabs = "";
+            string rowHtml = "";
 
-            for (int i = 0; i < TabSpaces; i++)
+            for (int i = 0; i < tabSpaces; i++)
             {
-                s_TableTabs += s_Tab;
-                s_RowTabs += s_Tab;
+                tableTabs += '\t';
+                rowHtml += '\t';
             }
-            s_RowTabs += s_Tab;
+            rowHtml += '\t';
 
-            string s_Table = string.Format(s_TableTabs + "<TABLE {0}border='{1}' " +
+            string htmlText = string.Format(
+                tableTabs + "<TABLE {0}border='{1}' " +
                 "CELLPADDING={2}>" +
-                s_LineDelimiter,
+                '\n',
                 !string.IsNullOrEmpty(alignment) ? "align='" + alignment + "' " : "",
                 border != null ? border.ToString() : "0",
-                CellPadding != null ? CellPadding.ToString() : "4");
+                cellPadding != null ? cellPadding.ToString() : "4");
 
-            s_Table += s_RowTabs + "<THEAD>" + s_LineDelimiter +
-                s_RowTabs + "<TR>";
+            htmlText += rowHtml + "<THEAD>\n" +
+                rowHtml + "<TR>";
 
             // Write the table headers
-            foreach (DataColumn c in Table.Columns)
+            foreach (DataColumn c in table.Columns)
             {
-                s_Table += "<TH><B><P align='center'>" + c.ColumnName + "</P></B></TH>";
+                htmlText += "<TH><B><P align='center'>" + c.ColumnName + "</P></B></TH>";
             }
-            s_Table += "</TR>" + s_LineDelimiter + s_RowTabs + "</THEAD>" + s_LineDelimiter;
+            htmlText += "</TR>\n" + rowHtml + "</THEAD>\n";
 
-            int i_Row = 0;
-            foreach (DataRow r in Table.Rows)
+            int rowNum = 0;
+            foreach (DataRow r in table.Rows)
             {
-                i_Row++;
-                if (i_Row % 2 == 0)
-                    s_Table += s_RowTabs + "<TR bgcolor='lightblue'>";
+                rowNum++;
+                if (rowNum % 2 == 0)
+                    htmlText += rowHtml + "<TR bgcolor='lightblue'>";
                 else
-                    s_Table += s_RowTabs + "<TR>";
-                for (int c = 0; c < Table.Columns.Count; c++)
+                    htmlText += rowHtml + "<TR>";
+                for (int c = 0; c < table.Columns.Count; c++)
                 {
-                    s_Table += "<TD><P align='center'>" + r[c].ToString() + "</P></TD>";
+                    htmlText += "<TD><P align='center'>" + r[c].ToString() + "</P></TD>";
                 }
-                s_Table += "</TR>" + s_LineDelimiter;
+                htmlText += "</TR>\n";
             }
 
-            s_Table += s_TableTabs + "</TABLE>" + s_LineDelimiter + s_LineDelimiter;
-            return s_Table;
+            htmlText += tableTabs + "</TABLE>\n\n";
+            return htmlText;
         }
         #endregion
     }

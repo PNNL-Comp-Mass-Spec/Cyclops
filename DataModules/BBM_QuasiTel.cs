@@ -82,7 +82,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -91,10 +91,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = BBM_and_QuasiTelFunction();
+                    successful = BBM_and_QuasiTelFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -104,14 +104,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -121,15 +121,15 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -143,7 +143,7 @@ namespace Cyclops.DataModules
                     "specified input table: " +
                     Parameters[RequiredParameters.InputTableName.ToString()],
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
             if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.FactorTable.ToString()]))
@@ -152,11 +152,11 @@ namespace Cyclops.DataModules
                     "specified factor table: " +
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -165,28 +165,28 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool BBM_and_QuasiTelFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Parameters.ContainsKey(
                 RequiredParameters.Fixed_Effect.ToString()))
             {
-                string s_FactorTable = Parameters[RequiredParameters.FactorTable.ToString()];
-                string s_FixedEffect = Parameters[RequiredParameters.Fixed_Effect.ToString()];
+                string factorTable = Parameters[RequiredParameters.FactorTable.ToString()];
+                string fixedEffect = Parameters[RequiredParameters.Fixed_Effect.ToString()];
 
-                if (string.IsNullOrEmpty(s_FactorTable))
+                if (string.IsNullOrEmpty(factorTable))
                 {
                       Model.LogWarning("FactorTable parameter is empty; skipping QuasiTel", ModuleName, StepNumber);
                     return true;
                 }
 
-                if (string.IsNullOrEmpty(s_FixedEffect))
+                if (string.IsNullOrEmpty(fixedEffect))
                 {
                     Model.LogWarning("FixedEffect parameter is empty; skipping QuasiTel", ModuleName, StepNumber);
                     return true;
                 }
 
 
-                if (!Model.RCalls.TableContainsColumn(s_FactorTable, s_FixedEffect))
+                if (!Model.RCalls.TableContainsColumn(factorTable, fixedEffect))
                 {
                     Model.LogError(string.Format(
                         "Factor table ({0}) does not contain the specified " +
@@ -199,9 +199,9 @@ namespace Cyclops.DataModules
 
 
                 // TODO : Make it work
-                string s_TmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
-                string s_TmpInputTableName = GetTemporaryTableName("T_BBMQuasiInput_");
-                string s_FactorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,'" +
+                string tmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
+                string tmpInputTableName = GetTemporaryTableName("T_BBMQuasiInput_");
+                string factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,'" +
                         Parameters[RequiredParameters.Fixed_Effect.ToString()] + "']";
 
                 try
@@ -212,22 +212,22 @@ namespace Cyclops.DataModules
                     {
                         rCmd += string.Format(
                             "{0} <- data.matrix({1}[,2:ncol({1})])\n", 
-                            s_TmpInputTableName,
+                            tmpInputTableName,
                             Parameters[RequiredParameters.InputTableName.ToString()]);
                     }
                     else
                     {
                         rCmd += string.Format(
                             "{0} <- {1}\n",
-                            s_TmpInputTableName,
+                            tmpInputTableName,
                             Parameters[RequiredParameters.InputTableName.ToString()]);
                     }
 
-                    b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                    successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
-                    List<string> l_Factors = Model.RCalls.GetColumnNames(s_TmpInputTableName, true);
-                    int i_FactorCnt = Model.RCalls.GetLengthOfVector(s_FactorComplete);
-                    if (l_Factors.Count == i_FactorCnt && b_Successful)
+                    List<string> factorList = Model.RCalls.GetColumnNames(tmpInputTableName, true);
+                    int factorCount = Model.RCalls.GetLengthOfVector(factorComplete);
+                    if (factorList.Count == factorCount && successful)
                     {
                         rCmd = string.Format(
                             "{0} <- jnb_BBM_and_QTel(" +
@@ -238,22 +238,22 @@ namespace Cyclops.DataModules
                             "sinkFileName='')\n" +
                             "rm({1})\n",
                             Parameters[RequiredParameters.NewTableName.ToString()],
-                            s_TmpInputTableName,
+                            tmpInputTableName,
                             Parameters[RequiredParameters.FactorTable.ToString()],
                             Parameters[RequiredParameters.Fixed_Effect.ToString()],
                             Parameters[RequiredParameters.Theta.ToString()]);
 
-                        b_Successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                        successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                     }
                     else
                     {
                         Model.LogError(string.Format(
                                 "ERROR BBM_and_QuasiTel class: Dimensions of spectral count table ({0}) " +
                                 "do not match the dimensions of your factor vector ({1})",
-                                l_Factors.Count,
-                                i_FactorCnt));
+                                factorList.Count,
+                                factorCount));
                         SaveCurrentREnvironment();
-                        b_Successful = false;
+                        successful = false;
                     }
                 }
                 catch (Exception ex)
@@ -262,11 +262,11 @@ namespace Cyclops.DataModules
                         "BBM and QuasiTel analyses:\n" + ex.ToString(),
                         ModuleName, StepNumber);
                     SaveCurrentREnvironment();
-                    b_Successful = false;
+                    successful = false;
                 }
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

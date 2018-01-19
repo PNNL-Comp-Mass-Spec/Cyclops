@@ -89,7 +89,7 @@ namespace Cyclops.Operations
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -98,11 +98,11 @@ namespace Cyclops.Operations
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful =
+                    successful =
                         SpectralCountMainOperationFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -112,15 +112,15 @@ namespace Cyclops.Operations
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogWarning("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
@@ -129,7 +129,7 @@ namespace Cyclops.Operations
                 OperationsDatabasePath = Parameters["DatabaseFileName"];
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -138,13 +138,13 @@ namespace Cyclops.Operations
         /// <returns>True, if the operation completes successfully</returns>
         public bool SpectralCountMainOperationFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             SetTypes();
 
-            b_Successful = ConstructModules();
+            successful = ConstructModules();
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -188,16 +188,16 @@ namespace Cyclops.Operations
         /// <returns></returns>
         public bool ConstructModules()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             try
             {
                 WorkflowHandler wfh = new WorkflowHandler(Model);
                 wfh.InputWorkflowFileName = OperationsDatabasePath;
                 wfh.WorkflowTableName = m_SpectralCountTableName;
-                b_Successful = wfh.ReadSQLiteWorkflow();
+                successful = wfh.ReadSQLiteWorkflow();
 
-                if (b_Successful)
+                if (successful)
                     Model.ModuleLoader = wfh;
             }
             catch (Exception ex)
@@ -205,10 +205,10 @@ namespace Cyclops.Operations
                 Model.LogError("Exception encounterd while running 'ConstructModules' " +
                     "for the Spectral Count Operation:\n" +
                     ex.ToString(), ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>

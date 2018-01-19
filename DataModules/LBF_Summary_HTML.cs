@@ -92,7 +92,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             if (Model.PipelineCurrentlySuccessful)
             {
@@ -101,10 +101,10 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running LBF_Summary_HTML", ModuleName, StepNumber);
 
                 if (CheckParameters())
-                    b_Successful = LBF_Summary_HTMLFunction();
+                    successful = LBF_Summary_HTMLFunction();
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -114,14 +114,14 @@ namespace Cyclops.DataModules
         /// <returns>Parameters used by module</returns>
         public override Dictionary<string, string> GetParametersTemplate()
         {
-            Dictionary<string, string> d_Parameters = new Dictionary<string, string>();
+            Dictionary<string, string> paramDictionary = new Dictionary<string, string>();
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
-                d_Parameters.Add(s, "");
+                paramDictionary.Add(s, "");
             }
 
-            return d_Parameters;
+            return paramDictionary;
         }
 
         /// <summary>
@@ -131,32 +131,32 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             foreach (string s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
                 {
                     Model.LogError("Required Field Missing: " + s, ModuleName, StepNumber);
-                    b_Successful = false;
-                    return b_Successful;
+                    successful = false;
+                    return successful;
                 }
             }
 
-            if (Parameters.ContainsKey("WorkDir") && b_Successful)
+            if (Parameters.ContainsKey("WorkDir") && successful)
             {
                 if (!string.IsNullOrEmpty(Parameters["WorkDir"]))
                     m_WorkingDirectory = Parameters["WorkDir"];
                 else
                 {
                     Model.LogError("Error in 'LBF_Summary_HTML', no 'WorkDir' supplied!", ModuleName, StepNumber);
-                    b_Successful = false;
+                    successful = false;
                 }
             }
-            else if (b_Successful)
+            else if (successful)
             {
                 Model.LogError("Error in 'LBF_Summary_HTML', no 'WorkDir' supplied!", ModuleName, StepNumber);
-                b_Successful = false;
+                successful = false;
             }
 
             if (Parameters.ContainsKey("DatabaseName"))
@@ -165,7 +165,7 @@ namespace Cyclops.DataModules
                     m_DatabaseName = Parameters["DatabaseName"];
             }
 
-            return b_Successful;
+            return successful;
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool LBF_Summary_HTMLFunction()
         {
-            bool b_Successful = true;
+            bool successful = true;
 
             AddDefaultValues2FileNameVault();
 
@@ -270,27 +270,27 @@ namespace Cyclops.DataModules
             }
             #endregion
 
-            return b_Successful;
+            return successful;
         }
 
         private List<HtmlLinkNode> GetOriginalNavBar()
         {
-            List<HtmlLinkNode> l_NavBarNodes = new List<HtmlLinkNode>();
+            List<HtmlLinkNode> navBarNodes = new List<HtmlLinkNode>();
 
-            l_NavBarNodes.Add(new HtmlLinkNode(
+            navBarNodes.Add(new HtmlLinkNode(
                 "Home", Parameters[RequiredParameters.FileName.ToString()], false));
-            l_NavBarNodes.Add(new HtmlLinkNode(
+            navBarNodes.Add(new HtmlLinkNode(
                 "Datasets", FileNameVault["DatasetsHtmlFileName"], false));
-            l_NavBarNodes.Add(new HtmlLinkNode(
+            navBarNodes.Add(new HtmlLinkNode(
                 "Summary Tables", FileNameVault["SummaryTableHtmlFileName"], false));
-            l_NavBarNodes.Add(new HtmlLinkNode(
+            navBarNodes.Add(new HtmlLinkNode(
                 "QC Plots", FileNameVault["QcHtmlFileName"], false));
-            l_NavBarNodes.Add(new HtmlLinkNode(
+            navBarNodes.Add(new HtmlLinkNode(
                 "Box Plots", FileNameVault["BoxPlotHtmlFileName"], false));
-            l_NavBarNodes.Add(new HtmlLinkNode(
+            navBarNodes.Add(new HtmlLinkNode(
                 "Correlation Heatmaps", FileNameVault["CorrelationHtmlFileName"], false));
 
-            return l_NavBarNodes;
+            return navBarNodes;
         }
 
         /// <summary>
@@ -358,27 +358,26 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteDatasetsPage(List<HtmlLinkNode> NavBar)
         {
-            StringBuilder sb_Scripts = new StringBuilder();
+            StringBuilder scriptHtml = new StringBuilder();
 
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
-            sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
+            scriptHtml.Append(HtmlFileHandler.GetHtmlHeader());
+            scriptHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
+            scriptHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
-            sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
-            sb_Scripts.Append(HtmlFileHandler.GetNavTable(NavBar));
-            //sb_Scripts.Append(HtmlFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+            scriptHtml.Append(HtmlFileHandler.GetHtmlScriptEnd());
+            scriptHtml.Append(HtmlFileHandler.GetEndHeadStartBody());
+            scriptHtml.Append(HtmlFileHandler.GetNavTable(NavBar));
+            //scriptHtml.Append(HtmlFileHandler.GetNavBar(navBarNodes, "LEFT"));
 
-            sb_Scripts.Append("<DIV ID='main_content'>\n");
-            sb_Scripts.Append(HtmlFileHandler.GetDatasetTableHtml(
+            scriptHtml.Append("<DIV ID='main_content'>\n");
+            scriptHtml.Append(HtmlFileHandler.GetDatasetTableHtml(
                 Path.Combine(m_WorkingDirectory, m_DatabaseName), "", "table_header", "left", 1, 1, 1));
-            sb_Scripts.Append("</DIV>\n");
-            sb_Scripts.Append(HtmlFileHandler.GetEndBodyEndHtml());
+            scriptHtml.Append("</DIV>\n");
+            scriptHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter sw = new StreamWriter(Path.Combine(
-                m_WorkingDirectory, FileNameVault["DatasetsHtmlFileName"]));
-            sw.WriteLine(sb_Scripts);
-            sw.Close();
+            StreamWriter htmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["DatasetsHtmlFileName"]));
+            htmlWriter.WriteLine(scriptHtml);
+            htmlWriter.Close();
         }
 
         /// <summary>
@@ -407,28 +406,28 @@ namespace Cyclops.DataModules
                 NavBar.Add(new HtmlLinkNode("RRollup LR Protein", "protRRLR", true));
             }
 
-            StringBuilder sb_Scripts = new StringBuilder();
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
-            sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
+            StringBuilder summaryHtml = new StringBuilder();
+            summaryHtml.Append(HtmlFileHandler.GetHtmlHeader());
+            summaryHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
+            summaryHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
-            sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
-            sb_Scripts.Append(HtmlFileHandler.GetNavTable(NavBar));
-            //sb_Scripts.Append(HtmlFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
+            summaryHtml.Append(HtmlFileHandler.GetHtmlScriptEnd());
+            summaryHtml.Append(HtmlFileHandler.GetEndHeadStartBody());
+            summaryHtml.Append(HtmlFileHandler.GetNavTable(NavBar));
+            //summaryHtml.Append(HtmlFileHandler.GetNavBar(navBarNodes, "LEFT"));
 
-            sb_Scripts.Append("<DIV ID='main_content'>\n");
-            sb_Scripts.Append("<A NAME='pepOrig' /A>\n");
+            summaryHtml.Append("<DIV ID='main_content'>\n");
+            summaryHtml.Append("<A NAME='pepOrig' /A>\n");
 
-            sb_Scripts.Append(
+            summaryHtml.Append(
                 HtmlFileHandler.GetSummaryTableHtml(
                     Model.RCalls.GetDataTableIncludingRowNames(
                         "Summary_T_Data$TotalSummary", "QC_Params"),
                     "Summary of Original Peptide Abundances", "table_header",
                     1, 1, 1));
 
-            sb_Scripts.Append("<A NAME='peplog2' /A>\n");
-            sb_Scripts.Append(
+            summaryHtml.Append("<A NAME='peplog2' /A>\n");
+            summaryHtml.Append(
                 HtmlFileHandler.GetSummaryTableHtml(
                     Model.RCalls.GetDataTableIncludingRowNames(
                         "Summary_Log_T_Data$TotalSummary", "QC_Params"),
@@ -437,8 +436,8 @@ namespace Cyclops.DataModules
 
             if (m_CT)
             {
-                sb_Scripts.Append("<A NAME='pepCT' /A>\n");
-                sb_Scripts.Append(
+                summaryHtml.Append("<A NAME='pepCT' /A>\n");
+                summaryHtml.Append(
                     HtmlFileHandler.GetSummaryTableHtml(
                         Model.RCalls.GetDataTableIncludingRowNames(
                             "Summary_CT_Log_T_Data$TotalSummary", "QC_Params"),
@@ -448,8 +447,8 @@ namespace Cyclops.DataModules
 
             if (m_LR)
             {
-                sb_Scripts.Append("<A NAME='pepLR' /A>\n");
-                sb_Scripts.Append(
+                summaryHtml.Append("<A NAME='pepLR' /A>\n");
+                summaryHtml.Append(
                     HtmlFileHandler.GetSummaryTableHtml(
                         Model.RCalls.GetDataTableIncludingRowNames(
                             "Summary_LR_Log_T_Data$TotalSummary", "QC_Params"),
@@ -458,8 +457,8 @@ namespace Cyclops.DataModules
             }
 
             // Proteins
-            sb_Scripts.Append("<A NAME='protRR' /A>\n");
-            sb_Scripts.Append(
+            summaryHtml.Append("<A NAME='protRR' /A>\n");
+            summaryHtml.Append(
                 HtmlFileHandler.GetSummaryTableHtml(
                     Model.RCalls.GetDataTableIncludingRowNames(
                         "Summary_RR_Log_T_Data$TotalSummary", "QC_Params"),
@@ -468,8 +467,8 @@ namespace Cyclops.DataModules
 
             if (m_CT)
             {
-                sb_Scripts.Append("<A NAME='protRRCT' /A>\n");
-                sb_Scripts.Append(
+                summaryHtml.Append("<A NAME='protRRCT' /A>\n");
+                summaryHtml.Append(
                     HtmlFileHandler.GetSummaryTableHtml(
                         Model.RCalls.GetDataTableIncludingRowNames(
                             "Summary_RR_CT_Log_T_Data$TotalSummary", "QC_Params"),
@@ -479,8 +478,8 @@ namespace Cyclops.DataModules
 
             if (m_LR)
             {
-                sb_Scripts.Append("<A NAME='protRRLR' /A>\n");
-                sb_Scripts.Append(
+                summaryHtml.Append("<A NAME='protRRLR' /A>\n");
+                summaryHtml.Append(
                     HtmlFileHandler.GetSummaryTableHtml(
                         Model.RCalls.GetDataTableIncludingRowNames(
                             "Summary_RR_LR_Log_T_Data$TotalSummary", "QC_Params"),
@@ -488,14 +487,13 @@ namespace Cyclops.DataModules
                         1, 1, 1));
             }
 
-            sb_Scripts.Append("</DIV>\n");
+            summaryHtml.Append("</DIV>\n");
 
-            sb_Scripts.Append(HtmlFileHandler.GetEndBodyEndHtml());
+            summaryHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter sw = new StreamWriter(Path.Combine(
-                m_WorkingDirectory, FileNameVault["SummaryTableHtmlFileName"]));
-            sw.Write(sb_Scripts);
-            sw.Close();
+            StreamWriter summaryWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["SummaryTableHtmlFileName"]));
+            summaryWriter.Write(summaryHtml);
+            summaryWriter.Close();
         }
 
         /// <summary>
@@ -504,27 +502,27 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteQCHTMLPage(List<HtmlLinkNode> NavBar)
         {
-            bool b_ContainsTrypticPeptideSummary =
+            bool containsTrypticPeptideSummary =
                 Model.ModuleLoader.SQLiteDatabase.TableExists(m_TypticTableSummaryName);
 
             NavBar.Add(new HtmlLinkNode("LBF Summary", "sum", true));
             NavBar.Add(new HtmlLinkNode("Missed Cleavages", "mc", true));
             NavBar.Add(new HtmlLinkNode("Tryptic Peptides", "tp", true));
 
-            StringBuilder sb_Scripts = new StringBuilder();
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
+            StringBuilder qcHtml = new StringBuilder();
+            qcHtml.Append(HtmlFileHandler.GetHtmlHeader());
+            qcHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
-            sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
-            sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
-            sb_Scripts.Append(HtmlFileHandler.GetNavTable(NavBar));
-            //sb_Scripts.Append(HtmlFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
-            sb_Scripts.Append(WriteHtmlBody(HTMLFileType.Index));
+            qcHtml.Append(HtmlFileHandler.GetHtmlScriptEnd());
+            qcHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
+            qcHtml.Append(HtmlFileHandler.GetEndHeadStartBody());
+            qcHtml.Append(HtmlFileHandler.GetNavTable(NavBar));
+            //qcHtml.Append(HtmlFileHandler.GetNavBar(navBarNodes, "LEFT"));
+            qcHtml.Append(WriteHtmlBody(HTMLFileType.Index));
 
-            sb_Scripts.Append("<DIV ID='main_content'>\n");
-            sb_Scripts.Append("\t\t<A NAME='sum' />\n");
-            sb_Scripts.Append(
+            qcHtml.Append("<DIV ID='main_content'>\n");
+            qcHtml.Append("\t\t<A NAME='sum' />\n");
+            qcHtml.Append(
                 HtmlFileHandler.GetQCElement(
                     "Label-free Analysis Summary",
                     "table_header",
@@ -533,8 +531,8 @@ namespace Cyclops.DataModules
                         FileNameVault["LbfAnalysisSummaryFigureTableName"]),
                     1, 1, 1));
 
-            sb_Scripts.Append("\t\t<A NAME='mc'/A>\n");
-            sb_Scripts.Append(
+            qcHtml.Append("\t\t<A NAME='mc'/A>\n");
+            qcHtml.Append(
                 HtmlFileHandler.GetQCElement(
                     "Missed Cleavage Summary",
                     "table_header",
@@ -543,10 +541,10 @@ namespace Cyclops.DataModules
                         FileNameVault["LbfMissedCleavageFigureTableName"]),
                     1, 1, 1));
 
-            if (b_ContainsTrypticPeptideSummary)
+            if (containsTrypticPeptideSummary)
             {
-                sb_Scripts.Append("\t\t<A NAME='tp'/A>\n");
-                sb_Scripts.Append(
+                qcHtml.Append("\t\t<A NAME='tp'/A>\n");
+                qcHtml.Append(
                     HtmlFileHandler.GetQCElement(
                         "Tryptic Peptide Summary",
                         "table_header",
@@ -556,13 +554,12 @@ namespace Cyclops.DataModules
                         1, 1, 1));
             }
 
-            sb_Scripts.Append("</DIV>\n");
-            sb_Scripts.Append(HtmlFileHandler.GetEndBodyEndHtml());
+            qcHtml.Append("</DIV>\n");
+            qcHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter sw = new StreamWriter(Path.Combine(
-                m_WorkingDirectory, FileNameVault["QcHtmlFileName"]));
-            sw.WriteLine(sb_Scripts);
-            sw.Close();
+            StreamWriter qcHtmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["QcHtmlFileName"]));
+            qcHtmlWriter.WriteLine(qcHtml);
+            qcHtmlWriter.Close();
         }
 
         /// <summary>
@@ -571,31 +568,28 @@ namespace Cyclops.DataModules
         /// <param name="NavBar">HTML Navigation Bar</param>
         private void WriteMainHTMLPage(List<HtmlLinkNode> NavBar)
         {
-            StringBuilder sb_Scripts = new StringBuilder();
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
+            StringBuilder mainHtml = new StringBuilder();
+            mainHtml.Append(HtmlFileHandler.GetHtmlHeader());
+            mainHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
-            sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
-            sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
-            sb_Scripts.Append(HtmlFileHandler.GetNavTable(NavBar));
-            //sb_Scripts.Append(HtmlFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
-            sb_Scripts.Append(WriteHtmlBody(HTMLFileType.Index));
+            mainHtml.Append(HtmlFileHandler.GetHtmlScriptEnd());
+            mainHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
+            mainHtml.Append(HtmlFileHandler.GetEndHeadStartBody());
+            mainHtml.Append(HtmlFileHandler.GetNavTable(NavBar));
+            //mainHtml.Append(HtmlFileHandler.GetNavBar(navBarNodes, "LEFT"));
+            mainHtml.Append(WriteHtmlBody(HTMLFileType.Index));
 
-
-            sb_Scripts.Append("<DIV ID='main_content'>\n");
+            mainHtml.Append("<DIV ID='main_content'>\n");
 
             // Add to the index page here...
 
-            sb_Scripts.Append("</DIV>\n");
+            mainHtml.Append("</DIV>\n");
 
-            sb_Scripts.Append(HtmlFileHandler.GetEndBodyEndHtml());
+            mainHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-
-            StreamWriter sw = new StreamWriter(Path.Combine(
-                m_WorkingDirectory, FileNameVault["MainFileName"]));
-            sw.WriteLine(sb_Scripts);
-            sw.Close();
+            StreamWriter htmlWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["MainFileName"]));
+            htmlWriter.WriteLine(mainHtml);
+            htmlWriter.Close();
         }
 
         /// <summary>
@@ -623,84 +617,83 @@ namespace Cyclops.DataModules
                 NavBar.Add(new HtmlLinkNode("Prot CT Boxplot", "protctbp", true));
             }
 
-            StringBuilder sb_Scripts = new StringBuilder();
+            StringBuilder boxPlotHtml = new StringBuilder();
 
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
+            boxPlotHtml.Append(HtmlFileHandler.GetHtmlHeader());
+            boxPlotHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
-            sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
-            sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
-            sb_Scripts.Append(HtmlFileHandler.GetNavTable(NavBar));
-            //sb_Scripts.Append(HtmlFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
-            sb_Scripts.Append(WriteHtmlBody(HTMLFileType.Index));
+            boxPlotHtml.Append(HtmlFileHandler.GetHtmlScriptEnd());
+            boxPlotHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
+            boxPlotHtml.Append(HtmlFileHandler.GetEndHeadStartBody());
+            boxPlotHtml.Append(HtmlFileHandler.GetNavTable(NavBar));
+            //boxPlotHtml.Append(HtmlFileHandler.GetNavBar(navBarNodes, "LEFT"));
+            boxPlotHtml.Append(WriteHtmlBody(HTMLFileType.Index));
 
-            sb_Scripts.Append("<DIV ID='main_content'>\n");
-            sb_Scripts.Append("\t\t<A NAME='log2bp'/A>\n");
-            sb_Scripts.Append("\t\t<DIV>\n");
-            sb_Scripts.Append("\t\t<P ID='table_header'>Peptide Log2 Box Plot</P>\n");
-            sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+            boxPlotHtml.Append("<DIV ID='main_content'>\n");
+            boxPlotHtml.Append("\t\t<A NAME='log2bp'/A>\n");
+            boxPlotHtml.Append("\t\t<DIV>\n");
+            boxPlotHtml.Append("\t\t<P ID='table_header'>Peptide Log2 Box Plot</P>\n");
+            boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                 FileNameVault["LbfBoxplotFigureFileName"],
                 true, "pos_left", null, null) + "\n");
-            sb_Scripts.Append("\t\t</DIV>\n");
+            boxPlotHtml.Append("\t\t</DIV>\n");
             if (m_LR)
             {
-                sb_Scripts.Append("\t\t<A NAME='lrlog2bp'/A>\n");
-                sb_Scripts.Append("\t\t<DIV>\n");
-                sb_Scripts.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Box Plot</P>\n");
-                sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+                boxPlotHtml.Append("\t\t<A NAME='lrlog2bp'/A>\n");
+                boxPlotHtml.Append("\t\t<DIV>\n");
+                boxPlotHtml.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Box Plot</P>\n");
+                boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfBoxplotLRFigureFileName"],
                     true, "pos_left", null, null) + "\n");
-                sb_Scripts.Append("\t\t</DIV>\n");
+                boxPlotHtml.Append("\t\t</DIV>\n");
             }
             if (m_CT)
             {
-                sb_Scripts.Append("\t\t<A NAME='ctlog2bp'/A>\n");
-                sb_Scripts.Append("\t\t<DIV>\n");
-                sb_Scripts.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Box Plot</P>\n");
-                sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+                boxPlotHtml.Append("\t\t<A NAME='ctlog2bp'/A>\n");
+                boxPlotHtml.Append("\t\t<DIV>\n");
+                boxPlotHtml.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Box Plot</P>\n");
+                boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfBoxplotCTFigureFileName"],
                     true, "pos_left", null, null) + "\n");
-                sb_Scripts.Append("\t\t</DIV>\n");
+                boxPlotHtml.Append("\t\t</DIV>\n");
             }
 
-            sb_Scripts.Append("\t\t<A NAME='protbp'/A>\n");
-            sb_Scripts.Append("\t\t<DIV>\n");
-            sb_Scripts.Append("\t\t<P ID='table_header'>Protein Log2 Box Plot</P>\n");
-            sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+            boxPlotHtml.Append("\t\t<A NAME='protbp'/A>\n");
+            boxPlotHtml.Append("\t\t<DIV>\n");
+            boxPlotHtml.Append("\t\t<P ID='table_header'>Protein Log2 Box Plot</P>\n");
+            boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                 FileNameVault["LbfBoxplotRrFigureFileName"],
                 true, "pos_left", null, null) + "\n");
-            sb_Scripts.Append("\t\t</DIV>\n");
+            boxPlotHtml.Append("\t\t</DIV>\n");
 
             if (m_LR)
             {
-                sb_Scripts.Append("\t\t<A NAME='protlrbp'/A>\n");
-                sb_Scripts.Append("\t\t<DIV>\n");
-                sb_Scripts.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Box Plot</P>\n");
-                sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+                boxPlotHtml.Append("\t\t<A NAME='protlrbp'/A>\n");
+                boxPlotHtml.Append("\t\t<DIV>\n");
+                boxPlotHtml.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Box Plot</P>\n");
+                boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfBoxplotRrLRFigureFileName"],
                     true, "pos_left", null, null) + "\n");
-                sb_Scripts.Append("\t\t</DIV>\n");
+                boxPlotHtml.Append("\t\t</DIV>\n");
             }
             if (m_CT)
             {
-                sb_Scripts.Append("\t\t<A NAME='protctbp'/A>\n");
-                sb_Scripts.Append("\t\t<DIV>\n");
-                sb_Scripts.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Box Plot</P>\n");
-                sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+                boxPlotHtml.Append("\t\t<A NAME='protctbp'/A>\n");
+                boxPlotHtml.Append("\t\t<DIV>\n");
+                boxPlotHtml.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Box Plot</P>\n");
+                boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfBoxplotRrCTFigureFileName"],
                     true, "pos_left", null, null) + "\n");
-                sb_Scripts.Append("\t\t</DIV>\n");
+                boxPlotHtml.Append("\t\t</DIV>\n");
             }
 
-            sb_Scripts.Append("</DIV>\n");
+            boxPlotHtml.Append("</DIV>\n");
 
-            sb_Scripts.Append(HtmlFileHandler.GetEndBodyEndHtml());
+            boxPlotHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter sw = new StreamWriter(Path.Combine(
-                m_WorkingDirectory, FileNameVault["BoxPlotHtmlFileName"]));
-            sw.WriteLine(sb_Scripts);
-            sw.Close();
+            StreamWriter boxPlotWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["BoxPlotHtmlFileName"]));
+            boxPlotWriter.WriteLine(boxPlotHtml);
+            boxPlotWriter.Close();
         }
 
         /// <summary>
@@ -728,92 +721,91 @@ namespace Cyclops.DataModules
                 NavBar.Add(new HtmlLinkNode("Prot CT Corr", "protctch", true));
             }
 
-            StringBuilder sb_Scripts = new StringBuilder();
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlHeader());
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlJavascriptStart());
+            StringBuilder heatmapHtml = new StringBuilder();
+            heatmapHtml.Append(HtmlFileHandler.GetHtmlHeader());
+            heatmapHtml.Append(HtmlFileHandler.GetHtmlJavascriptStart());
 
-            sb_Scripts.Append(HtmlFileHandler.GetHtmlScriptEnd());
-            sb_Scripts.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
-            sb_Scripts.Append(HtmlFileHandler.GetEndHeadStartBody());
-            sb_Scripts.Append(HtmlFileHandler.GetNavTable(NavBar));
-            //sb_Scripts.Append(HtmlFileHandler.GetNavBar(l_NavBarNodes, "LEFT"));
-            sb_Scripts.Append(WriteHtmlBody(HTMLFileType.Index));
+            heatmapHtml.Append(HtmlFileHandler.GetHtmlScriptEnd());
+            heatmapHtml.Append(HtmlFileHandler.GetCSSLink(FileNameVault["CssFileName"]));
+            heatmapHtml.Append(HtmlFileHandler.GetEndHeadStartBody());
+            heatmapHtml.Append(HtmlFileHandler.GetNavTable(NavBar));
+            //heatmapHtml.Append(HtmlFileHandler.GetNavBar(navBarNodes, "LEFT"));
+            heatmapHtml.Append(WriteHtmlBody(HTMLFileType.Index));
 
-            sb_Scripts.Append("<DIV ID='main_content'>\n");
-            sb_Scripts.Append("\t\t<A NAME='log2ch'/A>\n");
-            sb_Scripts.Append("\t\t<DIV>\n");
-            sb_Scripts.Append("\t\t<P ID='table_header'>Peptide Log2 Correlation Heatmap</P>\n");
-            sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+            heatmapHtml.Append("<DIV ID='main_content'>\n");
+            heatmapHtml.Append("\t\t<A NAME='log2ch'/A>\n");
+            heatmapHtml.Append("\t\t<DIV>\n");
+            heatmapHtml.Append("\t\t<P ID='table_header'>Peptide Log2 Correlation Heatmap</P>\n");
+            heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                 FileNameVault["LbfCorrelationHeatmapFigureFileName"],
                 true, "pos_left", null, null) + "\n");
-            sb_Scripts.Append("\t\t</DIV>\n");
+            heatmapHtml.Append("\t\t</DIV>\n");
             if (m_LR)
             {
-                sb_Scripts.Append("\t\t<A NAME='lrlog2ch'/A>\n");
-                sb_Scripts.Append("\t\t<DIV>\n");
-                sb_Scripts.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Correlation Heatmap</P>\n");
-                sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+                heatmapHtml.Append("\t\t<A NAME='lrlog2ch'/A>\n");
+                heatmapHtml.Append("\t\t<DIV>\n");
+                heatmapHtml.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Correlation Heatmap</P>\n");
+                heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfCorrelationHeatmapLRFigureFileName"],
                     true, "pos_left", null, null) + "\n");
-                sb_Scripts.Append("\t\t</DIV>\n");
+                heatmapHtml.Append("\t\t</DIV>\n");
             }
             if (m_CT)
             {
-                sb_Scripts.Append("\t\t<A NAME='ctlog2ch'/A>\n");
-                sb_Scripts.Append("\t\t<DIV>\n");
-                sb_Scripts.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Correlation Heatmap</P>\n");
-                sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+                heatmapHtml.Append("\t\t<A NAME='ctlog2ch'/A>\n");
+                heatmapHtml.Append("\t\t<DIV>\n");
+                heatmapHtml.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Correlation Heatmap</P>\n");
+                heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfCorrelationHeatmapCTFigureFileName"],
                     true, "pos_left", null, null) + "\n");
-                sb_Scripts.Append("\t\t</DIV>\n");
+                heatmapHtml.Append("\t\t</DIV>\n");
             }
 
-            sb_Scripts.Append("\t\t<A NAME='protch'/A>\n");
-            sb_Scripts.Append("\t\t<DIV>\n");
-            sb_Scripts.Append("\t\t<P ID='table_header'>Protein Log2 Correlation Heatmap</P>\n");
-            sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+            heatmapHtml.Append("\t\t<A NAME='protch'/A>\n");
+            heatmapHtml.Append("\t\t<DIV>\n");
+            heatmapHtml.Append("\t\t<P ID='table_header'>Protein Log2 Correlation Heatmap</P>\n");
+            heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                 FileNameVault["LbfCorrelationHeatmapRrFigureFileName"],
                 true, "pos_left", null, null) + "\n");
-            sb_Scripts.Append("\t\t</DIV>\n");
+            heatmapHtml.Append("\t\t</DIV>\n");
 
             if (m_LR)
             {
-                sb_Scripts.Append("\t\t<A NAME='protlrch'/A>\n");
-                sb_Scripts.Append("\t\t<DIV>\n");
-                sb_Scripts.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Correlation Heatmap</P>\n");
-                sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+                heatmapHtml.Append("\t\t<A NAME='protlrch'/A>\n");
+                heatmapHtml.Append("\t\t<DIV>\n");
+                heatmapHtml.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Correlation Heatmap</P>\n");
+                heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfCorrelationHeatmapRrLRFigureFileName"],
                     true, "pos_left", null, null) + "\n");
-                sb_Scripts.Append("\t\t</DIV>\n");
+                heatmapHtml.Append("\t\t</DIV>\n");
             }
             if (m_CT)
             {
-                sb_Scripts.Append("\t\t<A NAME='protctch'/A>\n");
-                sb_Scripts.Append("\t\t<DIV>\n");
-                sb_Scripts.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Correlation Heatmap</P>\n");
-                sb_Scripts.Append(HtmlFileHandler.GetPictureCode(
+                heatmapHtml.Append("\t\t<A NAME='protctch'/A>\n");
+                heatmapHtml.Append("\t\t<DIV>\n");
+                heatmapHtml.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Correlation Heatmap</P>\n");
+                heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfCorrelationHeatmapRrCTFigureFileName"],
                     true, "pos_left", null, null) + "\n");
-                sb_Scripts.Append("\t\t</DIV>\n");
+                heatmapHtml.Append("\t\t</DIV>\n");
             }
 
-            sb_Scripts.Append("</DIV>\n");
+            heatmapHtml.Append("</DIV>\n");
 
-            sb_Scripts.Append(HtmlFileHandler.GetEndBodyEndHtml());
+            heatmapHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            StreamWriter sw = new StreamWriter(Path.Combine(
-                m_WorkingDirectory, FileNameVault["CorrelationHtmlFileName"]));
-            sw.WriteLine(sb_Scripts);
-            sw.Close();
+            StreamWriter heatmapWriter = new StreamWriter(Path.Combine(m_WorkingDirectory, FileNameVault["CorrelationHtmlFileName"]));
+            heatmapWriter.WriteLine(heatmapHtml);
+            heatmapWriter.Close();
         }
 
-        private string WriteHtmlBody(HTMLFileType TheHTMLFileType)
+        private string WriteHtmlBody(HTMLFileType htmlFileType)
         {
-            string s_Body = "";
-            switch (TheHTMLFileType)
+            string body = "";
+            switch (htmlFileType)
             {
                 case HTMLFileType.Dataset:
-                    s_Body = HtmlFileHandler.GetDatasetTableHtml(
+                    body = HtmlFileHandler.GetDatasetTableHtml(
                         Path.Combine(m_WorkingDirectory, m_DatabaseName), null,
                             "table_header", "center", 0, 2, 4);
                     break;
@@ -822,7 +814,7 @@ namespace Cyclops.DataModules
                     break;
             }
 
-            return s_Body;
+            return body;
         }
 
         /// <summary>
