@@ -25,7 +25,7 @@ namespace CyclopsTest
             var rProgLoc = baseToolRunner.GetRPathFromWindowsRegistry();
             Console.WriteLine("Using R at " + rProgLoc);
 
-            var d_Params = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            var paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
 
                     {"Job", "1299605"},
@@ -42,7 +42,7 @@ namespace CyclopsTest
             try
             {
                 Console.WriteLine("Initializing the CyclopsController");
-                var cyclops = new CyclopsController(d_Params);
+                var cyclops = new CyclopsController(paramDictionary);
 
                 cyclops.ErrorEvent += Cyclops_ErrorEvent;
                 cyclops.WarningEvent += Cyclops_WarningEvent;

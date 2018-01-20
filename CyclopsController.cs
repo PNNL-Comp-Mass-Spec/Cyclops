@@ -60,11 +60,11 @@ namespace Cyclops
         /// <summary>
         /// Main constructor to call to control Cyclops
         /// </summary>
-        /// <param name="CyclopsParameters">Paramters for running Cyclops</param>
+        /// <param name="paramDictionary">Paramters for running Cyclops</param>
         public CyclopsController(
-            Dictionary<string, string> CyclopsParameters)
+            Dictionary<string, string> paramDictionary)
         {
-            Parameters = CyclopsParameters;
+            Parameters = paramDictionary;
 
             if (Parameters.ContainsKey("workDir"))
                 WorkingDirectory = Parameters["workDir"];

@@ -250,25 +250,24 @@ namespace Cyclops
                             switch (xn.Attributes["Type"].Value.ToUpper())
                             {
                                 case "DATA":
-                                    var DataParam =
-                                        GetXMLParameters(xn);
-                                    var dm =
-                                        DataModules.BaseDataModule.Create(
-                                            xn.Attributes["Name"].Value,
-                                            Model, DataParam);
-                                    dm.StepNumber = Convert.ToInt32(
+                                    var DataParam = GetXMLParameters(xn);
+                                    var dataModule = DataModules.BaseDataModule.Create(
+                                        xn.Attributes["Name"].Value,
+                                        Model, DataParam);
+
+                                    dataModule.StepNumber = Convert.ToInt32(
                                         xn.Attributes["Step"].Value);
-                                    dm = AddParameters(dm);
+                                    dataModule = AddParameters(dataModule);
 
                                     // Only add the module if that particular step
                                     // is available
-                                    if (!HasStep(dm.StepNumber))
-                                        Modules.AddLast(dm);
+                                    if (!HasStep(dataModule.StepNumber))
+                                        Modules.AddLast(dataModule);
                                     else
                                     {
                                         Model.LogError("Error occurred while trying to " +
-                                                       "add Step: " + dm.StepNumber + ", Module: " +
-                                                       dm.ModuleName + ". This Step is already " +
+                                                       "add Step: " + dataModule.StepNumber + ", Module: " +
+                                                       dataModule.ModuleName + ". This Step is already " +
                                                        "taken in the workflow. Please check your " +
                                                        "workflow so the same step number is not " +
                                                        "used twice!");
@@ -276,22 +275,23 @@ namespace Cyclops
                                         return false;
                                     }
 
-                                    AddModulesToDataTables(dm);
+                                    AddModulesToDataTables(dataModule);
                                     break;
+
                                 case "OPERATION":
-                                    var OperationParam =
-                                        GetXMLParameters(xn);
-                                    var om =
-                                        Operations.BaseOperationModule.Create(
-                                            xn.Attributes["Name"].Value,
-                                            Model, OperationParam);
+                                    var OperationParam = GetXMLParameters(xn);
+
+                                    var operationsModule = Operations.BaseOperationModule.Create(
+                                        xn.Attributes["Name"].Value,
+                                        Model, OperationParam);
+
                                     if (!string.IsNullOrEmpty(
                                         Model.OperationsDatabasePath))
                                     {
-                                        om.OperationsDatabasePath =
+                                        operationsModule.OperationsDatabasePath =
                                             Model.OperationsDatabasePath;
                                     }
-                                    successful = om.PerformOperation();
+                                    successful = operationsModule.PerformOperation();
                                     m_WorkflowContainsOperations = true;
 
                                     break;
