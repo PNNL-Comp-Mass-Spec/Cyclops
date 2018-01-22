@@ -8,10 +8,10 @@ track the analysis steps that the workflow will apply.
 
 ## Workflow Table
 
-Columns in each workflow table are Step, Module, Param, and Value.
-Each workflow step will typically have multiple rows, with one row
-for each parameter related to the workflow step.  The following is
-an excerpt from the LabelFreeMainOperation workflow
+Columns in each workflow table are Step, Module, ModuleType, Parameter, 
+and Value. Each workflow step will typically have multiple rows, with 
+one row for each parameter related to the workflow step.  The following 
+is an excerpt from the LabelFreeMainOperation workflow
 (tracked via table `T_LabelFreeLog2PipelineOperation`)
 
 | Step        | Module      | ModuleType  | Parameter | Value |
