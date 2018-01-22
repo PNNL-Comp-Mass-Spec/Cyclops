@@ -242,27 +242,40 @@ namespace Cyclops.DataModules
 
             try
             {
-                var sr = new StreamReader(filePath);
-                var content = sr.ReadToEnd();
-                sr.Close();
+                var sourceFile = new FileInfo(filePath);
+                var tempFile = new FileInfo(Path.GetTempFileName());
 
-                var newContent = content.Replace("ï»¿", "");
-
-                if (!string.Equals(content, newContent))
+                using (var sr = new StreamReader(new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                using (var sw = new StreamWriter(new FileStream(tempFile.FullName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)))
                 {
-                    var sw = new StreamWriter(filePath);
-                    sw.Write(newContent);
-                    sw.Close();
+                    var content = sr.ReadToEnd();
+                    if (content.StartsWith("ï»¿"))
+                        sw.Write(content.Substring(3));
+                    else
+                        sw.Write(content);
                 }
+
+                tempFile.Refresh();
+                if (tempFile.Length == sourceFile.Length)
+                {
+                    tempFile.Delete();
+                }
+                else
+                {
+                    Console.WriteLine("Removing unicode byte order mark from file " + sourceFile.FullName);
+                    sourceFile.Delete();
+                    tempFile.MoveTo(sourceFile.FullName);
+                }
+
             }
             catch (IOException ex)
             {
-                Console.WriteLine("IOException in ClearRSourceFile: " + ex.Message);
+                Console.WriteLine("IOException in CleanRSourceFile: " + ex.Message);
                 successful = false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error in ClearRSourceFile: " + ex.Message);
+                Console.WriteLine("Error in CleanRSourceFile: " + ex.Message);
                 successful = false;
             }
 
