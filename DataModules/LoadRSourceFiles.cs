@@ -194,24 +194,25 @@ namespace Cyclops.DataModules
                     "{0} R scripts into workspace...",
                     Directory.GetFiles(workDir, "*.R").Length));
 
-                foreach (var s in Directory.GetFiles(workDir))
+                foreach (var sourceFilePath in Directory.GetFiles(workDir))
                 {
-                    if (Path.GetExtension(s).ToUpper().Equals(".R"))
+                    if (Path.GetExtension(sourceFilePath).ToUpper().Equals(".R"))
                     {
                         if (Parameters.ContainsKey("removeFirstCharacters"))
-                            successful = CleanRSourceFile(s);
+                            successful = CleanRSourceFile(sourceFilePath);
 
                         if (successful)
                         {
                             var rCmd = string.Format(
-                                "source('{0}')\n",
-                                s.Replace("\\", "/"));
+                                "source('{0}')",
+                                sourceFilePath.Replace("\\", "/"));
                             successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                         }
+
                         if (!successful)
                         {
                             Model.LogError("Unsuccessful attempt to load R source file: " +
-                                s, ModuleName, StepNumber);
+                                           sourceFilePath, ModuleName, StepNumber);
                             return false;
                         }
                     }
