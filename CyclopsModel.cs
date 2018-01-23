@@ -159,6 +159,10 @@ namespace Cyclops
             if (step == null)
                 return module + ": " + message;
 
+            // Example messages:
+            // LoadRSourceFiles, step 1: Running LoadRSourceFiles
+            // LoadRSourceFiles, step 1: source('C:/DMS_WorkDir/R_Scripts/ZRollup.R')
+            // ExportTable, step 5: Running ExportTable
             return module + ", step " + step + ": " + message;
         }
 
