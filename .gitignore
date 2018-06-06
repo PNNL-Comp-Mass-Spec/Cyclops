@@ -1,2 +1,5 @@
 /packages
 /TestHarness/Docs/*.txt
+
+*.user
+**/.vs

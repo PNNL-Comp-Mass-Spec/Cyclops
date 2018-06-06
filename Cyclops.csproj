@@ -41,7 +41,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -106,11 +105,8 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <PackageReference Include="DynamicInterop">
-      <Version>0.8.1</Version>
-    </PackageReference>
     <PackageReference Include="PRISM-Library">
-      <Version>2.4.57</Version>
+      <Version>2.4.87</Version>
     </PackageReference>
     <PackageReference Include="R.NET">
       <Version>1.7.0</Version>
