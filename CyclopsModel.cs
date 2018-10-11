@@ -19,7 +19,7 @@ namespace Cyclops
     /// <summary>
     /// Model class serves as the entry point for the Cyclops DLL
     /// </summary>
-    public class CyclopsModel : clsEventNotifier
+    public class CyclopsModel : EventNotifier
     {
         #region Members
 

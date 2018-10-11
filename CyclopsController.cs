@@ -18,7 +18,7 @@ namespace Cyclops
     /// <summary>
     /// Controller class that interacts with and runs Cyclops
     /// </summary>
-    public class CyclopsController : PRISM.clsEventNotifier
+    public class CyclopsController : PRISM.EventNotifier
     {
         #region Members
 
