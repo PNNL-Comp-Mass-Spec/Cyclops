@@ -26,7 +26,7 @@ namespace Cyclops.DataModules
         #region Members
         private readonly string m_ModuleName = "LBF_Summary_HTML";
         private readonly string m_Description = "";
-        private readonly string m_TypticTableSummaryName = "T_MAC_Trypticity_Summary";
+        private readonly string m_TrypticTableSummaryName = "T_MAC_Trypticity_Summary";
         private string m_WorkingDirectory = "";
         private string m_DatabaseName = "Results.db3";
 
@@ -497,7 +497,7 @@ namespace Cyclops.DataModules
         private void WriteQCHTMLPage(List<HtmlLinkNode> NavBar)
         {
             var containsTrypticPeptideSummary =
-                Model.ModuleLoader.SQLiteDatabase.TableExists(m_TypticTableSummaryName);
+                Model.ModuleLoader.SQLiteDatabase.TableExists(m_TrypticTableSummaryName);
 
             NavBar.Add(new HtmlLinkNode("LBF Summary", "sum", true));
             NavBar.Add(new HtmlLinkNode("Missed Cleavages", "mc", true));

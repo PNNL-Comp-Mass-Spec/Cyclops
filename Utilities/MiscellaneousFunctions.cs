@@ -49,40 +49,40 @@ namespace Cyclops.Utilities
         /// <summary>
         /// Saves the DataTable as a tab-delimited text file
         /// </summary>
-        /// <param name="TheDataTable">DataTable to Save</param>
+        /// <param name="tableToSave">DataTable to Save</param>
         /// <param name="FileName">Where the DataTable will be saved to</param>
-        public static void SaveDataTable(DataTable TheDataTable, string FileName)
+        public static void SaveDataTable(DataTable tableToSave, string FileName)
         {
             try
             {
                 var sw_Writer = new StreamWriter(FileName);
 
                 // write the headers to the file
-                for (var columns = 0; columns < TheDataTable.Columns.Count; columns++)
+                for (var columns = 0; columns < tableToSave.Columns.Count; columns++)
                 {
-                    if ((TheDataTable.Columns.Count - 1) == columns)
+                    if ((tableToSave.Columns.Count - 1) == columns)
                     {
-                        sw_Writer.Write(TheDataTable.Columns[columns] + "\n");
+                        sw_Writer.Write(tableToSave.Columns[columns] + "\n");
                     }
                     else
                     {
-                        sw_Writer.Write(TheDataTable.Columns[columns] + "\t");
+                        sw_Writer.Write(tableToSave.Columns[columns] + "\t");
                     }
                 }
 
                 // write the data to the file
-                for (var rows = 0; rows < TheDataTable.Rows.Count; rows++)
+                for (var rows = 0; rows < tableToSave.Rows.Count; rows++)
                 {
-                    for (var columns = 0; columns < TheDataTable.Columns.Count; columns++)
+                    for (var columns = 0; columns < tableToSave.Columns.Count; columns++)
                     {
-                        if ((TheDataTable.Columns.Count - 1) == columns)
+                        if ((tableToSave.Columns.Count - 1) == columns)
                         {
-                            sw_Writer.Write(TheDataTable.Rows[rows][columns]
+                            sw_Writer.Write(tableToSave.Rows[rows][columns]
                                 + "\n");
                         }
                         else
                         {
-                            sw_Writer.Write(TheDataTable.Rows[rows][columns]
+                            sw_Writer.Write(tableToSave.Rows[rows][columns]
                                 + "\t");
                         }
                     }

@@ -202,11 +202,11 @@ namespace Cyclops.DataModules
                 new Dictionary<string, Type>(
                     StringComparer.OrdinalIgnoreCase);
 
-            var currAssembly = Assembly.GetExecutingAssembly();
+            var currentAssembly = Assembly.GetExecutingAssembly();
 
             var baseType = typeof(BaseDataModule);
 
-            foreach (var type in currAssembly.GetTypes())
+            foreach (var type in currentAssembly.GetTypes())
             {
                 if (!type.IsClass || type.IsAbstract ||
                     !type.IsSubclassOf(baseType))
@@ -234,11 +234,11 @@ namespace Cyclops.DataModules
         {
             var Names = new List<string>();
 
-            var currAssembly = Assembly.GetExecutingAssembly();
+            var currentAssembly = Assembly.GetExecutingAssembly();
 
             var baseType = typeof(BaseDataModule);
 
-            foreach (var type in currAssembly.GetTypes())
+            foreach (var type in currentAssembly.GetTypes())
             {
                 if (!type.IsClass || type.IsAbstract ||
                     !type.IsSubclassOf(baseType))

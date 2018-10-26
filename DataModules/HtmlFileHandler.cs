@@ -130,7 +130,7 @@ namespace Cyclops.DataModules
                         '\t' + "color:#000\n" +
                         "}\n");
 
-                    css.Append(string.Format("ul#interal_nav {{{0}" +
+                    css.Append(string.Format("ul#internal_nav {{{0}" +
                         "{1}list-style:none;{0}" +
                         "{1}top:{2}px;{0}" +
                         "{1}margin:5px;{0}" +
@@ -142,12 +142,12 @@ namespace Cyclops.DataModules
                         '\t',
                          internalNavTop));
 
-                    css.Append("ul#interal_nav li {\n" +
+                    css.Append("ul#internal_nav li {\n" +
                         '\t' + "display:table-row;\n" +
                         '\t' + "font-weight:bold;\n" +
                         "}\n");
 
-                    css.Append("ul#interal_nav li a {\n" +
+                    css.Append("ul#internal_nav li a {\n" +
                         '\t' + "text-decoration:none;\n" +
                         '\t' + "padding:5px 0;\n" +
                         '\t' + "width:180px;\n" +
@@ -159,7 +159,7 @@ namespace Cyclops.DataModules
                         '\t' + "display: inline;\n" +
                         "}\n");
 
-                    css.Append("ul#interal_nav li a:hover {\n" +
+                    css.Append("ul#internal_nav li a:hover {\n" +
                         '\t' + "background:#FF66FF;\n" +
                         '\t' + "color:#000\n" +
                         "}\n\n");
@@ -273,7 +273,7 @@ namespace Cyclops.DataModules
             }
 
             htmlText += '\t' + '\t' + '\t' + "</UL>\n";
-            htmlText += '\t' + '\t' + '\t' + "<UL ID='interal_nav'>\n";
+            htmlText += '\t' + '\t' + '\t' + "<UL ID='internal_nav'>\n";
 
             foreach (var n in NavBar)
             {

@@ -160,7 +160,7 @@ namespace Cyclops.DataModules
             }
 
             if (successful &&
-                Parameters[RequiredParameters.Mode.ToString()].ToUpper().Equals("FILTERPVALS"))
+                Parameters[RequiredParameters.Mode.ToString()].Equals("FilterPvals", StringComparison.OrdinalIgnoreCase))
             {
                 foreach (var s in Enum.GetNames(typeof(FilteredRequiredParameters)))
                 {
@@ -301,17 +301,16 @@ namespace Cyclops.DataModules
         {
             var successful = true;
 
-            switch (Parameters[RequiredParameters.Mode.ToString()].ToLower())
-            {
-                case "standard":
-                    successful = CreateHeatmap();
-                    break;
-                case "filterpvals":
-                    successful = FilterSignificanceTableForPValues();
+            var nodeName = Parameters[RequiredParameters.Mode.ToString()];
 
-                    if (successful)
-                        successful = CreateHeatmap();
-                    break;
+            if (string.Equals(nodeName, "standard", StringComparison.OrdinalIgnoreCase))
+                successful = CreateHeatmap();
+            else if (string.Equals(nodeName, "FilterPvals", StringComparison.OrdinalIgnoreCase))
+            {
+                successful = FilterSignificanceTableForPValues();
+
+                if (successful)
+                    successful = CreateHeatmap();
             }
 
             return successful;
@@ -412,10 +411,10 @@ namespace Cyclops.DataModules
 
             var rCmd = "";
             var plotFileName = Parameters[RequiredParameters.PlotFileName.ToString()];
-            var plotfilePath = Path.Combine(Model.WorkDirectory, "Plots", plotFileName);
+            var plotFilePath = Path.Combine(Model.WorkDirectory, "Plots", plotFileName);
             var matrixFileName = "hm_" + Path.GetFileNameWithoutExtension(plotFileName);
 
-            var plotFilePathForR = GenericRCalls.ConvertToRCompatiblePath(plotfilePath);
+            var plotFilePathForR = GenericRCalls.ConvertToRCompatiblePath(plotFilePath);
 
             switch (m_PlotFileType.ToLower())
             {

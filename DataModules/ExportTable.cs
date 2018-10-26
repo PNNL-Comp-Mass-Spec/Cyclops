@@ -180,8 +180,6 @@ namespace Cyclops.DataModules
         /// <returns>True, if the parameters contain database specific params</returns>
         public bool CheckDatabaseTargetParameters()
         {
-            var successful = true;
-
             foreach (var s in Enum.GetNames(typeof(DatabaseTargetRequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
@@ -191,7 +189,7 @@ namespace Cyclops.DataModules
                 }
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -200,8 +198,6 @@ namespace Cyclops.DataModules
         /// <returns>True, if the export is successful</returns>
         public bool ExportFunction()
         {
-            var successful = true;
-
             switch (Parameters[RequiredParameters.Source.ToString()].ToUpper())
             {
                 case "R":
@@ -240,7 +236,7 @@ namespace Cyclops.DataModules
                     break;
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -305,11 +301,9 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            var rCmd = "";
-
             if (ConnectToSQLiteDatabaseFromR())
             {
-                rCmd = string.Format(
+                var rCmd = string.Format(
                     "dbWriteTable(" +
                     "conn=con, name=\"{0}\", value=data.frame({1}))",
                     Parameters[DatabaseTargetRequiredParameters.NewTableName.ToString()],
@@ -319,20 +313,15 @@ namespace Cyclops.DataModules
                 {
                     return DisconnectFromDatabaseFromR();
                 }
-                else
-                {
-                    successful = false;
-                }
             }
             else
             {
                 Model.LogError("Unable to successfully establish a connection " +
                     "with designated SQLite database!",
                     ModuleName, StepNumber);
-                successful = false;
             }
 
-            return successful;
+            return false;
         }
 
         /// <summary>
@@ -342,10 +331,17 @@ namespace Cyclops.DataModules
         /// <returns>True, if the file is exported successfully</returns>
         private bool ExportR_to_Text(string Delimiter)
         {
-            var successful = Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]);
+            var hasTableNameParam = Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]);
+            if (!hasTableNameParam)
+            {
+                Model.LogError("Unable to export R to text; Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]) returns false ",
+                               ModuleName, StepNumber);
+                return false;
+            }
+
             var includeRowNames = false;
 
-            var rCmd = "";
+            string rCmd;
             if (Parameters.ContainsKey("IncludeRowNames"))
             {
                 includeRowNames = Convert.ToBoolean(Parameters["IncludeRowNames"]);
@@ -374,7 +370,7 @@ namespace Cyclops.DataModules
                     Delimiter);
             }
 
-            successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+            var successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
             return successful;
         }
@@ -461,14 +457,14 @@ namespace Cyclops.DataModules
             catch (IOException ioe)
             {
                 Model.LogError("IOException encountered while writing a table " +
-                    "out to " + filePath + "\nIOException: " + ioe.ToString(),
+                    "out to " + filePath + "\nIOException: " + ioe.Message,
                     ModuleName, StepNumber);
                 successful = false;
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while writing a table " +
-                    "out to " + filePath + "\nException: " + ex.ToString(),
+                    "out to " + filePath + "\nException: " + ex.Message,
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -525,14 +521,12 @@ namespace Cyclops.DataModules
 
                 return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
-            else
-            {
-                Model.LogError("Error while exporting table in R to SQLite. " +
-                    "Unable to establish connection with database: " +
-                    databasePath,
-                    ModuleName, StepNumber);
-                return false;
-            }
+
+            Model.LogError("Error while exporting table in R to SQLite. " +
+                           "Unable to establish connection with database: " +
+                           databasePath,
+                           ModuleName, StepNumber);
+            return false;
         }
 
         /// <summary>

@@ -352,20 +352,21 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ImportSQLiteTable()
         {
-            switch (Parameters[RequiredParameters.TableType.ToString()].ToLower())
-            {
-                case "datatable":
-                    return ImportSQLiteDataTable();
-                case "columnmetadatatable":
-                    return ImportSQLiteColumnMetadataTable();
-                case "rowmetadatatable":
-                    return ImportSQLiteRowMetadataTable();
-                default:
-                    Model.LogError("Unable to recognize table type to import from " +
-                        "SQLite: " + Parameters[RequiredParameters.TableType.ToString()],
-                        ModuleName, StepNumber);
-                    return false;
-            }
+            var tableType = Parameters[RequiredParameters.TableType.ToString()];
+
+            if (string.Equals(tableType, "DataTable", StringComparison.OrdinalIgnoreCase))
+                return ImportSQLiteDataTable();
+
+            if (string.Equals(tableType, "ColumnMetadataTable", StringComparison.OrdinalIgnoreCase))
+                return ImportSQLiteColumnMetadataTable();
+
+            if (string.Equals(tableType, "RowMetadataTable", StringComparison.OrdinalIgnoreCase))
+                return ImportSQLiteRowMetadataTable();
+
+            Model.LogError("Unable to recognize table type to import from " +
+                           "SQLite: " + Parameters[RequiredParameters.TableType.ToString()],
+                           ModuleName, StepNumber);
+            return false;
         }
 
         /// <summary>
