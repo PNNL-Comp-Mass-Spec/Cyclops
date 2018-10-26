@@ -15,28 +15,25 @@ namespace Cyclops.DataModules
     public class HtmlLinkNode
     {
         #region Properties
-        public string Title { get; set; }
-        public string Link { get; set; }
-        public bool IsInternalLink { get; set; }
+
+        public string Title { get; }
+        public string Link { get; }
+        public bool IsInternalLink { get; }
+
         #endregion
 
         #region Constructors
-        /// <summary>
-        /// Generic constructor creating an HtmlLinkNode
-        /// </summary>
-        public HtmlLinkNode()
-        {
-        }
 
         /// <summary>
         /// HtmlLinkNode module that assigns a Cyclops Model
         /// </summary>
         public HtmlLinkNode(string title, string link, bool isInternalLink)
         {
-            this.Title = title;
-            this.Link = link;
-            this.IsInternalLink = isInternalLink;
+            Title = title;
+            Link = link;
+            IsInternalLink = isInternalLink;
         }
+
         #endregion
     }
 }
