@@ -24,8 +24,11 @@ namespace Cyclops.Operations
 
         #region Properties
 
+        // ReSharper disable once UnusedMember.Global
         protected abstract string GetDefaultValue();
+
         protected abstract string GetTypeName();
+
         private static readonly Dictionary<string, Type> mTypeMap = CreateTypeMap();
 
         /// <summary>
@@ -58,11 +61,11 @@ namespace Cyclops.Operations
         {
             var typeMap = new Dictionary<string, Type>();
 
-            var currAssembly = Assembly.GetExecutingAssembly();
+            var currentAssembly = Assembly.GetExecutingAssembly();
 
             var baseType = typeof(BaseOperationModule);
 
-            foreach (var type in currAssembly.GetTypes())
+            foreach (var type in currentAssembly.GetTypes())
             {
                 if (!type.IsClass || type.IsAbstract ||
                     !type.IsSubclassOf(baseType))

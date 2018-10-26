@@ -216,7 +216,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Runs Ashoka's ANOVA method
+        /// Runs ANOVA method developed by Ashoka
         /// </summary>
         /// <returns>True, if the ANOVA completes successfully</returns>
         public bool ANOVAFunction()

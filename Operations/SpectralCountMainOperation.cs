@@ -199,7 +199,7 @@ namespace Cyclops.Operations
             }
             catch (Exception ex)
             {
-                Model.LogError("Exception encounterd while running 'ConstructModules' " +
+                Model.LogError("Exception encountered while running 'ConstructModules' " +
                     "for the Spectral Count Operation:\n" +
                     ex, ModuleName, StepNumber);
                 successful = false;

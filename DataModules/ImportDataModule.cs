@@ -438,9 +438,9 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Sets the rownames for a table in R and removes that column from the table
+        /// Sets the row names for a table in R and removes that column from the table
         /// </summary>
-        /// <returns>True, if rownames are set successfully</returns>
+        /// <returns>True, if row names are set successfully</returns>
         private bool SetTableRowNames()
         {
             var successful = true;

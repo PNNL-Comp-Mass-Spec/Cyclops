@@ -251,7 +251,7 @@ namespace Cyclops.DataModules
         {
             var successful = true;
 
-            /// TODO : Export from R
+            // TODO : Export from R
             switch (Parameters[RequiredParameters.Target.ToString()].ToUpper())
             {
                 case "SQLITE":

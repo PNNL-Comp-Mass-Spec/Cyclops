@@ -287,7 +287,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Sets the boolean values that indicate if normalization algrithms have been run.
+        /// Sets the boolean values that indicate if normalization algorithms have been run.
         /// </summary>
         [Obsolete("Unused")]
         private void SetLRandCTflags()

@@ -31,7 +31,7 @@ namespace Cyclops
         /// <summary>
         /// Gets the table information regarding the database
         /// </summary>
-        /// <returns>Datatable of all the information</returns>
+        /// <returns>DataTable of all the information</returns>
         public abstract DataTable GetDatabaseInformation();
 
         /// <summary>

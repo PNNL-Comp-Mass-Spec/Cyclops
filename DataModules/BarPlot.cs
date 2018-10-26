@@ -226,9 +226,11 @@ namespace Cyclops.DataModules
                     "yLab=\"{8}\", " +
                     "title=\"{9}\", " +
                     "col={10}, " +
+                    // ReSharper disable StringLiteralTypo
                     "IMGwidth={11}, " +
                     "IMGheight={12}, " +
                     "FNTsize={13}, " +
+                    // ReSharper restore StringLiteralTypo
                     "res={14})\n",
                     Parameters[RequiredParameters.TableName.ToString()],    // 0
                     Parameters[RequiredParameters.DataColumns.ToString()],  // 1

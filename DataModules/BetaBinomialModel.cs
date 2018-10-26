@@ -207,7 +207,9 @@ namespace Cyclops.DataModules
                         "{1} <- data.matrix({1})\n" +
                         "{1}[is.na({1})] <- 0\n" +
                         "sink('')\n" +
+                        // ReSharper disable StringLiteralTypo
                         "{4} <- largescale.bb.test({1}, {2}, " +
+                        // ReSharper restore StringLiteralTypo
                         "theta.equal={3})\n" +
                         "sink()\n" +
                         "{0} <- cbind('pValue'={4}, {1})\n" +

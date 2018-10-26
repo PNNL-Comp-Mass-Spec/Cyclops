@@ -358,7 +358,7 @@ namespace Cyclops.DataModules
         /// <param name="titleStyle"></param>
         /// <param name="tableAlignment">Alignment of table in html page</param>
         /// <param name="border">Table border</param>
-        /// <param name="tabSpaces">Table tabspaces</param>
+        /// <param name="tabSpaces">Table tabSpaces</param>
         /// <param name="cellPadding">Table cell padding</param>
         /// <returns>HTML code</returns>
         public static string GetDatasetTableHtml(

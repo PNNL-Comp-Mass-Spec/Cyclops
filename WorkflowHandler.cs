@@ -187,24 +187,24 @@ namespace Cyclops
         /// <summary>
         /// Reads a workflow and assembles the modules
         /// </summary>
-        /// <param name="TheWorkflowFileName">Name of the workflow file</param>
+        /// <param name="workflowFileName">Name of the workflow file</param>
         /// <returns>True, if the workflow is read successfully</returns>
-        public bool ReadWorkflow(string TheWorkflowFileName)
+        public bool ReadWorkflow(string workflowFileName)
         {
-            InputWorkflowFileName = TheWorkflowFileName;
+            InputWorkflowFileName = workflowFileName;
             return ReadWorkflow();
         }
 
-        public bool ReadWorkflow(string TheWorkflowFileName, WorkflowType Type)
+        public bool ReadWorkflow(string workflowFileName, WorkflowType Type)
         {
-            InputWorkflowFileName = TheWorkflowFileName;
+            InputWorkflowFileName = workflowFileName;
             InputWorkflowType = Type;
             return ReadWorkflow();
         }
 
-        public bool ReadWorkflow(string TheWorkflowFileName, string TableName, WorkflowType Type)
+        public bool ReadWorkflow(string workflowFileName, string TableName, WorkflowType Type)
         {
-            InputWorkflowFileName = TheWorkflowFileName;
+            InputWorkflowFileName = workflowFileName;
             WorkflowTableName = TableName;
             InputWorkflowType = Type;
             return ReadWorkflow();
@@ -222,10 +222,14 @@ namespace Cyclops
             try
             {
                 if (File.Exists(InputWorkflowFileName))
+                {
                     InputWorkflowFilePath = InputWorkflowFileName;
+                }
                 else if (Directory.Exists(Model.WorkDirectory) &&
-                    File.Exists(Path.Combine(Model.WorkDirectory, InputWorkflowFileName)))
+                         File.Exists(Path.Combine(Model.WorkDirectory, InputWorkflowFileName)))
+                {
                     InputWorkflowFilePath = Path.Combine(Model.WorkDirectory, InputWorkflowFileName);
+                }
                 else
                 {
                     Model.LogError("Cyclops could not find the XML workflow file: \n" +

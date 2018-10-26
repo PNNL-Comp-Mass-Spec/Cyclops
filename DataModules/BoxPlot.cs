@@ -231,7 +231,9 @@ namespace Cyclops.DataModules
             bool successful;
 
             var tTable = GetTemporaryTableName("tmpBoxPlot_");
+
             var rCmd = string.Format(
+                // ReSharper disable StringLiteralTypo
                 "Boxplots(x={0}, Columns={1}, " +
                 "file=\"{2}\", colorByFactor={3}, colorFactorTable={4}, " +
                 "colorFactorName={5}, " +
@@ -240,6 +242,7 @@ namespace Cyclops.DataModules
                 "do.ylim={14}, ymin={15}, ymax={16}, ylabel=\"{17}\", " +
                 "IMGwidth={18}, IMGheight={19}, FNTsize={20}, res={21})\n" +
                 "rm({0})\n",
+                // ReSharper restore StringLiteralTypo
                 tTable,
                 m_DataColumns,
                 PlotFileName,

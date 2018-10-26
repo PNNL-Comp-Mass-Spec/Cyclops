@@ -42,11 +42,6 @@ namespace Cyclops
         public int CurrentStepNumber { get; set; }
 
         /// <summary>
-        /// Total number of steps (modules) in the pipeline
-        /// </summary>
-        public int TotalNumberOfSteps { get; set; }
-
-        /// <summary>
         /// Flag that indicates the pipeline is running successfully
         /// </summary>
         public bool PipelineCurrentlySuccessful { get; set; } = true;
@@ -72,11 +67,6 @@ namespace Cyclops
         public string RWorkEnvironment { get; set; }
 
         /// <summary>
-        /// SQLite database to work from
-        /// </summary>
-        public string SQLiteDatabase { get; set; }
-
-        /// <summary>
         /// Path to SQLite database that contains the table to
         /// run a Cyclops Workflow
         /// </summary>
@@ -84,16 +74,6 @@ namespace Cyclops
         #endregion
 
         #region Constructors
-        /// <summary>
-        /// Generic Cyclops Constructor, instantiates the R work environment
-        /// </summary>
-        public CyclopsModel()
-        {
-            RCalls = new GenericRCalls(this);
-            ModuleLoader = new WorkflowHandler(this);
-            RCalls.InstantiateR();
-            OnStatusEvent("Running Cyclops Version: " + CyclopsVersion);
-        }
 
         /// <summary>
         /// Primary Cyclops Constructor, instantiates the R work environment
@@ -135,7 +115,7 @@ namespace Cyclops
             OnStatusEvent("Running Cyclops Version: " + CyclopsVersion);
         }
 
-
+        [Obsolete("Unused")]
         public CyclopsModel(string XMLWorkflow, string WorkDirectory)
         {
             RCalls = new GenericRCalls(this);
@@ -186,11 +166,6 @@ namespace Cyclops
             OnWarningEvent(message);
         }
 
-        public void LogWarning(string message, string module)
-        {
-            OnWarningEvent(FormatStatusMessage(message, module));
-        }
-
         public void LogWarning(string message, string module, int step)
         {
             OnWarningEvent(FormatStatusMessage(message, module, step));
@@ -199,11 +174,6 @@ namespace Cyclops
         public void LogMessage(string message)
         {
             OnStatusEvent(message);
-        }
-
-        public void LogMessage(string message, string module)
-        {
-            OnStatusEvent(FormatStatusMessage(message, module));
         }
 
         public void LogMessage(string message, string module, int step)
@@ -227,15 +197,17 @@ namespace Cyclops
             return true;
         }
 
+        [Obsolete("Unused")]
         public bool WriteOutWorkflow(string FileName, WorkflowType OutputWorkflowType)
         {
             return ModuleLoader.WriteWorkflow(FileName, OutputWorkflowType);
         }
 
         /// <summary>
-        /// Testing method for Cyclop Modules
+        /// Testing method for Cyclops Modules
         /// </summary>
         /// <returns>True, if pipeline runs successfully</returns>
+        [Obsolete("Unused")]
         public bool TestMethod()
         {
             var successful = true;

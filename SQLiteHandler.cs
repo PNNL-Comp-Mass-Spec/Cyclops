@@ -164,7 +164,7 @@ namespace Cyclops
         /// adding quotes around the string
         /// </summary>
         /// <param name="ColumnName">ColumnName of a DataTable field</param>
-        /// <returns>Formated column name</returns>
+        /// <returns>Formatted column name</returns>
         private string FormatDataColumnName(string ColumnName)
         {
             if (IsSQLiteKeyword(ColumnName))
@@ -415,7 +415,7 @@ namespace Cyclops
         /// <summary>
         /// Determine the names of the tables in the SQLite file
         /// </summary>
-        /// <returns>Datatable with table names and table creation SQL (which includes column names and column types)</returns>
+        /// <returns>DataTable with table names and table creation SQL (which includes column names and column types)</returns>
         public override DataTable GetDatabaseInformation()
         {
             if (DatabaseFileName == null)
@@ -586,7 +586,7 @@ namespace Cyclops
             }
             catch (IOException ex)
             {
-                Console.WriteLine("IOException in SelecTable: " + ex.Message);
+                Console.WriteLine("IOException in SelectTable: " + ex.Message);
                 return null;
             }
             catch (Exception ex)

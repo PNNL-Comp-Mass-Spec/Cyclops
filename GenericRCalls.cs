@@ -383,7 +383,7 @@ namespace Cyclops
         /// Gets the row names for a data.frame or matrix in the R workspace
         /// </summary>
         /// <param name="ObjectName">Name of the data.frame or matrix</param>
-        /// <returns>List of the rownames</returns>
+        /// <returns>List of the row names</returns>
         public List<string> GetRowNames(string ObjectName)
         {
             var rowNames = new List<string>();
@@ -691,7 +691,7 @@ namespace Cyclops
         /// Converts an data.frame from R into a DataTable in C#
         /// </summary>
         /// <param name="Table2Retrieve">Name of data.frame</param>
-        /// <param name="NameOfFirstColumn">Name of the Rowname column, defaults to "RowNames"</param>
+        /// <param name="NameOfFirstColumn">Name of the row name column, defaults to "RowNames"</param>
         /// <returns>DataTable version of your data.frame</returns>
         public DataTable GetDataTableIncludingRowNames(
             string Table2Retrieve, string NameOfFirstColumn)
@@ -833,7 +833,7 @@ namespace Cyclops
         /// </summary>
         /// <param name="DataFrameName">Name of the Data Frame</param>
         /// <param name="ColumnIndex">Index of the column (first column starts at 1)</param>
-        /// <returns>True, if the rownames are set successfully</returns>
+        /// <returns>True, if the row names are set successfully</returns>
         public bool SetDataFrameRowNames(
             string DataFrameName, int ColumnIndex)
         {

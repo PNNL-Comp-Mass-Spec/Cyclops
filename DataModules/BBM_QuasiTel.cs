@@ -29,7 +29,7 @@ namespace Cyclops.DataModules
             NewTableName, InputTableName, FactorTable, Fixed_Effect, Theta
         }
 
-        //private enum ParametersForBBMandQuasitel
+        //private enum ParametersForBBMAndQuasitel
         //{
         //    Fixed_Effect
         //}
