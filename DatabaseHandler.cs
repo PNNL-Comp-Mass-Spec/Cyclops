@@ -2,12 +2,12 @@
  * for the Department of Energy (PNNL, Richland, WA)
  * Battelle Memorial Institute
  * E-mail: proteomics@pnnl.gov
- * Website: http://omics.pnl.gov/software
+ * Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/
  * -----------------------------------------------------
  *
- * Licensed under the Apache License, Version 2.0; you may not use this
- * file except in compliance with the License.  You may obtain a copy of the
- * License at https://opensource.org/licenses/Apache-2.0
+ * Licensed under the 2-Clause BSD License; you may not use this
+ * file except in compliance with the License.  You may obtain
+ * a copy of the License at https://opensource.org/licenses/BSD-2-Clause
  * -----------------------------------------------------*/
 
 using System.Collections.Generic;

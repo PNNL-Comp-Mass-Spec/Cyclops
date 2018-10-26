@@ -63,11 +63,13 @@ tab-delimited text files.
 ## Contacts
 
 Written by Joseph Brown for the Department of Energy (PNNL, Richland, WA) \
-E-mail: proteomics@pnnl.gov
+E-mail: proteomics@pnnl.gov \
 Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/
 
 ## License
 
-The Cyclops library is licensed under the Apache License, Version 2.0; you may not use this 
-file except in compliance with the License.  You may obtain a copy of the 
-License at https://opensource.org/licenses/Apache-2.0
+The Cyclops library is licensed under the 2-Clause BSD License; 
+you may not use this file except in compliance with the License.  You may obtain 
+a copy of the License at https://opensource.org/licenses/BSD-2-Clause
+
+Copyright 2018 Battelle Memorial Institute
