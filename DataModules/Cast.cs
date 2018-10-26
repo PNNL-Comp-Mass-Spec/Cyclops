@@ -15,6 +15,7 @@ using System.Collections.Generic;
 
 namespace Cyclops.DataModules
 {
+    [Obsolete("Unused; PerformOperation calls CastFunction, which is not implemented")]
     public class Cast : BaseDataModule
     {
         #region Members
@@ -125,13 +126,14 @@ namespace Cyclops.DataModules
             return true;
         }
 
+        [Obsolete("Not implemented")]
         public bool CastFunction()
         {
-            var successful = true;
+            // var successful = true;
 
             // TODO : Make it work
 
-            return successful;
+            return true;
         }
 
         protected override string GetDefaultValue()
