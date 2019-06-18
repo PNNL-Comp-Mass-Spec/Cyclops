@@ -20,6 +20,7 @@ using System.Xml;
 namespace Cyclops
 {
     public enum WorkflowType { XML, SQLite };
+
     /// <summary>
     /// This class is responsible for reading and writing workflows, from
     /// XML and SQLite
@@ -57,10 +58,13 @@ namespace Cyclops
         /// Instance of the CyclopsModel controller
         /// </summary>
         public CyclopsModel Model { get; set; }
+
         /// <summary>
         /// File name for the input workflow
         /// </summary>
+        /// <remarks>Default path: \\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3</remarks>
         public string InputWorkflowFileName { get; set; }
+
         /// <summary>
         /// File name for the output workflow
         /// </summary>

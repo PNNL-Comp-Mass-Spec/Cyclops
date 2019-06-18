@@ -70,6 +70,7 @@ namespace Cyclops
         /// Path to SQLite database that contains the table to
         /// run a Cyclops Workflow
         /// </summary>
+        /// <remarks>Default file name: Cyclops_Operations.db3</remarks>
         public string OperationsDatabasePath { get; set; }
         #endregion
 
