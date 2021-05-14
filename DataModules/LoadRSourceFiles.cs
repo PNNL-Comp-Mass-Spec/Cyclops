@@ -21,6 +21,8 @@ namespace Cyclops.DataModules
     /// </summary>
     public class LoadRSourceFiles : BaseDataModule
     {
+        // Ignore Spelling: gplots, Hmisc
+
         private readonly string m_ModuleName = "LoadRSourceFiles";
         private readonly string m_Description = "";
 
@@ -53,7 +55,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// RSourceFileModule module that assigns a Cyclops Model
+        /// Constructor that assigns a Cyclops Model
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         public LoadRSourceFiles(CyclopsModel CyclopsModel)
@@ -64,7 +66,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// RSourceFileModule module that assigns a Cyclops Model
+        /// Constructor that assigns a Cyclops Model and accepts parameters
         /// </summary>
         /// <param name="CyclopsModel">Cyclops Model</param>
         /// <param name="DataParameters">Parameters to run module</param>
@@ -253,7 +255,7 @@ namespace Cyclops.DataModules
                 }
                 else
                 {
-                    Console.WriteLine("Removing unicode byte order mark from file " + sourceFile.FullName);
+                    Console.WriteLine("Removing Unicode byte order mark from file " + sourceFile.FullName);
                     sourceFile.Delete();
                     tempFile.MoveTo(sourceFile.FullName);
                 }
