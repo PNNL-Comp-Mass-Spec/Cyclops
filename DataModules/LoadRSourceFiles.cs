@@ -21,7 +21,6 @@ namespace Cyclops.DataModules
     /// </summary>
     public class LoadRSourceFiles : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "LoadRSourceFiles";
         private readonly string m_Description = "";
 
@@ -44,13 +43,6 @@ namespace Cyclops.DataModules
             "RSQLite"
         };
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an R Source File Module
         /// </summary>
@@ -83,9 +75,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = DataParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -319,6 +309,5 @@ namespace Cyclops.DataModules
 
             return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
         }
-        #endregion
     }
 }
