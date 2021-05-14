@@ -5,8 +5,10 @@ using Cyclops;
 
 namespace CyclopsTest
 {
-    class Program
+    internal static class Program
     {
+        // Ignore Spelling: workflow
+
         static void Main(string[] args)
         {
             TestItraqOperations();
