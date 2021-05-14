@@ -83,27 +83,41 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-            var successful = true;
-
-            if (Model.PipelineCurrentlySuccessful)
+            if (!Model.PipelineCurrentlySuccessful)
             {
-                Model.CurrentStepNumber = StepNumber;
+                return false;
+            }
 
-                Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
+            Model.CurrentStepNumber = StepNumber;
 
-                if (CheckParameters())
+            Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
+
+            if (CheckParameters())
+            {
+                var successLoading = Run_LoadRSourceFiles();
+
+                if (!successLoading)
                 {
-                    successful = Run_LoadRSourceFiles();
+                    Model.LogMessage("Run_LoadRSourceFiles returned false");
+                    return false;
+                }
 
-                    if (successful)
-                        successful = CheckThatRequiredPackagesAreInstalled();
+                var packagesValidated = CheckThatRequiredPackagesAreInstalled();
+                if (!packagesValidated)
+                {
+                    Model.LogMessage("CheckThatRequiredPackagesAreInstalled returned false");
+                    return false;
+                }
 
-                    if (successful)
-                        successful = LoadLibraries();
+                var packagesLoaded = LoadLibraries();
+                if (!packagesLoaded)
+                {
+                    Model.LogMessage("LoadLibraries returned false");
+                    return false;
                 }
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>
@@ -277,20 +291,26 @@ namespace Cyclops.DataModules
 
         public bool CheckThatRequiredPackagesAreInstalled()
         {
-            foreach (var s in m_PackagesToLoad)
+            Model.LogMessage("Validating that R packages are installed");
+
+            foreach (var packageName in m_PackagesToLoad)
             {
-                if (!Model.RCalls.IsPackageInstalled(s))
+                Model.LogMessage("Checking " + packageName);
+                if (Model.RCalls.IsPackageInstalled(packageName))
                 {
-                    try
-                    {
-                        Model.RCalls.InstallPackage(s);
-                    }
-                    catch (Exception ex)
-                    {
-                        Model.LogError("Exception encountered while installing " +
-                            "package: " + s + "\nException: " + ex);
-                        return false;
-                    }
+                    continue;
+                }
+
+                try
+                {
+                    Model.LogMessage("Package is missing; installing " + packageName);
+                    Model.RCalls.InstallPackage(packageName);
+                }
+                catch (Exception ex)
+                {
+                    Model.LogError("Exception encountered while installing " +
+                                   "package: " + packageName + "\nException: " + ex);
+                    return false;
                 }
             }
 
