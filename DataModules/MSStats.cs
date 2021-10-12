@@ -2,14 +2,14 @@
  * for the Department of Energy (PNNL, Richland, WA)
  * Battelle Memorial Institute
  * E-mail: joseph.brown@pnnl.gov
- * Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/
+ * Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
  * -----------------------------------------------------
- * 
+ *
  * Licensed under the 2-Clause BSD License; you may not use this
  * file except in compliance with the License.  You may obtain
  * a copy of the License at https://opensource.org/licenses/BSD-2-Clause
  * -----------------------------------------------------*/
- 
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -29,7 +29,7 @@ namespace Cyclops.DataModules
         private string m_AnovaModel = "fixed";
         private string m_FeatureVar = "FALSE";
         private string m_Progress = "FALSE";
-            
+
         /// <summary>
         /// Required parameters to run MSStats Module
         /// </summary>
@@ -39,7 +39,7 @@ namespace Cyclops.DataModules
             RowMetadataTable, ColumnMetadataTable, RowMetadataProteinColumn,
             RowMetadataPeptideColumn, BioRep, TechRep
         }
-        
+
         #endregion
 
         #region Properties
@@ -130,7 +130,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves a dictionary of all parameters used by the module, 
+        /// Retrieves a dictionary of all parameters used by the module,
         /// and the corresponding default values
         /// </summary>
         /// <returns>Parameters used by module</returns>
@@ -264,7 +264,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Retrieves the Type Name for automatically 
+        /// Retrieves the Type Name for automatically
         /// registering the module assembly
         /// </summary>
         /// <returns>Module's Name</returns>
