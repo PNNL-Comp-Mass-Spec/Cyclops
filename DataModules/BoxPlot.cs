@@ -147,7 +147,9 @@ namespace Cyclops.DataModules
             {
                 if (Model.RCalls.ContainsObject(
                     Parameters["ColumnFactorTable"]))
+                {
                     m_ColumnFactorTable = Parameters["ColumnFactorTable"];
+                }
             }
 
             if (Parameters.ContainsKey("FactorColumn"))
@@ -155,13 +157,17 @@ namespace Cyclops.DataModules
                 if (Model.RCalls.TableContainsColumn(
                     Parameters["ColumnFactorTable"],
                     Parameters["FactorColumn"]))
+                {
                     m_FactorColumn = Parameters["FactorColumn"];
+                }
             }
 
             if (!string.IsNullOrEmpty(m_ColumnFactorTable) &&
                 !string.IsNullOrEmpty(m_FactorColumn) &&
                 m_ColorByFactor.Equals("FALSE"))
+            {
                 m_ColorByFactor = "TRUE";
+            }
             #endregion
 
             #region General Plot Parameters

@@ -102,9 +102,11 @@ namespace Cyclops.Operations
 				Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
 				if (CheckParameters())
-					successful =
+                {
+                    successful =
 						LabelFreeMainOperationFunction();
-			}
+                }
+            }
 
 			return successful;
 		}

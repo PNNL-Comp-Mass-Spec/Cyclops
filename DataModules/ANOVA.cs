@@ -171,8 +171,10 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Random_Effect.ToString()]))
+                {
                     RandomEffect = Parameters[
                         AnovaParameters.Random_Effect.ToString()];
+                }
             }
 
             // Get Interaction parameter
@@ -181,7 +183,9 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Interaction.ToString()]))
+                {
                     Interaction = Parameters[AnovaParameters.Interaction.ToString()];
+                }
             }
 
             // Get Threshold parameter
@@ -190,7 +194,9 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Threshold.ToString()]))
+                {
                     Threshold = Parameters[AnovaParameters.Threshold.ToString()];
+                }
             }
 
             // Get Unbalanced parameter
@@ -199,7 +205,9 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Unbalanced.ToString()]))
+                {
                     Unbalanced = Parameters[AnovaParameters.Unbalanced.ToString()];
+                }
             }
 
             // Get REML parameter
@@ -208,7 +216,9 @@ namespace Cyclops.DataModules
             {
                 if (!string.IsNullOrEmpty(
                     Parameters[AnovaParameters.UseREML.ToString()]))
+                {
                     UseREML = Parameters[AnovaParameters.UseREML.ToString()];
+                }
             }
 
             return successful;

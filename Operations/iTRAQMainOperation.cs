@@ -88,8 +88,10 @@ namespace Cyclops.Operations
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful =
                         iTRAQMainOperationFunction();
+                }
             }
 
             return successful;

@@ -169,7 +169,9 @@ namespace Cyclops.DataModules
 
                 if (successful &&
                     Parameters.ContainsKey("MergeColumn"))
+                {
                     MergeColumn = Parameters["MergeColumn"];
+                }
             }
 
             return successful;

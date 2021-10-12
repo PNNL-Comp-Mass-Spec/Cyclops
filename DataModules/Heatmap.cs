@@ -499,7 +499,9 @@ namespace Cyclops.DataModules
         {
             if (m_ClusterColumns.ToUpper().StartsWith("T") &&
                 m_ClusterRows.ToUpper().StartsWith("T"))
+            {
                 return "c('both')";
+            }
 
             if (m_ClusterRows.ToUpper().StartsWith("T"))
                 return "c('row')";

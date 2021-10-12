@@ -155,8 +155,10 @@ namespace Cyclops.DataModules
                 successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
 
                 if (successful)
+                {
                     Model.RWorkEnvironment = Parameters[
                         RequiredParameters.InputFileName.ToString()].Replace("\\", "/");
+                }
             }
             catch (Exception ex)
             {

@@ -77,7 +77,9 @@ namespace Cyclops
 
             if (string.IsNullOrEmpty(WorkingDirectory) &&
                 Parameters.ContainsKey("workDir"))
+            {
                 WorkingDirectory = Parameters["workDir"];
+            }
 
             var successful = cyclops.ModuleLoader.ReadWorkflow();
             if (!successful)

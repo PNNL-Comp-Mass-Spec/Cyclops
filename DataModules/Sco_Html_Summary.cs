@@ -500,30 +500,38 @@ namespace Cyclops.DataModules
 
             var correlationHeatMapFile = Path.Combine(Model.WorkDirectory, "Plots", FileNameVault["SpectralCountsCorrelationHeatmapFigureFileName"]);
             if (File.Exists(correlationHeatMapFile))
+            {
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["SpectralCountsCorrelationHeatmapFigureFileName"],
                     true, "pos_left", null, null));
+            }
 
             var heatMap10PercentFdr = Path.Combine(Model.WorkDirectory, "Plots",
                 FileNameVault["SpectralCountsCorrelationHeatmap10percentFdrFigureFileName"]);
             if (File.Exists(heatMap10PercentFdr))
+            {
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["SpectralCountsCorrelationHeatmap10percentFdrFigureFileName"],
                     true, "pos_left", null, null));
+            }
 
             var heatMap05PercentFdr = Path.Combine(Model.WorkDirectory, "Plots",
                 FileNameVault["SpectralCountsCorrelationHeatmap05percentFdrFigureFileName"]);
             if (File.Exists(heatMap05PercentFdr))
+            {
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["SpectralCountsCorrelationHeatmap05percentFdrFigureFileName"],
                     true, "pos_left", null, null));
+            }
 
             var heatMap01PercentFdr = Path.Combine(Model.WorkDirectory, "Plots",
                 FileNameVault["SpectralCountsCorrelationHeatmap01percentFdrFigureFileName"]);
             if (File.Exists(heatMap01PercentFdr))
+            {
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["SpectralCountsCorrelationHeatmap01percentFdrFigureFileName"],
                     true, "pos_left", null, null));
+            }
 
             heatmapHtml.Append("\t</DIV>\n");
             heatmapHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
