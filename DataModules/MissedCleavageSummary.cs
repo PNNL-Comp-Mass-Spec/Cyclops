@@ -256,7 +256,6 @@ namespace Cyclops.DataModules
             if (m_SQLiteReader.TableExists(Parameters[RequiredParameters.NewTableName.ToString()]))
             {
                 successful = m_SQLiteReader.DropTable(Parameters[RequiredParameters.NewTableName.ToString()]);
-
             }
 
             return successful;

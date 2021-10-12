@@ -252,7 +252,6 @@ namespace Cyclops.DataModules
             return true;
         }
 
-
         private List<HtmlLinkNode> GetOriginalNavBar()
         {
             var navBarNodes = new List<HtmlLinkNode>
@@ -263,7 +262,6 @@ namespace Cyclops.DataModules
                 new HtmlLinkNode("Correlation Heatmaps", FileNameVault["CorrelationHtmlFileName"], false),
                 new HtmlLinkNode("Protein Heatmaps", FileNameVault["HeatmapsFileName"], false)
             };
-
 
             return navBarNodes;
         }
@@ -310,7 +308,6 @@ namespace Cyclops.DataModules
             FileNameVault.Add("BBM_Heatmap_01_FigureFileName", "BBM_Heatmap_LT01.png");
             FileNameVault.Add("BBM_Heatmap_05_FigureFileName", "BBM_Heatmap_LT05.png");
         }
-
 
         /// <summary>
         /// Writes out the CSS file to the working directory
@@ -469,7 +466,6 @@ namespace Cyclops.DataModules
                     true, "pos_left", null, null));
             }
 
-
             qcHtml.Append("\t</DIV>\n");
             qcHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
@@ -537,7 +533,6 @@ namespace Cyclops.DataModules
             heatmapWriter.Close();
         }
 
-
         private void WriteHeatmapsPage(List<HtmlLinkNode> NavBar)
         {
             var heatmapsHtml = new StringBuilder();
@@ -551,7 +546,6 @@ namespace Cyclops.DataModules
             heatmapsHtml.Append(WriteHtmlBody(HTMLFileType.Index));
 
             heatmapsHtml.Append("\t<DIV ID='main_content'>\n");
-
 
             if (File.Exists(
                 Path.Combine(Model.WorkDirectory, "Plots",

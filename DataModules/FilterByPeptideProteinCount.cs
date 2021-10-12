@@ -261,7 +261,6 @@ namespace Cyclops.DataModules
                     "\t{2} <- {0}$RowMetaData\n" +
                     "}}\n"+
 
-
                     "{2} <- jnb_PeptideCountProteinCount(" +
                     "RowMetadataTable={2}, " +
                     "ProteinColumn='{3}', " +

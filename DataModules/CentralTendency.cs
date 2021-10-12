@@ -76,7 +76,6 @@ namespace Cyclops.DataModules
         /// </summary>
         public override bool PerformOperation()
         {
-
             if (Model.PipelineCurrentlySuccessful)
             {
                 Model.CurrentStepNumber = StepNumber;

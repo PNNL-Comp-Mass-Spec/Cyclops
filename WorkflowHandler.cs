@@ -418,7 +418,6 @@ namespace Cyclops
 
         public bool ReadDataTableWorkflow(DataTable workflowTableName)
         {
-
             var MaxSteps = GetMaximumStepsInWorkflowDataTable(workflowTableName);
             if (MaxSteps == null)
                 return false;
@@ -593,7 +592,6 @@ namespace Cyclops
             return successful;
         }
 
-
         /// <summary>
         /// Writes the modules out to a workflow
         /// </summary>
@@ -740,7 +738,6 @@ namespace Cyclops
         /// <returns>True, if the step number is present</returns>
         public bool HasStep(int StepNumber)
         {
-
             foreach (var m in Modules)
             {
                 if (m.StepNumber == StepNumber)
@@ -787,7 +784,6 @@ namespace Cyclops
                     node.Value.StepNumber--;
                 node = NextNode;
             }
-
         }
 
         public bool ContainsStep(int StepNumber)

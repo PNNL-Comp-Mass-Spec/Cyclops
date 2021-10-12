@@ -29,7 +29,6 @@ namespace CyclopsTest
 
             var paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-
                     {"Job", "1299605"},
                     {"RDLL", rProgramLoc},
                     {"CyclopsWorkflowName", "ITQ_ExportOperation.xml"},
@@ -39,7 +38,6 @@ namespace CyclopsTest
                     {"RunProteinProphet", "false"},
                     {"orgDbDir", @"C:\DMS_Temp_Org"}
                 };
-
 
             try
             {
@@ -54,13 +52,11 @@ namespace CyclopsTest
                 var success = cyclops.Run();
 
                 Console.WriteLine("Success: " + success);
-
             }
             catch (Exception ex)
             {
                 PRISM.ConsoleMsgUtils.ShowError("Error running Cyclops: " + ex.Message, ex);
             }
-
         }
 
         private static void Cyclops_ErrorEvent(string message, Exception ex)
@@ -77,6 +73,5 @@ namespace CyclopsTest
         {
             Console.WriteLine(message);
         }
-
     }
 }

@@ -326,7 +326,6 @@ namespace Cyclops
         /// <returns>TRUE or FALSE</returns>
         public bool AssessBoolean(string RStatement)
         {
-
             var evalResult = engine.Evaluate(RStatement).AsCharacter();
             return evalResult[0].ToUpper().Equals("TRUE");
         }
@@ -863,7 +862,6 @@ namespace Cyclops
         /// <returns>True, if the object's value is set successfully</returns>
         public bool SetObject(string ObjectName, string Value)
         {
-
             try
             {
                 var rCmd = ObjectName + " <- " + Value;
@@ -952,7 +950,6 @@ namespace Cyclops
                 Console.WriteLine(nv[0]);
             }
             Console.ForegroundColor = ConsoleColor.White;
-
 
             if (nv[0] > 0.09078 && nv[0] < 0.09076)
                 successful = false;

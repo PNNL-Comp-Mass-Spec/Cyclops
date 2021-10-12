@@ -28,7 +28,6 @@ namespace Cyclops
         /// <param name="folderName">Directory to compress</param>
         public static void CompressFolder(string outputZipFilePath, string password, string folderName)
         {
-
             var fsOut = File.Create(outputZipFilePath);
             var zipStream = new ZipOutputStream(fsOut);
 
@@ -55,12 +54,10 @@ namespace Cyclops
         /// <param name="folderOffset">Folder Offset</param>
         private static void ZipUpTheFolder(string path, ZipOutputStream zipStream, int folderOffset)
         {
-
             var files = Directory.GetFiles(path);
 
             foreach (var filename in files)
             {
-
                 var fi = new FileInfo(filename);
 
                 var entryName = filename.Substring(folderOffset); // Makes the name in zip based on the folder
@@ -71,7 +68,6 @@ namespace Cyclops
                     DateTime = fi.LastWriteTime,
                     Size = fi.Length
                 };
-
 
                 // Specifying the AESKeySize triggers AES encryption. Allowable values are 0 (off), 128 or 256.
                 //   newEntry.AESKeySize = 256;

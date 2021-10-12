@@ -72,7 +72,6 @@ namespace Cyclops.Operations
             {
                 {iTraqTypes.Standard, "T_iTRAQ_PipelineOperation"}
             };
-
         }
 
         /// <summary>
@@ -103,7 +102,6 @@ namespace Cyclops.Operations
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-
             foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
@@ -134,7 +132,6 @@ namespace Cyclops.Operations
             return successful;
         }
 
-
         /// <summary>
         /// Sets the type of iTRAQ Operation, and sets the SQLite table
         /// to use to run the operation.
@@ -157,7 +154,6 @@ namespace Cyclops.Operations
                         ModuleName,
                         StepNumber);
         }
-
 
         /// <summary>
         ///

@@ -161,7 +161,6 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey("Center"))
                 m_Center = Parameters["Center"];
 
-
             return successful;
         }
 
@@ -189,7 +188,6 @@ namespace Cyclops.DataModules
                     m_GrubbsPValue,                                             // 9
                     m_GminPCount,                                               // 10
                     m_Center);                                                  // 11
-
 
             try
             {

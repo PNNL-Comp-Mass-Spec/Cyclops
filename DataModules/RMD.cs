@@ -208,7 +208,6 @@ namespace Cyclops.DataModules
                 SaveCurrentREnvironment();
                 return false;
             }
-
         }
 
         /// <summary>

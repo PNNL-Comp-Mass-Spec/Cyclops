@@ -270,8 +270,6 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-
-
             return successful;
         }
 

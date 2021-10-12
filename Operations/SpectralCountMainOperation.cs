@@ -81,7 +81,6 @@ namespace Cyclops.Operations
                 {ScoTypes.Practice,        "T_PracticeOperation"},
                 {ScoTypes.ScoHtmlPractice, "T_Sco_HTML_Practice"}
             };
-
         }
 
         /// <summary>

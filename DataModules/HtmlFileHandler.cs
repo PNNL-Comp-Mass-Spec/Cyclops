@@ -164,7 +164,6 @@ namespace Cyclops.DataModules
                         '\t' + "color:#000\n" +
                         "}\n\n");
 
-
                     // Build Nav Table
                     css.Append(string.Format(
                         "table#nav_table{0}" +
@@ -348,7 +347,6 @@ namespace Cyclops.DataModules
 
             return htmlText;
         }
-
 
         /// <summary>
         /// HTML code for the datasets table

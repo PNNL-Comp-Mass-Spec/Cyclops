@@ -90,7 +90,6 @@ namespace Cyclops
 
             if (CyclopsParameters.ContainsKey("workDir"))
             {
-
                 WorkDirectory = CyclopsParameters["workDir"];
             }
             else
@@ -102,7 +101,6 @@ namespace Cyclops
 
             if (CyclopsParameters.ContainsKey("CyclopsWorkflowName"))
             {
-
                 ModuleLoader.InputWorkflowFileName =
                     CyclopsParameters["CyclopsWorkflowName"];
             }
@@ -224,8 +222,6 @@ namespace Cyclops
             }
             return successful;
         }
-
-
 
         #endregion
     }

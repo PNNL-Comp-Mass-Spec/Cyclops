@@ -273,7 +273,6 @@ namespace Cyclops.DataModules
                     sourceFile.Delete();
                     tempFile.MoveTo(sourceFile.FullName);
                 }
-
             }
             catch (IOException ex)
             {

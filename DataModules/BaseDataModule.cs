@@ -89,7 +89,6 @@ namespace Cyclops.DataModules
             Writer.WriteEndElement();
         }
 
-
         /// <summary>
         /// Writes out Data modules to DataTable for export
         /// </summary>
@@ -224,7 +223,6 @@ namespace Cyclops.DataModules
 
             return typeMap;
         }
-
 
         /// <summary>
         /// Gets the list of data modules in Cyclops

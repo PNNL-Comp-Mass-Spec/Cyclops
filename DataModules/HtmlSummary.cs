@@ -186,7 +186,6 @@ namespace Cyclops.DataModules
                     "QC Plots", qcFileName, false)
             };
 
-
             using (var cssWriter = File.AppendText(Path.Combine(
                 Model.WorkDirectory, cssFileName)))
             {

@@ -171,7 +171,6 @@ namespace Cyclops.DataModules
                 SaveCurrentREnvironment();
                 return false;
             }
-
         }
 
         protected override string GetDefaultValue()

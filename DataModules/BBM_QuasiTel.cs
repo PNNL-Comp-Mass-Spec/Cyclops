@@ -154,7 +154,6 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-
             return successful;
         }
 
@@ -184,7 +183,6 @@ namespace Cyclops.DataModules
                     return true;
                 }
 
-
                 if (!Model.RCalls.TableContainsColumn(factorTable, fixedEffect))
                 {
                     Model.LogError(string.Format(
@@ -195,7 +193,6 @@ namespace Cyclops.DataModules
                         ModuleName, StepNumber);
                     return false;
                 }
-
 
                 // TODO : Make it work
                 // var tmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");

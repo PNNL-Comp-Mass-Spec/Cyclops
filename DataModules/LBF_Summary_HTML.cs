@@ -282,7 +282,6 @@ namespace Cyclops.DataModules
                     "Correlation Heatmaps", FileNameVault["CorrelationHtmlFileName"], false)
             };
 
-
             return navBarNodes;
         }
 

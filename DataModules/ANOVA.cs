@@ -165,7 +165,6 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey("RemovePeptideColumn"))
                 m_RemoveFirstColumn = Convert.ToBoolean(Parameters["RemovePeptideColumn"]);
 
-
             // Get Random Effect if passed in
             if (Parameters.ContainsKey(
                 AnovaParameters.Random_Effect.ToString()))

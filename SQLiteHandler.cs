@@ -241,7 +241,6 @@ namespace Cyclops
         [Obsolete("Unused")]
         private bool FillTables(SQLiteConnection Conn, DataSet MainData)
         {
-
             foreach (DataTable dt in MainData.Tables)
             {
                 var successful = FillTable(Conn, dt);
@@ -330,7 +329,6 @@ namespace Cyclops
             try
             {
                 conn.Open();
-
 
                 if (TableExists(Table.TableName))
                 {
@@ -448,7 +446,6 @@ namespace Cyclops
             }
             return infoTable;
         }
-
 
         /// <summary>
         /// Retrieves the entire database and stores it as a DataSet
@@ -582,7 +579,6 @@ namespace Cyclops
                     outTable.Load(reader);
                     conn.Close();
                 }
-
             }
             catch (IOException ex)
             {
@@ -678,7 +674,6 @@ namespace Cyclops
                     outTable.Load(reader);
                     conn.Close();
                 }
-
             }
             catch (IOException ex)
             {
@@ -724,7 +719,6 @@ namespace Cyclops
                     outTable.Load(reader);
                     conn.Close();
                 }
-
             }
             catch (IOException ex)
             {
