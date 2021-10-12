@@ -158,10 +158,9 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            if (Parameters.ContainsKey("DatabaseName"))
+            if (Parameters.ContainsKey("DatabaseName") && !string.IsNullOrEmpty(Parameters["DatabaseName"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["DatabaseName"]))
-                    m_DatabaseName = Parameters["DatabaseName"];
+                m_DatabaseName = Parameters["DatabaseName"];
             }
 
             return successful;

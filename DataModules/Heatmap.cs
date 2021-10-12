@@ -171,10 +171,9 @@ namespace Cyclops.DataModules
                     }
                 }
 
-                if (Parameters.ContainsKey("PValue"))
+                if (Parameters.ContainsKey("PValue") && !string.IsNullOrEmpty(Parameters["PValue"]))
                 {
-                    if (!string.IsNullOrEmpty(Parameters["PValue"]))
-                        m_PValueThreshold = Parameters["PValue"];
+                    m_PValueThreshold = Parameters["PValue"];
                 }
 
                 if (!Model.RCalls.ContainsObject(
@@ -205,17 +204,15 @@ namespace Cyclops.DataModules
             }
 
             if (successful &&
-                Parameters.ContainsKey("HeatmapClusterRows"))
+                Parameters.ContainsKey("HeatmapClusterRows") && !string.IsNullOrEmpty(Parameters["HeatmapClusterRows"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["HeatmapClusterRows"]))
-                    m_ClusterRows = Parameters["HeatmapClusterRows"].ToUpper();
+                m_ClusterRows = Parameters["HeatmapClusterRows"].ToUpper();
             }
 
             if (successful &&
-                Parameters.ContainsKey("HeatmapClusterColumns"))
+                Parameters.ContainsKey("HeatmapClusterColumns") && !string.IsNullOrEmpty(Parameters["HeatmapClusterColumns"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["HeatmapClusterColumns"]))
-                    m_ClusterColumns = Parameters["HeatmapClusterColumns"].ToUpper();
+                m_ClusterColumns = Parameters["HeatmapClusterColumns"].ToUpper();
             }
 
             /*
@@ -228,66 +225,57 @@ namespace Cyclops.DataModules
             */
 
             if (successful &&
-                Parameters.ContainsKey("Distance"))
+                Parameters.ContainsKey("Distance") && !string.IsNullOrEmpty(Parameters["Distance"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["Distance"]))
-                    m_Distance = Parameters["Distance"];
+                m_Distance = Parameters["Distance"];
             }
 
             if (successful &&
-                Parameters.ContainsKey("HClust"))
+                Parameters.ContainsKey("HClust") && !string.IsNullOrEmpty(Parameters["HClust"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["HClust"]))
-                    m_HClust = Parameters["HClust"];
+                m_HClust = Parameters["HClust"];
             }
 
             if (successful &&
-                Parameters.ContainsKey("ColorPalette"))
+                Parameters.ContainsKey("ColorPalette") && !string.IsNullOrEmpty(Parameters["ColorPalette"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["ColorPalette"]))
-                    m_ColorPalette = Parameters["ColorPalette"];
+                m_ColorPalette = Parameters["ColorPalette"];
             }
 
             if (successful &&
-                Parameters.ContainsKey("ColorDegree"))
+                Parameters.ContainsKey("ColorDegree") && !string.IsNullOrEmpty(Parameters["ColorDegree"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["ColorDegree"]))
-                    m_ColorDegree = Parameters["ColorDegree"];
+                m_ColorDegree = Parameters["ColorDegree"];
             }
 
             if (successful &&
-                Parameters.ContainsKey("MinColorScale"))
+                Parameters.ContainsKey("MinColorScale") && !string.IsNullOrEmpty(Parameters["MinColorScale"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["MinColorScale"]))
-                    m_MinColorScale = Parameters["MinColorScale"];
+                m_MinColorScale = Parameters["MinColorScale"];
             }
 
             if (successful &&
-                Parameters.ContainsKey("MaxColorScale"))
+                Parameters.ContainsKey("MaxColorScale") && !string.IsNullOrEmpty(Parameters["MaxColorScale"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["MaxColorScale"]))
-                    m_MaxColorScale = Parameters["MaxColorScale"];
+                m_MaxColorScale = Parameters["MaxColorScale"];
             }
 
             if (successful &&
-                Parameters.ContainsKey("PlotFileType"))
+                Parameters.ContainsKey("PlotFileType") && !string.IsNullOrEmpty(Parameters["PlotFileType"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["PlotFileType"]))
-                    m_PlotFileType = Parameters["PlotFileType"];
+                m_PlotFileType = Parameters["PlotFileType"];
             }
 
             if (successful &&
-                Parameters.ContainsKey("NA.Color"))
+                Parameters.ContainsKey("NA.Color") && !string.IsNullOrEmpty(Parameters["NA.Color"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["NA.Color"]))
-                    m_NaColor = Parameters["NA.Color"];
+                m_NaColor = Parameters["NA.Color"];
             }
 
             if (successful &&
-                Parameters.ContainsKey("ShowRowNames"))
+                Parameters.ContainsKey("ShowRowNames") && !string.IsNullOrEmpty(Parameters["ShowRowNames"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["ShowRowNames"]))
-                    m_ShowRowNames = Convert.ToBoolean(Parameters["ShowRowNames"]);
+                m_ShowRowNames = Convert.ToBoolean(Parameters["ShowRowNames"]);
             }
 
             return successful;

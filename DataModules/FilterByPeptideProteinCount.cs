@@ -221,25 +221,21 @@ namespace Cyclops.DataModules
             #endregion
 
             #region Check For Parameters Specific To FilterByPeptideProteinCount
-            if (Parameters.ContainsKey("MaxProtValue"))
+            if (Parameters.ContainsKey("MaxProtValue") && !string.IsNullOrEmpty(Parameters["MaxProtValue"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["MaxProtValue"]))
-                    m_MaxProtValue = Parameters["MaxProtValue"];
+                m_MaxProtValue = Parameters["MaxProtValue"];
             }
-            if (Parameters.ContainsKey("MinProtValue"))
+            if (Parameters.ContainsKey("MinProtValue") && !string.IsNullOrEmpty(Parameters["MinProtValue"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["MinProtValue"]))
-                    m_MinProtValue = Parameters["MinProtValue"];
+                m_MinProtValue = Parameters["MinProtValue"];
             }
-            if (Parameters.ContainsKey("MaxPepValue"))
+            if (Parameters.ContainsKey("MaxPepValue") && !string.IsNullOrEmpty(Parameters["MaxPepValue"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["MaxPepValue"]))
-                    m_MaxPepValue = Parameters["MaxPepValue"];
+                m_MaxPepValue = Parameters["MaxPepValue"];
             }
-            if (Parameters.ContainsKey("MinPepValue"))
+            if (Parameters.ContainsKey("MinPepValue") && !string.IsNullOrEmpty(Parameters["MinPepValue"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["MinPepValue"]))
-                    m_MinPepValue = Parameters["MinPepValue"];
+                m_MinPepValue = Parameters["MinPepValue"];
             }
             #endregion
 

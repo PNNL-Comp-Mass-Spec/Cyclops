@@ -167,58 +167,43 @@ namespace Cyclops.DataModules
 
             // Get Random Effect if passed in
             if (Parameters.ContainsKey(
-                AnovaParameters.Random_Effect.ToString()))
-            {
-                if (!string.IsNullOrEmpty(
+                AnovaParameters.Random_Effect.ToString()) && !string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Random_Effect.ToString()]))
-                {
-                    RandomEffect = Parameters[
-                        AnovaParameters.Random_Effect.ToString()];
-                }
+            {
+                RandomEffect = Parameters[
+                    AnovaParameters.Random_Effect.ToString()];
             }
 
             // Get Interaction parameter
             if (Parameters.ContainsKey(
-                AnovaParameters.Interaction.ToString()))
-            {
-                if (!string.IsNullOrEmpty(
+                AnovaParameters.Interaction.ToString()) && !string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Interaction.ToString()]))
-                {
-                    Interaction = Parameters[AnovaParameters.Interaction.ToString()];
-                }
+            {
+                Interaction = Parameters[AnovaParameters.Interaction.ToString()];
             }
 
             // Get Threshold parameter
             if (Parameters.ContainsKey(
-                AnovaParameters.Threshold.ToString()))
-            {
-                if (!string.IsNullOrEmpty(
+                AnovaParameters.Threshold.ToString()) && !string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Threshold.ToString()]))
-                {
-                    Threshold = Parameters[AnovaParameters.Threshold.ToString()];
-                }
+            {
+                Threshold = Parameters[AnovaParameters.Threshold.ToString()];
             }
 
             // Get Unbalanced parameter
             if (Parameters.ContainsKey(
-                AnovaParameters.Unbalanced.ToString()))
-            {
-                if (!string.IsNullOrEmpty(
+                AnovaParameters.Unbalanced.ToString()) && !string.IsNullOrEmpty(
                     Parameters[AnovaParameters.Unbalanced.ToString()]))
-                {
-                    Unbalanced = Parameters[AnovaParameters.Unbalanced.ToString()];
-                }
+            {
+                Unbalanced = Parameters[AnovaParameters.Unbalanced.ToString()];
             }
 
             // Get REML parameter
             if (Parameters.ContainsKey(
-                AnovaParameters.UseREML.ToString()))
-            {
-                if (!string.IsNullOrEmpty(
+                AnovaParameters.UseREML.ToString()) && !string.IsNullOrEmpty(
                     Parameters[AnovaParameters.UseREML.ToString()]))
-                {
-                    UseREML = Parameters[AnovaParameters.UseREML.ToString()];
-                }
+            {
+                UseREML = Parameters[AnovaParameters.UseREML.ToString()];
             }
 
             return successful;

@@ -136,16 +136,14 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            if (Parameters.ContainsKey("Function"))
+            if (Parameters.ContainsKey("Function") && !string.IsNullOrEmpty(Parameters["Function"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["Function"]))
-                    m_Function = Parameters["Function"];
+                m_Function = Parameters["Function"];
             }
 
-            if (Parameters.ContainsKey("RemoveNA"))
+            if (Parameters.ContainsKey("RemoveNA") && !string.IsNullOrEmpty(Parameters["RemoveNA"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["RemoveNA"]))
-                    m_RemoveNAs = Convert.ToBoolean(Parameters["RemoveNA"]);
+                m_RemoveNAs = Convert.ToBoolean(Parameters["RemoveNA"]);
             }
 
             return true;

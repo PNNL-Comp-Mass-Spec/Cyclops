@@ -527,36 +527,33 @@ namespace Cyclops
             var dataFilter = "";
 
             #region Construct the Filter
-            if (!string.IsNullOrEmpty(columnName))
+            if (!string.IsNullOrEmpty(columnName) && TableContainsColumn(tableName, columnName))
             {
-                if (TableContainsColumn(tableName, columnName))
+                if (!string.IsNullOrEmpty(minValue) &
+                    !string.IsNullOrEmpty(maxValue))
                 {
-                    if (!string.IsNullOrEmpty(minValue) &
-                        !string.IsNullOrEmpty(maxValue))
-                    {
-                        dataFilter = string.Format(
-                            "[{0}[,'{1}'] > {2} & {0}[,'{1}'] < {3},]",
-                            tableName,
-                            columnName,
-                            minValue,
-                            maxValue);
-                    }
-                    else if (!string.IsNullOrEmpty(minValue))
-                    {
-                        dataFilter = string.Format(
-                            "[{0}[,'{1}'] > {2},]",
-                            tableName,
-                            columnName,
-                            minValue);
-                    }
-                    else if (!string.IsNullOrEmpty(maxValue))
-                    {
-                        dataFilter = string.Format(
-                            "[{0}[,'{1}'] < {2},]",
-                            tableName,
-                            columnName,
-                            maxValue);
-                    }
+                    dataFilter = string.Format(
+                        "[{0}[,'{1}'] > {2} & {0}[,'{1}'] < {3},]",
+                        tableName,
+                        columnName,
+                        minValue,
+                        maxValue);
+                }
+                else if (!string.IsNullOrEmpty(minValue))
+                {
+                    dataFilter = string.Format(
+                        "[{0}[,'{1}'] > {2},]",
+                        tableName,
+                        columnName,
+                        minValue);
+                }
+                else if (!string.IsNullOrEmpty(maxValue))
+                {
+                    dataFilter = string.Format(
+                        "[{0}[,'{1}'] < {2},]",
+                        tableName,
+                        columnName,
+                        maxValue);
                 }
             }
             #endregion

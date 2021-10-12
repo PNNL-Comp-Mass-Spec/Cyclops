@@ -137,10 +137,9 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (Parameters.ContainsKey("FileName"))
+            if (Parameters.ContainsKey("FileName") && !string.IsNullOrEmpty(Parameters["FileName"]))
             {
-                if (!string.IsNullOrEmpty(Parameters["FileName"]))
-                    FileNameVault["MainFileName"] = Parameters["FileName"];
+                FileNameVault["MainFileName"] = Parameters["FileName"];
             }
 
             if (Parameters.ContainsKey("DatabaseFileName"))
@@ -846,39 +845,36 @@ namespace Cyclops.DataModules
             try
             {
                 if (Model.RCalls.ContainsObject(
-                    FileNameVault["BbmResultsFdr01"]))
-                {
-                    if (Model.RCalls.TableContainsColumn(
+                    FileNameVault["BbmResultsFdr01"]) && Model.RCalls.TableContainsColumn(
                         FileNameVault["BbmResultsFdr01"],
                         FileNameVault["BBM_Pvals"]))
-                    {
-                        // P-value 0.05
-                        var dataRow05 = outTable.NewRow();
-                        var pVal = 0.05;
+                {
+                    // P-value 0.05
+                    var dataRow05 = outTable.NewRow();
+                    var pVal = 0.05;
 
-                        var protCount = Model.RCalls.GetNumberOfRowsInTable(
-                            FileNameVault["BbmResultsFdr01"],
-                            FileNameVault["BBM_Pvals"],
-                            null, pVal.ToString(CultureInfo.InvariantCulture));
+                    var protCount = Model.RCalls.GetNumberOfRowsInTable(
+                        FileNameVault["BbmResultsFdr01"],
+                        FileNameVault["BBM_Pvals"],
+                        null, pVal.ToString(CultureInfo.InvariantCulture));
 
-                        dataRow05["P-value"] = "< " + pVal;
-                        dataRow05["Proteins"] = protCount;
-                        outTable.Rows.Add(dataRow05);
+                    dataRow05["P-value"] = "< " + pVal;
+                    dataRow05["Proteins"] = protCount;
+                    outTable.Rows.Add(dataRow05);
 
-                        // P-value 0.01
-                        var dataRow01 = outTable.NewRow();
-                        pVal = 0.01;
+                    // P-value 0.01
+                    var dataRow01 = outTable.NewRow();
+                    pVal = 0.01;
 
-                        protCount = Model.RCalls.GetNumberOfRowsInTable(
-                            FileNameVault["BbmResultsFdr01"],
-                            FileNameVault["BBM_Pvals"],
-                            null, pVal.ToString(CultureInfo.InvariantCulture));
+                    protCount = Model.RCalls.GetNumberOfRowsInTable(
+                        FileNameVault["BbmResultsFdr01"],
+                        FileNameVault["BBM_Pvals"],
+                        null, pVal.ToString(CultureInfo.InvariantCulture));
 
-                        dataRow01["P-value"] = "< " + pVal;
-                        dataRow01["Proteins"] = protCount;
+                    dataRow01["P-value"] = "< " + pVal;
+                    dataRow01["Proteins"] = protCount;
 
-                        outTable.Rows.Add(dataRow01);
-                    }
+                    outTable.Rows.Add(dataRow01);
                 }
             }
             catch (Exception ex)

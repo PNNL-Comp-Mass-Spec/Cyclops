@@ -143,32 +143,26 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            if (successful)
-            {
-                if (!Model.RCalls.TableContainsColumn(
+            if (successful && !Model.RCalls.TableContainsColumn(
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     Parameters[RequiredParameters.BioRep.ToString()]))
-                {
-                    Model.LogError("Factor table does not contain BioRep:\n" +
-                        "FactorTable: " + Parameters[RequiredParameters.FactorTable.ToString()] +
-                        "BioRep: " + Parameters[RequiredParameters.BioRep.ToString()],
-                        ModuleName, StepNumber);
-                    successful = false;
-                }
+            {
+                Model.LogError("Factor table does not contain BioRep:\n" +
+                    "FactorTable: " + Parameters[RequiredParameters.FactorTable.ToString()] +
+                    "BioRep: " + Parameters[RequiredParameters.BioRep.ToString()],
+                    ModuleName, StepNumber);
+                successful = false;
             }
 
-            if (successful)
-            {
-                if (!Model.RCalls.TableContainsColumn(
+            if (successful && !Model.RCalls.TableContainsColumn(
                     Parameters[RequiredParameters.FactorTable.ToString()],
                     Parameters[RequiredParameters.BioRep.ToString()]))
-                {
-                    Model.LogError("Factor table does not contain ConsolidateFactor:\n" +
-                        "FactorTable: " + Parameters[RequiredParameters.FactorTable.ToString()] +
-                        "BioRep: " + Parameters[RequiredParameters.ConsolidateFactor.ToString()],
-                        ModuleName, StepNumber);
-                    successful = false;
-                }
+            {
+                Model.LogError("Factor table does not contain ConsolidateFactor:\n" +
+                    "FactorTable: " + Parameters[RequiredParameters.FactorTable.ToString()] +
+                    "BioRep: " + Parameters[RequiredParameters.ConsolidateFactor.ToString()],
+                    ModuleName, StepNumber);
+                successful = false;
             }
 
             return successful;

@@ -249,14 +249,11 @@ namespace Cyclops.DataModules
                     Resolution                                              // 14
                     );
 
-            if (Parameters.ContainsKey("Mode"))
+            if (Parameters.ContainsKey("Mode") && Parameters["Mode"].Equals("iterator"))
             {
-                if (Parameters["Mode"].Equals("iterator"))
-                {
-                    rCmd += string.Format(
-                        "rm({0})\n",
-                        Parameters[RequiredParameters.TableName.ToString()]);
-                }
+                rCmd += string.Format(
+                    "rm({0})\n",
+                    Parameters[RequiredParameters.TableName.ToString()]);
             }
 
             try

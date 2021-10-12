@@ -143,23 +143,17 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey("ColorByFactor"))
                 m_ColorByFactor = Parameters["ColorByFactor"].ToUpper();
 
-            if (Parameters.ContainsKey("ColumnFactorTable"))
-            {
-                if (Model.RCalls.ContainsObject(
+            if (Parameters.ContainsKey("ColumnFactorTable") && Model.RCalls.ContainsObject(
                     Parameters["ColumnFactorTable"]))
-                {
-                    m_ColumnFactorTable = Parameters["ColumnFactorTable"];
-                }
+            {
+                m_ColumnFactorTable = Parameters["ColumnFactorTable"];
             }
 
-            if (Parameters.ContainsKey("FactorColumn"))
-            {
-                if (Model.RCalls.TableContainsColumn(
+            if (Parameters.ContainsKey("FactorColumn") && Model.RCalls.TableContainsColumn(
                     Parameters["ColumnFactorTable"],
                     Parameters["FactorColumn"]))
-                {
-                    m_FactorColumn = Parameters["FactorColumn"];
-                }
+            {
+                m_FactorColumn = Parameters["FactorColumn"];
             }
 
             if (!string.IsNullOrEmpty(m_ColumnFactorTable) &&
