@@ -100,7 +100,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running BoxPlot", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = BoxPlotFunction();
+                }
             }
 
             return successful;
@@ -141,7 +143,9 @@ namespace Cyclops.DataModules
 
             #region Handling Factor Information
             if (Parameters.ContainsKey("ColorByFactor"))
+            {
                 m_ColorByFactor = Parameters["ColorByFactor"].ToUpper();
+            }
 
             if (Parameters.ContainsKey("ColumnFactorTable") && Model.RCalls.ContainsObject(Parameters["ColumnFactorTable"]))
             {
@@ -165,46 +169,101 @@ namespace Cyclops.DataModules
 
             #region General Plot Parameters
             if (Parameters.ContainsKey("BackgroundColor"))
+            {
                 BackgroundColor = Parameters["BackgroundColor"];
+            }
+
             if (Parameters.ContainsKey("Height"))
+            {
                 Height = Convert.ToInt32(Parameters["Height"]);
+            }
+
             if (Parameters.ContainsKey("Width"))
+            {
                 Width = Convert.ToInt32(Parameters["Width"]);
+            }
+
             if (Parameters.ContainsKey("FontSize"))
+            {
                 FontSize = Convert.ToInt32(Parameters["FontSize"]);
+            }
+
             if (Parameters.ContainsKey("Resolution"))
+            {
                 Resolution = Convert.ToInt32(Parameters["Resolution"]);
+            }
+
             if (Parameters.ContainsKey("Main"))
+            {
                 Main = Parameters["Main"];
+            }
+
             if (Parameters.ContainsKey("XLabel"))
+            {
                 XLabel = Parameters["XLabel"];
+            }
+
             if (Parameters.ContainsKey("YLabel"))
+            {
                 YLabel = Parameters["YLabel"];
+            }
             #endregion
 
             #region Plot-specific Parameters
             if (Parameters.ContainsKey("DataColumns"))
+            {
                 m_DataColumns = Parameters["DataColumns"];
+            }
+
             if (Parameters.ContainsKey("Outliers"))
+            {
                 m_Outliers = Parameters["Outliers"].ToUpper();
+            }
+
             if (Parameters.ContainsKey("Color"))
+            {
                 m_Color = Parameters["Color"];
+            }
+
             if (Parameters.ContainsKey("LabelScale"))
+            {
                 m_LabelScale = Parameters["LabelScale"];
+            }
+
             if (Parameters.ContainsKey("BoxWidth"))
+            {
                 m_BoxWidth = Parameters["BoxWidth"];
+            }
+
             if (Parameters.ContainsKey("ShowCount"))
+            {
                 m_ShowCount = Parameters["ShowCount"].ToUpper();
+            }
+
             if (Parameters.ContainsKey("ShowLegend"))
+            {
                 m_ShowLegend = Parameters["ShowLegend"].ToUpper();
+            }
+
             if (Parameters.ContainsKey("Stamp"))
+            {
                 m_Stamp = Parameters["Stamp"];
+            }
+
             if (Parameters.ContainsKey("DoYLim"))
+            {
                 m_DoYLim = Parameters["DoYLim"].ToUpper();
+            }
+
             if (Parameters.ContainsKey("yMin"))
+            {
                 m_yMin = Parameters["yMin"];
+            }
+
             if (Parameters.ContainsKey("yMax"))
+            {
                 m_yMax = Parameters["yMax"];
+            }
             #endregion
 
             if (Directory.Exists(Model.WorkDirectory))
@@ -212,7 +271,10 @@ namespace Cyclops.DataModules
                 var s_PlotDirectory = Path.Combine(
                     Model.WorkDirectory, "Plots").Replace("\\", "/");
                 if (!Directory.Exists(s_PlotDirectory))
+                {
                     Directory.CreateDirectory(s_PlotDirectory);
+                }
+
                 PlotFileName =
                     Path.Combine(s_PlotDirectory,
                     Parameters[RequiredParameters.PlotFileName.ToString()]).Replace("\\", "/");

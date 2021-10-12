@@ -92,7 +92,9 @@ namespace Cyclops.DataModules
                 Model.CurrentStepNumber = StepNumber;
 
                 if (CheckParameters())
+                {
                     successful = HtmlSummaryFunction();
+                }
             }
 
             return successful;

@@ -92,7 +92,9 @@ namespace Cyclops.DataModules
                 Model.CurrentStepNumber = StepNumber;
 
                 if (CheckParameters())
+                {
                     successful = BarPlotFunction();
+                }
             }
 
             return successful;
@@ -144,30 +146,61 @@ namespace Cyclops.DataModules
 
             #region General Plot Parameters
             if (Parameters.ContainsKey("BackgroundColor"))
+            {
                 BackgroundColor = Parameters["BackgroundColor"];
+            }
+
             if (Parameters.ContainsKey("Height"))
+            {
                 Height = Convert.ToInt32(Parameters["Height"]);
+            }
+
             if (Parameters.ContainsKey("Width"))
+            {
                 Width = Convert.ToInt32(Parameters["Width"]);
+            }
+
             if (Parameters.ContainsKey("FontSize"))
+            {
                 FontSize = Convert.ToInt32(Parameters["FontSize"]);
+            }
+
             if (Parameters.ContainsKey("Resolution"))
+            {
                 Resolution = Convert.ToInt32(Parameters["Resolution"]);
+            }
+
             if (Parameters.ContainsKey("Main"))
+            {
                 Main = Parameters["Main"];
+            }
+
             if (Parameters.ContainsKey("XLabel"))
+            {
                 XLabel = Parameters["XLabel"];
+            }
+
             if (Parameters.ContainsKey("YLabel"))
+            {
                 YLabel = Parameters["YLabel"];
+            }
             #endregion
 
             #region Plot-specific Parameters
             if (Parameters.ContainsKey("BarColor"))
+            {
                 BarColor = Parameters["BarColor"];
+            }
+
             if (Parameters.ContainsKey("LogBase"))
+            {
                 LogBase = Convert.ToDouble(Parameters["LogBase"]);
+            }
+
             if (Parameters.ContainsKey("Names"))
+            {
                 Names = Parameters["Names"];
+            }
             #endregion
 
             if (Directory.Exists(Model.WorkDirectory) && successful)
@@ -175,7 +208,9 @@ namespace Cyclops.DataModules
                 var plotDirectory = Path.Combine(Model.WorkDirectory, "Plots").Replace("\\", "/");
 
                 if (!Directory.Exists(plotDirectory))
+                {
                     Directory.CreateDirectory(plotDirectory);
+                }
 
                 var plotFilePath = Path.Combine(plotDirectory, Parameters[RequiredParameters.PlotFileName.ToString()]);
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(plotFilePath);

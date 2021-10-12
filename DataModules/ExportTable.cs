@@ -99,7 +99,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = ExportFunction();
+                }
             }
 
             return successful;
@@ -203,7 +205,9 @@ namespace Cyclops.DataModules
                 case "R":
                     if (Model.RCalls.ContainsObject(
                         Parameters[RequiredParameters.TableName.ToString()]))
+                    {
                         return ExportFromR();
+                    }
                     else
                     {
                         Model.LogWarning(string.Format("Warning encountered while " +
@@ -217,7 +221,9 @@ namespace Cyclops.DataModules
                     if (m_DatabaseFound)
                     {
                         if (m_SQLiteReader.TableExists(Parameters[RequiredParameters.TableName.ToString()]))
+                        {
                             return ExportFromSQLite();
+                        }
 
                         Model.LogWarning(string.Format(
                                              "Warning Table, {0}, was not found in the SQLite database, {1}, for " +
@@ -252,7 +258,9 @@ namespace Cyclops.DataModules
             {
                 case "SQLITE":
                     if (CheckDatabaseTargetParameters())
+                    {
                         successful = ExportR_to_SQLite();
+                    }
                     else
                     {
                         Model.LogError("Not all required fields for handling a " +
@@ -437,7 +445,9 @@ namespace Cyclops.DataModules
                 var columnNames = new List<string>();
 
                 foreach (DataColumn dc in table.Columns)
+                {
                     columnNames.Add(dc.ColumnName);
+                }
 
                 sw.WriteLine(string.Join(delimiter, columnNames));
 
@@ -539,7 +549,9 @@ namespace Cyclops.DataModules
             var successful = Model.RCalls.Run(rCmdDisconnect, ModuleName, StepNumber);
 
             if (successful)
+            {
                 successful = Model.RCalls.AssessBoolean("terminated");
+            }
 
             if (successful)
             {

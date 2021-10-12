@@ -193,7 +193,9 @@ namespace Cyclops.DataModules
                         Model.WorkDirectory, "R_Scripts");
                 }
                 else
+                {
                     workDir = Parameters["source"];
+                }
 
                 Model.LogMessage(
                     string.Format("Preparing to load " +
@@ -205,7 +207,9 @@ namespace Cyclops.DataModules
                     if (Path.GetExtension(sourceFilePath).ToUpper().Equals(".R"))
                     {
                         if (Parameters.ContainsKey("removeFirstCharacters"))
+                        {
                             successful = CleanRSourceFile(sourceFilePath);
+                        }
 
                         if (successful)
                         {
@@ -257,9 +261,13 @@ namespace Cyclops.DataModules
                 {
                     var content = sr.ReadToEnd();
                     if (content.StartsWith("ï»¿"))
+                    {
                         sw.Write(content.Substring(3));
+                    }
                     else
+                    {
                         sw.Write(content);
+                    }
                 }
 
                 tempFile.Refresh();

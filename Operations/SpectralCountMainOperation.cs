@@ -196,7 +196,9 @@ namespace Cyclops.Operations
                 successful = wfh.ReadSQLiteWorkflow();
 
                 if (successful)
+                {
                     Model.ModuleLoader = wfh;
+                }
             }
             catch (Exception ex)
             {

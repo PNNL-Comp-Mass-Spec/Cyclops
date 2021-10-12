@@ -86,7 +86,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running LoadRWorkspace", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = LoadRWorkspaceFunction();
+                }
             }
 
             return successful;

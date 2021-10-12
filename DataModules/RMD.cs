@@ -84,7 +84,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     Model.PipelineCurrentlySuccessful = RMDFunction();
+                }
             }
 
             return true;

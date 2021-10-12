@@ -83,7 +83,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running Merge", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     Model.PipelineCurrentlySuccessful = MergeFunction();
+                }
             }
 
             return true;

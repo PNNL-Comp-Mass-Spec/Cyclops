@@ -85,7 +85,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = SummarizeDataFunction();
+                }
             }
 
             return successful;

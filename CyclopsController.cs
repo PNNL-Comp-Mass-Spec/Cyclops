@@ -56,7 +56,9 @@ namespace Cyclops
             Parameters = paramDictionary;
 
             if (Parameters.ContainsKey("workDir"))
+            {
                 WorkingDirectory = Parameters["workDir"];
+            }
         }
         #endregion
 
@@ -83,7 +85,9 @@ namespace Cyclops
 
             var successful = cyclops.ModuleLoader.ReadWorkflow();
             if (!successful)
+            {
                 return false;
+            }
 
             var success = cyclops.Run();
             return success;

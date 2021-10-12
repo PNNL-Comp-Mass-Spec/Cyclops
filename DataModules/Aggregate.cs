@@ -83,7 +83,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = AggregateData();
+                }
             }
 
             return successful;

@@ -91,7 +91,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = BBM_and_QuasiTelFunction();
+                }
             }
 
             return successful;

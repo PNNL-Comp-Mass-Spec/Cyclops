@@ -94,7 +94,9 @@ namespace Cyclops.DataModules
                     successful = RunCorrelationAnalysis();
 
                     if (successful)
+                    {
                         successful = CorrelationHeatmapFunction();
+                    }
                 }
             }
 
@@ -147,21 +149,37 @@ namespace Cyclops.DataModules
             }
 
             if (Parameters.ContainsKey("Height"))
+            {
                 Height = Convert.ToInt32(Parameters["Height"]);
+            }
+
             if (Parameters.ContainsKey("Width"))
+            {
                 Width = Convert.ToInt32(Parameters["Width"]);
+            }
+
             if (Parameters.ContainsKey("Horizontal"))
+            {
                 Horizontal = Parameters["Horizontal"];
+            }
+
             if (Parameters.ContainsKey("PointSize"))
+            {
                 PointSize = Convert.ToInt32(Parameters["PointSize"]);
+            }
+
             if (Parameters.ContainsKey("Main"))
+            {
                 Main = Parameters["Main"];
+            }
 
             if (Directory.Exists(Model.WorkDirectory))
             {
                 var plotDirectory = "Plots";
                 if (!Directory.Exists(plotDirectory))
+                {
                     Directory.CreateDirectory(plotDirectory);
+                }
 
                 var fileName = Parameters[RequiredParameters.PlotFileName.ToString()];
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(Path.Combine(plotDirectory, fileName));

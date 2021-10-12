@@ -96,7 +96,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running FilterByPeptideProteinCount", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = FilterByPeptideProteinCountFunction();
+                }
             }
 
             return successful;

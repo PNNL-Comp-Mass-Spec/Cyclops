@@ -84,7 +84,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     Model.PipelineCurrentlySuccessful = QuasiTelFunction();
+                }
             }
 
             return true;
@@ -126,7 +128,9 @@ namespace Cyclops.DataModules
             }
 
             if (Parameters.ContainsKey("MergeColumn"))
+            {
                 m_MergeColumn = Parameters["MergeColumn"];
+            }
 
             if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.InputTableName.ToString()]))

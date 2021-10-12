@@ -94,7 +94,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running RRollup", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = RRollupFunction();
+                }
             }
 
             return successful;
@@ -145,21 +147,44 @@ namespace Cyclops.DataModules
             }
 
             if (Parameters.ContainsKey("MinPresence"))
+            {
                 m_MinimumPresence = Parameters["MinPresence"];
+            }
+
             if (Parameters.ContainsKey("ProteinInfo_ProteinCol"))
+            {
                 m_ProteinInfo_ProteinColumn = Parameters["ProteinInfo_ProteinCol"];
+            }
+
             if (Parameters.ContainsKey("Mode"))
+            {
                 m_Mode = Parameters["Mode"];
+            }
+
             if (Parameters.ContainsKey("MinOverlap"))
+            {
                 m_MinimumOverlap = Parameters["MinOverlap"];
+            }
+
             if (Parameters.ContainsKey("OneHitWonders"))
+            {
                 m_OneHitWonders = Parameters["OneHitWonders"];
+            }
+
             if (Parameters.ContainsKey("GpValue"))
+            {
                 m_GrubbsPValue = Parameters["GpValue"];
+            }
+
             if (Parameters.ContainsKey("GminPCount"))
+            {
                 m_GminPCount = Parameters["GminPCount"];
+            }
+
             if (Parameters.ContainsKey("Center"))
+            {
                 m_Center = Parameters["Center"];
+            }
 
             return successful;
         }

@@ -125,7 +125,9 @@ namespace Cyclops
             foreach (var s in m_SQLiteKeywords)
             {
                 if (Word.ToUpper().Equals(s))
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -168,7 +170,9 @@ namespace Cyclops
         private string FormatDataColumnName(string ColumnName)
         {
             if (IsSQLiteKeyword(ColumnName))
+            {
                 ColumnName = "\"" + ColumnName + "\"";
+            }
 
             return ColumnName;
         }
@@ -191,7 +195,9 @@ namespace Cyclops
                     {
                         var columnNames = new List<string>();
                         foreach (DataColumn dc in Table.Columns)
+                        {
                             columnNames.Add(FormatDataColumnName(dc.ColumnName));
+                        }
 
                         cmd.CommandText = string.Format(
                             "INSERT INTO {0}({1}) VALUES (@{2});",
@@ -246,7 +252,9 @@ namespace Cyclops
                 var successful = FillTable(Conn, dt);
 
                 if (!successful)
+                {
                     return false;
+                }
             }
 
             return true;
@@ -264,12 +272,16 @@ namespace Cyclops
             var successful = true;
 
             if (DatabaseFileName == null)
+            {
                 return false;
+            }
 
             SQLiteConnection.CreateFile(DatabaseFileName);
 
             if (!File.Exists(DatabaseFileName))
+            {
                 successful = false;
+            }
 
             return successful;
         }
@@ -286,15 +298,23 @@ namespace Cyclops
             var successful = true;
 
             if (DatabaseFileName == null)
+            {
                 return false;
+            }
 
             if (OverwriteExistingDatabase)
+            {
                 SQLiteConnection.CreateFile(DatabaseFileName);
+            }
             else if (!File.Exists(DatabaseFileName))
+            {
                 SQLiteConnection.CreateFile(DatabaseFileName);
+            }
 
             if (!File.Exists(DatabaseFileName))
+            {
                 successful = false;
+            }
 
             return successful;
         }
@@ -365,14 +385,18 @@ namespace Cyclops
             DataSet MainData)
         {
             if (DatabaseFileName == null)
+            {
                 return false;
+            }
 
             foreach (DataTable dt in MainData.Tables)
             {
                 var successful = WriteDataTableToDatabase(dt);
 
                 if (!successful)
+                {
                     return false;
+                }
             }
 
             return true;
@@ -399,13 +423,17 @@ namespace Cyclops
         public override bool TableExists(string tableName)
         {
             if (DatabaseFileName == null)
+            {
                 return false;
+            }
 
             var infoTable = GetDatabaseInformation();
             foreach (DataRow dr in infoTable.Rows)
             {
                 if (dr["tbl_name"].ToString().Equals(tableName, StringComparison.OrdinalIgnoreCase))
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -417,7 +445,9 @@ namespace Cyclops
         public override DataTable GetDatabaseInformation()
         {
             if (DatabaseFileName == null)
+            {
                 return null;
+            }
 
             var infoTable = new DataTable();
             var sql = "SELECT * FROM sqlite_master WHERE type='table'";
@@ -473,7 +503,9 @@ namespace Cyclops
         public override List<string> GetListOfTablesInDatabase()
         {
             if (DatabaseFileName == null)
+            {
                 return null;
+            }
 
             var tableNames = new List<string>();
 
@@ -505,14 +537,18 @@ namespace Cyclops
         public override bool CreateIndex(string Table, string Column, string IndexName)
         {
             if (DatabaseFileName == null)
+            {
                 return false;
+            }
 
             var successful = true;
 
             try
             {
                 if (string.IsNullOrEmpty(IndexName))
+                {
                     IndexName = "idx_" + Table + "_" + Column;
+                }
 
                 var sql = string.Format(
                     "CREATE INDEX {0} ON {1}({2});",
@@ -558,7 +594,9 @@ namespace Cyclops
         public override DataTable SelectTable(string sql)
         {
             if (DatabaseFileName == null)
+            {
                 return null;
+            }
 
             var outTable = new DataTable();
 
@@ -602,7 +640,9 @@ namespace Cyclops
         public override bool DropTable(string TableName)
         {
             if (DatabaseFileName == null)
+            {
                 return false;
+            }
 
             var successful = true;
 
@@ -649,7 +689,9 @@ namespace Cyclops
         public override DataTable GetTable(string tableName)
         {
             if (DatabaseFileName == null)
+            {
                 return null;
+            }
 
             var outTable = new DataTable();
 
@@ -697,7 +739,9 @@ namespace Cyclops
         public override bool RunNonQuery(string sql)
         {
             if (string.IsNullOrEmpty(DatabaseFileName))
+            {
                 return false;
+            }
 
             var successful = true;
             var outTable = new DataTable();
@@ -742,7 +786,9 @@ namespace Cyclops
         public List<string> GetColumnNames(string TableName)
         {
             if (string.IsNullOrEmpty(DatabaseFileName))
+            {
                 return null;
+            }
 
             var ColumnNames = new List<string>();
             var sql = string.Format(
@@ -768,7 +814,9 @@ namespace Cyclops
                     conn.Close();
 
                     foreach (DataColumn dc in dt.Columns)
+                    {
                         ColumnNames.Add(dc.ColumnName);
+                    }
                 }
             }
             catch (Exception ex)

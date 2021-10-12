@@ -91,7 +91,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running CleanDataAndColumnFactors", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = CleanDataAndColumnFactorsFunction();
+                }
             }
 
             return successful;

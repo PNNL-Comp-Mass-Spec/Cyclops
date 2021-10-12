@@ -88,7 +88,9 @@ namespace Cyclops.DataModules
                 Model.CurrentStepNumber = StepNumber;
 
                 if (CheckParameters())
+                {
                     successful = HistogramFunction();
+                }
             }
 
             return successful;
@@ -140,16 +142,29 @@ namespace Cyclops.DataModules
             }
 
             if (Parameters.ContainsKey("HistogramType"))
+            {
                 HistogramType = Parameters["HistogramType"];
+            }
+
             if (Parameters.ContainsKey("BarColor"))
+            {
                 BarColor = Parameters["BarColor"];
+            }
 
             if (Parameters.ContainsKey("BackgroundColor"))
+            {
                 BackgroundColor = Parameters["BackgroundColor"];
+            }
+
             if (Parameters.ContainsKey("Height"))
+            {
                 Height = Convert.ToInt32(Parameters["Height"]);
+            }
+
             if (Parameters.ContainsKey("Width"))
+            {
                 Width = Convert.ToInt32(Parameters["Width"]);
+            }
 
             /*
             if (Parameters.ContainsKey("Main"))
@@ -173,7 +188,9 @@ namespace Cyclops.DataModules
             {
                 var plotDirectory = Path.Combine(Model.WorkDirectory, "Plots");
                 if (!Directory.Exists(plotDirectory))
+                {
                     Directory.CreateDirectory(plotDirectory);
+                }
 
                 var plotFilePath = Path.Combine(plotDirectory, Parameters[RequiredParameters.PlotFileName.ToString()]);
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(plotFilePath);

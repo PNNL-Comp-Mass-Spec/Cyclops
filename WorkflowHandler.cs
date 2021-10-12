@@ -157,10 +157,14 @@ namespace Cyclops
             }
 
             if (Path.GetExtension(InputWorkflowFileName).ToLower().Equals(".xml"))
+            {
                 InputWorkflowType = WorkflowType.XML;
+            }
             else if (Path.GetExtension(InputWorkflowFileName).ToLower().Equals(".db") ||
                 Path.GetExtension(InputWorkflowFileName).ToLower().Equals(".db3"))
+            {
                 InputWorkflowType = WorkflowType.SQLite;
+            }
 
             // Read modules from file
             switch (InputWorkflowType)
@@ -270,7 +274,9 @@ namespace Cyclops
                                     // Only add the module if that particular step
                                     // is available
                                     if (!HasStep(dataModule.StepNumber))
+                                    {
                                         Modules.AddLast(dataModule);
+                                    }
                                     else
                                     {
                                         Model.LogError("Error occurred while trying to " +
@@ -307,7 +313,9 @@ namespace Cyclops
                         }
 
                         if (!successful)
+                        {
                             break;
+                        }
                     }
                 }
             }
@@ -353,12 +361,18 @@ namespace Cyclops
             foreach (var module in Modules)
             {
                 if (module != null)
+                {
                     successful = module.PerformOperation();
+                }
                 else
+                {
                     Model.LogError("Cyclops did not detect a module at step number: " + step);
+                }
 
                 if (!successful)
+                {
                     return false;
+                }
 
                 step++;
             }
@@ -420,7 +434,9 @@ namespace Cyclops
         {
             var MaxSteps = GetMaximumStepsInWorkflowDataTable(workflowTableName);
             if (MaxSteps == null)
+            {
                 return false;
+            }
 
             // Clear the LinkedList
             Modules.Clear();
@@ -445,7 +461,9 @@ namespace Cyclops
                     // Only add the module if that particular step
                     // is available
                     if (!HasStep(bdm.StepNumber))
+                    {
                         Modules.AddLast(bdm);
+                    }
                     else
                     {
                         Model.LogError("Error occurred while trying to " +
@@ -491,9 +509,14 @@ namespace Cyclops
                 {
                     var i = Convert.ToInt32(step);
                     if (!stepList.Contains(i))
+                    {
                         stepList.Add(i);
+                    }
+
                     if (i > maxStepNumber)
+                    {
                         maxStepNumber = i;
+                    }
                 }
             }
 
@@ -523,7 +546,9 @@ namespace Cyclops
             {
                 var keyName = dr["Parameter"].ToString();
                 if (Param.ContainsKey(keyName))
+                {
                     throw new DuplicateNameException("Parameter " + keyName + " is specified twice for step " + stepNumber);
+                }
 
                 Param.Add(keyName, dr["Value"].ToString());
             }
@@ -567,10 +592,14 @@ namespace Cyclops
                 }
 
                 if (Path.GetExtension(OutputWorkflowFileName).ToLower().Equals(".xml"))
+                {
                     OutputWorkflowType = WorkflowType.XML;
+                }
                 else if (Path.GetExtension(OutputWorkflowFileName).ToLower().Equals(".db") ||
                     Path.GetExtension(OutputWorkflowFileName).ToLower().Equals(".db3"))
+                {
                     OutputWorkflowType = WorkflowType.SQLite;
+                }
 
                 // Write modules out to file
                 switch (OutputWorkflowType)
@@ -724,7 +753,9 @@ namespace Cyclops
             foreach (var m in Modules)
             {
                 if (m.StepNumber == StepNumber)
+                {
                     return m;
+                }
             }
 
             // if Step number is not found, return null
@@ -741,7 +772,9 @@ namespace Cyclops
             foreach (var m in Modules)
             {
                 if (m.StepNumber == StepNumber)
+                {
                     return true;
+                }
             }
 
             return false;
@@ -758,7 +791,9 @@ namespace Cyclops
             foreach (var module in Modules)
             {
                 if (module.StepNumber > maxStep)
+                {
                     maxStep = module.StepNumber;
+                }
             }
 
             return maxStep;
@@ -781,7 +816,10 @@ namespace Cyclops
                     removed = true;
                 }
                 else if (removed)
+                {
                     node.Value.StepNumber--;
+                }
+
                 node = NextNode;
             }
         }
@@ -841,7 +879,9 @@ namespace Cyclops
             // Do not run if Step does not exist, or if already
             // the first step
             if (!ContainsStep(StepNumber) | StepNumber == 1)
+            {
                 return;
+            }
 
             var Module2Move = GetModule(StepNumber);
             Modules.Remove(Module2Move);
@@ -866,7 +906,9 @@ namespace Cyclops
             // Do not run if Step does not exist, or if already
             // the first step
             if (!ContainsStep(StepNumber) | StepNumber == Modules.Count)
+            {
                 return;
+            }
 
             var Module2Move = GetModule(StepNumber);
             Modules.Remove(Module2Move);

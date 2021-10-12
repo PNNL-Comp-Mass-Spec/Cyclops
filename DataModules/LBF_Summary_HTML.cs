@@ -101,7 +101,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running LBF_Summary_HTML", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = LBF_Summary_HTMLFunction();
+                }
             }
 
             return successful;
@@ -145,7 +147,9 @@ namespace Cyclops.DataModules
             if (Parameters.ContainsKey("WorkDir"))
             {
                 if (!string.IsNullOrEmpty(Parameters["WorkDir"]))
+                {
                     m_WorkingDirectory = Parameters["WorkDir"];
+                }
                 else
                 {
                     Model.LogError("Error in 'LBF_Summary_HTML', no 'WorkDir' supplied!", ModuleName, StepNumber);

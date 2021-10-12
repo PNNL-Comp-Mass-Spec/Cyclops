@@ -92,7 +92,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = MissedCleavageSummaryFunction();
+                }
             }
 
             return successful;
@@ -135,7 +137,9 @@ namespace Cyclops.DataModules
             }
 
             if (Parameters.ContainsKey("DatabaseFileName"))
+            {
                 m_InputFileName = Parameters["DatabaseFileName"];
+            }
 
             m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, m_InputFileName);
             return true;

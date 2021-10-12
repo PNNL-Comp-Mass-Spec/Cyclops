@@ -84,7 +84,9 @@ namespace Cyclops.DataModules
                 Model.CurrentStepNumber = StepNumber;
 
                 if (CheckParameters())
+                {
                     successful = HexbinFunction();
+                }
             }
 
             return successful;
@@ -139,7 +141,9 @@ namespace Cyclops.DataModules
             {
                 var plotDirectory = Path.Combine(Model.WorkDirectory, "Plots");
                 if (!Directory.Exists(plotDirectory))
+                {
                     Directory.CreateDirectory(plotDirectory);
+                }
 
                 var plotFilePath = Path.Combine(plotDirectory, Parameters[RequiredParameters.PlotFileName.ToString()]);
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(plotFilePath);

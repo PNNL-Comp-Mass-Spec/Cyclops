@@ -392,7 +392,9 @@ namespace Cyclops.DataModules
                 );
 
             if (Table != null)
+            {
                 htmlText += GetTableHtml(Table, null, Border, TabSpaces, CellPadding);
+            }
 
             htmlText += string.Format(
                 "{0}{0}{0}</DIV>{1}{0}{0}<BR>{1}"
@@ -535,9 +537,14 @@ namespace Cyclops.DataModules
             {
                 rowNum++;
                 if (rowNum % 2 == 0)
+                {
                     htmlText += rowHtml + "<TR bgcolor='lightblue'>";
+                }
                 else
+                {
                     htmlText += rowHtml + "<TR>";
+                }
+
                 for (var c = 0; c < table.Columns.Count; c++)
                 {
                     htmlText += "<TD><P align='center'>" + r[c] + "</P></TD>";

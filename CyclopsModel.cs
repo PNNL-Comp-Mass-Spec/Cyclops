@@ -133,10 +133,14 @@ namespace Cyclops
         private string FormatStatusMessage(string message, string module, int? step = null)
         {
             if (string.IsNullOrEmpty(module))
+            {
                 return message;
+            }
 
             if (step == null)
+            {
                 return module + ": " + message;
+            }
 
             // Example messages:
             // LoadRSourceFiles, step 1: Running LoadRSourceFiles
@@ -190,7 +194,9 @@ namespace Cyclops
         public bool Run()
         {
             if (ModuleLoader.Count > 0)
+            {
                 return ModuleLoader.RunWorkflow();
+            }
 
             LogWarning("No modules were detected during the Workflow Run()");
             return true;

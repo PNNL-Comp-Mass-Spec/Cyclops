@@ -86,7 +86,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = BetaBinomialModelFunction();
+                }
             }
 
             return successful;
@@ -128,7 +130,9 @@ namespace Cyclops.DataModules
             }
 
             if (Parameters.ContainsKey("MergeColumn"))
+            {
                 m_MergeColumn = Parameters["MergeColumn"];
+            }
 
             if (!Model.RCalls.ContainsObject(
                 Parameters[RequiredParameters.InputTableName.ToString()]))
@@ -222,7 +226,9 @@ namespace Cyclops.DataModules
                         tmpTable);
 
                     if (Parameters.ContainsKey("removePeptideColumn"))
+                    {
                         rCmd += string.Format("rm({0})\n", tmpInputTableName);
+                    }
 
                     successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                 }

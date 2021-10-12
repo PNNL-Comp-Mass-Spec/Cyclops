@@ -87,7 +87,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running TopMostAbundant", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = TopMostAbundantFunction();
+                }
             }
 
             return successful;

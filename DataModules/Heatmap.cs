@@ -107,7 +107,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running Heatmap", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = HeatmapFunction();
+                }
             }
 
             return successful;
@@ -290,13 +292,17 @@ namespace Cyclops.DataModules
             var nodeName = Parameters[RequiredParameters.Mode.ToString()];
 
             if (string.Equals(nodeName, "standard", StringComparison.OrdinalIgnoreCase))
+            {
                 successful = CreateHeatmap();
+            }
             else if (string.Equals(nodeName, "FilterPvals", StringComparison.OrdinalIgnoreCase))
             {
                 successful = FilterSignificanceTableForPValues();
 
                 if (successful)
+                {
                     successful = CreateHeatmap();
+                }
             }
 
             return successful;
@@ -476,7 +482,9 @@ namespace Cyclops.DataModules
             }
 
             if (!successful)
+            {
                 SaveCurrentREnvironment();
+            }
 
             return successful;
         }
@@ -490,10 +498,14 @@ namespace Cyclops.DataModules
             }
 
             if (m_ClusterRows.ToUpper().StartsWith("T"))
+            {
                 return "c('row')";
+            }
 
             if (m_ClusterColumns.ToUpper().StartsWith("T"))
+            {
                 return "c('column')";
+            }
 
             return "c('none')";
         }

@@ -96,7 +96,9 @@ namespace Cyclops.DataModules
                 AddDefaultValues2FileNameVault();
 
                 if (CheckParameters())
+                {
                     successful = Sco_Html_SummaryFunction();
+                }
             }
 
             return successful;

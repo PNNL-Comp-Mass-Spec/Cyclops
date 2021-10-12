@@ -84,7 +84,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = SaveFunction();
+                }
             }
 
             return successful;
@@ -160,11 +162,17 @@ namespace Cyclops.DataModules
                 string filePath;
                 if (!string.IsNullOrEmpty(Model.WorkDirectory) &&
                     Parameters.ContainsKey("fileName"))
+                {
                     filePath = Path.Combine(Model.WorkDirectory, Parameters["fileName"]);
+                }
                 else if (!string.IsNullOrEmpty(Model.WorkDirectory))
+                {
                     filePath = Path.Combine(Model.WorkDirectory, defaultOutputFileName);
+                }
                 else
+                {
                     filePath = defaultOutputFileName;
+                }
 
                 var filePathForR = GenericRCalls.ConvertToRCompatiblePath(filePath);
 
@@ -173,7 +181,9 @@ namespace Cyclops.DataModules
                 successful = Model.RCalls.SaveEnvironment(filePathForR);
 
                 if (successful)
+                {
                     Model.RWorkEnvironment = filePathForR;
+                }
             }
             catch (Exception ex)
             {

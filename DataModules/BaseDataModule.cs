@@ -257,7 +257,9 @@ namespace Cyclops.DataModules
         {
             var plotFolderPath = Path.Combine(Model.WorkDirectory, "Plots");
             if (!Directory.Exists(plotFolderPath))
+            {
                 Directory.CreateDirectory(plotFolderPath);
+            }
         }
 
         /// <summary>

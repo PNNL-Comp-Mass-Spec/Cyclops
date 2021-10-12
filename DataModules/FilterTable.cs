@@ -88,7 +88,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running FilterTable", ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = FilterTableFunction();
+                }
             }
 
             return successful;

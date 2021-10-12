@@ -205,8 +205,10 @@ namespace Cyclops.Operations
 			    successful = wfh.ReadSQLiteWorkflow();
 
 				if (successful)
-					Model.ModuleLoader = wfh;
-			}
+                {
+                    Model.ModuleLoader = wfh;
+                }
+            }
 			catch (Exception ex)
 			{
 				Model.LogError("Exception encountered while running 'ConstructModules' " +

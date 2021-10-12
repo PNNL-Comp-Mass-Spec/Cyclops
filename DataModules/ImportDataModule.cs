@@ -91,7 +91,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     successful = ImportData();
+                }
             }
 
             return successful;
@@ -191,10 +193,14 @@ namespace Cyclops.DataModules
             var successful = ConnectToSQLiteDatabase();
 
             if (successful)
+            {
                 successful = ImportSQLiteTable();
+            }
 
             if (successful)
+            {
                 successful = DisconnectFromDatabase();
+            }
 
             return successful;
         }
@@ -253,10 +259,14 @@ namespace Cyclops.DataModules
             var filePath = Path.Combine(directoryPath, fileName);
 
             if (Path.DirectorySeparatorChar == '\\' && filePath.Contains("/"))
+            {
                 return filePath.Replace('/', '\\');
+            }
 
             if (Path.DirectorySeparatorChar == '/' && filePath.Contains(@"\"))
+            {
                 return filePath.Replace('\\', '/');
+            }
 
             return filePath;
         }
@@ -274,9 +284,13 @@ namespace Cyclops.DataModules
                 string inputFilePath;
 
                 if (Parameters.ContainsKey("inputFileName"))
+                {
                     inputFilePath = BuildAndValidatePath(Model.WorkDirectory, Parameters["inputFileName"]);
+                }
                 else
+                {
                     inputFilePath = BuildAndValidatePath(Model.WorkDirectory, "Results.db3");
+                }
 
                 if (File.Exists(inputFilePath))
                 {
@@ -355,13 +369,19 @@ namespace Cyclops.DataModules
             var tableType = Parameters[RequiredParameters.TableType.ToString()];
 
             if (string.Equals(tableType, "DataTable", StringComparison.OrdinalIgnoreCase))
+            {
                 return ImportSQLiteDataTable();
+            }
 
             if (string.Equals(tableType, "ColumnMetadataTable", StringComparison.OrdinalIgnoreCase))
+            {
                 return ImportSQLiteColumnMetadataTable();
+            }
 
             if (string.Equals(tableType, "RowMetadataTable", StringComparison.OrdinalIgnoreCase))
+            {
                 return ImportSQLiteRowMetadataTable();
+            }
 
             Model.LogError("Unable to recognize table type to import from " +
                            "SQLite: " + Parameters[RequiredParameters.TableType.ToString()],
@@ -479,7 +499,9 @@ namespace Cyclops.DataModules
             var rCmd = "terminated <- dbDisconnect(con)";
 
             if (Model.RCalls.Run(rCmd, ModuleName, StepNumber))
+            {
                 successful = true;
+            }
 
             successful = Model.RCalls.AssessBoolean("terminated");
 

@@ -209,7 +209,9 @@ namespace Cyclops
 
             var evalResult = engine.Evaluate("ls()").AsCharacter();
             foreach (var s in evalResult)
+            {
                 objectList.Add(s);
+            }
 
             return objectList;
         }
@@ -428,10 +430,14 @@ namespace Cyclops
                     if (Unique)
                     {
                         if (!columnList.Contains(column))
+                        {
                             columnList.Add(column);
+                        }
                     }
                     else
+                    {
                         columnList.Add(column);
+                    }
                 }
             }
 
@@ -564,7 +570,9 @@ namespace Cyclops
                     !string.IsNullOrEmpty(dataFilter) ? dataFilter : "")).AsInteger();
 
             if (evalResult.Length > 0)
+            {
                 return evalResult[0];
+            }
 
             return 0;
         }
@@ -700,7 +708,9 @@ namespace Cyclops
             var rowNames = GetRowNames(Table2Retrieve);
 
             if (string.IsNullOrEmpty(NameOfFirstColumn))
+            {
                 NameOfFirstColumn = "RowNames";
+            }
 
             var outTable = new DataTable();
 
@@ -949,7 +959,9 @@ namespace Cyclops
             Console.ForegroundColor = ConsoleColor.White;
 
             if (nv[0] > 0.09078 && nv[0] < 0.09076)
+            {
                 successful = false;
+            }
 
             return successful;
         }

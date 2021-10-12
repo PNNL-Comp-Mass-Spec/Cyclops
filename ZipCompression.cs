@@ -131,7 +131,9 @@ namespace Cyclops
                     var fullZipToPath = Path.Combine(outFolder, entryFileName);
                     var directoryName = Path.GetDirectoryName(fullZipToPath);
                     if (!string.IsNullOrWhiteSpace(directoryName))
+                    {
                         Directory.CreateDirectory(directoryName);
+                    }
 
                     // Unzip file in buffered chunks. This is just as fast as unpacking to a buffer the full size
                     // of the file, but does not waste memory.

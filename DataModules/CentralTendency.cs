@@ -83,7 +83,9 @@ namespace Cyclops.DataModules
                 Model.LogMessage("Running " + ModuleName, ModuleName, StepNumber);
 
                 if (CheckParameters())
+                {
                     Model.PipelineCurrentlySuccessful = CentralTendencyFunction();
+                }
             }
 
             return true;
