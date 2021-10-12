@@ -148,8 +148,7 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(
-                    Parameters[RequiredParameters.TableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]))
             {
                 Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                     "The input table, " +
@@ -176,8 +175,7 @@ namespace Cyclops.DataModules
                     m_PValueThreshold = Parameters["PValue"];
                 }
 
-                if (!Model.RCalls.ContainsObject(
-                        Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]))
+                if (!Model.RCalls.ContainsObject(Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]))
                 {
                     Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                         "Filter P-values was selected, but the significance table, " +

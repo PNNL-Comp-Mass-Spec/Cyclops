@@ -684,8 +684,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                if (Model.RCalls.ContainsObject(
-                    FileNameVault["RowMetadataTable10FDR"]))
+                if (Model.RCalls.ContainsObject(FileNameVault["RowMetadataTable10FDR"]))
                 {
                     var unqPep = new List<string>();
                     var unqProt = new List<string>();
@@ -729,8 +728,7 @@ namespace Cyclops.DataModules
                     outTable.Rows.Add(fdrRow);
                 }
 
-                if (Model.RCalls.ContainsObject(
-                    FileNameVault["RowMetadataTable05FDR"]))
+                if (Model.RCalls.ContainsObject(FileNameVault["RowMetadataTable05FDR"]))
                 {
                     var unqPep = new List<string>();
                     var unqProt = new List<string>();
@@ -775,8 +773,7 @@ namespace Cyclops.DataModules
                     outTable.Rows.Add(fdrRow);
                 }
 
-                if (Model.RCalls.ContainsObject(
-                    FileNameVault["RowMetadataTable01FDR"]))
+                if (Model.RCalls.ContainsObject(FileNameVault["RowMetadataTable01FDR"]))
                 {
                     var unqPep = new List<string>();
                     var unqProt = new List<string>();
@@ -844,8 +841,8 @@ namespace Cyclops.DataModules
 
             try
             {
-                if (Model.RCalls.ContainsObject(
-                    FileNameVault["BbmResultsFdr01"]) && Model.RCalls.TableContainsColumn(
+                if (Model.RCalls.ContainsObject(FileNameVault["BbmResultsFdr01"]) &&
+                    Model.RCalls.TableContainsColumn(
                         FileNameVault["BbmResultsFdr01"],
                         FileNameVault["BBM_Pvals"]))
                 {

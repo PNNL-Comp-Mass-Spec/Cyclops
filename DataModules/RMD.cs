@@ -125,8 +125,7 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("Unable to find the input table, " +
                     Parameters[RequiredParameters.InputTableName.ToString()] +
@@ -134,8 +133,7 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.FactorTable.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.FactorTable.ToString()]))
             {
                 Model.LogError("Unable to find the input table, " +
                     Parameters[RequiredParameters.InputTableName.ToString()] +

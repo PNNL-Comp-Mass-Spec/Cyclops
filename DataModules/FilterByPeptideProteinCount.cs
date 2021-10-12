@@ -138,8 +138,7 @@ namespace Cyclops.DataModules
             }
 
             #region Check R Environment For Objects
-            if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("ERROR 'InputTableName' object, " +
                     Parameters[RequiredParameters.InputTableName.ToString()] +
@@ -148,8 +147,7 @@ namespace Cyclops.DataModules
             }
 
             if (successful &&
-                !Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.RowMetadataTable.ToString()]))
+                !Model.RCalls.ContainsObject(Parameters[RequiredParameters.RowMetadataTable.ToString()]))
             {
                 Model.LogError("ERROR 'RowMetadataTable' object, " +
                     Parameters[RequiredParameters.RowMetadataTable.ToString()] +

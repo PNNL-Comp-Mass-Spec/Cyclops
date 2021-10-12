@@ -151,8 +151,7 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(
-                    Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("Error in ANOVA function: " +
                     "the R environment does not contain the " +
@@ -166,42 +165,37 @@ namespace Cyclops.DataModules
                 m_RemoveFirstColumn = Convert.ToBoolean(Parameters["RemovePeptideColumn"]);
 
             // Get Random Effect if passed in
-            if (Parameters.ContainsKey(
-                AnovaParameters.Random_Effect.ToString()) && !string.IsNullOrEmpty(
-                    Parameters[AnovaParameters.Random_Effect.ToString()]))
+            if (Parameters.ContainsKey(AnovaParameters.Random_Effect.ToString()) &&
+                !string.IsNullOrEmpty(Parameters[AnovaParameters.Random_Effect.ToString()]))
             {
                 RandomEffect = Parameters[
                     AnovaParameters.Random_Effect.ToString()];
             }
 
             // Get Interaction parameter
-            if (Parameters.ContainsKey(
-                AnovaParameters.Interaction.ToString()) && !string.IsNullOrEmpty(
-                    Parameters[AnovaParameters.Interaction.ToString()]))
+            if (Parameters.ContainsKey(AnovaParameters.Interaction.ToString()) &&
+                !string.IsNullOrEmpty(Parameters[AnovaParameters.Interaction.ToString()]))
             {
                 Interaction = Parameters[AnovaParameters.Interaction.ToString()];
             }
 
             // Get Threshold parameter
-            if (Parameters.ContainsKey(
-                AnovaParameters.Threshold.ToString()) && !string.IsNullOrEmpty(
-                    Parameters[AnovaParameters.Threshold.ToString()]))
+            if (Parameters.ContainsKey(AnovaParameters.Threshold.ToString()) &&
+                !string.IsNullOrEmpty(Parameters[AnovaParameters.Threshold.ToString()]))
             {
                 Threshold = Parameters[AnovaParameters.Threshold.ToString()];
             }
 
             // Get Unbalanced parameter
-            if (Parameters.ContainsKey(
-                AnovaParameters.Unbalanced.ToString()) && !string.IsNullOrEmpty(
-                    Parameters[AnovaParameters.Unbalanced.ToString()]))
+            if (Parameters.ContainsKey(AnovaParameters.Unbalanced.ToString()) &&
+                !string.IsNullOrEmpty(Parameters[AnovaParameters.Unbalanced.ToString()]))
             {
                 Unbalanced = Parameters[AnovaParameters.Unbalanced.ToString()];
             }
 
             // Get REML parameter
-            if (Parameters.ContainsKey(
-                AnovaParameters.UseREML.ToString()) && !string.IsNullOrEmpty(
-                    Parameters[AnovaParameters.UseREML.ToString()]))
+            if (Parameters.ContainsKey(AnovaParameters.UseREML.ToString()) &&
+                !string.IsNullOrEmpty(Parameters[AnovaParameters.UseREML.ToString()]))
             {
                 UseREML = Parameters[AnovaParameters.UseREML.ToString()];
             }
