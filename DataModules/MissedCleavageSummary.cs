@@ -205,8 +205,8 @@ namespace Cyclops.DataModules
                     // count the number of missed cleavages in the peptide (with last residue removed)
                     foreach (var residue in peptide)
                     {
-                        if (residue.ToString().ToUpper().Equals("K") ||
-                            residue.ToString().ToUpper().Equals("R"))
+                        if (residue.ToString().Equals("K", StringComparison.OrdinalIgnoreCase) ||
+                            residue.ToString().Equals("R", StringComparison.OrdinalIgnoreCase))
                         {
                             missedCleavageCounter++;
                         }

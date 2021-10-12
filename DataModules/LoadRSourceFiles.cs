@@ -204,7 +204,7 @@ namespace Cyclops.DataModules
 
                 foreach (var sourceFilePath in Directory.GetFiles(workDir))
                 {
-                    if (Path.GetExtension(sourceFilePath).ToUpper().Equals(".R"))
+                    if (Path.GetExtension(sourceFilePath).Equals(".R", StringComparison.OrdinalIgnoreCase))
                     {
                         if (Parameters.ContainsKey("removeFirstCharacters"))
                         {

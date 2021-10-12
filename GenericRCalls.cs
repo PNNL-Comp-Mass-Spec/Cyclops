@@ -329,7 +329,7 @@ namespace Cyclops
         public bool AssessBoolean(string RStatement)
         {
             var evalResult = engine.Evaluate(RStatement).AsCharacter();
-            return evalResult[0].ToUpper().Equals("TRUE");
+            return evalResult[0].Equals("TRUE", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace Cyclops
         {
             var rCmd = string.Format("jnbIsPackageInstalled('{0}')", Package);
             var evalResult = engine.Evaluate(rCmd).AsCharacter();
-            return evalResult[0].ToUpper().Equals("TRUE");
+            return evalResult[0].Equals("TRUE", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>

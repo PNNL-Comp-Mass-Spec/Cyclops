@@ -491,18 +491,18 @@ namespace Cyclops.DataModules
 
         public string GetDendrogram()
         {
-            if (m_ClusterColumns.ToUpper().StartsWith("T") &&
-                m_ClusterRows.ToUpper().StartsWith("T"))
+            if (m_ClusterColumns.StartsWith("T", StringComparison.OrdinalIgnoreCase) &&
+                m_ClusterRows.StartsWith("T", StringComparison.OrdinalIgnoreCase))
             {
                 return "c('both')";
             }
 
-            if (m_ClusterRows.ToUpper().StartsWith("T"))
+            if (m_ClusterRows.StartsWith("T", StringComparison.OrdinalIgnoreCase))
             {
                 return "c('row')";
             }
 
-            if (m_ClusterColumns.ToUpper().StartsWith("T"))
+            if (m_ClusterColumns.StartsWith("T", StringComparison.OrdinalIgnoreCase))
             {
                 return "c('column')";
             }

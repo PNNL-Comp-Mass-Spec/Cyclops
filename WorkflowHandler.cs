@@ -156,12 +156,12 @@ namespace Cyclops
                 return false;
             }
 
-            if (Path.GetExtension(InputWorkflowFileName).ToLower().Equals(".xml"))
+            if (Path.GetExtension(InputWorkflowFileName).Equals(".xml", StringComparison.OrdinalIgnoreCase))
             {
                 InputWorkflowType = WorkflowType.XML;
             }
-            else if (Path.GetExtension(InputWorkflowFileName).ToLower().Equals(".db") ||
-                Path.GetExtension(InputWorkflowFileName).ToLower().Equals(".db3"))
+            else if (Path.GetExtension(InputWorkflowFileName).Equals(".db", StringComparison.OrdinalIgnoreCase) ||
+                Path.GetExtension(InputWorkflowFileName).Equals(".db3", StringComparison.OrdinalIgnoreCase))
             {
                 InputWorkflowType = WorkflowType.SQLite;
             }
@@ -591,12 +591,12 @@ namespace Cyclops
                     return false;
                 }
 
-                if (Path.GetExtension(OutputWorkflowFileName).ToLower().Equals(".xml"))
+                if (Path.GetExtension(OutputWorkflowFileName).Equals(".xml", StringComparison.OrdinalIgnoreCase))
                 {
                     OutputWorkflowType = WorkflowType.XML;
                 }
-                else if (Path.GetExtension(OutputWorkflowFileName).ToLower().Equals(".db") ||
-                    Path.GetExtension(OutputWorkflowFileName).ToLower().Equals(".db3"))
+                else if (Path.GetExtension(OutputWorkflowFileName).Equals(".db", StringComparison.OrdinalIgnoreCase) ||
+                    Path.GetExtension(OutputWorkflowFileName).Equals(".db3", StringComparison.OrdinalIgnoreCase))
                 {
                     OutputWorkflowType = WorkflowType.SQLite;
                 }
