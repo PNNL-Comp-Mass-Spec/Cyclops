@@ -522,7 +522,7 @@ namespace Cyclops
 
             if (!string.IsNullOrEmpty(columnName) && TableContainsColumn(tableName, columnName))
             {
-                if (!string.IsNullOrEmpty(minValue) &
+                if (!string.IsNullOrEmpty(minValue) &&
                     !string.IsNullOrEmpty(maxValue))
                 {
                     dataFilter = string.Format(

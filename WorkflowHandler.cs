@@ -868,7 +868,7 @@ namespace Cyclops
         {
             // Do not run if Step does not exist, or if already
             // the first step
-            if (!ContainsStep(StepNumber) | StepNumber == 1)
+            if (!ContainsStep(StepNumber) || StepNumber == 1)
             {
                 return;
             }
@@ -895,7 +895,7 @@ namespace Cyclops
         {
             // Do not run if Step does not exist, or if already
             // the first step
-            if (!ContainsStep(StepNumber) | StepNumber == Modules.Count)
+            if (!ContainsStep(StepNumber) || StepNumber == Modules.Count)
             {
                 return;
             }
