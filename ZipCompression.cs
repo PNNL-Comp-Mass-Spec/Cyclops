@@ -19,7 +19,6 @@ namespace Cyclops
 {
     public static class ZipCompression
     {
-        #region Methods
         /// <summary>
         /// Compresses the files in the nominated folder, and creates a zip file on disk named as outPathname.
         /// </summary>
@@ -153,6 +152,5 @@ namespace Cyclops
                 }
             }
         }
-        #endregion
     }
 }

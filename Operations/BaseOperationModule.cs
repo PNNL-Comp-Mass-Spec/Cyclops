@@ -18,12 +18,6 @@ namespace Cyclops.Operations
 {
     public abstract class BaseOperationModule : BaseModule
     {
-        #region Members
-
-        #endregion
-
-        #region Properties
-
         // ReSharper disable once UnusedMember.Global
         protected abstract string GetDefaultValue();
 
@@ -36,10 +30,6 @@ namespace Cyclops.Operations
         /// run a Cyclops Workflow
         /// </summary>
         public string OperationsDatabasePath { get; set; } = @"\\gigasax\DMS_Workflows\Cyclops\Cyclops_Operations.db3";
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Instantiates a new type of Operations Module
@@ -81,7 +71,5 @@ namespace Cyclops.Operations
 
             return typeMap;
         }
-
-        #endregion
     }
 }

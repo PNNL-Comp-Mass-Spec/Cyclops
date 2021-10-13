@@ -17,7 +17,6 @@ namespace Cyclops.DataModules
 {
     public class BetaBinomialModel : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "BetaBinomialModel";
         private readonly string m_Description = "";
 
@@ -30,13 +29,9 @@ namespace Cyclops.DataModules
         }
 
         private string m_MergeColumn = "Alias"; // default value of MergeColumn
-        #endregion
 
-        #region Properties
 
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an BetaBinomialModel Module
         /// </summary>
@@ -69,9 +64,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -282,6 +275,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

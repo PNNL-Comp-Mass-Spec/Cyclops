@@ -21,7 +21,6 @@ namespace Cyclops.DataModules
 {
     public class Sco_Html_Summary : BaseDataModule
     {
-        #region Enums
         /// <summary>
         /// Required parameters to run Aggregate
         /// </summary>
@@ -29,22 +28,15 @@ namespace Cyclops.DataModules
         { }
 
         private enum HTMLFileType { Dataset, Index };
-        #endregion
 
-        #region Members
         private readonly string m_ModuleName = "Sco_HTML_Summary";
         private readonly string m_Description = "";
 
         private bool m_DatabaseFound;
         private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
-        #endregion
 
-        #region Properties
         public Dictionary<string, string> FileNameVault { get; set; } = new Dictionary<string, string>();
 
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an Sco_Html_Summary Module
         /// </summary>
@@ -77,9 +69,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -185,7 +175,6 @@ namespace Cyclops.DataModules
         {
             WriteCssFile();
 
-            #region Datasets Page
             try
             {
                 WriteDatasetsPage(GetOriginalNavBar());
@@ -196,9 +185,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region QC Page
             try
             {
                 WriteQCHTMLPage(GetOriginalNavBar());
@@ -209,9 +196,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region Correlation Heatmap Page
             try
             {
                 WriteCorrelationHeatmapHTMLPage(GetOriginalNavBar());
@@ -222,9 +207,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region Protein Heatmaps Page
             try
             {
                 WriteHeatmapsPage(GetOriginalNavBar());
@@ -235,9 +218,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region Main HTML Page
             try
             {
                 WriteMainHTMLPage(GetOriginalNavBar());
@@ -248,7 +229,6 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
             return true;
         }
@@ -915,6 +895,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

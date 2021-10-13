@@ -22,7 +22,6 @@ namespace Cyclops.DataModules
     /// </summary>
     public class ExportTable : BaseDataModule
     {
-        #region Members
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
@@ -43,13 +42,7 @@ namespace Cyclops.DataModules
         private bool m_DatabaseFound;
 
         private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
-        #endregion
 
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an ExportTable Module
         /// </summary>
@@ -82,9 +75,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -581,7 +572,5 @@ namespace Cyclops.DataModules
 
             return base.ToString();
         }
-
-        #endregion
     }
 }

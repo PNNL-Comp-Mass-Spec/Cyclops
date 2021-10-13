@@ -21,24 +21,16 @@ namespace Cyclops
 {
     public class CyclopsModuleLoader
     {
-        #region Members
 
-        #endregion
 
-        #region Properties
         public DataModules.BaseDataModule Root { get; set; }
 
         public BaseModule CurrentNode { get; set; }
-        #endregion
 
-        #region Constructors
         public CyclopsModuleLoader()
         {
         }
-        #endregion
 
-        #region Methods
 
-        #endregion
     }
 }

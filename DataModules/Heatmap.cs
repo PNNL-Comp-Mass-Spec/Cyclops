@@ -18,8 +18,6 @@ namespace Cyclops.DataModules
 {
     public class Heatmap : BaseDataModule
     {
-        #region Members
-
         private readonly string m_ModuleName = "Heatmap";
         private readonly string m_Description = "";
         private string m_PValueThreshold = "0.01";
@@ -51,13 +49,7 @@ namespace Cyclops.DataModules
         {
             SignificanceTable, PValueColumn
         }
-        #endregion
 
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an Heatmap Module
         /// </summary>
@@ -90,9 +82,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -538,6 +528,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

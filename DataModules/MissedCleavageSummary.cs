@@ -20,7 +20,6 @@ namespace Cyclops.DataModules
 {
     public class MissedCleavageSummary : BaseDataModule
     {
-        #region Members
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
@@ -36,13 +35,7 @@ namespace Cyclops.DataModules
         private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
 
         private Dictionary<int, int> m_Cleavages = new Dictionary<int, int>();
-        #endregion
 
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an MissedCleavageSummary Module
         /// </summary>
@@ -75,9 +68,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -308,6 +299,5 @@ namespace Cyclops.DataModules
 
             return successful;
         }
-        #endregion
     }
 }

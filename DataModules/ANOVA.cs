@@ -17,7 +17,6 @@ namespace Cyclops.DataModules
 {
     public class ANOVA : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "ANOVA";
         private readonly string m_Description = "";
         private bool m_RemoveFirstColumn;
@@ -38,9 +37,7 @@ namespace Cyclops.DataModules
             Random_Effect, RowMetaDataTable, Interaction,
             Unbalanced, Threshold, UseREML
         }
-        #endregion
 
-        #region Properties
         public string RandomEffect { get; set; } = "Null";
 
         public string Interaction { get; set; } = "False";
@@ -51,9 +48,6 @@ namespace Cyclops.DataModules
 
         public string UseREML { get; set; } = "True";
 
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an ANOVA Module
         /// </summary>
@@ -86,9 +80,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -280,6 +272,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

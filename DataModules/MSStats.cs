@@ -21,7 +21,6 @@ namespace Cyclops.DataModules
 {
     public class MSStats : BaseDataModule
     {
-        #region Members
         private string m_ModuleName = "MSStats";
         private string m_Description = "";
         private string m_ColumnMetadataLink = "Alias";
@@ -40,9 +39,7 @@ namespace Cyclops.DataModules
             RowMetadataPeptideColumn, BioRep, TechRep
         }
 
-        #endregion
 
-        #region Properties
         public string ColumnMetadataLink
         {
             get { return m_ColumnMetadataLink; }
@@ -72,9 +69,7 @@ namespace Cyclops.DataModules
             get { return m_Progress; }
             set { m_Progress = value; }
         }
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an MSStats Module
         /// </summary>
@@ -106,9 +101,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -282,6 +275,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

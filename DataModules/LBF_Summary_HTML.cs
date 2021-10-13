@@ -19,11 +19,8 @@ namespace Cyclops.DataModules
 {
     public class LBF_Summary_HTML : BaseDataModule
     {
-        #region Enums
         private enum HTMLFileType { Dataset, Index };
-        #endregion
 
-        #region Members
         private readonly string m_ModuleName = "LBF_Summary_HTML";
         private readonly string m_Description = "";
         private readonly string m_TrypticTableSummaryName = "T_MAC_Trypticity_Summary";
@@ -43,15 +40,9 @@ namespace Cyclops.DataModules
             FileName
         }
 
-        #endregion
-
-        #region Properties
         public Dictionary<string, string> FileNameVault { get; set; } = new Dictionary<string, string>(
             StringComparer.OrdinalIgnoreCase);
 
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an LBF_Summary_HTML Module
         /// </summary>
@@ -84,9 +75,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -180,7 +169,6 @@ namespace Cyclops.DataModules
 
             WriteCssFile();
 
-            #region Datasets Page
             try
             {
                 WriteDatasetsPage(GetOriginalNavBar());
@@ -192,9 +180,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region Summary HTML Page
             try
             {
                 WriteSummaryHTMLPage(GetOriginalNavBar());
@@ -206,9 +192,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region QC Page
             try
             {
                 WriteQCHTMLPage(GetOriginalNavBar());
@@ -220,9 +204,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region BoxPlots Page
             try
             {
                 WriteBoxPlotHTMLPage(GetOriginalNavBar());
@@ -234,9 +216,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region Correlation Heatmaps Page
             try
             {
                 WriteCorrelationHeatmapHTMLPage(GetOriginalNavBar());
@@ -248,9 +228,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
-            #region Main HTML Page
             try
             {
                 WriteMainHTMLPage(GetOriginalNavBar());
@@ -262,7 +240,6 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 return false;
             }
-            #endregion
 
             return true;
         }
@@ -841,6 +818,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

@@ -20,7 +20,6 @@ namespace Cyclops.Operations
     /// </summary>
     public class SpectralCountMainOperation : BaseOperationModule
     {
-        #region Enums
         public enum ScoTypes { Standard, Iterator, Practice, ScoHtmlPractice };
 
         /// <summary>
@@ -31,23 +30,12 @@ namespace Cyclops.Operations
             Type
         }
 
-        #endregion
-
-        #region Members
-
         private string m_SpectralCountTableName = "T_SpectralCountPipelineOperation";
 
         private const string m_ModuleName = "SpectralCountMainOperation";
 
         private Dictionary<ScoTypes, string> m_SpectralCountTableNames;
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         public SpectralCountMainOperation()
         {
             ModuleName = m_ModuleName;
@@ -68,9 +56,6 @@ namespace Cyclops.Operations
             Parameters = OperationParameters;
             Initialize();
         }
-        #endregion
-
-        #region Methods
 
         private void Initialize()
         {
@@ -229,6 +214,5 @@ namespace Cyclops.Operations
         {
             return ModuleName;
         }
-        #endregion
     }
 }

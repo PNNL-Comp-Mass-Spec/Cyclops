@@ -17,7 +17,6 @@ namespace Cyclops.DataModules
 {
     public class CentralTendency : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "CentralTendency";
         private readonly string m_Description = "";
 
@@ -29,13 +28,6 @@ namespace Cyclops.DataModules
             NewTableName, InputTableName, MeanCenter, Center
         }
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an CentralTendency Module
         /// </summary>
@@ -68,9 +60,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -195,6 +185,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

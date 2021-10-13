@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
 {
     public class Histogram : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "Histogram";
         private readonly string m_Description = "";
 
@@ -30,17 +29,12 @@ namespace Cyclops.DataModules
             TableName, PlotFileName, DataColumns
         }
 
-        #endregion
-
-        #region Properties
         public string HistogramType { get; set; } = "standard";
 
         public string BarColor { get; set; } = "cornflowerblue";
 
         public string PlotFileName { get; set; }
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an Histogram Module
         /// </summary>
@@ -73,9 +67,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -270,7 +262,6 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }
 

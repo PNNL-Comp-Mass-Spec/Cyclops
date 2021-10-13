@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
     [Obsolete("Unused; PerformOperation calls CastFunction, which is not implemented")]
     public class Cast : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "Cast";
         private readonly string m_Description = "";
 
@@ -28,13 +27,6 @@ namespace Cyclops.DataModules
         private enum RequiredParameters
         { }
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an Cast Module
         /// </summary>
@@ -67,9 +59,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -157,6 +147,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

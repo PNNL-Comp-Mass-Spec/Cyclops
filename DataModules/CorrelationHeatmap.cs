@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
 {
     public class CorrelationHeatmap : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "CorrelationHeatmap";
         private readonly string m_Description = "";
 
@@ -30,17 +29,12 @@ namespace Cyclops.DataModules
             TableName, PlotFileName, Image, CorrelationListName, SkipTheFirstColumn
         }
 
-        #endregion
-
-        #region Properties
         public string Horizontal { get; set; } = "TRUE";
 
         public int PointSize { get; set; } = 12;
 
         public string PlotFileName { get; set; }
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an CorrelationHeatmap Module
         /// </summary>
@@ -73,9 +67,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -341,7 +333,6 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }
 

@@ -16,15 +16,8 @@ namespace Cyclops.Operations
 {
     public class Online2DLCMainOperation : BaseOperationModule
     {
-        #region Members
         private readonly string m_ModuleName = "Online2DLCMainOperation";
-        #endregion
 
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         public Online2DLCMainOperation()
         {
             ModuleName = m_ModuleName;
@@ -42,9 +35,7 @@ namespace Cyclops.Operations
             Model = CyclopsModel;
             Parameters = OperationParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Retrieves the Default Value
         /// </summary>
@@ -63,6 +54,5 @@ namespace Cyclops.Operations
         {
             return ModuleName;
         }
-        #endregion
     }
 }

@@ -17,7 +17,6 @@ namespace Cyclops.Operations
 {
     public class iTRAQMainOperation : BaseOperationModule
     {
-        #region Enums
         public enum iTraqTypes { Standard };
 
         /// <summary>
@@ -28,20 +27,14 @@ namespace Cyclops.Operations
             Type
         }
 
-        #endregion
 
-        #region Members
         private string m_iTraqTableName = "T_iTRAQ_PipelineOperation";
         private readonly string m_ModuleName = "iTRAQMainOperation";
 
         private Dictionary<iTraqTypes, string> m_iTraqTableNames;
-        #endregion
 
-        #region Properties
 
-        #endregion
 
-        #region Constructors
         public iTRAQMainOperation()
         {
             ModuleName = m_ModuleName;
@@ -62,9 +55,7 @@ namespace Cyclops.Operations
             Parameters = OperationParameters;
             Initialize();
         }
-        #endregion
 
-        #region Methods
 
         private void Initialize()
         {
@@ -208,6 +199,5 @@ namespace Cyclops.Operations
         {
             return ModuleName;
         }
-        #endregion
     }
 }

@@ -21,7 +21,6 @@ namespace Cyclops.DataModules
 {
     public class BBM_and_QuasiTel : BaseDataModule
     {
-        #region Members
         private string m_ModuleName = "BBM_and_QuasiTel";
 
         /// <summary>
@@ -33,13 +32,9 @@ namespace Cyclops.DataModules
         }
 
         private string m_MergeColumn = "Alias"; // default value of MergeColumn
-        #endregion
 
-        #region Properties
 
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an BBM_and_QuasiTel Module
         /// </summary>
@@ -69,9 +64,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -232,6 +225,5 @@ namespace Cyclops.DataModules
         {
             return ModuleName;
         }
-        #endregion
     }
 }

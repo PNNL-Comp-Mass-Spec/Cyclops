@@ -22,7 +22,6 @@ namespace Cyclops.Utilities
     /// </summary>
     public static class MiscellaneousFunctions
     {
-        #region Methods
         /// <summary>
         /// Concatenates the items in the list.
         /// </summary>
@@ -96,6 +95,5 @@ namespace Cyclops.Utilities
                 Console.WriteLine("IOException in SaveDataTable: " + ex.Message);
             }
         }
-        #endregion
     }
 }

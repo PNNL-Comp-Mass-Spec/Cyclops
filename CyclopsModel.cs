@@ -21,11 +21,6 @@ namespace Cyclops
     /// </summary>
     public class CyclopsModel : EventNotifier
     {
-        #region Members
-
-        #endregion
-
-        #region Properties
         /// <summary>
         /// The executing version of Cyclops
         /// </summary>
@@ -72,9 +67,6 @@ namespace Cyclops
         /// </summary>
         /// <remarks>Default file name: Cyclops_Operations.db3</remarks>
         public string OperationsDatabasePath { get; set; }
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// Primary Cyclops Constructor, instantiates the R work environment
@@ -126,9 +118,6 @@ namespace Cyclops
             RCalls.InstantiateR();
             OnStatusEvent("Running Cyclops Version: " + CyclopsVersion);
         }
-        #endregion
-
-        #region Logging Methods
 
         private string FormatStatusMessage(string message, string module, int? step = null)
         {
@@ -183,9 +172,6 @@ namespace Cyclops
         {
             OnStatusEvent(FormatStatusMessage(message, module, step));
         }
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Main method to run the Cyclops Workflow
@@ -228,7 +214,5 @@ namespace Cyclops
             }
             return successful;
         }
-
-        #endregion
     }
 }

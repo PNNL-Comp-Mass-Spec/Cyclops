@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
 {
     public class BarPlot : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "BarPlot";
         private readonly string m_Description = "";
 
@@ -30,9 +29,7 @@ namespace Cyclops.DataModules
             TableName, PlotFileName, DataColumns,
         }
 
-        #endregion
 
-        #region Properties
         public string BarColor { get; set; } = "cornflowerblue";
 
         public string Log => LogBase == null ? "FALSE" : "TRUE";
@@ -42,9 +39,7 @@ namespace Cyclops.DataModules
         public string Names { get; set; }
 
         public string PlotFileName { get; set; }
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an BarPlot Module
         /// </summary>
@@ -77,9 +72,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -144,7 +137,6 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            #region General Plot Parameters
             if (Parameters.ContainsKey("BackgroundColor"))
             {
                 BackgroundColor = Parameters["BackgroundColor"];
@@ -184,9 +176,7 @@ namespace Cyclops.DataModules
             {
                 YLabel = Parameters["YLabel"];
             }
-            #endregion
 
-            #region Plot-specific Parameters
             if (Parameters.ContainsKey("BarColor"))
             {
                 BarColor = Parameters["BarColor"];
@@ -201,7 +191,6 @@ namespace Cyclops.DataModules
             {
                 Names = Parameters["Names"];
             }
-            #endregion
 
             if (Directory.Exists(Model.WorkDirectory) && successful)
             {
@@ -332,7 +321,6 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }
 

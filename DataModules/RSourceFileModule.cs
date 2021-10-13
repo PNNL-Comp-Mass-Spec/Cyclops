@@ -24,7 +24,6 @@ namespace Cyclops.DataModules
     /// </summary>
     public class RSourceFileModule : BaseDataModule
     {
-        #region Members
         private string m_ModuleName = "RSourceFileModule";
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
@@ -32,13 +31,9 @@ namespace Cyclops.DataModules
         private enum RequiredParameters
         { }
 
-        #endregion
 
-        #region Properties
 
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an R Source File Module
         /// </summary>
@@ -68,9 +63,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = DataParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -207,6 +200,5 @@ namespace Cyclops.DataModules
 
             return successful;
         }
-        #endregion
     }
 }

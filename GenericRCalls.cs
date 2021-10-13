@@ -36,12 +36,8 @@ namespace Cyclops
     ///
     public class GenericRCalls
     {
-        #region Members
         private REngine engine;
 
-        #endregion
-
-        #region Properties
         /// <summary>
         /// Instance of R Workspace
         /// </summary>
@@ -61,9 +57,6 @@ namespace Cyclops
         /// </summary>
         public string RPackageLocation { get; set; } = "http://cran.fhcrc.org/";
 
-        #endregion
-
-        #region Constructors
         public GenericRCalls()
         {
         }
@@ -72,9 +65,7 @@ namespace Cyclops
         {
             Model = CyclopsModel;
         }
-        #endregion
 
-        #region Instantiating R Environment
         /// <summary>
         /// Instantiates R
         /// </summary>
@@ -100,9 +91,6 @@ namespace Cyclops
             }
         }
 
-        #endregion
-
-        #region Methods
         /// <summary>
         /// Main call method to run a command in the R environment
         /// </summary>
@@ -532,7 +520,6 @@ namespace Cyclops
         {
             var dataFilter = "";
 
-            #region Construct the Filter
             if (!string.IsNullOrEmpty(columnName) && TableContainsColumn(tableName, columnName))
             {
                 if (!string.IsNullOrEmpty(minValue) &
@@ -562,7 +549,6 @@ namespace Cyclops
                         maxValue);
                 }
             }
-            #endregion
 
             var evalResult = engine.Evaluate(
                     string.Format("nrow({0}{1})\n",
@@ -883,9 +869,7 @@ namespace Cyclops
 
             return true;
         }
-        #endregion
 
-        #region Random Name Generators
         /// <summary>
         /// Creates a random instance name for the R workspace. This is
         /// important if multiple instances are to be run concurrently
@@ -924,9 +908,7 @@ namespace Cyclops
         {
             return Prefix + GetRInstanceName();
         }
-        #endregion
 
-        #region TestCases
         /// <summary>
         /// Tests the connection with R through RdotNET (http://rdotnet.codeplex.com/)
         /// Results are written out to console
@@ -965,6 +947,5 @@ namespace Cyclops
 
             return successful;
         }
-        #endregion
     }
 }

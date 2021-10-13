@@ -21,11 +21,8 @@ namespace Cyclops.DataModules
     /// </summary>
     public static class HtmlFileHandler
     {
-        #region Enums
         public enum CssStyle { NavBar, LeftIndent, Th };
-        #endregion
 
-        #region Static Methods
         /// <summary>
         /// Generic HTML and HEAD elements to start an HTML page
         /// </summary>
@@ -555,6 +552,5 @@ namespace Cyclops.DataModules
             htmlText += tableTabs + "</TABLE>\n\n";
             return htmlText;
         }
-        #endregion
     }
 }

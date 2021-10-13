@@ -19,8 +19,6 @@ namespace Cyclops.DataModules
 {
     public class HtmlSummary : BaseDataModule
     {
-        #region Members
-
         private const string m_ModuleName = "HtmlSummary";
 
         private const string m_Description = "";
@@ -38,13 +36,7 @@ namespace Cyclops.DataModules
         private bool m_DatabaseFound;
         private enum HTMLFileType { Dataset, Index };
         private readonly SQLiteHandler m_SQLiteReader = new SQLiteHandler();
-        #endregion
 
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an HtmlSummary Module
         /// </summary>
@@ -77,9 +69,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -344,6 +334,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

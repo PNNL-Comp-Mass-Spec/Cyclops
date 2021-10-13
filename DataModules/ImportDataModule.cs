@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
 {
     public class ImportDataModule : BaseDataModule
     {
-        #region Members
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
@@ -35,13 +34,6 @@ namespace Cyclops.DataModules
         private readonly string m_ModuleName = "Import";
         private readonly string m_Description = "";
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an Import Data Module
         /// </summary>
@@ -74,9 +66,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = DataParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -562,6 +552,5 @@ namespace Cyclops.DataModules
 
             return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
         }
-        #endregion
     }
 }

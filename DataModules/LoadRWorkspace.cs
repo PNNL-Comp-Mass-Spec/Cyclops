@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
 {
     public class LoadRWorkspace : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "LoadRWorkspace";
         private readonly string m_Description = "";
 
@@ -30,13 +29,6 @@ namespace Cyclops.DataModules
             InputFileName
         }
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an LoadRWorkspace Module
         /// </summary>
@@ -69,9 +61,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -200,6 +190,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

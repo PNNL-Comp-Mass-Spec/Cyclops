@@ -17,7 +17,6 @@ namespace Cyclops.DataModules
 {
     public class TopMostAbundant : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "TopMostAbundant";
         private readonly string m_Description = "";
         private string m_Function = "median";
@@ -31,13 +30,6 @@ namespace Cyclops.DataModules
             InputTableName, NewTableName, NumberOfMostAbundant
         }
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an TopMostAbundant Module
         /// </summary>
@@ -70,9 +62,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -212,6 +202,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

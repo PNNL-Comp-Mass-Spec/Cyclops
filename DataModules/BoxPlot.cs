@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
 {
     public class BoxPlot : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "BoxPlot";
         private readonly string m_Description = "";
         private string m_DataColumns = "NULL";
@@ -44,13 +43,8 @@ namespace Cyclops.DataModules
             TableName, PlotFileName
         }
 
-        #endregion
-
-        #region Properties
         public string PlotFileName { get; set; }
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an BoxPlot Module
         /// </summary>
@@ -83,9 +77,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -141,7 +133,6 @@ namespace Cyclops.DataModules
                 }
             }
 
-            #region Handling Factor Information
             if (Parameters.ContainsKey("ColorByFactor"))
             {
                 m_ColorByFactor = Parameters["ColorByFactor"].ToUpper();
@@ -165,9 +156,7 @@ namespace Cyclops.DataModules
             {
                 m_ColorByFactor = "TRUE";
             }
-            #endregion
 
-            #region General Plot Parameters
             if (Parameters.ContainsKey("BackgroundColor"))
             {
                 BackgroundColor = Parameters["BackgroundColor"];
@@ -207,9 +196,7 @@ namespace Cyclops.DataModules
             {
                 YLabel = Parameters["YLabel"];
             }
-            #endregion
 
-            #region Plot-specific Parameters
             if (Parameters.ContainsKey("DataColumns"))
             {
                 m_DataColumns = Parameters["DataColumns"];
@@ -264,7 +251,6 @@ namespace Cyclops.DataModules
             {
                 m_yMax = Parameters["yMax"];
             }
-            #endregion
 
             if (Directory.Exists(Model.WorkDirectory))
             {
@@ -371,6 +357,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

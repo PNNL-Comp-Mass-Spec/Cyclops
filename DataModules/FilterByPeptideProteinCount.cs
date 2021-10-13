@@ -17,7 +17,6 @@ namespace Cyclops.DataModules
 {
     public class FilterByPeptideProteinCount : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "FilterByPeptideProteinCount";
         private readonly string m_Description = "";
         private string m_MaxProtValue = "NULL";
@@ -40,13 +39,6 @@ namespace Cyclops.DataModules
             ProteinInfo_PeptideCol // designates the peptide count column in the RowMetadataTable
         }
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an FilterByPeptideProteinCount Module
         /// </summary>
@@ -79,9 +71,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -139,7 +129,6 @@ namespace Cyclops.DataModules
                 }
             }
 
-            #region Check R Environment For Objects
             if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.InputTableName.ToString()]))
             {
                 Model.LogError("ERROR 'InputTableName' object, " +
@@ -218,9 +207,7 @@ namespace Cyclops.DataModules
                     ModuleName, StepNumber);
                 successful = false;
             }
-            #endregion
 
-            #region Check For Parameters Specific To FilterByPeptideProteinCount
             if (Parameters.ContainsKey("MaxProtValue") && !string.IsNullOrEmpty(Parameters["MaxProtValue"]))
             {
                 m_MaxProtValue = Parameters["MaxProtValue"];
@@ -237,7 +224,6 @@ namespace Cyclops.DataModules
             {
                 m_MinPepValue = Parameters["MinPepValue"];
             }
-            #endregion
 
             return successful;
         }
@@ -338,6 +324,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

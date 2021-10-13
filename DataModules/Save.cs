@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
 {
     public class Save : BaseDataModule
     {
-        #region Members
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
@@ -28,13 +27,6 @@ namespace Cyclops.DataModules
         private readonly string m_ModuleName = "Save";
         private readonly string m_Description = "";
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an SaveEnvironment Module
         /// </summary>
@@ -67,9 +59,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -193,6 +183,5 @@ namespace Cyclops.DataModules
 
             return successful;
         }
-        #endregion
     }
 }

@@ -17,7 +17,6 @@ namespace Cyclops.DataModules
 {
     public class CleanDataAndColumnFactors : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "CleanDataAndColumnFactors";
         private readonly string m_Description = "";
 
@@ -29,9 +28,6 @@ namespace Cyclops.DataModules
             InputTableName, FactorTable, FactorColumn
         }
 
-        #endregion
-
-        #region Properties
         /// <summary>
         /// Column in Column Metadata Table that corresponds
         /// to the column names in the Data Table.
@@ -39,9 +35,6 @@ namespace Cyclops.DataModules
         /// </summary>
         public string MergeColumn { get; set; } = "Alias";
 
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an CleanDataAndColumnFactors Module
         /// </summary>
@@ -74,9 +67,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -321,6 +312,5 @@ namespace Cyclops.DataModules
 
             return successful;
         }
-        #endregion
     }
 }

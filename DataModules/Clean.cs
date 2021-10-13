@@ -20,7 +20,6 @@ namespace Cyclops.DataModules
     /// </summary>
     public class Clean : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "Clean";
         private readonly string m_Description = "";
 
@@ -30,13 +29,6 @@ namespace Cyclops.DataModules
         private enum RequiredParameters
         { }
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an Clean Module
         /// </summary>
@@ -69,9 +61,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -182,6 +172,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

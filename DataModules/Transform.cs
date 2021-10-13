@@ -18,7 +18,6 @@ namespace Cyclops.DataModules
 {
     public class Transform : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "Transform";
         private readonly string m_Description = "Scales, adds, and/or log transforms the data";
 
@@ -30,13 +29,9 @@ namespace Cyclops.DataModules
             InputTableName, NewTableName
         }
 
-        #endregion
 
-        #region Properties
 
-        #endregion
 
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an Transform Module
         /// </summary>
@@ -69,9 +64,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -194,6 +187,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

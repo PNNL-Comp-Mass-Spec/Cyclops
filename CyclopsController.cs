@@ -19,11 +19,6 @@ namespace Cyclops
     /// </summary>
     public class CyclopsController : PRISM.EventNotifier
     {
-        #region Members
-
-        #endregion
-
-        #region Properties
         /// <summary>
         /// Main directory Cyclops uses to pull files and export files
         /// Sets the path for the log file
@@ -42,9 +37,6 @@ namespace Cyclops
         /// </summary>
         /// <remarks>Default file name: Cyclops_Operations.db3</remarks>
         public string OperationsDatabasePath { get; set; }
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// Main constructor to call to control Cyclops
@@ -60,9 +52,7 @@ namespace Cyclops
                 WorkingDirectory = Parameters["workDir"];
             }
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Main method to run Cyclops
         /// </summary>
@@ -92,7 +82,5 @@ namespace Cyclops
             var success = cyclops.Run();
             return success;
         }
-
-        #endregion
     }
 }

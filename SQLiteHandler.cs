@@ -23,7 +23,6 @@ namespace Cyclops
     /// </summary>
     public class SQLiteHandler : DatabaseHandler
     {
-        #region Members
         private readonly string[] m_SQLiteKeywords = {
             "ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND",
             "AS", "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN",
@@ -43,16 +42,12 @@ namespace Cyclops
             "UNION", "UNIQUE", "UPDATE", "USING", "VACUUM", "VALUES", "VIEW", "VIRTUAL",
             "WHEN", "WHERE"
         };
-        #endregion
 
-        #region Properties
         /// <summary>
         /// Complete path and file name to your SQLite database (e.g. C:\Database\TestDB.db3)
         /// </summary>
         public string DatabaseFileName { get; set; }
-        #endregion
 
-        #region Private Methods
         /// <summary>
         /// Converts Microsoft data types to SQLite data types
         /// </summary>
@@ -259,9 +254,7 @@ namespace Cyclops
 
             return true;
         }
-        #endregion
 
-        #region Public Methods
         /// <summary>
         /// Creates a SQLite database, file is named by the property DatabaseFileName,
         /// automatically overwrites any existing file
@@ -828,6 +821,5 @@ namespace Cyclops
 
             return ColumnNames;
         }
-        #endregion
     }
 }

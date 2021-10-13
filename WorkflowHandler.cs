@@ -27,8 +27,6 @@ namespace Cyclops
     /// </summary>
     public class WorkflowHandler : INotifyPropertyChanged
     {
-        #region Members
-
         private bool m_WorkflowContainsOperations;
 
         private struct strModuleInfo
@@ -40,9 +38,6 @@ namespace Cyclops
 
         // Declare the event
         public event PropertyChangedEventHandler PropertyChanged;
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Type of workflow to read in
@@ -96,11 +91,9 @@ namespace Cyclops
                 OnPropertyChanged("WorkflowTable");
             }
         }
-        #endregion
 
-        #region Constructors
         /// <summary>
-        ///
+        /// Constructor
         /// </summary>
         /// <param name="TheModel"></param>
         public WorkflowHandler(CyclopsModel TheModel)
@@ -109,9 +102,6 @@ namespace Cyclops
 
             AddDataColumnsToWorkflowTables();
         }
-        #endregion
-
-        #region Methods
 
         private void AddDataColumnsToWorkflowTables()
         {
@@ -933,6 +923,5 @@ namespace Cyclops
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        #endregion
     }
 }

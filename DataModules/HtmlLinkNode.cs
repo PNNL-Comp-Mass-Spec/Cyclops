@@ -14,15 +14,9 @@ namespace Cyclops.DataModules
 {
     public class HtmlLinkNode
     {
-        #region Properties
-
         public string Title { get; }
         public string Link { get; }
         public bool IsInternalLink { get; }
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// HtmlLinkNode module that assigns a Cyclops Model
@@ -33,7 +27,5 @@ namespace Cyclops.DataModules
             Link = link;
             IsInternalLink = isInternalLink;
         }
-
-        #endregion
     }
 }

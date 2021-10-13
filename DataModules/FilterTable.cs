@@ -20,7 +20,6 @@ namespace Cyclops.DataModules
     /// </summary>
     public class FilterTable : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "FilterTable";
         private readonly string m_Description = "";
 
@@ -32,13 +31,6 @@ namespace Cyclops.DataModules
             InputTableName, NewTableName, ColumnName, Operation, Value
         }
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an FilterTable Module
         /// </summary>
@@ -71,9 +63,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -204,6 +194,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

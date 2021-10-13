@@ -17,7 +17,6 @@ namespace Cyclops.DataModules
 {
     public class RRollup : BaseDataModule
     {
-        #region Members
         private readonly string m_ModuleName = "RRollup";
         private readonly string m_Description = "";
         private string m_MinimumPresence = "1";
@@ -38,13 +37,6 @@ namespace Cyclops.DataModules
             NewTableName, InputTableName, ProteinInfoTable
         }
 
-        #endregion
-
-        #region Properties
-
-        #endregion
-
-        #region Constructors
         /// <summary>
         /// Generic constructor creating an RRollup Module
         /// </summary>
@@ -77,9 +69,7 @@ namespace Cyclops.DataModules
             Model = CyclopsModel;
             Parameters = ExportParameters;
         }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs module and then child modules
         /// </summary>
@@ -258,6 +248,5 @@ namespace Cyclops.DataModules
         {
             return Description;
         }
-        #endregion
     }
 }

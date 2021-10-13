@@ -21,21 +21,10 @@ namespace Cyclops.DataModules
 {
     public abstract class BaseDataModule : BaseModule
     {
-        #region Members
-
-        #region Visualization Members
-
-        #endregion
-        #endregion
-
-        #region Properties
-
         protected abstract string GetDefaultValue();
         protected abstract string GetTypeName();
         protected abstract string GetTypeDescription();
         private static readonly Dictionary<string, Type> mTypeMap = CreateTypeMap();
-
-        #region Visualization Properties
 
         protected string BackgroundColor { get; set; } = "white";
 
@@ -52,10 +41,6 @@ namespace Cyclops.DataModules
         public string XLabel { get; set; }
 
         public string YLabel { get; set; }
-        #endregion
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Writes the Data Module out to XML
@@ -289,7 +274,5 @@ namespace Cyclops.DataModules
         {
             return null;
         }
-
-        #endregion
     }
 }

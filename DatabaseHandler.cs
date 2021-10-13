@@ -20,7 +20,6 @@ namespace Cyclops
     /// </summary>
     public abstract class DatabaseHandler
     {
-        #region Methods
         /// <summary>
         /// Creates a database,
         /// automatically overwrites any existing file
@@ -97,6 +96,5 @@ namespace Cyclops
         /// </summary>
         /// <returns>List of tables names in the SQLite database</returns>
         public abstract List<string> GetListOfTablesInDatabase();
-        #endregion
     }
 }

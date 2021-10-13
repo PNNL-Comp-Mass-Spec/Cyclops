@@ -19,13 +19,8 @@ namespace Cyclops
 {
     public abstract class BaseModule
     {
-        #region Members
-
         private DataModules.BaseDataModule m_ParentModule;
 
-        #endregion
-
-        #region Properties
         /// <summary>
         /// Name of the module
         /// </summary>
@@ -50,9 +45,7 @@ namespace Cyclops
         /// Instance of the Model Class
         /// </summary>
         public CyclopsModel Model { get; set; }
-        #endregion
 
-        #region Methods
         /// <summary>
         /// Runs the module's operation
         /// </summary>
@@ -142,6 +135,5 @@ namespace Cyclops
         {
             return Model.RCalls.GetTemporaryTableName(Prefix);
         }
-        #endregion
     }
 }
