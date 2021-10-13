@@ -85,6 +85,7 @@
     <Compile Include="DataModules\CorrelationHeatmap.cs" />
     <Compile Include="DataModules\Hexbin.cs" />
     <Compile Include="DataModules\Histogram.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SQLiteHandler.cs" />
     <Compile Include="WorkflowHandler.cs" />
     <Compile Include="Operations\BaseOperationModule.cs" />
