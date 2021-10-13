@@ -126,21 +126,19 @@ namespace Cyclops.DataModules
         /// <returns>True, if the function completes successfully</returns>
         public bool CleanFunction()
         {
-            var successful = true;
             const string rCmd = "rm(list=objects2delete)\nrm(objects2delete)";
             try
             {
                 Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                return true;
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while cleaning R source " +
                     "objects:\n" + ex, ModuleName, StepNumber);
                 SaveCurrentREnvironment();
-                successful = false;
+                return false;
             }
-
-            return successful;
         }
 
         /// <summary>

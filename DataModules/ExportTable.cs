@@ -537,26 +537,28 @@ namespace Cyclops.DataModules
         {
             const string rCmdDisconnect = "terminated <- dbDisconnect(con)";
 
-            var successful = Model.RCalls.Run(rCmdDisconnect, ModuleName, StepNumber);
+            var connected = Model.RCalls.Run(rCmdDisconnect, ModuleName, StepNumber);
 
-            if (successful)
+            if (!connected)
             {
-                successful = Model.RCalls.AssessBoolean("terminated");
-            }
-
-            if (successful)
-            {
-                var rCmdTerminate = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                successful = Model.RCalls.Run(rCmdTerminate, ModuleName, StepNumber);
-            }
-            else
-            {
-                Model.LogError("Cyclops was unsuccessful at disconnecting " +
-                    "from SQLITE database!",
+                Model.LogError("Cyclops was unable to disconnect from the SQLITE database!",
                     ModuleName, StepNumber);
+
+                return false;
             }
 
-            return successful;
+            var terminated = Model.RCalls.AssessBoolean("terminated");
+
+            if (terminated)
+            {
+                const string rCmdTerminate = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
+                return Model.RCalls.Run(rCmdTerminate, ModuleName, StepNumber);
+            }
+
+            Model.LogError("Cyclops was unable to disconnect from the SQLITE database (dbDisconnect reports false)!",
+                ModuleName, StepNumber);
+
+            return false;
         }
 
         public override string ToString()
