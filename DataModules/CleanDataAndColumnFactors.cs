@@ -244,34 +244,28 @@ namespace Cyclops.DataModules
             string ColumnMetadataTableName,
             string ColumnMetadataFactor)
         {
-            bool successful;
-
             var data = Model.RCalls.GetDimensions(DataTableName);
 
             var columnMetadata = Model.RCalls.GetDimensions(ColumnMetadataTableName);
 
             if (data.Columns != columnMetadata.Rows)
             {
-                successful = ModifyFactorAndDataTables(DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
+                return ModifyFactorAndDataTables(DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
             }
-            else
+
+            var rCmd = string.Format(
+                "dim({0}[-which({0}${1}%in%colnames({2})),])[1] == 0",
+                ColumnMetadataTableName,
+                ColumnMetadataFactor,
+                DataTableName);
+
+            if (Model.RCalls.AssessBoolean(rCmd))
             {
-                var rCmd = string.Format(
-                    "dim({0}[-which({0}${1}%in%colnames({2})),])[1] == 0",
-                    ColumnMetadataTableName,
-                    ColumnMetadataFactor,
-                    DataTableName);
-
-                if (Model.RCalls.AssessBoolean(rCmd))
-                {
-                    // Equal so good to go
-                    return true;
-                }
-
-                successful = ModifyFactorAndDataTables(DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
+                // Equal so good to go
+                return true;
             }
 
-            return successful;
+            return ModifyFactorAndDataTables(DataTableName, ColumnMetadataTableName, ColumnMetadataFactor);
         }
 
         /// <summary>
