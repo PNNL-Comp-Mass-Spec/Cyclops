@@ -882,7 +882,7 @@ namespace Cyclops
             {
                 Modules.AddBefore(PNode, Module2Move);
                 Modules.Remove(PreviousNode);
-                PreviousNode.StepNumber = PreviousNode.StepNumber + 1;
+                PreviousNode.StepNumber++;
             }
             PNode = Modules.Find(Module2Move);
             if (PNode != null)
@@ -909,7 +909,7 @@ namespace Cyclops
             {
                 Modules.AddAfter(PNode, Module2Move);
                 Modules.Remove(NextNode);
-                NextNode.StepNumber = NextNode.StepNumber - 1;
+                NextNode.StepNumber--;
             }
             PNode = Modules.Find(Module2Move);
             if (PNode != null)

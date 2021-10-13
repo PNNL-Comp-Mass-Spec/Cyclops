@@ -183,7 +183,7 @@ namespace Cyclops.DataModules
                     rCmd += string.Format(
                         "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
                         Parameters[RequiredParameters.InputTableName.ToString()]);
-                    tmpInputTableName = tmpInputTableName + "_tmpT";
+                    tmpInputTableName += "_tmpT";
                 }
 
                 successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
