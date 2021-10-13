@@ -535,7 +535,7 @@ namespace Cyclops.DataModules
         /// </summary>
         public bool DisconnectFromDatabaseFromR()
         {
-            var rCmdDisconnect = "terminated <- dbDisconnect(con)";
+            const string rCmdDisconnect = "terminated <- dbDisconnect(con)";
 
             var successful = Model.RCalls.Run(rCmdDisconnect, ModuleName, StepNumber);
 

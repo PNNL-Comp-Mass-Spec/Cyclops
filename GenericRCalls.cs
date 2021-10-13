@@ -288,7 +288,7 @@ namespace Cyclops
         /// <returns>Current working directory</returns>
         public string GetWorkingDirectory()
         {
-            var rCmd = "getwd()";
+            const string rCmd = "getwd()";
             var evalResult = engine.Evaluate(rCmd).AsCharacter();
             return evalResult[0];
         }
@@ -880,7 +880,7 @@ namespace Cyclops
             var rInstance = "";
             Thread.Sleep(2);
             var rnd = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
-            var chars = "2346789ABCDEFGHJKLMNPQRTUVWXYZabcdefghjkmnpqrtuvwxyz";
+            const string chars = "2346789ABCDEFGHJKLMNPQRTUVWXYZabcdefghjkmnpqrtuvwxyz";
 
             for (var i = 0; i < 20; i++)
             {

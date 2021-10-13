@@ -127,8 +127,7 @@ namespace Cyclops.DataModules
         public bool CleanFunction()
         {
             var successful = true;
-
-            var rCmd = "rm(list=objects2delete)\nrm(objects2delete)";
+            const string rCmd = "rm(list=objects2delete)\nrm(objects2delete)";
             try
             {
                 Model.RCalls.Run(rCmd, ModuleName, StepNumber);
