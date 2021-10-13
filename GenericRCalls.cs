@@ -191,7 +191,7 @@ namespace Cyclops
         /// Returns all the objects in the R workspace
         /// </summary>
         /// <returns>List of all the objects in the R workspace</returns>
-        public List<string> ls()
+        public List<string> GetObjectNames()
         {
             var objectList = new List<string>();
 
@@ -213,14 +213,14 @@ namespace Cyclops
         {
             if (!ObjectName.Contains("$"))
             {
-                var objectList = ls();
+                var objectList = GetObjectNames();
                 return objectList.Contains(ObjectName);
             }
 
             var nameParts = ObjectName.Split('$');
             if (nameParts.Length == 2)
             {
-                var objectList = ls();
+                var objectList = GetObjectNames();
                 return objectList.Contains(nameParts[0]);
             }
 
