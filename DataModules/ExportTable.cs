@@ -191,11 +191,11 @@ namespace Cyclops.DataModules
         /// <returns>True, if the export is successful</returns>
         public bool ExportFunction()
         {
-            switch (Parameters[RequiredParameters.Source.ToString()].ToUpper())
+            switch (Parameters[nameof(RequiredParameters.Source)].ToUpper())
             {
                 case "R":
                     if (Model.RCalls.ContainsObject(
-                        Parameters[RequiredParameters.TableName.ToString()]))
+                        Parameters[nameof(RequiredParameters.TableName)]))
                     {
                         return ExportFromR();
                     }
@@ -204,14 +204,14 @@ namespace Cyclops.DataModules
                         Model.LogWarning(string.Format("Warning encountered while " +
                             "attempting to export table, {0}, from R workspace. " +
                             "The table does not exist in the R environment!",
-                            Parameters[RequiredParameters.TableName.ToString()]),
+                            Parameters[nameof(RequiredParameters.TableName)]),
                             ModuleName, StepNumber);
                     }
                     break;
                 case "SQLITE":
                     if (m_DatabaseFound)
                     {
-                        if (m_SQLiteReader.TableExists(Parameters[RequiredParameters.TableName.ToString()]))
+                        if (m_SQLiteReader.TableExists(Parameters[nameof(RequiredParameters.TableName)]))
                         {
                             return ExportFromSQLite();
                         }
@@ -219,7 +219,7 @@ namespace Cyclops.DataModules
                         Model.LogWarning(string.Format(
                                              "Warning Table, {0}, was not found in the SQLite database, {1}, for " +
                                              "export! Note that table names are case-sensitive.",
-                                             Parameters[RequiredParameters.TableName.ToString()],
+                                             Parameters[nameof(RequiredParameters.TableName)],
                                              m_DatabaseFileName),
                                          ModuleName, StepNumber);
                     }
@@ -245,7 +245,7 @@ namespace Cyclops.DataModules
             var successful = true;
 
             // TODO : Export from R
-            switch (Parameters[RequiredParameters.Target.ToString()].ToUpper())
+            switch (Parameters[nameof(RequiredParameters.Target)].ToUpper())
             {
                 case "SQLITE":
                     if (CheckDatabaseTargetParameters())
@@ -287,7 +287,7 @@ namespace Cyclops.DataModules
         private bool ExportR_to_SQLite()
         {
             var successful = Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.TableName.ToString()]);
+                Parameters[nameof(RequiredParameters.TableName)]);
 
             if (!successful)
             {
@@ -295,7 +295,7 @@ namespace Cyclops.DataModules
                     "export table {0} from R to SQLite! The table was " +
                     "not found in the R environment. Please check " +
                     "the R environment and try again.",
-                    Parameters[RequiredParameters.TableName.ToString()]),
+                    Parameters[nameof(RequiredParameters.TableName)]),
                     ModuleName, StepNumber);
                 return false;
             }
@@ -305,8 +305,8 @@ namespace Cyclops.DataModules
                 var rCmd = string.Format(
                     "dbWriteTable(" +
                     "conn=con, name=\"{0}\", value=data.frame({1}))",
-                    Parameters[DatabaseTargetRequiredParameters.NewTableName.ToString()],
-                    Parameters[RequiredParameters.TableName.ToString()]);
+                    Parameters[nameof(DatabaseTargetRequiredParameters.NewTableName)],
+                    Parameters[nameof(RequiredParameters.TableName)]);
 
                 if (Model.RCalls.Run(rCmd, ModuleName, StepNumber))
                 {
@@ -330,7 +330,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the file is exported successfully</returns>
         private bool ExportR_to_Text(string Delimiter)
         {
-            var hasTableNameParam = Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]);
+            var hasTableNameParam = Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.TableName)]);
             if (!hasTableNameParam)
             {
                 Model.LogError("Unable to export R to text; Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]) returns false ",
@@ -351,20 +351,20 @@ namespace Cyclops.DataModules
                 rCmd = string.Format("jnb_Write(df={0}, " +
                     "fileName=\"{1}\", firstColumnHeader=\"{2}\", " +
                     "sepChar=\"{3}\")",
-                    Parameters[RequiredParameters.TableName.ToString()],
-                    Model.WorkDirectory + "/" + Parameters[RequiredParameters.FileName.ToString()],
+                    Parameters[nameof(RequiredParameters.TableName)],
+                    Model.WorkDirectory + "/" + Parameters[nameof(RequiredParameters.FileName)],
                     Parameters["RownamesColumnHeader"],
                     Delimiter);
             }
             else
             {
-                var filePath = Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]);
+                var filePath = Path.Combine(Model.WorkDirectory, Parameters[nameof(RequiredParameters.FileName)]);
                 var filePathForR = GenericRCalls.ConvertToRCompatiblePath(filePath);
 
                 rCmd = string.Format("jnb_Write(df={0}, " +
                     "fileName=\"{1}\", row.names=FALSE, " +
                     "sepChar=\"{2}\")",
-                    Parameters[RequiredParameters.TableName.ToString()],
+                    Parameters[nameof(RequiredParameters.TableName)],
                     filePathForR,
                     Delimiter);
             }
@@ -382,16 +382,16 @@ namespace Cyclops.DataModules
         {
             var successful = true;
 
-            var targetType = Parameters[RequiredParameters.Target.ToString()].ToLower();
+            var targetType = Parameters[nameof(RequiredParameters.Target)].ToLower();
 
             if (targetType.Equals("tsv") ||
                 targetType.Equals("txt") ||
                 targetType.Equals("csv"))
             {
                 var dt = m_SQLiteReader.GetTable(
-                    Parameters[RequiredParameters.TableName.ToString()]);
+                    Parameters[nameof(RequiredParameters.TableName)]);
 
-                var outputFilePath = Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]);
+                var outputFilePath = Path.Combine(Model.WorkDirectory, Parameters[nameof(RequiredParameters.FileName)]);
 
                 switch (targetType)
                 {
@@ -411,7 +411,7 @@ namespace Cyclops.DataModules
                 Model.LogError(
                     string.Format("The file type, {0}, to export from SQLite was not " +
                     "recognized. Please select either '*.tsv', '*.txt', or '*.csv'.",
-                    Parameters[RequiredParameters.Target.ToString()]),
+                    Parameters[nameof(RequiredParameters.Target)]),
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -561,9 +561,9 @@ namespace Cyclops.DataModules
 
         public override string ToString()
         {
-            if (Parameters.TryGetValue(RequiredParameters.TableName.ToString(), out var tableName))
+            if (Parameters.TryGetValue(nameof(RequiredParameters.TableName), out var tableName))
             {
-                if (!Parameters.TryGetValue(RequiredParameters.FileName.ToString(), out var fileName))
+                if (!Parameters.TryGetValue(nameof(RequiredParameters.FileName), out var fileName))
                 {
                     fileName = "??";
                 }

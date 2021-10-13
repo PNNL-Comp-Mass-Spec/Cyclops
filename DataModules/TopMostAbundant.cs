@@ -118,11 +118,11 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogError("Error: R environment does not contain the " +
                     "input table: " +
-                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
                     ModuleName, StepNumber);
                 return false;
             }
@@ -153,11 +153,11 @@ namespace Cyclops.DataModules
                 "{0} <- {0}[order({0}[,'Median'], decreasing=T),]\n" +
                 "{0} <- {0}[,-grep('Median', colnames({0}))]\n" +
                 "{0} <- {0}[1:{4},]\n",
-                Parameters[RequiredParameters.NewTableName.ToString()],
-                Parameters[RequiredParameters.InputTableName.ToString()],
+                Parameters[nameof(RequiredParameters.NewTableName)],
+                Parameters[nameof(RequiredParameters.InputTableName)],
                 m_Function,
                 m_RemoveNAs.ToString().ToUpper(),
-                Parameters[RequiredParameters.NumberOfMostAbundant.ToString()]);
+                Parameters[nameof(RequiredParameters.NumberOfMostAbundant)]);
 
             try
             {

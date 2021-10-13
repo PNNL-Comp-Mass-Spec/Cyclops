@@ -117,37 +117,37 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.XTable.ToString()]))
+                Parameters[nameof(RequiredParameters.XTable)]))
             {
                 Model.LogError("ERROR R environment does not contain " +
                     "the X table: " + Parameters[
-                    RequiredParameters.XTable.ToString()]);
+                    nameof(RequiredParameters.XTable)]);
                 successful = false;
             }
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.YTable.ToString()]))
+                Parameters[nameof(RequiredParameters.YTable)]))
             {
                 Model.LogError("ERROR R environment does not contain " +
                     "the Y table: " + Parameters[
-                    RequiredParameters.YTable.ToString()]);
+                    nameof(RequiredParameters.YTable)]);
                 successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.XTable.ToString()],
-                Parameters[RequiredParameters.XLink.ToString()]))
+                Parameters[nameof(RequiredParameters.XTable)],
+                Parameters[nameof(RequiredParameters.XLink)]))
             {
                 Model.LogError("ERROR The X table does not contain " +
                     "the column: " + Parameters[
-                    RequiredParameters.XLink.ToString()]);
+                    nameof(RequiredParameters.XLink)]);
                 successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.YTable.ToString()],
-                Parameters[RequiredParameters.YLink.ToString()]))
+                Parameters[nameof(RequiredParameters.YTable)],
+                Parameters[nameof(RequiredParameters.YLink)]))
             {
                 Model.LogError("ERROR The Y table does not contain " +
                     "the column: " + Parameters[
-                    RequiredParameters.YLink.ToString()]);
+                    nameof(RequiredParameters.YLink)]);
                 successful = false;
             }
 
@@ -165,13 +165,13 @@ namespace Cyclops.DataModules
             // Construct the R statement
             var rCmd = string.Format("{0} <- merge(x={1}," +
                 "y={2}, by.x=\"{3}\", by.y=\"{4}\", all.x={5}, all.y={6})",
-                Parameters[RequiredParameters.NewTableName.ToString()],
-                Parameters[RequiredParameters.XTable.ToString()],
-                Parameters[RequiredParameters.YTable.ToString()],
-                Parameters[RequiredParameters.XLink.ToString()],
-                Parameters[RequiredParameters.YLink.ToString()],
-                Parameters[RequiredParameters.AllX.ToString()].ToUpper(),
-                Parameters[RequiredParameters.AllY.ToString()].ToUpper());
+                Parameters[nameof(RequiredParameters.NewTableName)],
+                Parameters[nameof(RequiredParameters.XTable)],
+                Parameters[nameof(RequiredParameters.YTable)],
+                Parameters[nameof(RequiredParameters.XLink)],
+                Parameters[nameof(RequiredParameters.YLink)],
+                Parameters[nameof(RequiredParameters.AllX)].ToUpper(),
+                Parameters[nameof(RequiredParameters.AllY)].ToUpper());
 
             try
             {

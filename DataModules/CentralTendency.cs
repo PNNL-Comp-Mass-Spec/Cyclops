@@ -117,11 +117,11 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+                Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogWarning("WARNING in Central Tendency: The R environment does " +
                     "not contain the input table, " +
-                    Parameters[RequiredParameters.InputTableName.ToString()]);
+                    Parameters[nameof(RequiredParameters.InputTableName)]);
                 successful = false;
             }
 
@@ -138,10 +138,10 @@ namespace Cyclops.DataModules
 
             var rCmd = string.Format("{0} <- MeanCenter.Div(" +
                     "Data={1}, Mean={2}, centerZero={3})",
-                    Parameters[RequiredParameters.NewTableName.ToString()],
-                    Parameters[RequiredParameters.InputTableName.ToString()],
-                    Parameters[RequiredParameters.MeanCenter.ToString()].ToUpper(),
-                    Parameters[RequiredParameters.Center.ToString()].ToUpper());
+                    Parameters[nameof(RequiredParameters.NewTableName)],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
+                    Parameters[nameof(RequiredParameters.MeanCenter)].ToUpper(),
+                    Parameters[nameof(RequiredParameters.Center)].ToUpper());
 
             try
             {

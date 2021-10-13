@@ -119,10 +119,10 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!File.Exists(Parameters[RequiredParameters.InputFileName.ToString()]))
+            if (!File.Exists(Parameters[nameof(RequiredParameters.InputFileName)]))
             {
                 Model.LogError("The R workspace file that you wish to load, " +
-                    Parameters[RequiredParameters.InputFileName.ToString()] +
+                    Parameters[nameof(RequiredParameters.InputFileName)] +
                     ", does not exist!", ModuleName, StepNumber);
                 successful = false;
             }
@@ -140,7 +140,7 @@ namespace Cyclops.DataModules
 
             var rCmd = string.Format(
                 "load('{0}')\n",
-                Parameters[RequiredParameters.InputFileName.ToString()].Replace("\\", "/"));
+                Parameters[nameof(RequiredParameters.InputFileName)].Replace("\\", "/"));
 
             try
             {
@@ -149,7 +149,7 @@ namespace Cyclops.DataModules
                 if (successful)
                 {
                     Model.RWorkEnvironment = Parameters[
-                        RequiredParameters.InputFileName.ToString()].Replace("\\", "/");
+                        nameof(RequiredParameters.InputFileName)].Replace("\\", "/");
                 }
             }
             catch (Exception ex)

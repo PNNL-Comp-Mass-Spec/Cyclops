@@ -134,7 +134,7 @@ namespace Cyclops.Operations
         /// </summary>
         public void SetTypes()
         {
-            switch (Parameters[RequiredParameters.Type.ToString()].ToLower())
+            switch (Parameters[nameof(RequiredParameters.Type)].ToLower())
             {
                 case "standard":
                     m_SpectralCountTableName =
@@ -156,7 +156,7 @@ namespace Cyclops.Operations
 
             Model.LogMessage(string.Format(
                         "Spectral Count Operation: {0}\nDatabase: {1}\nTable: {2}\n",
-                        Parameters[RequiredParameters.Type.ToString()],
+                        Parameters[nameof(RequiredParameters.Type)],
                         OperationsDatabasePath,
                         m_SpectralCountTableName),
                         ModuleName,

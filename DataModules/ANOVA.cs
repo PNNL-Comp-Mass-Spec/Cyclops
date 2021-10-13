@@ -145,12 +145,12 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogError("Error in ANOVA function: " +
                     "the R environment does not contain the " +
                     "selected input table, '" +
-                    Parameters[RequiredParameters.InputTableName.ToString()] +
+                    Parameters[nameof(RequiredParameters.InputTableName)] +
                     "'.", ModuleName, StepNumber);
                 successful = false;
             }
@@ -161,39 +161,39 @@ namespace Cyclops.DataModules
             }
 
             // Get Random Effect if passed in
-            if (Parameters.ContainsKey(AnovaParameters.Random_Effect.ToString()) &&
-                !string.IsNullOrEmpty(Parameters[AnovaParameters.Random_Effect.ToString()]))
+            if (Parameters.ContainsKey(nameof(AnovaParameters.Random_Effect)) &&
+                !string.IsNullOrEmpty(Parameters[nameof(AnovaParameters.Random_Effect)]))
             {
                 RandomEffect = Parameters[
-                    AnovaParameters.Random_Effect.ToString()];
+                    nameof(AnovaParameters.Random_Effect)];
             }
 
             // Get Interaction parameter
-            if (Parameters.ContainsKey(AnovaParameters.Interaction.ToString()) &&
-                !string.IsNullOrEmpty(Parameters[AnovaParameters.Interaction.ToString()]))
+            if (Parameters.ContainsKey(nameof(AnovaParameters.Interaction)) &&
+                !string.IsNullOrEmpty(Parameters[nameof(AnovaParameters.Interaction)]))
             {
-                Interaction = Parameters[AnovaParameters.Interaction.ToString()];
+                Interaction = Parameters[nameof(AnovaParameters.Interaction)];
             }
 
             // Get Threshold parameter
-            if (Parameters.ContainsKey(AnovaParameters.Threshold.ToString()) &&
-                !string.IsNullOrEmpty(Parameters[AnovaParameters.Threshold.ToString()]))
+            if (Parameters.ContainsKey(nameof(AnovaParameters.Threshold)) &&
+                !string.IsNullOrEmpty(Parameters[nameof(AnovaParameters.Threshold)]))
             {
-                Threshold = Parameters[AnovaParameters.Threshold.ToString()];
+                Threshold = Parameters[nameof(AnovaParameters.Threshold)];
             }
 
             // Get Unbalanced parameter
-            if (Parameters.ContainsKey(AnovaParameters.Unbalanced.ToString()) &&
-                !string.IsNullOrEmpty(Parameters[AnovaParameters.Unbalanced.ToString()]))
+            if (Parameters.ContainsKey(nameof(AnovaParameters.Unbalanced)) &&
+                !string.IsNullOrEmpty(Parameters[nameof(AnovaParameters.Unbalanced)]))
             {
-                Unbalanced = Parameters[AnovaParameters.Unbalanced.ToString()];
+                Unbalanced = Parameters[nameof(AnovaParameters.Unbalanced)];
             }
 
             // Get REML parameter
-            if (Parameters.ContainsKey(AnovaParameters.UseREML.ToString()) &&
-                !string.IsNullOrEmpty(Parameters[AnovaParameters.UseREML.ToString()]))
+            if (Parameters.ContainsKey(nameof(AnovaParameters.UseREML)) &&
+                !string.IsNullOrEmpty(Parameters[nameof(AnovaParameters.UseREML)]))
             {
-                UseREML = Parameters[AnovaParameters.UseREML.ToString()];
+                UseREML = Parameters[nameof(AnovaParameters.UseREML)];
             }
 
             return successful;
@@ -217,16 +217,16 @@ namespace Cyclops.DataModules
                 "unbalanced={5}, useREML={6}, Factors=t({7}), " +
                 "thres={8})\n" +
                 "rm({9})\n\n",
-                Parameters[RequiredParameters.NewTableName.ToString()],
+                Parameters[nameof(RequiredParameters.NewTableName)],
                 m_RemoveFirstColumn ?
-                    Parameters[RequiredParameters.InputTableName.ToString()] + "[,-1]" :
-                    Parameters[RequiredParameters.InputTableName.ToString()],
-                Parameters[RequiredParameters.Fixed_Effect.ToString()],
+                    Parameters[nameof(RequiredParameters.InputTableName)] + "[,-1]" :
+                    Parameters[nameof(RequiredParameters.InputTableName)],
+                Parameters[nameof(RequiredParameters.Fixed_Effect)],
                 RandomEffect.ToUpper(),
                 Interaction.ToUpper(),
                 Unbalanced.ToUpper(),
                 UseREML.ToUpper(),
-                Parameters[RequiredParameters.FactorTable.ToString()],
+                Parameters[nameof(RequiredParameters.FactorTable)],
                 Threshold.ToUpper(),
                 tmpInputTable);
 

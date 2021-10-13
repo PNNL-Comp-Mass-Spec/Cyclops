@@ -131,7 +131,7 @@ namespace Cyclops.Operations
         /// </summary>
         public void SetTypes()
         {
-            switch (Parameters[RequiredParameters.Type.ToString()].ToLower())
+            switch (Parameters[nameof(RequiredParameters.Type)].ToLower())
             {
                 case "standard":
                     m_iTraqTableName =
@@ -141,7 +141,7 @@ namespace Cyclops.Operations
 
             Model.LogMessage(string.Format(
                         "iTRAQ Operation: {0}\nDatabase: {1}\nTable: {2}\n",
-                        Parameters[RequiredParameters.Type.ToString()],
+                        Parameters[nameof(RequiredParameters.Type)],
                         OperationsDatabasePath,
                         m_iTraqTableName),
                         ModuleName,

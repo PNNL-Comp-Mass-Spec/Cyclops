@@ -129,20 +129,20 @@ namespace Cyclops.DataModules
             //    m_MergeColumn = Parameters["MergeColumn"];
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+                Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogWarning("R Environment does not contain the " +
                     "specified input table: " +
-                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.FactorTable.ToString()]))
+                Parameters[nameof(RequiredParameters.FactorTable)]))
             {
                 Model.LogWarning("R Environment does not contain the " +
                     "specified factor table: " +
-                    Parameters[RequiredParameters.FactorTable.ToString()],
+                    Parameters[nameof(RequiredParameters.FactorTable)],
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -159,10 +159,10 @@ namespace Cyclops.DataModules
             var successful = true;
 
             if (Parameters.ContainsKey(
-                RequiredParameters.Fixed_Effect.ToString()))
+                nameof(RequiredParameters.Fixed_Effect)))
             {
-                var factorTable = Parameters[RequiredParameters.FactorTable.ToString()];
-                var fixedEffect = Parameters[RequiredParameters.Fixed_Effect.ToString()];
+                var factorTable = Parameters[nameof(RequiredParameters.FactorTable)];
+                var fixedEffect = Parameters[nameof(RequiredParameters.Fixed_Effect)];
 
                 if (string.IsNullOrEmpty(factorTable))
                 {
@@ -181,8 +181,8 @@ namespace Cyclops.DataModules
                     Model.LogError(string.Format(
                         "Factor table ({0}) does not contain the specified " +
                         "column ({1})",
-                        Parameters[RequiredParameters.FactorTable.ToString()],
-                        Parameters[RequiredParameters.Fixed_Effect.ToString()]),
+                        Parameters[nameof(RequiredParameters.FactorTable)],
+                        Parameters[nameof(RequiredParameters.Fixed_Effect)]),
                         ModuleName, StepNumber);
                     return false;
                 }
@@ -190,8 +190,8 @@ namespace Cyclops.DataModules
                 // TODO : Make it work
                 // var tmpFactorTable = GetTemporaryTableName("T_BBMQuasiFactor_");
                 var tmpInputTableName = GetTemporaryTableName("T_BBMQuasiInput_");
-                var factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,'" +
-                        Parameters[RequiredParameters.Fixed_Effect.ToString()] + "']";
+                var factorComplete = Parameters[nameof(RequiredParameters.FactorTable)] + "[,'" +
+                        Parameters[nameof(RequiredParameters.Fixed_Effect)] + "']";
 
                 try
                 {
@@ -202,14 +202,14 @@ namespace Cyclops.DataModules
                         rCmd += string.Format(
                             "{0} <- data.matrix({1}[,2:ncol({1})])\n",
                             tmpInputTableName,
-                            Parameters[RequiredParameters.InputTableName.ToString()]);
+                            Parameters[nameof(RequiredParameters.InputTableName)]);
                     }
                     else
                     {
                         rCmd += string.Format(
                             "{0} <- {1}\n",
                             tmpInputTableName,
-                            Parameters[RequiredParameters.InputTableName.ToString()]);
+                            Parameters[nameof(RequiredParameters.InputTableName)]);
                     }
 
                     successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
@@ -226,11 +226,11 @@ namespace Cyclops.DataModules
                             "theta={4}, " +
                             "sinkFileName='')\n" +
                             "rm({1})\n",
-                            Parameters[RequiredParameters.NewTableName.ToString()],
+                            Parameters[nameof(RequiredParameters.NewTableName)],
                             tmpInputTableName,
-                            Parameters[RequiredParameters.FactorTable.ToString()],
-                            Parameters[RequiredParameters.Fixed_Effect.ToString()],
-                            Parameters[RequiredParameters.Theta.ToString()]);
+                            Parameters[nameof(RequiredParameters.FactorTable)],
+                            Parameters[nameof(RequiredParameters.Fixed_Effect)],
+                            Parameters[nameof(RequiredParameters.Theta)]);
 
                         successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
                     }

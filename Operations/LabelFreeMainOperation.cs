@@ -154,7 +154,7 @@ namespace Cyclops.Operations
 		/// </summary>
 		public void SetTypes()
 		{
-			switch (Parameters[RequiredParameters.Type.ToString()].ToLower())
+			switch (Parameters[nameof(RequiredParameters.Type)].ToLower())
 			{
 				case "log2":
 					m_LabelFreeTableName =

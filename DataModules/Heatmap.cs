@@ -140,18 +140,18 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.TableName)]))
             {
                 Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                     "The input table, " +
-                    Parameters[RequiredParameters.TableName.ToString()] +
+                    Parameters[nameof(RequiredParameters.TableName)] +
                     ", does not exist in the R work environment!",
                     ModuleName, StepNumber);
                 successful = false;
             }
 
             if (successful &&
-                Parameters[RequiredParameters.Mode.ToString()].Equals("FilterPvals", StringComparison.OrdinalIgnoreCase))
+                Parameters[nameof(RequiredParameters.Mode)].Equals("FilterPvals", StringComparison.OrdinalIgnoreCase))
             {
                 foreach (var s in Enum.GetNames(typeof(FilteredRequiredParameters)))
                 {
@@ -167,11 +167,11 @@ namespace Cyclops.DataModules
                     m_PValueThreshold = Parameters["PValue"];
                 }
 
-                if (!Model.RCalls.ContainsObject(Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]))
+                if (!Model.RCalls.ContainsObject(Parameters[nameof(FilteredRequiredParameters.SignificanceTable)]))
                 {
                     Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                         "Filter P-values was selected, but the significance table, " +
-                        Parameters[FilteredRequiredParameters.SignificanceTable.ToString()] +
+                        Parameters[nameof(FilteredRequiredParameters.SignificanceTable)] +
                         ", does not exist in the R work environment!",
                         ModuleName, StepNumber);
                     successful = false;
@@ -179,14 +179,14 @@ namespace Cyclops.DataModules
 
                 if (successful &&
                     !Model.RCalls.TableContainsColumn(
-                    Parameters[FilteredRequiredParameters.SignificanceTable.ToString()],
-                    Parameters[FilteredRequiredParameters.PValueColumn.ToString()]))
+                    Parameters[nameof(FilteredRequiredParameters.SignificanceTable)],
+                    Parameters[nameof(FilteredRequiredParameters.PValueColumn)]))
                 {
                     Model.LogWarning("Error Checking Parameters in Heatmap:\n" +
                         "Filter P-values was selected, but the significance table, " +
-                        Parameters[FilteredRequiredParameters.SignificanceTable.ToString()] +
+                        Parameters[nameof(FilteredRequiredParameters.SignificanceTable)] +
                         ", does not the specified Significance Column, " +
-                        Parameters[FilteredRequiredParameters.PValueColumn.ToString()] +
+                        Parameters[nameof(FilteredRequiredParameters.PValueColumn)] +
                         "!",
                         ModuleName, StepNumber);
                     successful = false;
@@ -279,7 +279,7 @@ namespace Cyclops.DataModules
         {
             var successful = true;
 
-            var nodeName = Parameters[RequiredParameters.Mode.ToString()];
+            var nodeName = Parameters[nameof(RequiredParameters.Mode)];
 
             if (string.Equals(nodeName, "standard", StringComparison.OrdinalIgnoreCase))
             {
@@ -304,9 +304,9 @@ namespace Cyclops.DataModules
 
             var filterTableParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                {"InputTableName", Parameters[FilteredRequiredParameters.SignificanceTable.ToString()]},
+                {"InputTableName", Parameters[nameof(FilteredRequiredParameters.SignificanceTable)]},
                 {"NewTableName", tFilterTable},
-                {"ColumnName", Parameters[FilteredRequiredParameters.PValueColumn.ToString()]},
+                {"ColumnName", Parameters[nameof(FilteredRequiredParameters.PValueColumn)]},
                 {"Operation", "<="},
                 {"Value", m_PValueThreshold}
             };
@@ -323,7 +323,7 @@ namespace Cyclops.DataModules
                 {
                     {"NewTableName", tFilterTable},
                     {"XTable", tFilterTable},
-                    {"YTable", Parameters[RequiredParameters.TableName.ToString()]},
+                    {"YTable", Parameters[nameof(RequiredParameters.TableName)]},
                     {"XLink", "row.names"},
                     {"YLink", "row.names"},
                     {"AllX", "TRUE"},
@@ -346,7 +346,7 @@ namespace Cyclops.DataModules
                     "{0} <- {0}[,-1]\n",
                     tFilterTable);
 
-            Parameters[RequiredParameters.TableName.ToString()] = tFilterTable;
+            Parameters[nameof(RequiredParameters.TableName)] = tFilterTable;
 
             try
             {
@@ -370,7 +370,7 @@ namespace Cyclops.DataModules
 
             var paramDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                {"InputTableName", Parameters[RequiredParameters.TableName.ToString()]},
+                {"InputTableName", Parameters[nameof(RequiredParameters.TableName)]},
                 {"NewTableName", tMostAbundant},
                 {"NumberOfMostAbundant", m_NumberOfTopMostAbundant}
             };
@@ -380,7 +380,7 @@ namespace Cyclops.DataModules
             };
             var successful = tma.PerformOperation();
 
-            Parameters[RequiredParameters.TableName.ToString()] = tMostAbundant;
+            Parameters[nameof(RequiredParameters.TableName)] = tMostAbundant;
 
             return successful;
         }
@@ -392,7 +392,7 @@ namespace Cyclops.DataModules
             CheckForPlotsDirectory();
 
             var rCmd = "";
-            var plotFileName = Parameters[RequiredParameters.PlotFileName.ToString()];
+            var plotFileName = Parameters[nameof(RequiredParameters.PlotFileName)];
             var plotFilePath = Path.Combine(Model.WorkDirectory, "Plots", plotFileName);
             var matrixFileName = "hm_" + Path.GetFileNameWithoutExtension(plotFileName);
 
@@ -443,7 +443,7 @@ namespace Cyclops.DataModules
                 "main=paste('{11}', '\n', nrow({1}), 'Proteins'))\n" +
                 "{0} <- jnb_GetHeatmapMatrix({0})\n"
                 , matrixFileName
-                , Parameters[RequiredParameters.TableName.ToString()]
+                , Parameters[nameof(RequiredParameters.TableName)]
                 , m_ClusterRows
                 , m_ClusterColumns
                 , m_Distance
@@ -453,7 +453,7 @@ namespace Cyclops.DataModules
                 , m_Scale
                 , m_NaColor
                 , m_ShowRowNames ? "" : "labRow=rep('', nrow(" +
-                    Parameters[RequiredParameters.TableName.ToString()] +
+                    Parameters[nameof(RequiredParameters.TableName)] +
                     ")), "
                 , Main
             );

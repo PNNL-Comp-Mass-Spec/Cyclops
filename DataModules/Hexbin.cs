@@ -120,11 +120,11 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.TableName.ToString()]))
+                Parameters[nameof(RequiredParameters.TableName)]))
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified input table: " +
-                    Parameters[RequiredParameters.TableName.ToString()],
+                    Parameters[nameof(RequiredParameters.TableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -137,7 +137,7 @@ namespace Cyclops.DataModules
                     Directory.CreateDirectory(plotDirectory);
                 }
 
-                var plotFilePath = Path.Combine(plotDirectory, Parameters[RequiredParameters.PlotFileName.ToString()]);
+                var plotFilePath = Path.Combine(plotDirectory, Parameters[nameof(RequiredParameters.PlotFileName)]);
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(plotFilePath);
             }
 

@@ -128,32 +128,32 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+                Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified input table: " +
-                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.FactorTable.ToString()]))
+                Parameters[nameof(RequiredParameters.FactorTable)]))
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified factor table: " +
-                    Parameters[RequiredParameters.FactorTable.ToString()],
+                    Parameters[nameof(RequiredParameters.FactorTable)],
                     ModuleName, StepNumber);
                 successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.FactorTable.ToString()],
-                Parameters[RequiredParameters.Fixed_Effect.ToString()]))
+                Parameters[nameof(RequiredParameters.FactorTable)],
+                Parameters[nameof(RequiredParameters.Fixed_Effect)]))
             {
                 Model.LogError(string.Format(
                     "Factor table ({0}) does not contain the specified " +
                     "column ({1})",
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()]),
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.Fixed_Effect)]),
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -170,9 +170,9 @@ namespace Cyclops.DataModules
             bool successful;
 
             var tmpTable = Model.RCalls.GetTemporaryTableName("tmpBBMTable_");
-            var factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
-                                      Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
-            var tmpInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            var factorComplete = Parameters[nameof(RequiredParameters.FactorTable)] + "[,\"" +
+                                      Parameters[nameof(RequiredParameters.Fixed_Effect)] + "\"]";
+            var tmpInputTableName = Parameters[nameof(RequiredParameters.InputTableName)];
 
             try
             {
@@ -182,7 +182,7 @@ namespace Cyclops.DataModules
                 {
                     rCmd += string.Format(
                         "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
-                        Parameters[RequiredParameters.InputTableName.ToString()]);
+                        Parameters[nameof(RequiredParameters.InputTableName)]);
                     tmpInputTableName += "_tmpT";
                 }
 
@@ -190,8 +190,8 @@ namespace Cyclops.DataModules
 
                 GetOrganizedFactorsVector(
                     tmpInputTableName,
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()],
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.Fixed_Effect)],
                     StepNumber,
                     m_MergeColumn,
                     "tmp_OrgFactor4BBM_");
@@ -212,10 +212,10 @@ namespace Cyclops.DataModules
                         "{0} <- cbind('pValue'={4}, {1})\n" +
                         "colnames({0})[1] <- 'pValue'\n" +
                         "rm({4})\n",
-                        Parameters[RequiredParameters.NewTableName.ToString()],
+                        Parameters[nameof(RequiredParameters.NewTableName)],
                         tmpInputTableName,
                         factorComplete,
-                        Parameters[RequiredParameters.Theta.ToString()],
+                        Parameters[nameof(RequiredParameters.Theta)],
                         tmpTable);
 
                     if (Parameters.ContainsKey("removePeptideColumn"))

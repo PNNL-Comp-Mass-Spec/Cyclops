@@ -249,7 +249,7 @@ namespace Cyclops.DataModules
             var navBarNodes = new List<HtmlLinkNode>
             {
                 new HtmlLinkNode(
-                    "Home", Parameters[RequiredParameters.FileName.ToString()], false),
+                    "Home", Parameters[nameof(RequiredParameters.FileName)], false),
                 new HtmlLinkNode(
                     "Datasets", FileNameVault["DatasetsHtmlFileName"], false),
                 new HtmlLinkNode(

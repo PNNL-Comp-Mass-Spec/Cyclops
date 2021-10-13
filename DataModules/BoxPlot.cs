@@ -263,7 +263,7 @@ namespace Cyclops.DataModules
 
                 PlotFileName =
                     Path.Combine(s_PlotDirectory,
-                    Parameters[RequiredParameters.PlotFileName.ToString()]).Replace("\\", "/");
+                    Parameters[nameof(RequiredParameters.PlotFileName)]).Replace("\\", "/");
             }
 
             return true;

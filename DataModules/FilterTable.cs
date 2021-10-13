@@ -122,11 +122,11 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                    Parameters[RequiredParameters.InputTableName.ToString()]))
+                    Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogError("Error R Environment does not contain the " +
                     "input table: " +
-                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -145,11 +145,11 @@ namespace Cyclops.DataModules
             // ToDo: Validate this code
             var rCmd = string.Format(
                 "{0} <- {1}[{1}[,'{2}'] {3} {4},]\n",
-                Parameters[RequiredParameters.NewTableName.ToString()],
-                Parameters[RequiredParameters.InputTableName.ToString()],
-                Parameters[RequiredParameters.ColumnName.ToString()],
-                Parameters[RequiredParameters.Operation.ToString()],
-                Parameters[RequiredParameters.Value.ToString()]);
+                Parameters[nameof(RequiredParameters.NewTableName)],
+                Parameters[nameof(RequiredParameters.InputTableName)],
+                Parameters[nameof(RequiredParameters.ColumnName)],
+                Parameters[nameof(RequiredParameters.Operation)],
+                Parameters[nameof(RequiredParameters.Value)]);
 
             try
             {
@@ -158,7 +158,7 @@ namespace Cyclops.DataModules
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while filtering " +
-                    "table: " + Parameters[RequiredParameters.InputTableName.ToString()] + ": " + ex.Message,
+                    "table: " + Parameters[nameof(RequiredParameters.InputTableName)] + ": " + ex.Message,
                     ModuleName, StepNumber);
                 successful = false;
             }

@@ -129,19 +129,19 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogError("ERROR 'InputTableName' object, " +
-                    Parameters[RequiredParameters.InputTableName.ToString()] +
+                    Parameters[nameof(RequiredParameters.InputTableName)] +
                     ", not present in R environment!", ModuleName, StepNumber);
                 successful = false;
             }
 
             if (successful &&
-                !Model.RCalls.ContainsObject(Parameters[RequiredParameters.RowMetadataTable.ToString()]))
+                !Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.RowMetadataTable)]))
             {
                 Model.LogError("ERROR 'RowMetadataTable' object, " +
-                    Parameters[RequiredParameters.RowMetadataTable.ToString()] +
+                    Parameters[nameof(RequiredParameters.RowMetadataTable)] +
                     ", not present in R environment!",
                     ModuleName, StepNumber);
                 successful = false;
@@ -149,13 +149,13 @@ namespace Cyclops.DataModules
 
             if (successful &&
                 !Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.RowMetadataTable.ToString()],
-                Parameters[RequiredParameters.ProteinInfo_ProteinCol.ToString()]))
+                Parameters[nameof(RequiredParameters.RowMetadataTable)],
+                Parameters[nameof(RequiredParameters.ProteinInfo_ProteinCol)]))
             {
                 Model.LogError("ERROR 'RowMetadataTable' object, " +
-                    Parameters[RequiredParameters.RowMetadataTable.ToString()] +
+                    Parameters[nameof(RequiredParameters.RowMetadataTable)] +
                     ", does not contain the 'ProteinInfo_ProteinCol' column: " +
-                    Parameters[RequiredParameters.ProteinInfo_ProteinCol.ToString()] +
+                    Parameters[nameof(RequiredParameters.ProteinInfo_ProteinCol)] +
                     "! This column designates the protein count within the " +
                     "RowMetadataTable.",
                     ModuleName, StepNumber);
@@ -164,13 +164,13 @@ namespace Cyclops.DataModules
 
             if (successful &&
                 !Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.RowMetadataTable.ToString()],
-                Parameters[RequiredParameters.ProteinInfo_PeptideCol.ToString()]))
+                Parameters[nameof(RequiredParameters.RowMetadataTable)],
+                Parameters[nameof(RequiredParameters.ProteinInfo_PeptideCol)]))
             {
                 Model.LogError("ERROR 'RowMetadataTable' object, " +
-                    Parameters[RequiredParameters.RowMetadataTable.ToString()] +
+                    Parameters[nameof(RequiredParameters.RowMetadataTable)] +
                     ", does not contain the 'ProteinInfo_PeptideCol' column: " +
-                    Parameters[RequiredParameters.ProteinInfo_PeptideCol.ToString()] +
+                    Parameters[nameof(RequiredParameters.ProteinInfo_PeptideCol)] +
                     "! This column designates the peptide count within the " +
                     "RowMetadataTable.",
                     ModuleName, StepNumber);
@@ -179,13 +179,13 @@ namespace Cyclops.DataModules
 
             if (successful &&
                 !Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.RowMetadataTable.ToString()],
-                Parameters[RequiredParameters.PeptideColumn.ToString()]))
+                Parameters[nameof(RequiredParameters.RowMetadataTable)],
+                Parameters[nameof(RequiredParameters.PeptideColumn)]))
             {
                 Model.LogError("ERROR 'RowMetadataTable' object, " +
-                    Parameters[RequiredParameters.RowMetadataTable.ToString()] +
+                    Parameters[nameof(RequiredParameters.RowMetadataTable)] +
                     ", does not contain the 'PeptideColumn' column: " +
-                    Parameters[RequiredParameters.PeptideColumn.ToString()] +
+                    Parameters[nameof(RequiredParameters.PeptideColumn)] +
                     "! This column designates the peptide within the " +
                     "RowMetadataTable, that correspond to the rownames in " +
                     "the InputTableName (data table).",
@@ -195,13 +195,13 @@ namespace Cyclops.DataModules
 
             if (successful &&
                 !Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.RowMetadataTable.ToString()],
-                Parameters[RequiredParameters.ProteinColumn.ToString()]))
+                Parameters[nameof(RequiredParameters.RowMetadataTable)],
+                Parameters[nameof(RequiredParameters.ProteinColumn)]))
             {
                 Model.LogError("ERROR 'RowMetadataTable' object, " +
-                    Parameters[RequiredParameters.RowMetadataTable.ToString()] +
+                    Parameters[nameof(RequiredParameters.RowMetadataTable)] +
                     ", does not contain the 'ProteinColumn' column: " +
-                    Parameters[RequiredParameters.ProteinColumn.ToString()] +
+                    Parameters[nameof(RequiredParameters.ProteinColumn)] +
                     "! This column designates the proteins within the " +
                     "RowMetadataTable.",
                     ModuleName, StepNumber);
@@ -266,18 +266,18 @@ namespace Cyclops.DataModules
                     "rm({0})\n\n",
 
                     tTable,
-                    Parameters[RequiredParameters.NewTableName.ToString()],
-                    Parameters[RequiredParameters.RowMetadataTable.ToString()],
-                    Parameters[RequiredParameters.ProteinColumn.ToString()],
-                    Parameters[RequiredParameters.PeptideColumn.ToString()],
-                    Parameters[RequiredParameters.InputTableName.ToString()],
-                    Parameters[RequiredParameters.ProteinInfo_ProteinCol.ToString()],
-                    Parameters[RequiredParameters.ProteinInfo_PeptideCol.ToString()],
+                    Parameters[nameof(RequiredParameters.NewTableName)],
+                    Parameters[nameof(RequiredParameters.RowMetadataTable)],
+                    Parameters[nameof(RequiredParameters.ProteinColumn)],
+                    Parameters[nameof(RequiredParameters.PeptideColumn)],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
+                    Parameters[nameof(RequiredParameters.ProteinInfo_ProteinCol)],
+                    Parameters[nameof(RequiredParameters.ProteinInfo_PeptideCol)],
                     m_MaxProtValue,
                     m_MinProtValue,
                     m_MaxPepValue,
                     m_MinPepValue,
-                    Parameters[RequiredParameters.NewRowMetadataTableName.ToString()]
+                    Parameters[nameof(RequiredParameters.NewRowMetadataTableName)]
                 );
 
             try

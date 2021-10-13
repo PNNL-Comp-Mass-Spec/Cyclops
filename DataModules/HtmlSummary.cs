@@ -171,7 +171,7 @@ namespace Cyclops.DataModules
             var navBarNodes = new List<HtmlLinkNode>
             {
                 new HtmlLinkNode(
-                    "Home", Parameters[RequiredParameters.FileName.ToString()], false),
+                    "Home", Parameters[nameof(RequiredParameters.FileName)], false),
                 new HtmlLinkNode(
                     "Datasets", datasetsFileName, false),
                 new HtmlLinkNode(
@@ -274,7 +274,7 @@ namespace Cyclops.DataModules
 
             summaryHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
 
-            var summaryWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, Parameters[RequiredParameters.FileName.ToString()]));
+            var summaryWriter = new StreamWriter(Path.Combine(Model.WorkDirectory, Parameters[nameof(RequiredParameters.FileName)]));
             summaryWriter.Write(summaryHtml);
             summaryWriter.Close();
 

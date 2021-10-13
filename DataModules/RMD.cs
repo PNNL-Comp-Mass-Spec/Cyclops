@@ -117,40 +117,40 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.InputTableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogError("Unable to find the input table, " +
-                    Parameters[RequiredParameters.InputTableName.ToString()] +
+                    Parameters[nameof(RequiredParameters.InputTableName)] +
                     ", in the R environment!", ModuleName, StepNumber);
                 successful = false;
             }
 
-            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.FactorTable.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.FactorTable)]))
             {
                 Model.LogError("Unable to find the input table, " +
-                    Parameters[RequiredParameters.InputTableName.ToString()] +
+                    Parameters[nameof(RequiredParameters.InputTableName)] +
                     ", in the R environment!", ModuleName, StepNumber);
                 successful = false;
             }
 
             if (successful && !Model.RCalls.TableContainsColumn(
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.BioRep.ToString()]))
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.BioRep)]))
             {
                 Model.LogError("Factor table does not contain BioRep:\n" +
-                    "FactorTable: " + Parameters[RequiredParameters.FactorTable.ToString()] +
-                    "BioRep: " + Parameters[RequiredParameters.BioRep.ToString()],
+                    "FactorTable: " + Parameters[nameof(RequiredParameters.FactorTable)] +
+                    "BioRep: " + Parameters[nameof(RequiredParameters.BioRep)],
                     ModuleName, StepNumber);
                 successful = false;
             }
 
             if (successful && !Model.RCalls.TableContainsColumn(
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.BioRep.ToString()]))
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.BioRep)]))
             {
                 Model.LogError("Factor table does not contain ConsolidateFactor:\n" +
-                    "FactorTable: " + Parameters[RequiredParameters.FactorTable.ToString()] +
-                    "BioRep: " + Parameters[RequiredParameters.ConsolidateFactor.ToString()],
+                    "FactorTable: " + Parameters[nameof(RequiredParameters.FactorTable)] +
+                    "BioRep: " + Parameters[nameof(RequiredParameters.ConsolidateFactor)],
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -173,11 +173,11 @@ namespace Cyclops.DataModules
                 "techreps=as.numeric({2}${4}))\n" +
                 "{5} <- {1}[,{0}$Keep_runs]\n",
                 tTable,
-                Parameters[RequiredParameters.InputTableName.ToString()],
-                Parameters[RequiredParameters.FactorTable.ToString()],
-                Parameters[RequiredParameters.BioRep.ToString()],
-                Parameters[RequiredParameters.ConsolidateFactor.ToString()],
-                Parameters[RequiredParameters.NewTableName.ToString()]);
+                Parameters[nameof(RequiredParameters.InputTableName)],
+                Parameters[nameof(RequiredParameters.FactorTable)],
+                Parameters[nameof(RequiredParameters.BioRep)],
+                Parameters[nameof(RequiredParameters.ConsolidateFactor)],
+                Parameters[nameof(RequiredParameters.NewTableName)]);
 
             try
             {

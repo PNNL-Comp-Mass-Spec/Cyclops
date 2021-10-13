@@ -126,36 +126,36 @@ namespace Cyclops.DataModules
 
                 if (successful &&
                     !Model.RCalls.ContainsObject(
-                    Parameters[RequiredParameters.InputTableName.ToString()]))
+                    Parameters[nameof(RequiredParameters.InputTableName)]))
                 {
                     Model.LogError("Error encountered: R work environment " +
                         "does not contain the 'InputTableName': " +
-                        Parameters[RequiredParameters.InputTableName.ToString()],
+                        Parameters[nameof(RequiredParameters.InputTableName)],
                         ModuleName, StepNumber);
                     successful = false;
                 }
 
                 if (successful &&
                     !Model.RCalls.ContainsObject(
-                    Parameters[RequiredParameters.FactorTable.ToString()]))
+                    Parameters[nameof(RequiredParameters.FactorTable)]))
                 {
                     Model.LogError("Error encountered: R work environment " +
                         "does not contain the 'FactorTable': " +
-                        Parameters[RequiredParameters.FactorTable.ToString()],
+                        Parameters[nameof(RequiredParameters.FactorTable)],
                         ModuleName, StepNumber);
                     successful = false;
                 }
 
                 if (successful &&
                     !Model.RCalls.TableContainsColumn(
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.FactorColumn.ToString()]))
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.FactorColumn)]))
                 {
                     Model.LogError("Error encountered: R work environment " +
                         "'FactorTable', " +
-                        Parameters[RequiredParameters.FactorTable.ToString()] +
+                        Parameters[nameof(RequiredParameters.FactorTable)] +
                         ", does not contain the 'FactorColumn', " +
-                        Parameters[RequiredParameters.FactorColumn.ToString()],
+                        Parameters[nameof(RequiredParameters.FactorColumn)],
                         ModuleName, StepNumber);
                     successful = false;
                 }
@@ -177,9 +177,9 @@ namespace Cyclops.DataModules
         public bool CleanDataAndColumnFactorsFunction()
         {
             var temporaryTableName = GetOrganizedFactorsVector(
-                Parameters[RequiredParameters.InputTableName.ToString()],
-                Parameters[RequiredParameters.FactorTable.ToString()],
-                Parameters[RequiredParameters.FactorColumn.ToString()],
+                Parameters[nameof(RequiredParameters.InputTableName)],
+                Parameters[nameof(RequiredParameters.FactorTable)],
+                Parameters[nameof(RequiredParameters.FactorColumn)],
                 StepNumber,
                 MergeColumn,
                 "T_Alias_");
@@ -193,9 +193,9 @@ namespace Cyclops.DataModules
             }
 
             var successful = AreDataColumnLengthAndColumnMetadataRowsEqual(
-                Parameters[RequiredParameters.InputTableName.ToString()],
+                Parameters[nameof(RequiredParameters.InputTableName)],
                 temporaryTableName,
-                Parameters[RequiredParameters.FactorColumn.ToString()]);
+                Parameters[nameof(RequiredParameters.FactorColumn)]);
 
             return successful;
         }

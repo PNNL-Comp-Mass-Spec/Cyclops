@@ -131,11 +131,11 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.TableName.ToString()]))
+                Parameters[nameof(RequiredParameters.TableName)]))
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified input table: " +
-                    Parameters[RequiredParameters.TableName.ToString()],
+                    Parameters[nameof(RequiredParameters.TableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -173,7 +173,7 @@ namespace Cyclops.DataModules
                     Directory.CreateDirectory(plotDirectory);
                 }
 
-                var fileName = Parameters[RequiredParameters.PlotFileName.ToString()];
+                var fileName = Parameters[nameof(RequiredParameters.PlotFileName)];
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(Path.Combine(plotDirectory, fileName));
             }
 
@@ -190,7 +190,7 @@ namespace Cyclops.DataModules
 
             var rCmd = "require(grDevices)\nrequire(gplots)\n";
 
-            var imageType = Parameters[RequiredParameters.Image.ToString()];
+            var imageType = Parameters[nameof(RequiredParameters.Image)];
 
             switch (imageType.ToLower())
             {
@@ -251,7 +251,7 @@ namespace Cyclops.DataModules
             bool successful;
             var tTable = Model.RCalls.GetTemporaryTableName("T_CorrAnalysis_");
             var SkipFirstColumn = Convert.ToBoolean(
-                Parameters[RequiredParameters.SkipTheFirstColumn.ToString()]);
+                Parameters[nameof(RequiredParameters.SkipTheFirstColumn)]);
 
             var rCmd = string.Format(
                 "require(Hmisc)\n" +
@@ -259,11 +259,11 @@ namespace Cyclops.DataModules
                 "{4} <- list(cor={0}, n={0}$n, prob={0}$P)\n" +
                 "rm({0})\n",
                 tTable,
-                Parameters[RequiredParameters.TableName.ToString()],
+                Parameters[nameof(RequiredParameters.TableName)],
                 SkipFirstColumn ? "[,-1]" : "",
                 Parameters.ContainsKey("Type") ? ", type=c(\"" +
                     Parameters["Type"] + "\")" : "",
-                Parameters[RequiredParameters.CorrelationListName.ToString()]);
+                Parameters[nameof(RequiredParameters.CorrelationListName)]);
 
             try
             {
@@ -299,8 +299,8 @@ namespace Cyclops.DataModules
                 "scale=c('none'), " +
                 "margins=c(10,10))\n" +
                 "rm(BlueRed)\nrm(cmap)\n",
-                "hm_" + Parameters[RequiredParameters.CorrelationListName.ToString()],
-                Parameters[RequiredParameters.CorrelationListName.ToString()],
+                "hm_" + Parameters[nameof(RequiredParameters.CorrelationListName)],
+                Parameters[nameof(RequiredParameters.CorrelationListName)],
                 Main);
             return rCmd;
         }

@@ -124,11 +124,11 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.TableName.ToString()]))
+                Parameters[nameof(RequiredParameters.TableName)]))
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified input table: " +
-                    Parameters[RequiredParameters.TableName.ToString()],
+                    Parameters[nameof(RequiredParameters.TableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -184,7 +184,7 @@ namespace Cyclops.DataModules
                     Directory.CreateDirectory(plotDirectory);
                 }
 
-                var plotFilePath = Path.Combine(plotDirectory, Parameters[RequiredParameters.PlotFileName.ToString()]);
+                var plotFilePath = Path.Combine(plotDirectory, Parameters[nameof(RequiredParameters.PlotFileName)]);
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(plotFilePath);
             }
 
@@ -208,9 +208,9 @@ namespace Cyclops.DataModules
                          "file=\"{1}\", Data.Columns='{2}', " +
                          "IMGwidth={3}, " +
                          "IMGheight={4}, FNTsize={5}, colF=\"{6}\", colB=\"{7}\")",
-                         Parameters[RequiredParameters.TableName.ToString()],
+                         Parameters[nameof(RequiredParameters.TableName)],
                          PlotFileName,
-                         Parameters[RequiredParameters.DataColumns.ToString()],
+                         Parameters[nameof(RequiredParameters.DataColumns)],
                          Width,
                          Height,
                          FontSize,

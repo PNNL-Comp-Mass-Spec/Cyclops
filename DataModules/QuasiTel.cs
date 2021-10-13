@@ -124,32 +124,32 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+                Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified input table: " +
-                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.FactorTable.ToString()]))
+                Parameters[nameof(RequiredParameters.FactorTable)]))
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified factor table: " +
-                    Parameters[RequiredParameters.FactorTable.ToString()],
+                    Parameters[nameof(RequiredParameters.FactorTable)],
                     ModuleName, StepNumber);
                 successful = false;
             }
             if (!Model.RCalls.TableContainsColumn(
-                Parameters[RequiredParameters.FactorTable.ToString()],
-                Parameters[RequiredParameters.Fixed_Effect.ToString()]))
+                Parameters[nameof(RequiredParameters.FactorTable)],
+                Parameters[nameof(RequiredParameters.Fixed_Effect)]))
             {
                 Model.LogError(string.Format(
                     "Factor table ({0}) does not contain the specified " +
                     "column ({1})",
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()]),
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.Fixed_Effect)]),
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -169,9 +169,9 @@ namespace Cyclops.DataModules
             var tmpFactorTable = GetTemporaryTableName("tmpQuasitelFactor_");
             var tmpFactor1 = GetTemporaryTableName("tmpQuasiFactor1_");
             var tmpFactor2 = GetTemporaryTableName("tmpQuasiFactor2_");
-            var factorComplete = Parameters[RequiredParameters.FactorTable.ToString()] + "[,\"" +
-                                 Parameters[RequiredParameters.Fixed_Effect.ToString()] + "\"]";
-            var tInputTableName = Parameters[RequiredParameters.InputTableName.ToString()];
+            var factorComplete = Parameters[nameof(RequiredParameters.FactorTable)] + "[,\"" +
+                                 Parameters[nameof(RequiredParameters.Fixed_Effect)] + "\"]";
+            var tInputTableName = Parameters[nameof(RequiredParameters.InputTableName)];
 
             try
             {
@@ -181,7 +181,7 @@ namespace Cyclops.DataModules
                 {
                     rCmd += string.Format(
                         "{0}_tmpT <- data.matrix({0}[,2:ncol({0})])\n",
-                        Parameters[RequiredParameters.InputTableName.ToString()]);
+                        Parameters[nameof(RequiredParameters.InputTableName)]);
                     tInputTableName += "_tmpT";
                 }
 
@@ -189,8 +189,8 @@ namespace Cyclops.DataModules
 
                 GetOrganizedFactorsVector(
                     tInputTableName,
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.Fixed_Effect.ToString()],
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.Fixed_Effect)],
                     StepNumber,
                     m_MergeColumn,
                     "tmp_OrgFactor4BBM_");
@@ -215,8 +215,8 @@ namespace Cyclops.DataModules
                                 "{2} == '{3}' | {2} == '{4}', " +
                                 "select=c('Alias'))))\n",
                                 tmpFactorTable,
-                                Parameters[RequiredParameters.FactorTable.ToString()],
-                                Parameters[RequiredParameters.Fixed_Effect.ToString()],
+                                Parameters[nameof(RequiredParameters.FactorTable)],
+                                Parameters[nameof(RequiredParameters.Fixed_Effect)],
                                 factorList[i],
                                 factorList[j]);
                             // grab the relevant data
@@ -235,15 +235,15 @@ namespace Cyclops.DataModules
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}', select=c('Alias'))))\n",
                                 tmpFactor1,
-                                Parameters[RequiredParameters.FactorTable.ToString()],
-                                Parameters[RequiredParameters.Fixed_Effect.ToString()],
+                                Parameters[nameof(RequiredParameters.FactorTable)],
+                                Parameters[nameof(RequiredParameters.Fixed_Effect)],
                                 factorList[i]);
                             rCmd += string.Format(
                                 "{0} <- as.vector(unlist(subset({1}, " +
                                 "{2} == '{3}', select=c('Alias'))))\n",
                                 tmpFactor2,
-                                Parameters[RequiredParameters.FactorTable.ToString()],
-                                Parameters[RequiredParameters.Fixed_Effect.ToString()],
+                                Parameters[nameof(RequiredParameters.FactorTable)],
+                                Parameters[nameof(RequiredParameters.Fixed_Effect)],
                                 factorList[j]);
                             // run the analysis
                             rCmd += string.Format(

@@ -157,7 +157,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if data is imported successfully</returns>
         public bool ImportData()
         {
-            switch (Parameters[RequiredParameters.Source.ToString()].ToLower())
+            switch (Parameters[nameof(RequiredParameters.Source)].ToLower())
             {
                 case "sqlite":
                     return ProcessSQLiteImport();
@@ -356,7 +356,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ImportSQLiteTable()
         {
-            var tableType = Parameters[RequiredParameters.TableType.ToString()];
+            var tableType = Parameters[nameof(RequiredParameters.TableType)];
 
             if (string.Equals(tableType, "DataTable", StringComparison.OrdinalIgnoreCase))
             {
@@ -374,7 +374,7 @@ namespace Cyclops.DataModules
             }
 
             Model.LogError("Unable to recognize table type to import from " +
-                           "SQLite: " + Parameters[RequiredParameters.TableType.ToString()],
+                           "SQLite: " + Parameters[nameof(RequiredParameters.TableType)],
                            ModuleName, StepNumber);
             return false;
         }
@@ -430,8 +430,8 @@ namespace Cyclops.DataModules
                 "{1} <- fetch(rt, n = -1)\n" +
                 "dbClearResult(rt)\n" +
                 "DataCleaning({1})",
-                Parameters[DatabaseRequiredParameters.InputTableName.ToString()],
-                Parameters[RequiredParameters.NewTableName.ToString()]);
+                Parameters[nameof(DatabaseRequiredParameters.InputTableName)],
+                Parameters[nameof(RequiredParameters.NewTableName)]);
 
             try
             {
@@ -460,7 +460,7 @@ namespace Cyclops.DataModules
                 var rCmd = string.Format(
                     "rownames({0}) <- {0}[,{1}]\n" +
                     "{0} <- {0}[,-{1}]",
-                    Parameters[RequiredParameters.NewTableName.ToString()],
+                    Parameters[nameof(RequiredParameters.NewTableName)],
                     Parameters["rownames"]);
 
                 try
@@ -523,7 +523,7 @@ namespace Cyclops.DataModules
 
             var rCmd = string.Format(
                 "{0} <- read.csv(file=\"{1}\")\n",
-                Parameters[RequiredParameters.NewTableName.ToString()], filePathForR);
+                Parameters[nameof(RequiredParameters.NewTableName)], filePathForR);
 
             return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
         }
@@ -547,7 +547,7 @@ namespace Cyclops.DataModules
 
             var rCmd = string.Format(
                 "{0} <- read.table(file=\"{1}\", sep=\"\\t\", header=T)\n",
-                Parameters[RequiredParameters.NewTableName.ToString()],
+                Parameters[nameof(RequiredParameters.NewTableName)],
                 filePathForR);
 
             return Model.RCalls.Run(rCmd, ModuleName, StepNumber);

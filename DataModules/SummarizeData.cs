@@ -119,11 +119,11 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+                Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogWarning("WARNING in Summarize Data: The R environment does " +
                     "not contain the input table, " +
-                    Parameters[RequiredParameters.InputTableName.ToString()]);
+                    Parameters[nameof(RequiredParameters.InputTableName)]);
                 successful = false;
             }
 
@@ -139,8 +139,8 @@ namespace Cyclops.DataModules
             bool successful;
 
             var rCmd = string.Format("{0} <- jnb_Summarize({1})",
-                Parameters[RequiredParameters.NewTableName.ToString()],
-                Parameters[RequiredParameters.InputTableName.ToString()]);
+                Parameters[nameof(RequiredParameters.NewTableName)],
+                Parameters[nameof(RequiredParameters.InputTableName)]);
 
             try
             {

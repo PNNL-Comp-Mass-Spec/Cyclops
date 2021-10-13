@@ -128,11 +128,11 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+                Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogWarning("WARNING in RRollup: The R environment does " +
                     "not contain the input table, " +
-                    Parameters[RequiredParameters.InputTableName.ToString()]);
+                    Parameters[nameof(RequiredParameters.InputTableName)]);
                 successful = false;
             }
 
@@ -191,9 +191,9 @@ namespace Cyclops.DataModules
                     "Data={1}, ProtInfo={2}, minPresence={3}, Mode=\"{4}\", " +
                     "protInfo_ProtCol={5}, protInfo_PepCol={6}, minOverlap={7}, " +
                     "oneHitWonders={8}, gpvalue={9}, gminPCount={10}, center={11})",
-                    Parameters[RequiredParameters.NewTableName.ToString()],     // 0
-                    Parameters[RequiredParameters.InputTableName.ToString()],   // 1
-                    Parameters[RequiredParameters.ProteinInfoTable.ToString()], // 2
+                    Parameters[nameof(RequiredParameters.NewTableName)],     // 0
+                    Parameters[nameof(RequiredParameters.InputTableName)],   // 1
+                    Parameters[nameof(RequiredParameters.ProteinInfoTable)], // 2
                     m_MinimumPresence,                                          // 3
                     m_Mode,                                                     // 4
                     m_ProteinInfo_ProteinColumn,                                // 5

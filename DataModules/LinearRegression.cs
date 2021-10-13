@@ -119,32 +119,32 @@ namespace Cyclops.DataModules
             }
 
             if (!Model.RCalls.ContainsObject(
-                Parameters[RequiredParameters.InputTableName.ToString()]))
+                Parameters[nameof(RequiredParameters.InputTableName)]))
             {
                 Model.LogWarning("WARNING in Linear Regression: The R environment does " +
                     "not contain the input table, " +
-                    Parameters[RequiredParameters.InputTableName.ToString()]);
+                    Parameters[nameof(RequiredParameters.InputTableName)]);
                 successful = false;
             }
 
             // Check that the factorTable Exists
-            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.FactorTable.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.FactorTable)]))
             {
                 Model.LogError(string.Format("Error encountered in LinearRegression, " +
                     "{0} factor table was not found in the R environment.",
-                    Parameters[RequiredParameters.FactorTable.ToString()]),
+                    Parameters[nameof(RequiredParameters.FactorTable)]),
                     ModuleName, StepNumber);
                 successful = false;
             }
 
             // Check that the factorTable contains the ConsolidationFactor column
-            if (!Model.RCalls.TableContainsColumn(Parameters[RequiredParameters.FactorTable.ToString()],
-                Parameters[RequiredParameters.ConsolidationFactor.ToString()]))
+            if (!Model.RCalls.TableContainsColumn(Parameters[nameof(RequiredParameters.FactorTable)],
+                Parameters[nameof(RequiredParameters.ConsolidationFactor)]))
             {
                 Model.LogError(string.Format("Error encountered in LinearRegression, " +
                     "{0} factor table does not contain the column, {1}!",
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.ConsolidationFactor.ToString()]),
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.ConsolidationFactor)]),
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -163,11 +163,11 @@ namespace Cyclops.DataModules
             var rCmd = string.Format("{0} <- LinReg_normalize(" +
                     "x={1}, factorTable={2}, factorCol=\"{3}\", " +
                     "reference={4})",
-                    Parameters[RequiredParameters.NewTableName.ToString()],
-                    Parameters[RequiredParameters.InputTableName.ToString()],
-                    Parameters[RequiredParameters.FactorTable.ToString()],
-                    Parameters[RequiredParameters.ConsolidationFactor.ToString()],
-                    Parameters[RequiredParameters.Variable.ToString()]);
+                    Parameters[nameof(RequiredParameters.NewTableName)],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
+                    Parameters[nameof(RequiredParameters.FactorTable)],
+                    Parameters[nameof(RequiredParameters.ConsolidationFactor)],
+                    Parameters[nameof(RequiredParameters.Variable)]);
 
             try
             {

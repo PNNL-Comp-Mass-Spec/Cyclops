@@ -148,25 +148,25 @@ namespace Cyclops.DataModules
             {
                 string sql;
 
-                if (Parameters[RequiredParameters.FactorColumn.ToString()].Equals("*"))
+                if (Parameters[nameof(RequiredParameters.FactorColumn)].Equals("*"))
                 {
                     var columnNameList =
                         m_SQLiteReader.GetColumnNames(
-                        Parameters[RequiredParameters.InputTableName.ToString()]);
+                        Parameters[nameof(RequiredParameters.InputTableName)]);
                     var columnNames = Utilities.MiscellaneousFunctions.Concatenate(columnNameList, ",", false);
 
                     sql = string.Format(
                          "SELECT {0} FROM {1} GROUP BY {0};",
                          columnNames,
-                         Parameters[RequiredParameters.InputTableName.ToString()]);
+                         Parameters[nameof(RequiredParameters.InputTableName)]);
                 }
                 else // single column
                 {
                     sql = string.Format(
                          "SELECT {0} FROM {1} GROUP BY {0} " +
                          "HAVING {0} NOT LIKE '';",
-                         Parameters[RequiredParameters.FactorColumn.ToString()],
-                         Parameters[RequiredParameters.InputTableName.ToString()]);
+                         Parameters[nameof(RequiredParameters.FactorColumn)],
+                         Parameters[nameof(RequiredParameters.InputTableName)]);
                 }
 
                 var peptides = m_SQLiteReader.SelectTable(sql);
@@ -177,19 +177,19 @@ namespace Cyclops.DataModules
                     var missedCleavageCounter = 0;
 
                     if (Parameters[
-                        RequiredParameters.FactorColumn.ToString()].Equals("*"))
+                        nameof(RequiredParameters.FactorColumn)].Equals("*"))
                     {
                         // TODO: Handle the asterisks
                     }
                     else if (Parameters[
-                        RequiredParameters.FactorColumn.ToString()].Equals("#"))
+                        nameof(RequiredParameters.FactorColumn)].Equals("#"))
                     {
                         // TODO: Handle the pound
                     }
                     else
                     {
                         peptide = dr[Parameters[
-                        RequiredParameters.FactorColumn.ToString()]].ToString();
+                        nameof(RequiredParameters.FactorColumn)]].ToString();
                         peptide = peptide.Substring(0, peptide.Length - 1); // remove the last residue
                     }
 
@@ -248,9 +248,9 @@ namespace Cyclops.DataModules
         {
             var successful = true;
 
-            if (m_SQLiteReader.TableExists(Parameters[RequiredParameters.NewTableName.ToString()]))
+            if (m_SQLiteReader.TableExists(Parameters[nameof(RequiredParameters.NewTableName)]))
             {
-                successful = m_SQLiteReader.DropTable(Parameters[RequiredParameters.NewTableName.ToString()]);
+                successful = m_SQLiteReader.DropTable(Parameters[nameof(RequiredParameters.NewTableName)]);
             }
 
             return successful;
@@ -262,7 +262,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                var missedCleavages = new DataTable(Parameters[RequiredParameters.NewTableName.ToString()]);
+                var missedCleavages = new DataTable(Parameters[nameof(RequiredParameters.NewTableName)]);
 
                 var missedEvents = new DataColumn("MissedCleavageEvents") {
                     DataType = Type.GetType("System.Int32")

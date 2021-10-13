@@ -128,11 +128,11 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(Parameters[RequiredParameters.TableName.ToString()]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.TableName)]))
             {
                 Model.LogError("R Environment does not contain the " +
                     "specified input table: " +
-                    Parameters[RequiredParameters.TableName.ToString()],
+                    Parameters[nameof(RequiredParameters.TableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -201,7 +201,7 @@ namespace Cyclops.DataModules
                     Directory.CreateDirectory(plotDirectory);
                 }
 
-                var plotFilePath = Path.Combine(plotDirectory, Parameters[RequiredParameters.PlotFileName.ToString()]);
+                var plotFilePath = Path.Combine(plotDirectory, Parameters[nameof(RequiredParameters.PlotFileName)]);
                 PlotFileName = GenericRCalls.ConvertToRCompatiblePath(plotFilePath);
             }
 
@@ -231,9 +231,9 @@ namespace Cyclops.DataModules
                             "sum({1}$PartTryptic), " +
                             "sum({1}$NonTryptic)))\n\n",
                             tmpTable,
-                            Parameters[RequiredParameters.TableName.ToString()]);
+                            Parameters[nameof(RequiredParameters.TableName)]);
 
-                        Parameters[RequiredParameters.TableName.ToString()] = tmpTable;
+                        Parameters[nameof(RequiredParameters.TableName)] = tmpTable;
                         break;
                 }
             }
@@ -255,8 +255,8 @@ namespace Cyclops.DataModules
                     "FNTsize={13}, " +
                     // ReSharper restore StringLiteralTypo
                     "res={14})\n",
-                    Parameters[RequiredParameters.TableName.ToString()],    // 0
-                    Parameters[RequiredParameters.DataColumns.ToString()],  // 1
+                    Parameters[nameof(RequiredParameters.TableName)],    // 0
+                    Parameters[nameof(RequiredParameters.DataColumns)],  // 1
                     PlotFileName,                                           // 2
                     BackgroundColor,                                        // 3
                     Log,                                                    // 4
@@ -276,7 +276,7 @@ namespace Cyclops.DataModules
             {
                 rCmd += string.Format(
                     "rm({0})\n",
-                    Parameters[RequiredParameters.TableName.ToString()]);
+                    Parameters[nameof(RequiredParameters.TableName)]);
             }
 
             try

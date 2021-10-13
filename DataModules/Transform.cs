@@ -139,8 +139,8 @@ namespace Cyclops.DataModules
             {
                 rCmd = string.Format(
                     "{0} <- log((data.matrix({1})+{2})*{3},{4})",
-                    Parameters[RequiredParameters.NewTableName.ToString()],
-                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters[nameof(RequiredParameters.NewTableName)],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
                     Parameters.ContainsKey("add") ? Parameters["add"] : "0",
                     Parameters.ContainsKey("scale") ? Parameters["scale"] : "1",
                     Parameters["logBase"]);
@@ -149,8 +149,8 @@ namespace Cyclops.DataModules
             {
                 rCmd = string.Format(
                     "{0} <- ({1}+{2})*{3}",
-                    Parameters[RequiredParameters.NewTableName.ToString()],
-                    Parameters[RequiredParameters.InputTableName.ToString()],
+                    Parameters[nameof(RequiredParameters.NewTableName)],
+                    Parameters[nameof(RequiredParameters.InputTableName)],
                     Parameters.ContainsKey("add") ? Parameters["add"] : "0",
                     Parameters.ContainsKey("scale") ? Parameters["scale"] : "1");
             }
