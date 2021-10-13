@@ -27,12 +27,9 @@ namespace Cyclops
     /// </summary>
     public class WorkflowHandler : INotifyPropertyChanged
     {
-        private bool m_WorkflowContainsOperations;
+        // Ignore Spelling: workflow, workflows
 
-        private struct strModuleInfo
-        {
-            public string ModuleName { get; set; }
-        }
+        private bool m_WorkflowContainsOperations;
 
         private DataTable m_ModulesTable = new DataTable("T_Modules");
 
@@ -437,10 +434,10 @@ namespace Cyclops
                 var rows = workflowTableName.Select(
                     string.Format("Step = {0}", r));
                 var Param = GetParametersFromDataRows(rows, r);
-                var mi = GetModuleNameFromRows(rows, r);
+                var moduleName = GetModuleNameFromRows(rows, r);
 
                 var bdm = DataModules.BaseDataModule.Create(
-                    mi.ModuleName, Model, Param);
+                    moduleName, Model, Param);
 
                 if (bdm != null)
                 {
@@ -471,7 +468,7 @@ namespace Cyclops
                 else
                 {
                     Model.LogError("Error occurred while assembling modules:\n" +
-                                   mi.ModuleName + " module does not exist! Please check the " +
+                                   moduleName + " module does not exist! Please check the " +
                                    "version of Cyclops and reassemble your workflow");
                     return false;
                 }
@@ -546,23 +543,30 @@ namespace Cyclops
             return Param;
         }
 
-        private strModuleInfo GetModuleNameFromRows(IReadOnlyList<DataRow> rows, int step)
+        private string GetModuleNameFromRows(IReadOnlyList<DataRow> rows, int step)
         {
-            var mi = new strModuleInfo();
+            string moduleName;
+
             if (rows.Count > 0)
             {
-                mi.ModuleName = rows[0]["Module"].ToString();
+                moduleName = rows[0]["Module"].ToString();
             }
+            else
+            {
+                moduleName = string.Empty;
+            }
+
             // Now check that the other rows have the same values
             foreach (var dr in rows)
             {
-                if (!mi.ModuleName.Equals(dr["Module"].ToString()))
+                if (!moduleName.Equals(dr["Module"].ToString()))
                 {
                     Model.LogWarning("Warning reading workflow info from SQLite:\n" +
                         "Step " + step + " has multiple Modules");
                 }
             }
-            return mi;
+
+            return moduleName;
         }
 
         /// <summary>
