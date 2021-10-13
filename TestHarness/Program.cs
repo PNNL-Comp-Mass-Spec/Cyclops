@@ -9,7 +9,7 @@ namespace CyclopsTest
     {
         // Ignore Spelling: workflow
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             TestItraqOperations();
 
