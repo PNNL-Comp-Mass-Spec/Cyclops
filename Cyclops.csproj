@@ -97,9 +97,6 @@
     <Compile Include="Utilities\MiscellaneousFunctions.cs" />
     <Compile Include="ZipCompression.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Library\ICSharpCode.SharpZipLib.dll" />
-  </ItemGroup>
   <ItemGroup />
   <!-- R.NET uses DynamicInterop, which it will auto-download from NuGet -->
   <!-- R.NET 1.7.0 uses DynamicInterop 0.8.1 -->
