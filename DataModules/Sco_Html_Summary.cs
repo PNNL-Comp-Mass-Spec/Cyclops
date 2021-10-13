@@ -592,17 +592,19 @@ namespace Cyclops.DataModules
             var specCntSummary = GetSpectralCountSummary();
             var specCntStatSummary = GetSpectralCountStatSummary();
 
-            mainHtml.Append("\t\t" +
-                HtmlFileHandler.GetSummaryTableHtml(
-                specCntSummary,
-                "Spectral Count Analysis Summary",
-                "table_header",
-                0, 2, 4) + "\n\n" +
-                HtmlFileHandler.GetSummaryTableHtml(
-                specCntStatSummary,
-                "Spectral Count Beta-Binomial Model Statistics Summary",
-                "table_header",
-                0, 2, 4));
+            mainHtml.Append("\t\t");
+            mainHtml.Append(HtmlFileHandler.GetSummaryTableHtml(
+                                specCntSummary,
+                                "Spectral Count Analysis Summary",
+                                "table_header",
+                                0, 2, 4));
+
+            mainHtml.Append("\n\n");
+            mainHtml.Append(HtmlFileHandler.GetSummaryTableHtml(
+                                specCntStatSummary,
+                                "Spectral Count Beta-Binomial Model Statistics Summary",
+                                "table_header",
+                                0, 2, 4));
 
             mainHtml.Append("\t</DIV>\n");
             mainHtml.Append(HtmlFileHandler.GetEndBodyEndHtml());
