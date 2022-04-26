@@ -22,6 +22,8 @@ namespace Cyclops.DataModules
     /// </summary>
     public class ExportTable : BaseDataModule
     {
+        // Ignore Spelling: csv, dbname, df, tsv, txt
+
         /// <summary>
         /// Required parameters to run MissedCleavageSummary Module
         /// </summary>
@@ -503,7 +505,7 @@ namespace Cyclops.DataModules
         }
 
         /// <summary>
-        /// Creates a connection to a sqlite database
+        /// Creates a connection to a SQLite database
         /// </summary>
         /// <returns>True, if Connection is established successfully</returns>
         protected bool ConnectToSQLiteDatabaseFromR()

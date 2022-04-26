@@ -19,6 +19,8 @@ namespace Cyclops.DataModules
 {
     public class LBF_Summary_HTML : BaseDataModule
     {
+        // Ignore Spelling: Boxplot, Heatmap, Heatmaps, Tryptic, prot
+
         private enum HTMLFileType { Dataset, Index };
 
         private readonly string m_ModuleName = "LBF_Summary_HTML";

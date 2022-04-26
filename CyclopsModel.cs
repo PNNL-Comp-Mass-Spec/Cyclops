@@ -17,10 +17,12 @@ using PRISM;
 namespace Cyclops
 {
     /// <summary>
-    /// Model class serves as the entry point for the Cyclops DLL
+    /// Model class that serves as the entry point for the Cyclops DLL
     /// </summary>
     public class CyclopsModel : EventNotifier
     {
+        // Ignore Spelling: workflow
+
         /// <summary>
         /// The executing version of Cyclops
         /// </summary>

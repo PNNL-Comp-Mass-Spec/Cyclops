@@ -18,6 +18,8 @@ namespace Cyclops.DataModules
 {
     public class BarPlot : BaseDataModule
     {
+        // Ignore Spelling: Tryptic
+
         private readonly string m_ModuleName = "BarPlot";
         private readonly string m_Description = "";
 

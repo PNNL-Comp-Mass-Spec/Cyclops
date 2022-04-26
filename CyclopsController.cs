@@ -19,6 +19,8 @@ namespace Cyclops
     /// </summary>
     public class CyclopsController : PRISM.EventNotifier
     {
+        // Ignore Spelling: Workflow
+
         /// <summary>
         /// Main directory Cyclops uses to pull files and export files
         /// Sets the path for the log file

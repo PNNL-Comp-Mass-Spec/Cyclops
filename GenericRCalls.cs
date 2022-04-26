@@ -36,6 +36,8 @@ namespace Cyclops
     ///
     public class GenericRCalls
     {
+        // Ignore Spelling: colnames, rownames
+
         private REngine engine;
 
         /// <summary>

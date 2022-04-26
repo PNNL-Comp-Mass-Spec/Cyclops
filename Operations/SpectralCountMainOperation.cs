@@ -20,6 +20,8 @@ namespace Cyclops.Operations
     /// </summary>
     public class SpectralCountMainOperation : BaseOperationModule
     {
+        // Ignore Spelling: Workflow
+
         public enum ScoTypes { Standard, Iterator, Practice, ScoHtmlPractice };
 
         /// <summary>
@@ -164,9 +166,8 @@ namespace Cyclops.Operations
         }
 
         /// <summary>
-        ///
+        /// Construct modules
         /// </summary>
-        /// <returns></returns>
         public bool ConstructModules()
         {
             bool successful;

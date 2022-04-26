@@ -18,6 +18,8 @@ namespace Cyclops.Operations
 {
     public abstract class BaseOperationModule : BaseModule
     {
+        // Ignore Spelling: Workflow
+
         // ReSharper disable once UnusedMember.Global
         protected abstract string GetDefaultValue();
 

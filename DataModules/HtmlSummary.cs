@@ -19,6 +19,8 @@ namespace Cyclops.DataModules
 {
     public class HtmlSummary : BaseDataModule
     {
+        // Ignore Spelling: Heatmap, Tryptic
+
         private const string m_ModuleName = "HtmlSummary";
 
         private const string m_Description = "";
@@ -255,7 +257,7 @@ namespace Cyclops.DataModules
             navBarNodes.Remove(missedCleavages);
             navBarNodes.Remove(trypticPeptides);
 
-            // Construct and write-out the main html summary page
+            // Construct and write-out the main HTML summary page
             var summaryHtml = new StringBuilder();
 
             navBarNodes.Add(new HtmlLinkNode("Correlation", "ch", true));

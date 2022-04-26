@@ -548,8 +548,6 @@ namespace Cyclops
                     Table,
                     Column);
 
-                //traceLog.Info("SQLite Handler Creating Index: " + sql);
-
                 var connStr = new SQLiteConnectionStringBuilder
                 {
                     DataSource = DatabaseFileName
@@ -697,8 +695,6 @@ namespace Cyclops
                     var cmd = conn.CreateCommand();
                     cmd.CommandText = sql;
 
-                    //SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
-                    //da.Fill(outTable);
                     var reader = cmd.ExecuteReader();
                     outTable.Load(reader);
                 }
