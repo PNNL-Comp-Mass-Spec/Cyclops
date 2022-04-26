@@ -459,7 +459,6 @@ namespace Cyclops
                     cmd.CommandText = sql;
                     var reader = cmd.ExecuteReader();
                     infoTable.Load(reader);
-                    conn.Close();
                 }
             }
             catch (Exception ex)
@@ -562,7 +561,6 @@ namespace Cyclops
                     var cmd = conn.CreateCommand();
                     cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
-                    conn.Close();
                 }
             }
             catch (IOException ex)
@@ -608,7 +606,6 @@ namespace Cyclops
 
                     var reader = cmd.ExecuteReader();
                     outTable.Load(reader);
-                    conn.Close();
                 }
             }
             catch (IOException ex)
@@ -659,9 +656,6 @@ namespace Cyclops
 
                         var i = cmd.ExecuteNonQuery();
                         Console.WriteLine("Returned: " + i);
-                        conn.Close();
-
-                        conn.Close();
                     }
                 }
                 catch (Exception ex)
@@ -707,7 +701,6 @@ namespace Cyclops
                     //da.Fill(outTable);
                     var reader = cmd.ExecuteReader();
                     outTable.Load(reader);
-                    conn.Close();
                 }
             }
             catch (IOException ex)
@@ -754,7 +747,6 @@ namespace Cyclops
 
                     var reader = cmd.ExecuteReader();
                     outTable.Load(reader);
-                    conn.Close();
                 }
             }
             catch (IOException ex)
@@ -804,7 +796,6 @@ namespace Cyclops
                     var reader = cmd.ExecuteReader();
                     var dt = new DataTable();
                     dt.Load(reader);
-                    conn.Close();
 
                     foreach (DataColumn dc in dt.Columns)
                     {
