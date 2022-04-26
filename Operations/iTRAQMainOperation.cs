@@ -27,13 +27,10 @@ namespace Cyclops.Operations
             Type
         }
 
-
         private string m_iTraqTableName = "T_iTRAQ_PipelineOperation";
         private readonly string m_ModuleName = "iTRAQMainOperation";
 
         private Dictionary<iTraqTypes, string> m_iTraqTableNames;
-
-
 
         public iTRAQMainOperation()
         {
@@ -55,7 +52,6 @@ namespace Cyclops.Operations
             Parameters = OperationParameters;
             Initialize();
         }
-
 
         private void Initialize()
         {

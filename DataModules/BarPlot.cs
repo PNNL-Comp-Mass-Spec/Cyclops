@@ -31,7 +31,6 @@ namespace Cyclops.DataModules
             TableName, PlotFileName, DataColumns,
         }
 
-
         public string BarColor { get; set; } = "cornflowerblue";
 
         public string Log => LogBase == null ? "FALSE" : "TRUE";
@@ -325,4 +324,3 @@ namespace Cyclops.DataModules
         }
     }
 }
-

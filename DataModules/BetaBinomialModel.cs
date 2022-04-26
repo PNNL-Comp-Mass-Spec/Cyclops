@@ -30,8 +30,6 @@ namespace Cyclops.DataModules
 
         private string m_MergeColumn = "Alias"; // default value of MergeColumn
 
-
-
         /// <summary>
         /// Generic constructor creating an BetaBinomialModel Module
         /// </summary>
