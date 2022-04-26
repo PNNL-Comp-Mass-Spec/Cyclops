@@ -317,11 +317,11 @@ namespace Cyclops.DataModules
         /// </summary>
         private void WriteCssFile()
         {
-            using (var sw = File.AppendText(Path.Combine(m_WorkingDirectory, FileNameVault["CssFileName"])))
+            using (var writer = File.AppendText(Path.Combine(m_WorkingDirectory, FileNameVault["CssFileName"])))
             {
-                sw.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.NavBar, 250));
-                sw.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.LeftIndent, 250));
-                sw.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.Th, 250));
+                writer.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.NavBar, 250));
+                writer.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.LeftIndent, 250));
+                writer.WriteLine(HtmlFileHandler.GetCSS(HtmlFileHandler.CssStyle.Th, 250));
             }
         }
 

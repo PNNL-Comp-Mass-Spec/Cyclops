@@ -256,17 +256,17 @@ namespace Cyclops.DataModules
                 var sourceFile = new FileInfo(filePath);
                 var tempFile = new FileInfo(Path.GetTempFileName());
 
-                using (var sr = new StreamReader(new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
-                using (var sw = new StreamWriter(new FileStream(tempFile.FullName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)))
+                using (var reader = new StreamReader(new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                using (var writer = new StreamWriter(new FileStream(tempFile.FullName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)))
                 {
-                    var content = sr.ReadToEnd();
+                    var content = reader.ReadToEnd();
                     if (content.StartsWith("ï»¿"))
                     {
-                        sw.Write(content.Substring(3));
+                        writer.Write(content.Substring(3));
                     }
                     else
                     {
-                        sw.Write(content);
+                        writer.Write(content);
                     }
                 }
 

@@ -432,7 +432,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                var sw = new StreamWriter(filePath);
+                var writer = new StreamWriter(filePath);
                 var columnNames = new List<string>();
 
                 foreach (DataColumn dc in table.Columns)
@@ -440,7 +440,7 @@ namespace Cyclops.DataModules
                     columnNames.Add(dc.ColumnName);
                 }
 
-                sw.WriteLine(string.Join(delimiter, columnNames));
+                writer.WriteLine(string.Join(delimiter, columnNames));
 
                 foreach (DataRow dr in table.Rows)
                 {
@@ -450,10 +450,10 @@ namespace Cyclops.DataModules
                     {
                         rowData.Add(dr[columnName].ToString());
                     }
-                    sw.WriteLine(string.Join(delimiter, rowData));
+                    writer.WriteLine(string.Join(delimiter, rowData));
                 }
 
-                sw.Close();
+                writer.Close();
             }
             catch (IOException ioe)
             {

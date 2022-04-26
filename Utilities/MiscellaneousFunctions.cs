@@ -25,24 +25,24 @@ namespace Cyclops.Utilities
         /// <summary>
         /// Concatenates the items in the list.
         /// </summary>
-        /// <param name="MyList">List of items to concatenate</param>
-        /// <param name="Sep">Delimiter</param>
-        /// <param name="MakeRCompliant">If this is a list for R (e.g. 'c(...)')</param>
+        /// <param name="itemList">List of items to concatenate</param>
+        /// <param name="delimiter">Delimiter</param>
+        /// <param name="makeRCompliant">If this is a list for R (e.g. 'c(...)')</param>
         /// <returns></returns>
-        public static string Concatenate(List<string> MyList, string Sep, bool MakeRCompliant)
+        public static string Concatenate(List<string> itemList, string delimiter, bool makeRCompliant)
         {
-            var s_Return = MakeRCompliant ? "c(" : "";
+            var delimitedList = makeRCompliant ? "c(" : "";
 
-            foreach (var s in MyList)
+            foreach (var item in itemList)
             {
-                s_Return += MakeRCompliant ? "\"" + s + "\"" + Sep : s + Sep;
+                delimitedList += makeRCompliant ? "\"" + item + "\"" + delimiter : item + delimiter;
             }
 
-            s_Return = s_Return.Substring(0, s_Return.Length - Sep.Length); // remove the last Sep
+            delimitedList = delimitedList.Substring(0, delimitedList.Length - delimiter.Length); // remove the last delimiter
 
-            s_Return += MakeRCompliant ? ")" : "";
+            delimitedList += makeRCompliant ? ")" : "";
 
-            return s_Return;
+            return delimitedList;
         }
 
         /// <summary>
@@ -54,18 +54,18 @@ namespace Cyclops.Utilities
         {
             try
             {
-                var sw_Writer = new StreamWriter(FileName);
+                var writer = new StreamWriter(FileName);
 
                 // write the headers to the file
                 for (var columns = 0; columns < tableToSave.Columns.Count; columns++)
                 {
                     if ((tableToSave.Columns.Count - 1) == columns)
                     {
-                        sw_Writer.Write(tableToSave.Columns[columns] + "\n");
+                        writer.Write(tableToSave.Columns[columns] + "\n");
                     }
                     else
                     {
-                        sw_Writer.Write(tableToSave.Columns[columns] + "\t");
+                        writer.Write(tableToSave.Columns[columns] + "\t");
                     }
                 }
 
@@ -76,18 +76,18 @@ namespace Cyclops.Utilities
                     {
                         if ((tableToSave.Columns.Count - 1) == columns)
                         {
-                            sw_Writer.Write(tableToSave.Rows[rows][columns]
+                            writer.Write(tableToSave.Rows[rows][columns]
                                 + "\n");
                         }
                         else
                         {
-                            sw_Writer.Write(tableToSave.Rows[rows][columns]
+                            writer.Write(tableToSave.Rows[rows][columns]
                                 + "\t");
                         }
                     }
                 }
 
-                sw_Writer.Close();
+                writer.Close();
             }
             catch (IOException ex)
             {
