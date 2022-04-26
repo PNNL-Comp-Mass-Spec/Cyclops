@@ -608,7 +608,7 @@ namespace Cyclops.DataModules
             boxPlotHtml.Append("\t\t<P ID='table_header'>Peptide Log2 Box Plot</P>\n");
             boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                 FileNameVault["LbfBoxplotFigureFileName"],
-                true, "pos_left", null, null) + "\n");
+                true, "pos_left", null, null)).Append('\n');
             boxPlotHtml.Append("\t\t</DIV>\n");
             if (m_LR)
             {
@@ -617,7 +617,7 @@ namespace Cyclops.DataModules
                 boxPlotHtml.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Box Plot</P>\n");
                 boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfBoxplotLRFigureFileName"],
-                    true, "pos_left", null, null) + "\n");
+                    true, "pos_left", null, null)).Append('\n');
                 boxPlotHtml.Append("\t\t</DIV>\n");
             }
             if (m_CT)
@@ -627,7 +627,7 @@ namespace Cyclops.DataModules
                 boxPlotHtml.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Box Plot</P>\n");
                 boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfBoxplotCTFigureFileName"],
-                    true, "pos_left", null, null) + "\n");
+                    true, "pos_left", null, null)).Append('\n');
                 boxPlotHtml.Append("\t\t</DIV>\n");
             }
 
@@ -636,7 +636,7 @@ namespace Cyclops.DataModules
             boxPlotHtml.Append("\t\t<P ID='table_header'>Protein Log2 Box Plot</P>\n");
             boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                 FileNameVault["LbfBoxplotRrFigureFileName"],
-                true, "pos_left", null, null) + "\n");
+                true, "pos_left", null, null)).Append('\n');
             boxPlotHtml.Append("\t\t</DIV>\n");
 
             if (m_LR)
@@ -646,7 +646,7 @@ namespace Cyclops.DataModules
                 boxPlotHtml.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Box Plot</P>\n");
                 boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfBoxplotRrLRFigureFileName"],
-                    true, "pos_left", null, null) + "\n");
+                    true, "pos_left", null, null)).Append('\n');
                 boxPlotHtml.Append("\t\t</DIV>\n");
             }
             if (m_CT)
@@ -656,7 +656,7 @@ namespace Cyclops.DataModules
                 boxPlotHtml.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Box Plot</P>\n");
                 boxPlotHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfBoxplotRrCTFigureFileName"],
-                    true, "pos_left", null, null) + "\n");
+                    true, "pos_left", null, null)).Append('\n');
                 boxPlotHtml.Append("\t\t</DIV>\n");
             }
 
@@ -711,7 +711,7 @@ namespace Cyclops.DataModules
             heatmapHtml.Append("\t\t<P ID='table_header'>Peptide Log2 Correlation Heatmap</P>\n");
             heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                 FileNameVault["LbfCorrelationHeatmapFigureFileName"],
-                true, "pos_left", null, null) + "\n");
+                true, "pos_left", null, null)).Append('\n');
             heatmapHtml.Append("\t\t</DIV>\n");
             if (m_LR)
             {
@@ -720,7 +720,7 @@ namespace Cyclops.DataModules
                 heatmapHtml.Append("\t\t<P ID='table_header'>Peptide Linear Regression Log2 Correlation Heatmap</P>\n");
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfCorrelationHeatmapLRFigureFileName"],
-                    true, "pos_left", null, null) + "\n");
+                    true, "pos_left", null, null)).Append('\n');
                 heatmapHtml.Append("\t\t</DIV>\n");
             }
             if (m_CT)
@@ -730,7 +730,7 @@ namespace Cyclops.DataModules
                 heatmapHtml.Append("\t\t<P ID='table_header'>Peptide Central Tendency Log2 Correlation Heatmap</P>\n");
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfCorrelationHeatmapCTFigureFileName"],
-                    true, "pos_left", null, null) + "\n");
+                    true, "pos_left", null, null)).Append('\n');
                 heatmapHtml.Append("\t\t</DIV>\n");
             }
 
@@ -739,7 +739,7 @@ namespace Cyclops.DataModules
             heatmapHtml.Append("\t\t<P ID='table_header'>Protein Log2 Correlation Heatmap</P>\n");
             heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                 FileNameVault["LbfCorrelationHeatmapRrFigureFileName"],
-                true, "pos_left", null, null) + "\n");
+                true, "pos_left", null, null)).Append('\n');
             heatmapHtml.Append("\t\t</DIV>\n");
 
             if (m_LR)
@@ -749,9 +749,10 @@ namespace Cyclops.DataModules
                 heatmapHtml.Append("\t\t<P ID='table_header'>Protein Linear Regression Log2 Correlation Heatmap</P>\n");
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfCorrelationHeatmapRrLRFigureFileName"],
-                    true, "pos_left", null, null) + "\n");
+                    true, "pos_left", null, null)).Append('\n');
                 heatmapHtml.Append("\t\t</DIV>\n");
             }
+
             if (m_CT)
             {
                 heatmapHtml.Append("\t\t<A NAME='protctch'/A>\n");
@@ -759,7 +760,7 @@ namespace Cyclops.DataModules
                 heatmapHtml.Append("\t\t<P ID='table_header'>Protein Central Tendency Log2 Correlation Heatmap</P>\n");
                 heatmapHtml.Append(HtmlFileHandler.GetPictureCode(
                     FileNameVault["LbfCorrelationHeatmapRrCTFigureFileName"],
-                    true, "pos_left", null, null) + "\n");
+                    true, "pos_left", null, null)).Append('\n');
                 heatmapHtml.Append("\t\t</DIV>\n");
             }
 
