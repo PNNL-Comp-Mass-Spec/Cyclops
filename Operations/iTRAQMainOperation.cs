@@ -15,9 +15,12 @@ using System.Collections.Generic;
 
 namespace Cyclops.Operations
 {
+    // ReSharper disable once InconsistentNaming
     public class iTRAQMainOperation : BaseOperationModule
     {
         // Ignore Spelling: Traq
+
+        // ReSharper disable once InconsistentNaming
 
         public enum iTraqTypes { Standard };
 
@@ -110,6 +113,8 @@ namespace Cyclops.Operations
             return true;
         }
 
+        // ReSharper disable once InconsistentNaming
+
         /// <summary>
         /// Main Method to run the iTRAQ Operation
         /// </summary>
@@ -145,7 +150,7 @@ namespace Cyclops.Operations
         }
 
         /// <summary>
-        ///
+        /// Construct modules
         /// </summary>
         /// <returns></returns>
         public bool ConstructModules()
