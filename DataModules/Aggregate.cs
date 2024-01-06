@@ -106,8 +106,6 @@ namespace Cyclops.DataModules
         /// Parameters</returns>
         public override bool CheckParameters()
         {
-            var successful = true;
-
             foreach (var s in Enum.GetNames(typeof(RequiredParameters)))
             {
                 if (!Parameters.ContainsKey(s) && !string.IsNullOrEmpty(s))
@@ -117,7 +115,7 @@ namespace Cyclops.DataModules
                 }
             }
 
-            return successful;
+            return true;
         }
 
         /// <summary>

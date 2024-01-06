@@ -181,8 +181,7 @@ namespace Cyclops.DataModules
 
             try
             {
-                var successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
-                return successful;
+                return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {

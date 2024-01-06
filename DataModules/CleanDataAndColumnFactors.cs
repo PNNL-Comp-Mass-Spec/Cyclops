@@ -192,12 +192,10 @@ namespace Cyclops.DataModules
                 return false;
             }
 
-            var successful = AreDataColumnLengthAndColumnMetadataRowsEqual(
+            return AreDataColumnLengthAndColumnMetadataRowsEqual(
                 Parameters[nameof(RequiredParameters.InputTableName)],
                 temporaryTableName,
                 Parameters[nameof(RequiredParameters.FactorColumn)]);
-
-            return successful;
         }
 
         /// <summary>
@@ -281,8 +279,6 @@ namespace Cyclops.DataModules
             string ColumnMetadataTableName,
             string ColumnMetadataFactor)
         {
-            bool successful;
-
             var rCmd = string.Format(
                 "{0} <- merge(x=cbind({1}=colnames({2}))," +
                 "y={0}, by.x=\"{1}\", by.y=\"{1}\"," +
@@ -294,17 +290,16 @@ namespace Cyclops.DataModules
 
             try
             {
-                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+                return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
             }
             catch (Exception ex)
             {
                 Model.LogError("Exception encountered while running " +
                     "'ModifyFactorAndDataTables': " + ex,
                     ModuleName, StepNumber);
-                successful = false;
-            }
 
-            return successful;
+                return false;
+            }
         }
     }
 }

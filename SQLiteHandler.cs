@@ -55,30 +55,22 @@ namespace Cyclops
         /// <returns>Data type for SQLite database</returns>
         private string ConvertMS2SqliteDataType(string MicrosoftDataType)
         {
-            var dataTypeName = "";
             switch (MicrosoftDataType)
             {
                 case "System.String":
-                    dataTypeName = "TEXT";
-                    break;
+                    return "TEXT";
+
                 case "System.Int16":
-                    dataTypeName = "INTEGER";
-                    break;
                 case "System.Int32":
-                    dataTypeName = "INTEGER";
-                    break;
                 case "System.Int64":
-                    dataTypeName = "INTEGER";
-                    break;
+                    return "INTEGER";
+
                 case "System.Double":
-                    dataTypeName = "DOUBLE";
-                    break;
                 case "System.Float":
-                    dataTypeName = "DOUBLE";
-                    break;
+                    return "DOUBLE";
             }
 
-            return dataTypeName;
+            return string.Empty;
         }
 
         /// <summary>
@@ -89,8 +81,6 @@ namespace Cyclops
         [Obsolete("Unused")]
         private DbType GetDatabaseType(string MicrosoftDataType)
         {
-            var db = new DbType();
-
             switch (MicrosoftDataType)
             {
                 case "System.String":
@@ -107,7 +97,7 @@ namespace Cyclops
                     return DbType.Double;
             }
 
-            return db;
+            return new DbType();
         }
 
         /// <summary>

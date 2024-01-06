@@ -143,9 +143,7 @@ namespace Cyclops.Operations
         {
             SetTypes();
 
-            var successful = ConstructModules();
-
-            return successful;
+            return ConstructModules();
         }
 
         /// <summary>

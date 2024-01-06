@@ -76,13 +76,13 @@ namespace Cyclops
             }
 
             var successful = cyclops.ModuleLoader.ReadWorkflow();
+
             if (!successful)
             {
                 return false;
             }
 
-            var success = cyclops.Run();
-            return success;
+            return cyclops.Run();
         }
     }
 }

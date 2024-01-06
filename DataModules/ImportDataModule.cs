@@ -201,9 +201,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessCSVImport()
         {
-            var successful = ImportCSVFile();
-
-            return successful;
+            return ImportCSVFile();
         }
 
         /// <summary>
@@ -212,9 +210,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if import is successful</returns>
         private bool ProcessTSVImport()
         {
-            var successful = ImportTSVFile();
-
-            return successful;
+            return ImportTSVFile();
         }
 
         /// <summary>
@@ -387,9 +383,7 @@ namespace Cyclops.DataModules
         {
             GetTableFromSQLite();
 
-            var successful = SetTableRowNames();
-
-            return successful;
+            return SetTableRowNames();
         }
 
         /// <summary>
@@ -400,9 +394,7 @@ namespace Cyclops.DataModules
         {
             GetTableFromSQLite();
 
-            var successful = SetTableRowNames();
-
-            return successful;
+            return SetTableRowNames();
         }
 
         /// <summary>
@@ -413,9 +405,7 @@ namespace Cyclops.DataModules
         {
             GetTableFromSQLite();
 
-            var successful = SetTableRowNames();
-
-            return successful;
+            return SetTableRowNames();
         }
 
         /// <summary>
@@ -484,24 +474,19 @@ namespace Cyclops.DataModules
         /// <returns>True, if disconnection finishes successfully</returns>
         private bool DisconnectFromDatabase()
         {
-            bool successful;
-
             var rCmd = "terminated <- dbDisconnect(con)";
 
-            if (Model.RCalls.Run(rCmd, ModuleName, StepNumber))
+            Model.RCalls.Run(rCmd, ModuleName, StepNumber);
+
+            var successful = Model.RCalls.AssessBoolean("terminated");
+
+            if (!successful)
             {
-                successful = true;
+                return false;
             }
 
-            successful = Model.RCalls.AssessBoolean("terminated");
-
-            if (successful)
-            {
-                rCmd = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
-                successful = Model.RCalls.Run(rCmd, ModuleName, StepNumber);
-            }
-
-            return successful;
+            rCmd = "rm(con)\nrm(m)\nrm(terminated)\nrm(rt)";
+            return Model.RCalls.Run(rCmd, ModuleName, StepNumber);
         }
 
         /// <summary>
