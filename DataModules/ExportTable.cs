@@ -246,9 +246,9 @@ namespace Cyclops.DataModules
                     // ReSharper disable once ConvertIfStatementToReturnStatement
                     // ReSharper disable once StringLiteralTypo
 
-                    if (tableName.Equals("t_results_ascore"))
+                    if (tableName.Equals("t_results_ascore") || tableName.Equals("T_Results_AScore_Typed"))
                     {
-                        // This table is allowed to be missing
+                        // These tables are allowed to be missing
                         return true;
                     }
 
