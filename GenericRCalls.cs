@@ -136,8 +136,21 @@ namespace Cyclops
             }
             catch (Exception ex)
             {
+                string exceptionMessage;
+
+                if (ex.Message.IndexOf("no such table: T_Data", StringComparison.OrdinalIgnoreCase) > 0)
+                {
+                    exceptionMessage = string.Format(
+                        "{0}; this table should have been created by the APE step; check the sample names and alias names in the t_alias.txt file",
+                        ex.Message);
+                }
+                else
+                {
+                    exceptionMessage = ex.Message;
+                }
+
                 Model.LogError("Exception encountered while running command:\n" +
-                               rCmd + "\nException: " + ex.Message +
+                               rCmd + "\nException: " + exceptionMessage +
                                "\nInnerException: " + ex.InnerException,
                                summaryStatement, step);
                 successful = false;

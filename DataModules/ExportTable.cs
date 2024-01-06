@@ -200,6 +200,16 @@ namespace Cyclops.DataModules
                     {
                         return ExportFromR();
                     }
+
+                    var tableName = Parameters[nameof(RequiredParameters.TableName)];
+
+                    if (tableName.Equals("T_Data", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Model.LogWarning(string.Format(
+                                "Error while attempting to export table, {0}, from R. Table {0} should have been created by the APE step; " +
+                                "check the sample names and alias names in the t_alias.txt file", tableName),
+                            ModuleName, StepNumber);
+                    }
                     else
                     {
                         Model.LogWarning(string.Format("Warning encountered while " +
@@ -207,7 +217,9 @@ namespace Cyclops.DataModules
                                                        "The table does not exist in the R environment!", tableName),
                             ModuleName, StepNumber);
                     }
-                    break;
+
+                    return false;
+
                 case "SQLITE":
                     if (m_DatabaseFound)
                     {
@@ -222,15 +234,16 @@ namespace Cyclops.DataModules
                                              Parameters[nameof(RequiredParameters.TableName)],
                                              m_DatabaseFileName),
                                          ModuleName, StepNumber);
+
+                        return false;
                     }
-                    else
-                    {
-                        Model.LogError("Unable to find SQLite database: " +
-                            Path.Combine(Model.WorkDirectory,
-                            m_DatabaseFileName),
-                            ModuleName, StepNumber);
-                    }
-                    break;
+
+                    Model.LogError("Unable to find SQLite database: " +
+                                   Path.Combine(Model.WorkDirectory,
+                                       m_DatabaseFileName),
+                        ModuleName, StepNumber);
+
+                    return false;
             }
 
             return true;
