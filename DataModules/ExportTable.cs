@@ -196,52 +196,61 @@ namespace Cyclops.DataModules
             switch (Parameters[nameof(RequiredParameters.Source)].ToUpper())
             {
                 case "R":
-                    if (Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.TableName)]))
+                    var tableNameR = Parameters[nameof(RequiredParameters.TableName)];
+
+                    if (Model.RCalls.ContainsObject(tableNameR))
                     {
                         return ExportFromR();
                     }
 
-                    var tableName = Parameters[nameof(RequiredParameters.TableName)];
-
-                    if (tableName.Equals("T_Data", StringComparison.OrdinalIgnoreCase))
+                    if (tableNameR.Equals("T_Data", StringComparison.OrdinalIgnoreCase))
                     {
                         Model.LogWarning(string.Format(
                                 "Error while attempting to export table, {0}, from R. Table {0} should have been created by the APE step; " +
-                                "check the sample names and alias names in the t_alias.txt file", tableName),
+                                "check the sample names and alias names in the t_alias.txt file", tableNameR),
                             ModuleName, StepNumber);
                     }
                     else
                     {
                         Model.LogWarning(string.Format("Warning encountered while " +
                                                        "attempting to export table, {0}, from R workspace. " +
-                                                       "The table does not exist in the R environment!", tableName),
+                                                       "The table does not exist in the R environment!", tableNameR),
                             ModuleName, StepNumber);
                     }
 
                     return false;
 
                 case "SQLITE":
-                    if (m_DatabaseFound)
+                    if (!m_DatabaseFound)
                     {
-                        if (m_SQLiteReader.TableExists(Parameters[nameof(RequiredParameters.TableName)]))
-                        {
-                            return ExportFromSQLite();
-                        }
-
-                        Model.LogWarning(string.Format(
-                                             "Warning Table, {0}, was not found in the SQLite database, {1}, for " +
-                                             "export! Note that table names are case-sensitive.",
-                                             Parameters[nameof(RequiredParameters.TableName)],
-                                             m_DatabaseFileName),
-                                         ModuleName, StepNumber);
+                        Model.LogError("Unable to find SQLite database: " + Path.Combine(Model.WorkDirectory, m_DatabaseFileName),
+                            ModuleName, StepNumber);
 
                         return false;
                     }
 
-                    Model.LogError("Unable to find SQLite database: " +
-                                   Path.Combine(Model.WorkDirectory,
-                                       m_DatabaseFileName),
+                    var tableName = Parameters[nameof(RequiredParameters.TableName)];
+
+                    if (m_SQLiteReader.TableExists(tableName))
+                    {
+                        return ExportFromSQLite();
+                    }
+
+                    Model.LogWarning(string.Format(
+                            "Warning Table, {0}, was not found in the SQLite database, {1}, for " +
+                            "export! Note that table names are case-sensitive.",
+                            Parameters[nameof(RequiredParameters.TableName)],
+                            m_DatabaseFileName),
                         ModuleName, StepNumber);
+
+                    // ReSharper disable once ConvertIfStatementToReturnStatement
+                    // ReSharper disable once StringLiteralTypo
+
+                    if (tableName.Equals("t_results_ascore"))
+                    {
+                        // This table is allowed to be missing
+                        return true;
+                    }
 
                     return false;
             }
