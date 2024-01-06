@@ -198,10 +198,7 @@ namespace Cyclops
             var objectList = new List<string>();
 
             var evalResult = engine.Evaluate("ls()").AsCharacter();
-            foreach (var s in evalResult)
-            {
-                objectList.Add(s);
-            }
+            objectList.AddRange(evalResult);
 
             return objectList;
         }
@@ -444,10 +441,7 @@ namespace Cyclops
             var stringList = new List<string>();
             var evalResult = engine.Evaluate(Vector).AsCharacter();
 
-            foreach (var s in evalResult)
-            {
-                stringList.Add(s);
-            }
+            stringList.AddRange(evalResult);
 
             return stringList;
         }
