@@ -133,9 +133,9 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (Parameters.ContainsKey("ColorByFactor"))
+            if (Parameters.TryGetValue("ColorByFactor", out var parameter))
             {
-                m_ColorByFactor = Parameters["ColorByFactor"].ToUpper();
+                m_ColorByFactor = parameter.ToUpper();
             }
 
             if (Parameters.ContainsKey("ColumnFactorTable") && Model.RCalls.ContainsObject(Parameters["ColumnFactorTable"]))
@@ -157,99 +157,99 @@ namespace Cyclops.DataModules
                 m_ColorByFactor = "TRUE";
             }
 
-            if (Parameters.ContainsKey("BackgroundColor"))
+            if (Parameters.TryGetValue("BackgroundColor", out var backgroundColor))
             {
-                BackgroundColor = Parameters["BackgroundColor"];
+                BackgroundColor = backgroundColor;
             }
 
-            if (Parameters.ContainsKey("Height"))
+            if (Parameters.TryGetValue("Height", out var height))
             {
-                Height = Convert.ToInt32(Parameters["Height"]);
+                Height = Convert.ToInt32(height);
             }
 
-            if (Parameters.ContainsKey("Width"))
+            if (Parameters.TryGetValue("Width", out var width))
             {
-                Width = Convert.ToInt32(Parameters["Width"]);
+                Width = Convert.ToInt32(width);
             }
 
-            if (Parameters.ContainsKey("FontSize"))
+            if (Parameters.TryGetValue("FontSize", out var fontSize))
             {
-                FontSize = Convert.ToInt32(Parameters["FontSize"]);
+                FontSize = Convert.ToInt32(fontSize);
             }
 
-            if (Parameters.ContainsKey("Resolution"))
+            if (Parameters.TryGetValue("Resolution", out var resolution))
             {
-                Resolution = Convert.ToInt32(Parameters["Resolution"]);
+                Resolution = Convert.ToInt32(resolution);
             }
 
-            if (Parameters.ContainsKey("Main"))
+            if (Parameters.TryGetValue("Main", out var main))
             {
-                Main = Parameters["Main"];
+                Main = main;
             }
 
-            if (Parameters.ContainsKey("XLabel"))
+            if (Parameters.TryGetValue("XLabel", out var xLabel))
             {
-                XLabel = Parameters["XLabel"];
+                XLabel = xLabel;
             }
 
-            if (Parameters.ContainsKey("YLabel"))
+            if (Parameters.TryGetValue("YLabel", out var yLabel))
             {
-                YLabel = Parameters["YLabel"];
+                YLabel = yLabel;
             }
 
-            if (Parameters.ContainsKey("DataColumns"))
+            if (Parameters.TryGetValue("DataColumns", out var dataColumns))
             {
-                m_DataColumns = Parameters["DataColumns"];
+                m_DataColumns = dataColumns;
             }
 
-            if (Parameters.ContainsKey("Outliers"))
+            if (Parameters.TryGetValue("Outliers", out var outliers))
             {
-                m_Outliers = Parameters["Outliers"].ToUpper();
+                m_Outliers = outliers.ToUpper();
             }
 
-            if (Parameters.ContainsKey("Color"))
+            if (Parameters.TryGetValue("Color", out var color))
             {
-                m_Color = Parameters["Color"];
+                m_Color = color;
             }
 
-            if (Parameters.ContainsKey("LabelScale"))
+            if (Parameters.TryGetValue("LabelScale", out var labelScale))
             {
-                m_LabelScale = Parameters["LabelScale"];
+                m_LabelScale = labelScale;
             }
 
-            if (Parameters.ContainsKey("BoxWidth"))
+            if (Parameters.TryGetValue("BoxWidth", out var boxWidth))
             {
-                m_BoxWidth = Parameters["BoxWidth"];
+                m_BoxWidth = boxWidth;
             }
 
-            if (Parameters.ContainsKey("ShowCount"))
+            if (Parameters.TryGetValue("ShowCount", out var showCount))
             {
-                m_ShowCount = Parameters["ShowCount"].ToUpper();
+                m_ShowCount = showCount.ToUpper();
             }
 
-            if (Parameters.ContainsKey("ShowLegend"))
+            if (Parameters.TryGetValue("ShowLegend", out var showLegend))
             {
-                m_ShowLegend = Parameters["ShowLegend"].ToUpper();
+                m_ShowLegend = showLegend.ToUpper();
             }
 
-            if (Parameters.ContainsKey("Stamp"))
+            if (Parameters.TryGetValue("Stamp", out var stamp))
             {
-                m_Stamp = Parameters["Stamp"];
+                m_Stamp = stamp;
             }
 
-            if (Parameters.ContainsKey("DoYLim"))
+            if (Parameters.TryGetValue("DoYLim", out var doYLim))
             {
-                m_DoYLim = Parameters["DoYLim"].ToUpper();
+                m_DoYLim = doYLim.ToUpper();
             }
 
-            if (Parameters.ContainsKey("yMin"))
+            if (Parameters.TryGetValue("yMin", out var yMin))
             {
-                m_yMin = Parameters["yMin"];
+                m_yMin = yMin;
             }
 
-            if (Parameters.ContainsKey("yMax"))
+            if (Parameters.TryGetValue("yMax", out var yMax))
             {
-                m_yMax = Parameters["yMax"];
+                m_yMax = yMax;
             }
 
             if (Directory.Exists(Model.WorkDirectory))

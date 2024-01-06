@@ -109,9 +109,9 @@ namespace Cyclops.Operations
                 }
             }
 
-            if (Parameters.ContainsKey("DatabaseFileName"))
+            if (Parameters.TryGetValue("DatabaseFileName", out var parameter))
             {
-                OperationsDatabasePath = Parameters["DatabaseFileName"];
+                OperationsDatabasePath = parameter;
             }
 
             return true;

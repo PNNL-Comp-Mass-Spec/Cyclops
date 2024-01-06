@@ -118,9 +118,9 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (Parameters.ContainsKey("MergeColumn"))
+            if (Parameters.TryGetValue("MergeColumn", out var parameter))
             {
-                m_MergeColumn = Parameters["MergeColumn"];
+                m_MergeColumn = parameter;
             }
 
             if (!Model.RCalls.ContainsObject(

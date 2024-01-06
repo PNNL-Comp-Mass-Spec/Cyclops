@@ -134,9 +134,8 @@ namespace Cyclops.DataModules
                 FileNameVault["MainFileName"] = Parameters["FileName"];
             }
 
-            if (Parameters.ContainsKey("DatabaseFileName"))
+            if (Parameters.TryGetValue("DatabaseFileName", out var databaseFile))
             {
-                var databaseFile = Parameters["DatabaseFileName"];
                 if (File.Exists(databaseFile))
                 {
                     m_SQLiteReader.DatabaseFileName = databaseFile;

@@ -133,29 +133,29 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            if (Parameters.ContainsKey("HistogramType"))
+            if (Parameters.TryGetValue("HistogramType", out var histogramType))
             {
-                HistogramType = Parameters["HistogramType"];
+                HistogramType = histogramType;
             }
 
-            if (Parameters.ContainsKey("BarColor"))
+            if (Parameters.TryGetValue("BarColor", out var barColor))
             {
-                BarColor = Parameters["BarColor"];
+                BarColor = barColor;
             }
 
-            if (Parameters.ContainsKey("BackgroundColor"))
+            if (Parameters.TryGetValue("BackgroundColor", out var backgroundColor))
             {
-                BackgroundColor = Parameters["BackgroundColor"];
+                BackgroundColor = backgroundColor;
             }
 
-            if (Parameters.ContainsKey("Height"))
+            if (Parameters.TryGetValue("Height", out var height))
             {
-                Height = Convert.ToInt32(Parameters["Height"]);
+                Height = Convert.ToInt32(height);
             }
 
-            if (Parameters.ContainsKey("Width"))
+            if (Parameters.TryGetValue("Width", out var width))
             {
-                Width = Convert.ToInt32(Parameters["Width"]);
+                Width = Convert.ToInt32(width);
             }
 
             /*

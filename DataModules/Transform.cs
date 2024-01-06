@@ -135,15 +135,15 @@ namespace Cyclops.DataModules
         {
             string rCmd;
 
-            if (Parameters.ContainsKey("logBase"))
+            if (Parameters.TryGetValue("logBase", out var parameter))
             {
                 rCmd = string.Format(
                     "{0} <- log((data.matrix({1})+{2})*{3},{4})",
                     Parameters[nameof(RequiredParameters.NewTableName)],
                     Parameters[nameof(RequiredParameters.InputTableName)],
-                    Parameters.ContainsKey("add") ? Parameters["add"] : "0",
-                    Parameters.ContainsKey("scale") ? Parameters["scale"] : "1",
-                    Parameters["logBase"]);
+                    Parameters.TryGetValue("add", out var parameter1) ? parameter1 : "0",
+                    Parameters.TryGetValue("scale", out var parameter2) ? parameter2 : "1",
+                    parameter);
             }
             else
             {
@@ -151,8 +151,8 @@ namespace Cyclops.DataModules
                     "{0} <- ({1}+{2})*{3}",
                     Parameters[nameof(RequiredParameters.NewTableName)],
                     Parameters[nameof(RequiredParameters.InputTableName)],
-                    Parameters.ContainsKey("add") ? Parameters["add"] : "0",
-                    Parameters.ContainsKey("scale") ? Parameters["scale"] : "1");
+                    Parameters.TryGetValue("add", out var parameter1) ? parameter1 : "0",
+                    Parameters.TryGetValue("scale", out var parameter2) ? parameter2 : "1");
             }
 
             try

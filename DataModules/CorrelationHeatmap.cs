@@ -140,29 +140,29 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            if (Parameters.ContainsKey("Height"))
+            if (Parameters.TryGetValue("Height", out var height))
             {
-                Height = Convert.ToInt32(Parameters["Height"]);
+                Height = Convert.ToInt32(height);
             }
 
-            if (Parameters.ContainsKey("Width"))
+            if (Parameters.TryGetValue("Width", out var width))
             {
-                Width = Convert.ToInt32(Parameters["Width"]);
+                Width = Convert.ToInt32(width);
             }
 
-            if (Parameters.ContainsKey("Horizontal"))
+            if (Parameters.TryGetValue("Horizontal", out var horizontal))
             {
-                Horizontal = Parameters["Horizontal"];
+                Horizontal = horizontal;
             }
 
-            if (Parameters.ContainsKey("PointSize"))
+            if (Parameters.TryGetValue("PointSize", out var pointSize))
             {
-                PointSize = Convert.ToInt32(Parameters["PointSize"]);
+                PointSize = Convert.ToInt32(pointSize);
             }
 
-            if (Parameters.ContainsKey("Main"))
+            if (Parameters.TryGetValue("Main", out var main))
             {
-                Main = Parameters["Main"];
+                Main = main;
             }
 
             if (Directory.Exists(Model.WorkDirectory))
@@ -261,8 +261,8 @@ namespace Cyclops.DataModules
                 tTable,
                 Parameters[nameof(RequiredParameters.TableName)],
                 SkipFirstColumn ? "[,-1]" : "",
-                Parameters.ContainsKey("Type") ? ", type=c(\"" +
-                    Parameters["Type"] + "\")" : "",
+                Parameters.TryGetValue("Type", out var parameter) ? ", type=c(\"" +
+                                                                    parameter + "\")" : "",
                 Parameters[nameof(RequiredParameters.CorrelationListName)]);
 
             try

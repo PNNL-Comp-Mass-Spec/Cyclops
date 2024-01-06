@@ -151,9 +151,9 @@ namespace Cyclops.DataModules
             {
                 string filePath;
                 if (!string.IsNullOrEmpty(Model.WorkDirectory) &&
-                    Parameters.ContainsKey("fileName"))
+                    Parameters.TryGetValue("fileName", out var parameter))
                 {
-                    filePath = Path.Combine(Model.WorkDirectory, Parameters["fileName"]);
+                    filePath = Path.Combine(Model.WorkDirectory, parameter);
                 }
                 else if (!string.IsNullOrEmpty(Model.WorkDirectory))
                 {

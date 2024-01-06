@@ -138,59 +138,59 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            if (Parameters.ContainsKey("BackgroundColor"))
+            if (Parameters.TryGetValue("BackgroundColor", out var backgroundColor))
             {
-                BackgroundColor = Parameters["BackgroundColor"];
+                BackgroundColor = backgroundColor;
             }
 
-            if (Parameters.ContainsKey("Height"))
+            if (Parameters.TryGetValue("Height", out var height))
             {
-                Height = Convert.ToInt32(Parameters["Height"]);
+                Height = Convert.ToInt32(height);
             }
 
-            if (Parameters.ContainsKey("Width"))
+            if (Parameters.TryGetValue("Width", out var width))
             {
-                Width = Convert.ToInt32(Parameters["Width"]);
+                Width = Convert.ToInt32(width);
             }
 
-            if (Parameters.ContainsKey("FontSize"))
+            if (Parameters.TryGetValue("FontSize", out var fontSize))
             {
-                FontSize = Convert.ToInt32(Parameters["FontSize"]);
+                FontSize = Convert.ToInt32(fontSize);
             }
 
-            if (Parameters.ContainsKey("Resolution"))
+            if (Parameters.TryGetValue("Resolution", out var resolution))
             {
-                Resolution = Convert.ToInt32(Parameters["Resolution"]);
+                Resolution = Convert.ToInt32(resolution);
             }
 
-            if (Parameters.ContainsKey("Main"))
+            if (Parameters.TryGetValue("Main", out var main))
             {
-                Main = Parameters["Main"];
+                Main = main;
             }
 
-            if (Parameters.ContainsKey("XLabel"))
+            if (Parameters.TryGetValue("XLabel", out var xLabel))
             {
-                XLabel = Parameters["XLabel"];
+                XLabel = xLabel;
             }
 
-            if (Parameters.ContainsKey("YLabel"))
+            if (Parameters.TryGetValue("YLabel", out var yLabel))
             {
-                YLabel = Parameters["YLabel"];
+                YLabel = yLabel;
             }
 
-            if (Parameters.ContainsKey("BarColor"))
+            if (Parameters.TryGetValue("BarColor", out var barColor))
             {
-                BarColor = Parameters["BarColor"];
+                BarColor = barColor;
             }
 
-            if (Parameters.ContainsKey("LogBase"))
+            if (Parameters.TryGetValue("LogBase", out var logBase))
             {
-                LogBase = Convert.ToDouble(Parameters["LogBase"]);
+                LogBase = Convert.ToDouble(logBase);
             }
 
-            if (Parameters.ContainsKey("Names"))
+            if (Parameters.TryGetValue("Names", out var names))
             {
-                Names = Parameters["Names"];
+                Names = names;
             }
 
             if (Directory.Exists(Model.WorkDirectory) && successful)

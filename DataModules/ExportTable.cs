@@ -343,9 +343,10 @@ namespace Cyclops.DataModules
             var includeRowNames = false;
 
             string rCmd;
-            if (Parameters.ContainsKey("IncludeRowNames"))
+
+            if (Parameters.TryGetValue("IncludeRowNames", out var parameter))
             {
-                includeRowNames = Convert.ToBoolean(Parameters["IncludeRowNames"]);
+                includeRowNames = Convert.ToBoolean(parameter);
             }
 
             if (includeRowNames)

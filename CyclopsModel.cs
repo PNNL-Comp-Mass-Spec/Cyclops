@@ -82,9 +82,9 @@ namespace Cyclops
             RCalls.InstantiateR();
             CyclopsParameters = ParametersForCyclops;
 
-            if (CyclopsParameters.ContainsKey("workDir"))
+            if (CyclopsParameters.TryGetValue("workDir", out var parameter))
             {
-                WorkDirectory = CyclopsParameters["workDir"];
+                WorkDirectory = parameter;
             }
             else
             {
@@ -93,10 +93,10 @@ namespace Cyclops
                 PipelineCurrentlySuccessful = false;
             }
 
-            if (CyclopsParameters.ContainsKey("CyclopsWorkflowName"))
+            if (CyclopsParameters.TryGetValue("CyclopsWorkflowName", out var cyclopsParameter))
             {
                 ModuleLoader.InputWorkflowFileName =
-                    CyclopsParameters["CyclopsWorkflowName"];
+                    cyclopsParameter;
             }
             else
             {

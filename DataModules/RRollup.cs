@@ -136,44 +136,45 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            if (Parameters.ContainsKey("MinPresence"))
+            if (Parameters.TryGetValue("MinPresence", out var minPresence))
             {
-                m_MinimumPresence = Parameters["MinPresence"];
+                m_MinimumPresence = minPresence;
             }
 
-            if (Parameters.ContainsKey("ProteinInfo_ProteinCol"))
+            if (Parameters.TryGetValue("ProteinInfo_ProteinCol", out var proteinColumn))
             {
-                m_ProteinInfo_ProteinColumn = Parameters["ProteinInfo_ProteinCol"];
+                m_ProteinInfo_ProteinColumn = proteinColumn;
             }
 
-            if (Parameters.ContainsKey("Mode"))
+            if (Parameters.TryGetValue("Mode", out var mode))
             {
-                m_Mode = Parameters["Mode"];
+                m_Mode = mode;
             }
 
-            if (Parameters.ContainsKey("MinOverlap"))
+            if (Parameters.TryGetValue("MinOverlap", out var minOverlap))
             {
-                m_MinimumOverlap = Parameters["MinOverlap"];
+                m_MinimumOverlap = minOverlap;
             }
 
-            if (Parameters.ContainsKey("OneHitWonders"))
+            if (Parameters.TryGetValue("OneHitWonders", out var oneHitWonders))
             {
-                m_OneHitWonders = Parameters["OneHitWonders"];
+                m_OneHitWonders = oneHitWonders;
             }
 
-            if (Parameters.ContainsKey("GpValue"))
+            if (Parameters.TryGetValue("GpValue", out var gpValue))
             {
-                m_GrubbsPValue = Parameters["GpValue"];
+                m_GrubbsPValue = gpValue;
             }
 
-            if (Parameters.ContainsKey("GminPCount"))
+            // ReSharper disable once StringLiteralTypo
+            if (Parameters.TryGetValue("GminPCount", out var gMinPCount))
             {
-                m_GminPCount = Parameters["GminPCount"];
+                m_GminPCount = gMinPCount;
             }
 
-            if (Parameters.ContainsKey("Center"))
+            if (Parameters.TryGetValue("Center", out var center))
             {
-                m_Center = Parameters["Center"];
+                m_Center = center;
             }
 
             return successful;

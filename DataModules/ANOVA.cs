@@ -155,9 +155,9 @@ namespace Cyclops.DataModules
                 successful = false;
             }
 
-            if (Parameters.ContainsKey("RemovePeptideColumn"))
+            if (Parameters.TryGetValue("RemovePeptideColumn", out var parameter))
             {
-                m_RemoveFirstColumn = Convert.ToBoolean(Parameters["RemovePeptideColumn"]);
+                m_RemoveFirstColumn = Convert.ToBoolean(parameter);
             }
 
             // Get Random Effect if passed in

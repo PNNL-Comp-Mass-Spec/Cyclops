@@ -49,9 +49,9 @@ namespace Cyclops
         {
             Parameters = paramDictionary;
 
-            if (Parameters.ContainsKey("workDir"))
+            if (Parameters.TryGetValue("workDir", out var parameter))
             {
-                WorkingDirectory = Parameters["workDir"];
+                WorkingDirectory = parameter;
             }
         }
 
@@ -70,9 +70,9 @@ namespace Cyclops
             RegisterEvents(cyclops);
 
             if (string.IsNullOrEmpty(WorkingDirectory) &&
-                Parameters.ContainsKey("workDir"))
+                Parameters.TryGetValue("workDir", out var parameter))
             {
-                WorkingDirectory = Parameters["workDir"];
+                WorkingDirectory = parameter;
             }
 
             var successful = cyclops.ModuleLoader.ReadWorkflow();

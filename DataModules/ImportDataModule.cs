@@ -445,13 +445,13 @@ namespace Cyclops.DataModules
         private bool SetTableRowNames()
         {
             var successful = true;
-            if (Parameters.ContainsKey("rownames"))
+            if (Parameters.TryGetValue("rownames", out var parameter))
             {
                 var rCmd = string.Format(
                     "rownames({0}) <- {0}[,{1}]\n" +
                     "{0} <- {0}[,-{1}]",
                     Parameters[nameof(RequiredParameters.NewTableName)],
-                    Parameters["rownames"]);
+                    parameter);
 
                 try
                 {
@@ -465,6 +465,7 @@ namespace Cyclops.DataModules
                     successful = false;
                 }
             }
+
             return successful;
         }
 

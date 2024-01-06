@@ -127,9 +127,9 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (Parameters.ContainsKey("DatabaseFileName"))
+            if (Parameters.TryGetValue("DatabaseFileName", out var parameter))
             {
-                m_InputFileName = Parameters["DatabaseFileName"];
+                m_InputFileName = parameter;
             }
 
             m_SQLiteReader.DatabaseFileName = Path.Combine(Model.WorkDirectory, m_InputFileName);
