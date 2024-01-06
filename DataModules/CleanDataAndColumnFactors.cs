@@ -125,8 +125,7 @@ namespace Cyclops.DataModules
                 }
 
                 if (successful &&
-                    !Model.RCalls.ContainsObject(
-                    Parameters[nameof(RequiredParameters.InputTableName)]))
+                    !Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
                 {
                     Model.LogError("Error encountered: R work environment " +
                         "does not contain the 'InputTableName': " +
@@ -136,8 +135,7 @@ namespace Cyclops.DataModules
                 }
 
                 if (successful &&
-                    !Model.RCalls.ContainsObject(
-                    Parameters[nameof(RequiredParameters.FactorTable)]))
+                    !Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.FactorTable)]))
                 {
                     Model.LogError("Error encountered: R work environment " +
                         "does not contain the 'FactorTable': " +

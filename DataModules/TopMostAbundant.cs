@@ -120,8 +120,7 @@ namespace Cyclops.DataModules
 
             if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
-                Model.LogError("Error: R environment does not contain the " +
-                    "input table: " +
+                Model.LogError("Error: R environment does not contain the input table: " +
                     Parameters[nameof(RequiredParameters.InputTableName)],
                     ModuleName, StepNumber);
                 return false;

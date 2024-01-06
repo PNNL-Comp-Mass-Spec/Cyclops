@@ -129,11 +129,9 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.InputTableName)]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
-                Model.LogWarning("WARNING in RRollup: The R environment does " +
-                    "not contain the input table, " +
+                Model.LogWarning("WARNING in RRollup: The R environment does not contain the input table, " +
                     Parameters[nameof(RequiredParameters.InputTableName)]);
                 successful = false;
             }

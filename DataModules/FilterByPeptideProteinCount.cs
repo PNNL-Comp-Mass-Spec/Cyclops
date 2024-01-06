@@ -33,10 +33,10 @@ namespace Cyclops.DataModules
             InputTableName,
             NewRowMetadataTableName,
             RowMetadataTable,
-            ProteinColumn, // designates the protein column in the RowMetadataTable
-            PeptideColumn, // designates the peptides column in the RowMetadataTable (corresponds to the rownames in the T_Data table)
-            ProteinInfo_ProteinCol, // designates the protein count column in the RowMetadataTable
-            ProteinInfo_PeptideCol // designates the peptide count column in the RowMetadataTable
+            ProteinColumn,          // protein column in the RowMetadataTable
+            PeptideColumn,          // peptides column in the RowMetadataTable (corresponds to the row names in the T_Data table)
+            ProteinInfo_ProteinCol, // protein count column in the RowMetadataTable
+            ProteinInfo_PeptideCol  // peptide count column in the RowMetadataTable
         }
 
         /// <summary>
@@ -156,8 +156,7 @@ namespace Cyclops.DataModules
                     Parameters[nameof(RequiredParameters.RowMetadataTable)] +
                     ", does not contain the 'ProteinInfo_ProteinCol' column: " +
                     Parameters[nameof(RequiredParameters.ProteinInfo_ProteinCol)] +
-                    "! This column designates the protein count within the " +
-                    "RowMetadataTable.",
+                    "! This column designates the protein count within the RowMetadataTable.",
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -171,8 +170,7 @@ namespace Cyclops.DataModules
                     Parameters[nameof(RequiredParameters.RowMetadataTable)] +
                     ", does not contain the 'ProteinInfo_PeptideCol' column: " +
                     Parameters[nameof(RequiredParameters.ProteinInfo_PeptideCol)] +
-                    "! This column designates the peptide count within the " +
-                    "RowMetadataTable.",
+                    "! This column designates the peptide count within the RowMetadataTable.",
                     ModuleName, StepNumber);
                 successful = false;
             }
@@ -187,7 +185,7 @@ namespace Cyclops.DataModules
                     ", does not contain the 'PeptideColumn' column: " +
                     Parameters[nameof(RequiredParameters.PeptideColumn)] +
                     "! This column designates the peptide within the " +
-                    "RowMetadataTable, that correspond to the rownames in " +
+                    "RowMetadataTable, that correspond to the row names in " +
                     "the InputTableName (data table).",
                     ModuleName, StepNumber);
                 successful = false;
@@ -202,8 +200,7 @@ namespace Cyclops.DataModules
                     Parameters[nameof(RequiredParameters.RowMetadataTable)] +
                     ", does not contain the 'ProteinColumn' column: " +
                     Parameters[nameof(RequiredParameters.ProteinColumn)] +
-                    "! This column designates the proteins within the " +
-                    "RowMetadataTable.",
+                    "! This column designates the proteins within the RowMetadataTable.",
                     ModuleName, StepNumber);
                 successful = false;
             }

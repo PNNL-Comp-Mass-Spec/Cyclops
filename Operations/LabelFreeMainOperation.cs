@@ -47,10 +47,6 @@ namespace Cyclops.Operations
 
         #endregion
 
-        #region Properties
-
-        #endregion
-
         #region Constructors
         public LabelFreeMainOperation()
         {

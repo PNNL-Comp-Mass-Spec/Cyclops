@@ -29,9 +29,6 @@ namespace Cyclops.DataModules
             InputTableName, NewTableName
         }
 
-
-
-
         /// <summary>
         /// Generic constructor creating an Transform Module
         /// </summary>

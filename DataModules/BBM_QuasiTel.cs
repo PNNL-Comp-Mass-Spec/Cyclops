@@ -130,20 +130,16 @@ namespace Cyclops.DataModules
             //if (Parameters.ContainsKey("MergeColumn"))
             //    m_MergeColumn = Parameters["MergeColumn"];
 
-            if (!Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.InputTableName)]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
-                Model.LogWarning("R Environment does not contain the " +
-                    "specified input table: " +
+                Model.LogWarning("R Environment does not contain the specified input table: " +
                     Parameters[nameof(RequiredParameters.InputTableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
-            if (!Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.FactorTable)]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.FactorTable)]))
             {
-                Model.LogWarning("R Environment does not contain the " +
-                    "specified factor table: " +
+                Model.LogWarning("R Environment does not contain the specified factor table: " +
                     Parameters[nameof(RequiredParameters.FactorTable)],
                     ModuleName, StepNumber);
                 successful = false;

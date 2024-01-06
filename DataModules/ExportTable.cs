@@ -196,17 +196,15 @@ namespace Cyclops.DataModules
             switch (Parameters[nameof(RequiredParameters.Source)].ToUpper())
             {
                 case "R":
-                    if (Model.RCalls.ContainsObject(
-                        Parameters[nameof(RequiredParameters.TableName)]))
+                    if (Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.TableName)]))
                     {
                         return ExportFromR();
                     }
                     else
                     {
                         Model.LogWarning(string.Format("Warning encountered while " +
-                            "attempting to export table, {0}, from R workspace. " +
-                            "The table does not exist in the R environment!",
-                            Parameters[nameof(RequiredParameters.TableName)]),
+                                                       "attempting to export table, {0}, from R workspace. " +
+                                                       "The table does not exist in the R environment!", tableName),
                             ModuleName, StepNumber);
                     }
                     break;
@@ -288,8 +286,7 @@ namespace Cyclops.DataModules
         /// <returns>True, if the export is successful</returns>
         private bool ExportR_to_SQLite()
         {
-            var successful = Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.TableName)]);
+            var successful = Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.TableName)]);
 
             if (!successful)
             {

@@ -118,11 +118,9 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.InputTableName)]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
-                Model.LogWarning("WARNING in Linear Regression: The R environment does " +
-                    "not contain the input table, " +
+                Model.LogWarning("WARNING in Linear Regression: The R environment does not contain the input table, " +
                     Parameters[nameof(RequiredParameters.InputTableName)]);
                 successful = false;
             }
@@ -130,8 +128,7 @@ namespace Cyclops.DataModules
             // Check that the factorTable Exists
             if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.FactorTable)]))
             {
-                Model.LogError(string.Format("Error encountered in LinearRegression, " +
-                    "{0} factor table was not found in the R environment.",
+                Model.LogError(string.Format("Error encountered in LinearRegression, {0} factor table was not found in the R environment.",
                     Parameters[nameof(RequiredParameters.FactorTable)]),
                     ModuleName, StepNumber);
                 successful = false;

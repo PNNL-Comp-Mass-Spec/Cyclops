@@ -116,19 +116,15 @@ namespace Cyclops.DataModules
                 }
             }
 
-            if (!Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.XTable)]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.XTable)]))
             {
-                Model.LogError("ERROR R environment does not contain " +
-                    "the X table: " + Parameters[
+                Model.LogError("ERROR R environment does not contain the X table: " + Parameters[
                     nameof(RequiredParameters.XTable)]);
                 successful = false;
             }
-            if (!Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.YTable)]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.YTable)]))
             {
-                Model.LogError("ERROR R environment does not contain " +
-                    "the Y table: " + Parameters[
+                Model.LogError("ERROR R environment does not contain the Y table: " + Parameters[
                     nameof(RequiredParameters.YTable)]);
                 successful = false;
             }
@@ -136,8 +132,7 @@ namespace Cyclops.DataModules
                 Parameters[nameof(RequiredParameters.XTable)],
                 Parameters[nameof(RequiredParameters.XLink)]))
             {
-                Model.LogError("ERROR The X table does not contain " +
-                    "the column: " + Parameters[
+                Model.LogError("ERROR The X table does not contain the column: " + Parameters[
                     nameof(RequiredParameters.XLink)]);
                 successful = false;
             }
@@ -145,8 +140,7 @@ namespace Cyclops.DataModules
                 Parameters[nameof(RequiredParameters.YTable)],
                 Parameters[nameof(RequiredParameters.YLink)]))
             {
-                Model.LogError("ERROR The Y table does not contain " +
-                    "the column: " + Parameters[
+                Model.LogError("ERROR The Y table does not contain the column: " + Parameters[
                     nameof(RequiredParameters.YLink)]);
                 successful = false;
             }

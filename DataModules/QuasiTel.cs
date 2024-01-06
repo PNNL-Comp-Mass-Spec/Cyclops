@@ -123,31 +123,24 @@ namespace Cyclops.DataModules
                 m_MergeColumn = parameter;
             }
 
-            if (!Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.InputTableName)]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
-                Model.LogError("R Environment does not contain the " +
-                    "specified input table: " +
+                Model.LogError("R Environment does not contain the specified input table: " +
                     Parameters[nameof(RequiredParameters.InputTableName)],
                     ModuleName, StepNumber);
                 successful = false;
             }
-            if (!Model.RCalls.ContainsObject(
-                Parameters[nameof(RequiredParameters.FactorTable)]))
+            if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.FactorTable)]))
             {
-                Model.LogError("R Environment does not contain the " +
-                    "specified factor table: " +
+                Model.LogError("R Environment does not contain the specified factor table: " +
                     Parameters[nameof(RequiredParameters.FactorTable)],
                     ModuleName, StepNumber);
                 successful = false;
             }
-            if (!Model.RCalls.TableContainsColumn(
-                Parameters[nameof(RequiredParameters.FactorTable)],
+            if (!Model.RCalls.TableContainsColumn(Parameters[nameof(RequiredParameters.FactorTable)],
                 Parameters[nameof(RequiredParameters.Fixed_Effect)]))
             {
-                Model.LogError(string.Format(
-                    "Factor table ({0}) does not contain the specified " +
-                    "column ({1})",
+                Model.LogError(string.Format("Factor table ({0}) does not contain the specified column ({1})",
                     Parameters[nameof(RequiredParameters.FactorTable)],
                     Parameters[nameof(RequiredParameters.Fixed_Effect)]),
                     ModuleName, StepNumber);

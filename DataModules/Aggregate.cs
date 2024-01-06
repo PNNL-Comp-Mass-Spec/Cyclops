@@ -155,8 +155,7 @@ namespace Cyclops.DataModules
         {
             try
             {
-                if (Model.RCalls.ContainsObject(
-                    Parameters[nameof(RequiredParameters.InputTableName)]))
+                if (Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
                 {
                     // TODO : Make it work
                 }

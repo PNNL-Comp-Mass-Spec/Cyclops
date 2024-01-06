@@ -468,8 +468,7 @@ namespace Cyclops
                 else
                 {
                     Model.LogError("Error occurred while assembling modules:\n" +
-                                   moduleName + " module does not exist! Please check the " +
-                                   "version of Cyclops and reassemble your workflow");
+                                   moduleName + " module does not exist! Please check the version of Cyclops and reassemble your workflow");
                     return false;
                 }
             }

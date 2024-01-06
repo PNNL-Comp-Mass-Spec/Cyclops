@@ -149,9 +149,7 @@ namespace Cyclops.DataModules
 
             if (!Model.RCalls.ContainsObject(Parameters[nameof(RequiredParameters.InputTableName)]))
             {
-                Model.LogError("Error in ANOVA function: " +
-                    "the R environment does not contain the " +
-                    "selected input table, '" +
+                Model.LogError("Error in ANOVA function: the R environment does not contain the selected input table, '" +
                     Parameters[nameof(RequiredParameters.InputTableName)] +
                     "'.", ModuleName, StepNumber);
                 successful = false;
