@@ -17,6 +17,8 @@ namespace Cyclops.DataModules
 {
     public class RRollup : BaseDataModule
     {
+        // Ignore Spelling: Rollup
+
         private readonly string m_ModuleName = "RRollup";
         private readonly string m_Description = "";
         private string m_MinimumPresence = "1";

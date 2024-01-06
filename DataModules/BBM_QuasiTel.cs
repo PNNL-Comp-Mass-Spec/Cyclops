@@ -17,6 +17,8 @@ namespace Cyclops.DataModules
 {
     public class BBM_QuasiTel : BaseDataModule
     {
+        // Ignore Spelling: BBM
+
         private readonly string m_ModuleName = "BBM_QuasiTel";
         private readonly string m_Description = "";
 

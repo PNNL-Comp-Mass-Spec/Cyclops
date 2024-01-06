@@ -18,6 +18,8 @@ namespace Cyclops.DataModules
 {
     public class Heatmap : BaseDataModule
     {
+        // Ignore Spelling: Dendrogram, Heatmap
+
         private readonly string m_ModuleName = "Heatmap";
         private readonly string m_Description = "";
         private string m_PValueThreshold = "0.01";

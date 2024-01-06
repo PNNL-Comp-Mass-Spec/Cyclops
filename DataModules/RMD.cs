@@ -17,6 +17,8 @@ namespace Cyclops.DataModules
 {
     public class RMD : BaseDataModule
     {
+        // Ignore Spelling: RMD
+
         private readonly string m_ModuleName = "RMD";
         private readonly string m_Description = "";
 

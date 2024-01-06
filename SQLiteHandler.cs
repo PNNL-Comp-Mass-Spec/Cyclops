@@ -23,6 +23,8 @@ namespace Cyclops
     /// </summary>
     public class SQLiteHandler : DatabaseHandler
     {
+        // Ignore Spelling: sql
+
         private readonly string[] m_SQLiteKeywords = {
             "ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND",
             "AS", "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN",

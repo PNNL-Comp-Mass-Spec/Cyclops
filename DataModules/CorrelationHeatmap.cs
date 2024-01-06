@@ -18,6 +18,8 @@ namespace Cyclops.DataModules
 {
     public class CorrelationHeatmap : BaseDataModule
     {
+        // Ignore Spelling: Heatmap
+
         private readonly string m_ModuleName = "CorrelationHeatmap";
         private readonly string m_Description = "";
 

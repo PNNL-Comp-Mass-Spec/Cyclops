@@ -17,6 +17,8 @@ namespace Cyclops.Operations
 {
     public class iTRAQMainOperation : BaseOperationModule
     {
+        // Ignore Spelling: Traq
+
         public enum iTraqTypes { Standard };
 
         /// <summary>

@@ -17,6 +17,8 @@ namespace Cyclops.DataModules
 {
     public class ANOVA : BaseDataModule
     {
+        // Ignore Spelling: ANOVA
+
         private readonly string m_ModuleName = "ANOVA";
         private readonly string m_Description = "";
         private bool m_RemoveFirstColumn;

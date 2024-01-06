@@ -17,6 +17,8 @@ namespace Cyclops.Operations
 {
     public class LabelFreeMainOperation : BaseOperationModule
     {
+        // Ignore Spelling: LBF
+
         #region Enums
         /// <summary>
         /// Log2: Simple Log2 transformation, RRollup
