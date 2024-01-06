@@ -435,7 +435,8 @@ namespace Cyclops
             }
 
             var infoTable = new DataTable();
-            var sql = "SELECT * FROM sqlite_master WHERE type='table'";
+
+            const string sql = "SELECT * FROM sqlite_master WHERE type='table'";
 
             try
             {

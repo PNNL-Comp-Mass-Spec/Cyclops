@@ -167,7 +167,8 @@ namespace Cyclops.DataModules
 
             if (Directory.Exists(Model.WorkDirectory))
             {
-                var plotDirectory = "Plots";
+                const string plotDirectory = "Plots";
+
                 if (!Directory.Exists(plotDirectory))
                 {
                     Directory.CreateDirectory(plotDirectory);

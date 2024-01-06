@@ -145,7 +145,7 @@ namespace Cyclops.DataModules
         public bool SaveFunction()
         {
             bool successful;
-            var defaultOutputFileName = "Results.RData";
+            const string defaultOutputFileName = "Results.RData";
 
             try
             {
