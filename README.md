@@ -64,7 +64,7 @@ tab-delimited text files.
 
 Written by Joseph Brown for the Department of Energy (PNNL, Richland, WA) \
 E-mail: proteomics@pnnl.gov \
-Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://www.pnnl.gov/integrative-omics
 
 ## License
 
